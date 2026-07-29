@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Dashboard | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/staff/staff.css" />
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <div class="top-end">
+    <span class="who" id="who"></span>
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ranges" role="group" aria-label="Date range">
+    <button class="pill" data-range="today" aria-pressed="false">Today</button>
+    <button class="pill" data-range="7d" aria-pressed="true">7 days</button>
+    <button class="pill" data-range="30d" aria-pressed="false">30 days</button>
+    <button class="pill" data-range="all" aria-pressed="false">All time</button>
+  </div>
+
+  <div class="state" id="state">Loading…</div>
+
+  <div id="content" hidden>
+    <section class="panel" aria-labelledby="h-counters">
+      <h2 id="h-counters">Headline</h2>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="panel" aria-labelledby="h-funnel">
+        <h2 id="h-funnel">Form funnel</h2>
+        <div class="funnel" id="funnel"></div>
+        <h2 id="h-errors" style="margin-top:26px">Validation errors by field</h2>
+        <div id="form-errors"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-calls">
+        <h2 id="h-calls">Call log</h2>
+        <div id="calls"></div>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="h-sources">
+      <h2 id="h-sources">Sources by channel</h2>
+      <div id="src-channel"></div>
+      <h2 id="h-referrer" style="margin-top:26px">By referrer host</h2>
+      <div id="src-referrer"></div>
+      <h2 id="h-campaign" style="margin-top:26px">By UTM campaign</h2>
+      <div id="src-campaign"></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="panel" aria-labelledby="h-landing">
+        <h2 id="h-landing">Top landing pages</h2>
+        <div id="landing"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-devices">
+        <h2 id="h-devices">Devices</h2>
+        <div id="devices"></div>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="h-leads">
+      <h2 id="h-leads">Leads</h2>
+      <div class="top-end" style="margin-bottom:14px">
+        <button class="pill" data-stage="" aria-pressed="true">All</button>
+        <button class="pill" data-stage="complete" aria-pressed="false">Booked</button>
+        <button class="pill" data-stage="partial" aria-pressed="false">Partial</button>
+        <button class="btn btn--ghost btn--sm" id="csv">Export CSV</button>
+      </div>
+      <div id="leads"></div>
+      <div class="top-end" style="margin-top:14px">
+        <button class="btn btn--ghost btn--sm" id="prev">Previous</button>
+        <button class="btn btn--ghost btn--sm" id="next">Next</button>
+        <span class="who" id="page-info"></span>
+      </div>
+      <p class="panel-note">Click a row to see that visitor's full event timeline.</p>
+    </section>
+  </div>
+</main>
+
+<script src="/staff/ui.js"></script>
+<script src="/staff/dashboard.js"></script>
+</body>
+</html>

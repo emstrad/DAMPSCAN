@@ -1,0 +1,126 @@
+/**
+ * POST /api/lead
+ *
+ * Order matters: throttle, honeypot, validate, write, then notify. The database
+ * write is the commitment, so nothing after it is allowed to fail the request.
+ */
+import { query, queryOne } from '../lib/db.js';
+import { json, requireMethod, requireSameOrigin, readJson, ipHash, str } from '../lib/http.js';
+import { validateLead } from '../lib/validate.js';
+import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { sendLeadNotification } from '../lib/notify.js';
+
+export const config = { runtime: 'nodejs' };
+
+const UPSERT = `
+  insert into leads (
+    stage, first_name, email, postcode, phone, issues, role, previous_survey,
+    notes, session_id, source_path, referrer, utm, user_agent, ip_hash
+  ) values (
+    $1, $2, $3, $4, $5, $6::text[], $7, $8,
+    $9, $10::uuid, $11, $12, $13::jsonb, $14, $15
+  )
+  on conflict (session_id, stage) do update set
+    updated_at      = now(),
+    first_name      = excluded.first_name,
+    email           = excluded.email,
+    postcode        = excluded.postcode,
+    phone           = coalesce(excluded.phone, leads.phone),
+    issues          = case when cardinality(excluded.issues) > 0
+                             then excluded.issues else leads.issues end,
+    role            = coalesce(excluded.role, leads.role),
+    previous_survey = coalesce(excluded.previous_survey, leads.previous_survey),
+    notes           = coalesce(excluded.notes, leads.notes),
+    source_path     = coalesce(excluded.source_path, leads.source_path),
+    referrer        = coalesce(excluded.referrer, leads.referrer),
+    utm             = case when excluded.utm = '{}'::jsonb then leads.utm else excluded.utm end,
+    user_agent      = coalesce(excluded.user_agent, leads.user_agent),
+    ip_hash         = coalesce(excluded.ip_hash, leads.ip_hash)
+  returning id, notified_at, (xmax = 0) as inserted`;
+
+export default async function handler(req, res) {
+  if (!requireMethod(req, res, 'POST')) return;
+  if (!requireSameOrigin(req, res)) return;
+
+  const hash = ipHash(req);
+  const limit = await rateLimit({ ...LIMITS.lead, ipHash: hash });
+  if (!limit.ok) {
+    res.setHeader('Retry-After', String(LIMITS.lead.windowSeconds));
+    json(res, 429, { ok: false, error: 'too_many_requests' });
+    return;
+  }
+  pruneRateHits();
+
+  const body = await readJson(req);
+
+  // Honeypot. Silent success so a bot learns nothing from the response, and
+  // nothing at all is written.
+  if (str(body.honeypot, 200)) {
+    json(res, 200, { ok: true });
+    return;
+  }
+
+  const { ok, errors, value } = validateLead(body);
+  if (!ok) {
+    json(res, 400, { ok: false, errors });
+    return;
+  }
+
+  let row;
+  try {
+    row = await queryOne(UPSERT, [
+      value.stage,
+      value.firstName,
+      value.email,
+      value.postcode,
+      value.phone,
+      value.issues,
+      value.role,
+      value.previousSurvey,
+      value.notes,
+      value.sessionId,
+      value.sourcePath,
+      value.referrer,
+      JSON.stringify(value.utm || {}),
+      str(req.headers['user-agent'], 500),
+      hash
+    ]);
+  } catch (err) {
+    console.error('lead write failed:', err.message);
+    json(res, 500, { ok: false, error: 'write_failed' });
+    return;
+  }
+
+  const id = row.id;
+
+  // A booked survey is now attributable: stamp the lead onto every event this
+  // visitor generated, so the dashboard can credit the channel that produced it.
+  if (value.stage === 'complete') {
+    try {
+      await query('update events set lead_id = $1 where session_id = $2::uuid and lead_id is null', [
+        id,
+        value.sessionId
+      ]);
+    } catch (err) {
+      console.warn('event attribution back-fill failed:', err.message);
+    }
+  }
+
+  // Email is a convenience. Record the outcome and answer 200 either way.
+  if (row.inserted || !row.notified_at) {
+    const result = await sendLeadNotification(value, id);
+    try {
+      await query(
+        result.ok
+          ? 'update leads set notified_at = now(), notify_error = null where id = $1'
+          : 'update leads set notify_error = $2 where id = $1',
+        result.ok ? [id] : [id, String(result.error).slice(0, 1000)]
+      );
+    } catch (err) {
+      console.warn('could not record notification outcome:', err.message);
+    }
+    if (!result.ok) console.warn(`lead ${id} saved but not emailed: ${result.error}`);
+  }
+
+  json(res, 200, { ok: true, id });
+}

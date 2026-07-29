@@ -1,0 +1,10 @@
+node_modules/
+.vercel/
+.DS_Store
+*.log
+npm-debug.log*
+
+# Never commit real secrets. The documented template is the one exception.
+.env
+.env.*
+!.env.example

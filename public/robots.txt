@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /staff
+Disallow: /staff/
+
+Sitemap: https://dampscan.co.uk/sitemap.xml

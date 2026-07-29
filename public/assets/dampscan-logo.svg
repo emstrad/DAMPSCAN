@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="DampScan, Survey Specialists">
+  <rect width="1200" height="630" fill="#0c1a2b"/>
+  <g opacity="0.5">
+    <path d="M0 315h1200M600 0v630" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+  </g>
+  <g transform="translate(150 250)">
+    <path d="M46 0c14.6 17.9 23.4 30.4 23.4 41.3A23.4 23.4 0 0 1 46 64.6a23.4 23.4 0 0 1-23.4-23.3C22.6 30.4 31.4 17.9 46 0Z"
+          fill="none" stroke="#4fa8e8" stroke-width="6" stroke-linejoin="round"/>
+    <circle cx="46" cy="41" r="9" fill="#4fa8e8"/>
+    <path d="M53 48l10.5 10.5" stroke="#4fa8e8" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <text x="150" y="390" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="104"
+        font-weight="800" letter-spacing="-4" fill="#f5f8fc">DAMP<tspan fill="#4fa8e8">SCAN</tspan></text>
+  <text x="152" y="440" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="27"
+        font-weight="600" letter-spacing="11" fill="#7f8ea4">SURVEY SPECIALISTS</text>
+  <text x="152" y="510" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="31"
+        font-weight="500" fill="#aebbcc">Damp, mould and timber surveys, diagnosed properly.</text>
+</svg>

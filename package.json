@@ -1,0 +1,24 @@
+{
+  "name": "dampscan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DampScan marketing site, lead capture API and staff dashboard.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "migrate": "node db/migrate.js",
+    "create-user": "node db/create-user.js",
+    "set-user": "node db/set-user.js",
+    "test": "node --experimental-test-module-mocks --test"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
+    "@node-rs/argon2": "^2.0.2",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "pg": "^8.22.0"
+  }
+}
