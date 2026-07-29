@@ -1,12 +1,16 @@
 /**
  * POST /api/auth/login
  *
- * Unknown email and wrong password return the same message after doing the same
- * amount of work, so the response cannot be used to enumerate accounts.
+ * Single shared access code, no email and no password. The code itself lives in
+ * STAFF_ACCESS_CODE and is never committed: this repository is public, and the
+ * dashboard behind this endpoint holds customer names, emails, phone numbers,
+ * postcodes and free-text notes.
+ *
+ * A short numeric code has a small keyspace, so this route leans hard on the
+ * throttles below rather than on the code's strength.
  */
-import { randomUUID } from 'node:crypto';
-import { verify, Algorithm } from '@node-rs/argon2';
-import { query, queryOne } from '../../lib/db.js';
+import { randomUUID, createHash, timingSafeEqual } from 'node:crypto';
+import { query } from '../../lib/db.js';
 import { json, requireMethod, requireSameOrigin, readJson, ipHash, str } from '../../lib/http.js';
 import { issueSession } from '../../lib/session.js';
 import { countHits, recordHit, clearHits, pruneRateHits, LIMITS } from '../../lib/ratelimit.js';
@@ -14,15 +18,24 @@ import { deviceFor } from '../../lib/attribution.js';
 
 export const config = { runtime: 'nodejs' };
 
-const GENERIC_ERROR = 'Those details were not recognised.';
+const GENERIC_ERROR = 'That code was not recognised.';
+const MIN_CODE_LENGTH = 4;
 
 /**
- * A real argon2id hash of a random string nobody knows. When the email does not
- * exist we verify against this instead of returning early, so both paths cost
- * the same. Never a usable credential: no plaintext for it exists.
+ * Per-IP is not enough on its own here. Five tries per IP still lets a pool of
+ * addresses walk a four digit keyspace in hours, so failures are also counted
+ * across every address. The global ceiling is set high enough that one person
+ * mistyping cannot reach it.
  */
-const DECOY_HASH =
-  '$argon2id$v=19$m=19456,t=2,p=1$sukMhoU6OwO8DRt9hDawGA$Zxgm8/DRwkbzL73l0yqQGwJFPBl1foOggzqgJ3tX+0s';
+const GLOBAL_BUCKET = { bucket: 'login_global', ipHash: 'all' };
+const GLOBAL_LIMIT = 50;
+
+/** Constant-time comparison. Both sides are hashed first so lengths always match. */
+function codeMatches(submitted, expected) {
+  const a = createHash('sha256').update(String(submitted)).digest();
+  const b = createHash('sha256').update(String(expected)).digest();
+  return timingSafeEqual(a, b);
+}
 
 async function logAttempt(type, req, detail = {}) {
   try {
@@ -40,20 +53,35 @@ export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
   if (!requireSameOrigin(req, res)) return;
 
-  const hash = ipHash(req);
-  const bucket = { bucket: LIMITS.login.bucket, ipHash: hash };
+  const expected = process.env.STAFF_ACCESS_CODE || '';
 
-  // Fails closed. Without the database there is no password to check anyway.
+  // Fail closed. Without this an unset variable would let an empty submission
+  // compare equal to an empty expected value, which is an outright auth bypass.
+  if (expected.length < MIN_CODE_LENGTH) {
+    console.error('STAFF_ACCESS_CODE is unset or shorter than 4 characters, refusing all logins');
+    json(res, 503, { ok: false, error: 'Sign in is not configured.' });
+    return;
+  }
+
+  const hash = ipHash(req);
+  const perIp = { bucket: LIMITS.login.bucket, ipHash: hash };
+
+  // Fails closed: the throttle counters live in the database, and without them
+  // there is no way to bound guessing.
   let failures;
+  let globalFailures;
   try {
-    failures = await countHits({ ...bucket, windowSeconds: LIMITS.login.windowSeconds });
+    [failures, globalFailures] = await Promise.all([
+      countHits({ ...perIp, windowSeconds: LIMITS.login.windowSeconds }),
+      countHits({ ...GLOBAL_BUCKET, windowSeconds: LIMITS.login.windowSeconds })
+    ]);
   } catch (err) {
     console.error('login throttle check failed:', err.message);
     json(res, 503, { ok: false, error: 'Sign in is temporarily unavailable.' });
     return;
   }
 
-  if (failures >= LIMITS.login.limit) {
+  if (failures >= LIMITS.login.limit || globalFailures >= GLOBAL_LIMIT) {
     res.setHeader('Retry-After', String(LIMITS.login.windowSeconds));
     json(res, 429, { ok: false, error: 'Too many attempts. Try again in 15 minutes.' });
     return;
@@ -61,58 +89,18 @@ export default async function handler(req, res) {
   pruneRateHits();
 
   const body = await readJson(req);
-  const email = (str(body.email, 254) || '').toLowerCase();
-  const password = typeof body.password === 'string' ? body.password : '';
+  const submitted = str(body.code, 64) || '';
 
-  const reject = async () => {
-    await recordHit(bucket);
+  if (!submitted || !codeMatches(submitted, expected)) {
+    await Promise.all([recordHit(perIp), recordHit(GLOBAL_BUCKET)]);
     await logAttempt('staff_login_failed', req);
     json(res, 401, { ok: false, error: GENERIC_ERROR });
-  };
-
-  if (!email || !password) {
-    await reject();
     return;
   }
 
-  let user = null;
-  try {
-    user = await queryOne(
-      `select id, email, name, role, password_hash, disabled
-         from staff_users where lower(email) = $1`,
-      [email]
-    );
-  } catch (err) {
-    console.error('login lookup failed:', err.message);
-    json(res, 503, { ok: false, error: 'Sign in is temporarily unavailable.' });
-    return;
-  }
+  await Promise.all([clearHits(perIp), clearHits(GLOBAL_BUCKET)]);
+  await logAttempt('staff_login', req, { role: 'admin' });
 
-  // A disabled account behaves exactly like a missing one, including the work done.
-  const usable = user && !user.disabled;
-  let passwordOk = false;
-  try {
-    passwordOk = await verify(usable ? user.password_hash : DECOY_HASH, password, {
-      algorithm: Algorithm.Argon2id
-    });
-  } catch (err) {
-    console.warn('password verification error:', err.message);
-    passwordOk = false;
-  }
-
-  if (!usable || !passwordOk) {
-    await reject();
-    return;
-  }
-
-  try {
-    await query('update staff_users set last_login_at = now() where id = $1', [user.id]);
-  } catch (err) {
-    console.warn('could not stamp last_login_at:', err.message);
-  }
-  await clearHits(bucket);
-  await logAttempt('staff_login', req, { role: user.role });
-
-  issueSession(res, user);
-  json(res, 200, { ok: true, user: { email: user.email, name: user.name, role: user.role } });
+  issueSession(res, { id: 0, email: null, name: 'Staff', role: 'admin' });
+  json(res, 200, { ok: true });
 }

@@ -26,15 +26,12 @@
 
     <form id="login-form" novalidate>
       <div class="form-row">
-        <label for="email">Email address</label>
-        <input id="email" name="email" type="email" inputmode="email" autocomplete="username" required />
+        <label for="code">Access code</label>
+        <input id="code" name="code" type="password" inputmode="numeric" autocomplete="one-time-code"
+               autocapitalize="off" spellcheck="false" required />
       </div>
-      <div class="form-row">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required />
-      </div>
-      <!-- One generic message for every failure, so it never reveals whether an
-           address has an account. -->
+      <!-- One generic message for every failure, so a wrong code and a throttled
+           attempt are not distinguishable. -->
       <span class="err" id="error" role="alert"></span>
       <button type="submit" class="btn btn--primary btn--block" id="submit">Sign in</button>
     </form>
@@ -48,24 +45,23 @@
   const form = document.getElementById('login-form');
   const error = document.getElementById('error');
   const submit = document.getElementById('submit');
-  const email = document.getElementById('email');
-  const password = document.getElementById('password');
+  const code = document.getElementById('code');
 
   function fail(message){
     error.textContent = message;
     error.classList.add('is-shown');
     submit.disabled = false;
     submit.textContent = 'Sign in';
-    password.value = '';
-    password.focus();
+    code.value = '';
+    code.focus();
   }
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
     error.classList.remove('is-shown');
 
-    if (!email.value.trim() || !password.value) {
-      fail('Enter your email address and password.');
+    if (!code.value.trim()) {
+      fail('Enter your access code.');
       return;
     }
 
@@ -76,20 +72,20 @@
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ email: email.value.trim(), password: password.value })
+        body: JSON.stringify({ code: code.value.trim() })
       });
       if (res.ok) {
         location.replace('/staff/dashboard');
         return;
       }
       const body = await res.json().catch(function(){ return null; });
-      fail((body && body.error) || 'Those details were not recognised.');
+      fail((body && body.error) || 'That code was not recognised.');
     } catch (err) {
       fail('Could not reach the server. Check your connection and try again.');
     }
   });
 
-  email.focus();
+  code.focus();
 })();
 </script>
 </body>

@@ -21,6 +21,7 @@ const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL
 process.env.SESSION_SECRET = 'integration-test-secret-long-enough-x';
 process.env.IP_SALT = 'integration-test-salt';
 process.env.FORMSUBMIT_ENDPOINT = 'https://formsubmit.example.invalid/ajax/test';
+process.env.STAFF_ACCESS_CODE = '1290';
 
 const pool = new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 4 });
 
@@ -46,7 +47,6 @@ const login = (await import('../api/auth/login.js')).default;
 const logout = (await import('../api/auth/logout.js')).default;
 const summary = (await import('../api/admin/summary.js')).default;
 const leadsRoute = (await import('../api/admin/leads.js')).default;
-const { hash, Algorithm } = await import('@node-rs/argon2');
 
 /* ---------- minimal req/res doubles ---------- */
 function makeReq({ method = 'POST', url = '/', body, headers = {}, ip = '203.0.113.5' } = {}) {
@@ -272,19 +272,8 @@ test('event rate limit allows 60 then refuses', async () => {
 });
 
 /* ------------------------------------------------------------------ auth ---- */
-async function createStaff({ email = 'scott@damp-survey.com', password = 'correct-horse-battery', role = 'admin', disabled = false } = {}) {
-  const passwordHash = await hash(password, { algorithm: Algorithm.Argon2id });
-  const { rows } = await pool.query(
-    `insert into staff_users (email, password_hash, name, role, disabled)
-     values ($1,$2,$3,$4,$5) returning id`,
-    [email, passwordHash, 'Scott', role, disabled]
-  );
-  return rows[0].id;
-}
-
-test('correct password signs in and sets a hardened cookie', async () => {
-  await createStaff();
-  const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' } });
+test('the correct access code signs in and sets a hardened cookie', async () => {
+  const res = await call(login, { body: { code: '1290' } });
   assert.equal(res.statusCode, 200);
 
   const cookie = cookieHeader(res);
@@ -294,52 +283,84 @@ test('correct password signs in and sets a hardened cookie', async () => {
   assert.match(cookie, /SameSite=Lax/);
   assert.match(cookie, /Max-Age=28800/, '8 hour expiry');
 
-  const { rows } = await pool.query('select last_login_at from staff_users');
-  assert.ok(rows[0].last_login_at, 'last_login_at is stamped');
   const events = await pool.query(`select count(*)::int as n from events where type = 'staff_login'`);
   assert.equal(events.rows[0].n, 1);
 });
 
-test('unknown email and wrong password give the identical response', async () => {
-  await createStaff();
-  const wrongPassword = await call(login, { body: { email: 'scott@damp-survey.com', password: 'wrong' } });
-  const unknownEmail = await call(login, { body: { email: 'nobody@example.com', password: 'wrong' } });
-  assert.equal(wrongPassword.statusCode, 401);
-  assert.equal(unknownEmail.statusCode, 401);
-  assert.deepEqual(wrongPassword.json(), unknownEmail.json(), 'no account enumeration');
-  assert.equal(wrongPassword.getHeader('set-cookie'), undefined);
-});
-
-test('a disabled account cannot sign in', async () => {
-  await createStaff({ disabled: true });
-  const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' } });
+test('a wrong code is refused with a generic error and no cookie', async () => {
+  const res = await call(login, { body: { code: '9999' } });
   assert.equal(res.statusCode, 401);
+  assert.equal(res.json().error, 'That code was not recognised.');
+  assert.equal(cookieHeader(res), undefined);
+  const failed = await pool.query(`select count(*)::int as n from events where type = 'staff_login_failed'`);
+  assert.equal(failed.rows[0].n, 1);
 });
 
-test('6 wrong passwords in a row produce a 429', async () => {
-  await createStaff();
+test('a missing or empty code is refused', async () => {
+  assert.equal((await call(login, { body: {} })).statusCode, 401);
+  assert.equal((await call(login, { body: { code: '' } })).statusCode, 401);
+  assert.equal((await call(login, { body: { code: '   ' } })).statusCode, 401);
+});
+
+test('a near-miss code is refused', async () => {
+  for (const code of ['129', '12900', '1291', ' 1290x', 'abcd']) {
+    const res = await call(login, { body: { code } });
+    assert.equal(res.statusCode, 401, `"${code}" must not sign in`);
+  }
+});
+
+test('an unconfigured code refuses everything, including an empty submission', async () => {
+  // Regression: hashing both sides means an unset variable would otherwise let
+  // an empty submission compare equal to an empty expected value.
+  const saved = process.env.STAFF_ACCESS_CODE;
+  try {
+    delete process.env.STAFF_ACCESS_CODE;
+    assert.equal((await call(login, { body: { code: '' } })).statusCode, 503);
+    assert.equal((await call(login, { body: {} })).statusCode, 503);
+    process.env.STAFF_ACCESS_CODE = '123';   // under the 4 character floor
+    assert.equal((await call(login, { body: { code: '123' } })).statusCode, 503);
+  } finally {
+    process.env.STAFF_ACCESS_CODE = saved;
+  }
+});
+
+test('6 wrong codes in a row from one address produce a 429', async () => {
   const statuses = [];
   for (let i = 0; i < 6; i += 1) {
-    const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'wrong' }, ip: '198.51.100.30' });
+    const res = await call(login, { body: { code: '9999' }, ip: '198.51.100.30' });
     statuses.push(res.statusCode);
   }
   assert.deepEqual(statuses, [401, 401, 401, 401, 401, 429]);
 
-  // Even the correct password is refused while the throttle is active.
-  const blocked = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' }, ip: '198.51.100.30' });
+  // The correct code is refused too while the throttle is active.
+  const blocked = await call(login, { body: { code: '1290' }, ip: '198.51.100.30' });
   assert.equal(blocked.statusCode, 429);
-  const failures = await pool.query(`select count(*)::int as n from events where type = 'staff_login_failed'`);
-  assert.equal(failures.rows[0].n, 5, 'the throttled attempt is not counted twice');
+});
+
+test('a global ceiling stops a rotating pool of addresses walking the keyspace', async () => {
+  // 4 failures each from 13 different addresses stays under the per-IP limit of
+  // 5 every time, but crosses the global ceiling of 50.
+  let sawGlobalBlock = false;
+  for (let host = 0; host < 13 && !sawGlobalBlock; host += 1) {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const res = await call(login, { body: { code: '9999' }, ip: `198.51.101.${host}` });
+      if (res.statusCode === 429) { sawGlobalBlock = true; break; }
+    }
+  }
+  assert.ok(sawGlobalBlock, 'distributed guessing must eventually be refused');
+
+  // A fresh address is blocked as well, which is the point of a global counter.
+  const fresh = await call(login, { body: { code: '1290' }, ip: '203.0.113.99' });
+  assert.equal(fresh.statusCode, 429);
 });
 
 test('a successful sign in clears earlier failures', async () => {
-  await createStaff();
   for (let i = 0; i < 3; i += 1) {
-    await call(login, { body: { email: 'scott@damp-survey.com', password: 'wrong' }, ip: '198.51.100.31' });
+    await call(login, { body: { code: '9999' }, ip: '198.51.100.31' });
   }
-  const ok = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' }, ip: '198.51.100.31' });
+  const ok = await call(login, { body: { code: '1290' }, ip: '198.51.100.31' });
   assert.equal(ok.statusCode, 200);
-  const { rows } = await pool.query(`select count(*)::int as n from rate_hits where bucket = 'login'`);
+  const { rows } = await pool.query(`select count(*)::int as n from rate_hits where bucket like 'login%'`);
   assert.equal(rows[0].n, 0);
 });
 
@@ -351,8 +372,7 @@ test('logout clears the cookie', async () => {
 
 /* ----------------------------------------------------------------- admin ---- */
 async function signedInCookie() {
-  await createStaff();
-  const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' } });
+  const res = await call(login, { body: { code: '1290' } });
   return cookieHeader(res).split(';')[0];
 }
 
