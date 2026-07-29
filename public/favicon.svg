@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DampScan">
+  <rect width="64" height="64" rx="14" fill="#0c1a2b"/>
+  <path d="M32 12c7.5 9.2 12 15.6 12 21.2A12 12 0 0 1 32 45.4a12 12 0 0 1-12-12.2C20 27.6 24.5 21.2 32 12Z"
+        fill="none" stroke="#4fa8e8" stroke-width="3.4" stroke-linejoin="round"/>
+  <circle cx="32" cy="33" r="4.6" fill="#4fa8e8"/>
+  <path d="M35.6 36.6 41 42" stroke="#4fa8e8" stroke-width="3.4" stroke-linecap="round"/>
+</svg>

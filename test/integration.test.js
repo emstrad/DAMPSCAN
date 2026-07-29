@@ -1,0 +1,434 @@
+/**
+ * End-to-end tests for the /api handlers.
+ *
+ * lib/db.js is swapped for a plain `pg` client pointed at a local Postgres, so
+ * the real handlers run the real SQL against a real database. Everything else,
+ * validation, throttling, sessions, notification handling, is the shipping code.
+ *
+ *   npm test
+ *
+ * Needs a local Postgres with db/schema.sql applied. See README, "Running the
+ * tests". Never point TEST_DATABASE_URL at production: each run truncates.
+ */
+import { test, before, beforeEach, after, mock } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import pg from 'pg';
+
+const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL
+  || 'postgresql://dampscan@127.0.0.1:55432/dampscan';
+
+process.env.SESSION_SECRET = 'integration-test-secret-long-enough-x';
+process.env.IP_SALT = 'integration-test-salt';
+process.env.FORMSUBMIT_ENDPOINT = 'https://formsubmit.example.invalid/ajax/test';
+
+const pool = new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 4 });
+
+// Swap the Neon client for pg. Must happen before any handler is imported.
+mock.module('../lib/db.js', {
+  namedExports: {
+    sql: () => { throw new Error('not used in tests'); },
+    query: async (text, params = []) => (await pool.query(text, params)).rows,
+    queryOne: async (text, params = []) => {
+      const { rows } = await pool.query(text, params);
+      return rows.length ? rows[0] : null;
+    },
+    ping: async () => {
+      try { return (await pool.query('select 1 as ok')).rows[0].ok === 1; } catch { return false; }
+    }
+  }
+});
+
+const lead = (await import('../api/lead.js')).default;
+const event = (await import('../api/event.js')).default;
+const health = (await import('../api/health.js')).default;
+const login = (await import('../api/auth/login.js')).default;
+const logout = (await import('../api/auth/logout.js')).default;
+const summary = (await import('../api/admin/summary.js')).default;
+const leadsRoute = (await import('../api/admin/leads.js')).default;
+const { hash, Algorithm } = await import('@node-rs/argon2');
+
+/* ---------- minimal req/res doubles ---------- */
+function makeReq({ method = 'POST', url = '/', body, headers = {}, ip = '203.0.113.5' } = {}) {
+  return {
+    method,
+    url,
+    headers: { host: 'dampscan.co.uk', 'x-forwarded-for': ip, 'user-agent': 'Mozilla/5.0 (iPhone) Mobile', ...headers },
+    body,
+    socket: { remoteAddress: ip }
+  };
+}
+
+function makeRes() {
+  const res = {
+    statusCode: 200,
+    headers: {},
+    body: undefined,
+    writableEnded: false,
+    setHeader(k, v) { this.headers[k.toLowerCase()] = v; },
+    getHeader(k) { return this.headers[k.toLowerCase()]; },
+    end(payload) { this.writableEnded = true; this.body = payload; }
+  };
+  res.json = () => (res.body ? JSON.parse(res.body) : null);
+  return res;
+}
+
+async function call(handler, reqInit) {
+  const req = makeReq(reqInit);
+  const res = makeRes();
+  await handler(req, res);
+  return res;
+}
+
+/** Set-Cookie may be a string or an array depending on the header count. */
+function cookieHeader(res) {
+  const raw = res.getHeader('set-cookie');
+  if (raw === undefined) return undefined;
+  return Array.isArray(raw) ? raw.join('; ') : String(raw);
+}
+
+const SID_A = '11111111-1111-4111-8111-111111111111';
+const SID_B = '22222222-2222-4222-8222-222222222222';
+
+const validLead = (over = {}) => ({
+  stage: 'complete', sessionId: SID_A, firstName: 'Priya', email: 'priya@example.com',
+  postcode: 'se1 2ab', phone: '07700 900123', issues: ['Damp', 'Mould'],
+  role: 'Homeowner', previousSurvey: true, notes: 'Upstairs bathroom',
+  sourcePath: '/', referrer: 'https://www.google.com/', utm: { utm_source: 'google', utm_medium: 'cpc' },
+  ...over
+});
+
+before(async () => {
+  const schema = await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8');
+  await pool.query(schema);
+  // FormSubmit is never really called. Every test asserts on notify_error or
+  // notified_at instead, so no test depends on the network.
+  globalThis.fetch = async () => ({ ok: true, status: 200, text: async () => '', json: async () => ({}) });
+});
+
+beforeEach(async () => {
+  await pool.query('truncate leads, events, rate_hits, staff_users restart identity cascade');
+});
+
+after(async () => { await pool.end(); });
+
+/* ---------------------------------------------------------------- health ---- */
+test('health reports db true', async () => {
+  const res = await call(health, { method: 'GET' });
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.json(), { ok: true, db: true });
+});
+
+test('health rejects POST with 405', async () => {
+  const res = await call(health, { method: 'POST' });
+  assert.equal(res.statusCode, 405);
+  assert.equal(res.getHeader('allow'), 'GET');
+});
+
+/* ------------------------------------------------------------------ lead ---- */
+test('complete lead is written, normalised and answered with an id', async () => {
+  const res = await call(lead, { body: validLead() });
+  assert.equal(res.statusCode, 200);
+  const out = res.json();
+  assert.equal(out.ok, true);
+  assert.ok(out.id);
+
+  const { rows } = await pool.query('select * from leads where id = $1', [out.id]);
+  assert.equal(rows[0].postcode, 'SE1 2AB', 'postcode is uppercased and spaced');
+  assert.equal(rows[0].email, 'priya@example.com');
+  assert.deepEqual(rows[0].issues, ['Damp', 'Mould']);
+  assert.equal(rows[0].previous_survey, true);
+  assert.equal(rows[0].stage, 'complete');
+  assert.equal(rows[0].ip_hash.length, 64, 'ip is hashed, not stored raw');
+  assert.ok(!String(rows[0].ip_hash).includes('203.0.113'), 'raw ip must never appear');
+});
+
+test('partial then complete on one session reconcile to two rows, one booking', async () => {
+  await call(lead, { body: validLead({ stage: 'partial', issues: [], role: null, previousSurvey: null }) });
+  await call(lead, { body: validLead({ stage: 'complete' }) });
+
+  const { rows } = await pool.query(
+    `select stage from leads where session_id = $1 order by stage`, [SID_A]
+  );
+  assert.deepEqual(rows.map((r) => r.stage), ['complete', 'partial']);
+});
+
+test('resubmitting the same stage updates rather than duplicating', async () => {
+  const first = (await call(lead, { body: validLead() })).json();
+  const second = (await call(lead, { body: validLead({ notes: 'Changed my mind' }) })).json();
+  assert.equal(first.id, second.id, 'same row, upserted on (session_id, stage)');
+
+  const { rows } = await pool.query('select count(*)::int as n from leads');
+  assert.equal(rows[0].n, 1);
+});
+
+test('honeypot returns 200 and writes nothing at all', async () => {
+  const res = await call(lead, { body: validLead({ honeypot: 'i-am-a-bot' }) });
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.json(), { ok: true }, 'silent success, so bots learn nothing');
+
+  const { rows } = await pool.query('select count(*)::int as n from leads');
+  assert.equal(rows[0].n, 0);
+});
+
+test('invalid fields return 400 with a field-keyed error object', async () => {
+  const res = await call(lead, {
+    body: validLead({ email: 'not-an-email', postcode: 'ZZZ', firstName: '', issues: ['Haunted'], role: 'Wizard' })
+  });
+  assert.equal(res.statusCode, 400);
+  const errors = res.json().errors;
+  assert.ok(errors.email && errors.postcode && errors.firstName && errors.issues && errors.role);
+  // Messages match the static copy already in index.html.
+  assert.equal(errors.email, 'Please enter a valid email address.');
+  assert.equal(errors.firstName, 'Please enter your first name.');
+
+  const { rows } = await pool.query('select count(*)::int as n from leads');
+  assert.equal(rows[0].n, 0, 'nothing is written on a validation failure');
+});
+
+test('rate limit: 8 leads allowed, the 9th is refused', async () => {
+  const statuses = [];
+  for (let i = 0; i < 10; i += 1) {
+    const res = await call(lead, {
+      body: validLead({ sessionId: `3333333${i}-3333-4333-8333-333333333333` }),
+      ip: '198.51.100.7'
+    });
+    statuses.push(res.statusCode);
+  }
+  assert.deepEqual(statuses.slice(0, 8), Array(8).fill(200));
+  assert.equal(statuses[8], 429);
+  assert.equal(statuses[9], 429);
+});
+
+test('rate limit is per address, so one visitor cannot lock out another', async () => {
+  for (let i = 0; i < 9; i += 1) {
+    await call(lead, { body: validLead({ sessionId: `4444444${i}-4444-4444-8444-444444444444` }), ip: '198.51.100.8' });
+  }
+  const other = await call(lead, { body: validLead({ sessionId: SID_B }), ip: '198.51.100.9' });
+  assert.equal(other.statusCode, 200);
+});
+
+test('a failing notification is recorded but never fails the request', async () => {
+  globalThis.fetch = async () => ({ ok: false, status: 500, text: async () => 'boom' });
+  const res = await call(lead, { body: validLead() });
+  assert.equal(res.statusCode, 200, 'the database is the source of truth, email is a convenience');
+
+  const { rows } = await pool.query('select notified_at, notify_error from leads where id = $1', [res.json().id]);
+  assert.equal(rows[0].notified_at, null);
+  assert.match(rows[0].notify_error, /FormSubmit 500/);
+  globalThis.fetch = async () => ({ ok: true, status: 200, text: async () => '', json: async () => ({}) });
+});
+
+test('a booking back-fills lead_id onto that session\'s earlier events', async () => {
+  await call(event, { body: { sessionId: SID_A, type: 'page_view' } });
+  await call(event, { body: { sessionId: SID_A, type: 'call_click', detail: { placement: 'header' } } });
+  const { id } = (await call(lead, { body: validLead() })).json();
+
+  const { rows } = await pool.query('select count(*)::int as n from events where lead_id = $1', [id]);
+  assert.equal(rows[0].n, 2, 'the channel that produced the booking is now attributable');
+});
+
+test('lead rejects GET and cross-origin POST', async () => {
+  assert.equal((await call(lead, { method: 'GET' })).statusCode, 405);
+  const cross = await call(lead, { body: validLead(), headers: { origin: 'https://evil.example' } });
+  assert.equal(cross.statusCode, 403);
+});
+
+/* ----------------------------------------------------------------- event ---- */
+test('event is stored with server-derived channel and device', async () => {
+  const res = await call(event, {
+    body: {
+      sessionId: SID_A, type: 'call_click', detail: { placement: 'header', secret: 'dropme' },
+      path: '/', referrer: 'https://www.google.com/', utm: { utm_medium: 'cpc', utm_campaign: 'damp-london' },
+      landingPage: '/?utm_medium=cpc'
+    }
+  });
+  assert.equal(res.statusCode, 204);
+
+  const { rows } = await pool.query('select * from events where session_id = $1', [SID_A]);
+  assert.equal(rows[0].channel, 'paid', 'derived from utm_medium, not trusted from the client');
+  assert.equal(rows[0].device, 'mobile', 'derived from the user agent');
+  assert.deepEqual(rows[0].detail, { placement: 'header' }, 'unknown detail keys are stripped');
+});
+
+test('event rejects a type outside the allow-list', async () => {
+  const res = await call(event, { body: { sessionId: SID_A, type: 'exfiltrate' } });
+  assert.equal(res.statusCode, 400);
+  const { rows } = await pool.query('select count(*)::int as n from events');
+  assert.equal(rows[0].n, 0);
+});
+
+test('event rejects a malformed session id', async () => {
+  assert.equal((await call(event, { body: { sessionId: 'nope', type: 'page_view' } })).statusCode, 400);
+});
+
+test('event rate limit allows 60 then refuses', async () => {
+  for (let i = 0; i < 60; i += 1) {
+    const res = await call(event, { body: { sessionId: SID_A, type: 'page_view' }, ip: '198.51.100.20' });
+    assert.equal(res.statusCode, 204, `request ${i + 1} should pass`);
+  }
+  const over = await call(event, { body: { sessionId: SID_A, type: 'page_view' }, ip: '198.51.100.20' });
+  assert.equal(over.statusCode, 429);
+});
+
+/* ------------------------------------------------------------------ auth ---- */
+async function createStaff({ email = 'scott@damp-survey.com', password = 'correct-horse-battery', role = 'admin', disabled = false } = {}) {
+  const passwordHash = await hash(password, { algorithm: Algorithm.Argon2id });
+  const { rows } = await pool.query(
+    `insert into staff_users (email, password_hash, name, role, disabled)
+     values ($1,$2,$3,$4,$5) returning id`,
+    [email, passwordHash, 'Scott', role, disabled]
+  );
+  return rows[0].id;
+}
+
+test('correct password signs in and sets a hardened cookie', async () => {
+  await createStaff();
+  const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' } });
+  assert.equal(res.statusCode, 200);
+
+  const cookie = cookieHeader(res);
+  assert.match(cookie, /^ds_staff=/);
+  assert.match(cookie, /HttpOnly/);
+  assert.match(cookie, /Secure/);
+  assert.match(cookie, /SameSite=Lax/);
+  assert.match(cookie, /Max-Age=28800/, '8 hour expiry');
+
+  const { rows } = await pool.query('select last_login_at from staff_users');
+  assert.ok(rows[0].last_login_at, 'last_login_at is stamped');
+  const events = await pool.query(`select count(*)::int as n from events where type = 'staff_login'`);
+  assert.equal(events.rows[0].n, 1);
+});
+
+test('unknown email and wrong password give the identical response', async () => {
+  await createStaff();
+  const wrongPassword = await call(login, { body: { email: 'scott@damp-survey.com', password: 'wrong' } });
+  const unknownEmail = await call(login, { body: { email: 'nobody@example.com', password: 'wrong' } });
+  assert.equal(wrongPassword.statusCode, 401);
+  assert.equal(unknownEmail.statusCode, 401);
+  assert.deepEqual(wrongPassword.json(), unknownEmail.json(), 'no account enumeration');
+  assert.equal(wrongPassword.getHeader('set-cookie'), undefined);
+});
+
+test('a disabled account cannot sign in', async () => {
+  await createStaff({ disabled: true });
+  const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' } });
+  assert.equal(res.statusCode, 401);
+});
+
+test('6 wrong passwords in a row produce a 429', async () => {
+  await createStaff();
+  const statuses = [];
+  for (let i = 0; i < 6; i += 1) {
+    const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'wrong' }, ip: '198.51.100.30' });
+    statuses.push(res.statusCode);
+  }
+  assert.deepEqual(statuses, [401, 401, 401, 401, 401, 429]);
+
+  // Even the correct password is refused while the throttle is active.
+  const blocked = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' }, ip: '198.51.100.30' });
+  assert.equal(blocked.statusCode, 429);
+  const failures = await pool.query(`select count(*)::int as n from events where type = 'staff_login_failed'`);
+  assert.equal(failures.rows[0].n, 5, 'the throttled attempt is not counted twice');
+});
+
+test('a successful sign in clears earlier failures', async () => {
+  await createStaff();
+  for (let i = 0; i < 3; i += 1) {
+    await call(login, { body: { email: 'scott@damp-survey.com', password: 'wrong' }, ip: '198.51.100.31' });
+  }
+  const ok = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' }, ip: '198.51.100.31' });
+  assert.equal(ok.statusCode, 200);
+  const { rows } = await pool.query(`select count(*)::int as n from rate_hits where bucket = 'login'`);
+  assert.equal(rows[0].n, 0);
+});
+
+test('logout clears the cookie', async () => {
+  const res = await call(logout, {});
+  assert.equal(res.statusCode, 200);
+  assert.match(cookieHeader(res), /ds_staff=;.*Max-Age=0/);
+});
+
+/* ----------------------------------------------------------------- admin ---- */
+async function signedInCookie() {
+  await createStaff();
+  const res = await call(login, { body: { email: 'scott@damp-survey.com', password: 'correct-horse-battery' } });
+  return cookieHeader(res).split(';')[0];
+}
+
+test('admin routes are 401 without a session', async () => {
+  assert.equal((await call(summary, { method: 'GET', url: '/api/admin/summary' })).statusCode, 401);
+  assert.equal((await call(leadsRoute, { method: 'GET', url: '/api/admin/leads' })).statusCode, 401);
+});
+
+test('admin routes reject a tampered cookie', async () => {
+  const cookie = await signedInCookie();
+  const tampered = cookie.slice(0, -2) + 'AA';
+  const res = await call(summary, { method: 'GET', url: '/api/admin/summary', headers: { cookie: tampered } });
+  assert.equal(res.statusCode, 401);
+});
+
+test('summary returns the expected shape and counts', async () => {
+  const cookie = await signedInCookie();
+  await call(event, { body: { sessionId: SID_A, type: 'page_view', referrer: 'https://www.google.com/', utm: { utm_medium: 'cpc' } } });
+  await call(event, { body: { sessionId: SID_A, type: 'form_step', detail: { step: 1 } } });
+  await call(event, { body: { sessionId: SID_A, type: 'call_click', detail: { placement: 'header' } } });
+  await call(lead, { body: validLead({ stage: 'partial' }) });
+  await call(lead, { body: validLead({ stage: 'complete' }) });
+
+  const res = await call(summary, { method: 'GET', url: '/api/admin/summary?range=7d', headers: { cookie } });
+  assert.equal(res.statusCode, 200);
+  const data = res.json();
+  assert.equal(data.counters.pageViews, 1);
+  // Regression: the staff_login event written by signedInCookie() shares the
+  // events table but is not a visit, so it must not show up as a session.
+  assert.equal(data.counters.sessions, 1);
+  assert.equal(data.counters.callClicks, 1);
+  assert.equal(data.counters.partials, 1);
+  assert.equal(data.counters.bookings, 1);
+  assert.equal(data.counters.partialToComplete, 100);
+  assert.equal(data.funnel.step1, 1);
+  assert.ok(Array.isArray(data.sources.byChannel));
+  assert.equal(data.sources.byChannel[0].bookings, 1);
+  assert.equal(data.sources.byChannel[0].bookingRate, 100);
+});
+
+test('summary range is whitelisted, a junk value falls back to 7d', async () => {
+  const cookie = await signedInCookie();
+  const res = await call(summary, {
+    method: 'GET', url: "/api/admin/summary?range=all'; drop table leads; --", headers: { cookie }
+  });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.json().range, '7d');
+  const { rows } = await pool.query(`select count(*)::int as n from information_schema.tables where table_name = 'leads'`);
+  assert.equal(rows[0].n, 1, 'leads table still exists');
+});
+
+test('leads route paginates, filters by stage and attaches timelines', async () => {
+  const cookie = await signedInCookie();
+  await call(event, { body: { sessionId: SID_A, type: 'page_view', referrer: 'https://www.google.com/' } });
+  await call(event, { body: { sessionId: SID_A, type: 'call_click', detail: { placement: 'footer' } } });
+  await call(lead, { body: validLead({ stage: 'partial' }) });
+  await call(lead, { body: validLead({ stage: 'complete' }) });
+
+  const all = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=7d', headers: { cookie } })).json();
+  assert.equal(all.total, 2);
+  assert.equal(all.leads.length, 2);
+  assert.equal(all.leads[0].timeline.length, 2, 'session timeline is attached');
+  assert.equal(all.leads[0].channel, 'organic', 'attribution comes from the first event of the session');
+  assert.equal(all.leads[0].previousSurvey, true);
+
+  const booked = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=7d&stage=complete', headers: { cookie } })).json();
+  assert.equal(booked.total, 1);
+  assert.equal(booked.leads[0].stage, 'complete');
+
+  const paged = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=7d&limit=1&offset=1', headers: { cookie } })).json();
+  assert.equal(paged.leads.length, 1);
+  assert.equal(paged.offset, 1);
+});
+
+test('leads limit is capped so one request cannot pull everything', async () => {
+  const cookie = await signedInCookie();
+  const res = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?limit=99999', headers: { cookie } })).json();
+  assert.equal(res.limit, 200);
+});

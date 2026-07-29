@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Staff login | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/staff/staff.css" />
+</head>
+<body>
+<main class="login-wrap">
+  <div class="login-card">
+    <a href="/" class="logo" aria-label="DampScan home">
+      <span class="logo-type">
+        <span class="logo-word">Damp<span class="scan">Scan</span></span>
+        <span class="logo-tag">Survey Specialists</span>
+      </span>
+    </a>
+
+    <h1>Staff login</h1>
+
+    <form id="login-form" novalidate>
+      <div class="form-row">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="username" required />
+      </div>
+      <div class="form-row">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+      </div>
+      <!-- One generic message for every failure, so it never reveals whether an
+           address has an account. -->
+      <span class="err" id="error" role="alert"></span>
+      <button type="submit" class="btn btn--primary btn--block" id="submit">Sign in</button>
+    </form>
+
+    <p class="login-foot">Authorised staff only. All sign in attempts are logged.</p>
+  </div>
+</main>
+
+<script>
+(function login(){
+  const form = document.getElementById('login-form');
+  const error = document.getElementById('error');
+  const submit = document.getElementById('submit');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+
+  function fail(message){
+    error.textContent = message;
+    error.classList.add('is-shown');
+    submit.disabled = false;
+    submit.textContent = 'Sign in';
+    password.value = '';
+    password.focus();
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    error.classList.remove('is-shown');
+
+    if (!email.value.trim() || !password.value) {
+      fail('Enter your email address and password.');
+      return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = 'Signing in…';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email: email.value.trim(), password: password.value })
+      });
+      if (res.ok) {
+        location.replace('/staff/dashboard');
+        return;
+      }
+      const body = await res.json().catch(function(){ return null; });
+      fail((body && body.error) || 'Those details were not recognised.');
+    } catch (err) {
+      fail('Could not reach the server. Check your connection and try again.');
+    }
+  });
+
+  email.focus();
+})();
+</script>
+</body>
+</html>
