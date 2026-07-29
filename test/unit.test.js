@@ -134,14 +134,40 @@ test('event detail is capped at 1KB', () => {
   assert.ok(out.placement.length <= 120);
 });
 
+/**
+ * Changes the last character of a string, guaranteed to differ from the input.
+ *
+ * Replacing it with a fixed letter is not safe: a 43 character base64url string
+ * (32 bytes plus 2 padding bits) has only 16 possible final characters, so a
+ * signature ending in that letter would be "tampered" into itself and the token
+ * would verify correctly, failing the test about 1 run in 16.
+ */
+function tamper(value) {
+  return value.slice(0, -1) + (value.endsWith('A') ? 'B' : 'A');
+}
+
 test('session cookie round-trips and rejects tampering', () => {
   const token = signSession({ sub: 1, email: 'a@b.co', role: 'admin', exp: Math.floor(Date.now() / 1000) + 60 });
   assert.equal(verifySession(token).email, 'a@b.co');
   const [body, sig] = token.split('.');
+
   assert.equal(verifySession(`${body}x.${sig}`), null, 'edited payload must fail');
-  assert.equal(verifySession(`${body}.${sig.slice(0, -1)}A`), null, 'edited signature must fail');
+
+  const badSig = tamper(sig);
+  // Assert the precondition, so this can never silently test an unchanged token again.
+  assert.notEqual(badSig, sig, 'the tamper must actually change the signature');
+  assert.equal(verifySession(`${body}.${badSig}`), null, 'edited signature must fail');
+
   assert.equal(verifySession('garbage'), null);
   assert.equal(verifySession(undefined), null);
+});
+
+test('tamper() always changes its input, for every base64url final character', () => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  for (const ch of alphabet) {
+    const s = `prefix${ch}`;
+    assert.notEqual(tamper(s), s, `tamper failed to change a string ending in "${ch}"`);
+  }
 });
 
 test('expired session is rejected', () => {
