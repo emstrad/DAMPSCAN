@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# A newer push to the same branch makes an in-flight run redundant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Schema and tests
+    runs-on: ubuntu-latest
+
+    # Real Postgres, not a mock. The integration tests run the actual handlers
+    # and the actual SQL against it.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: dampscan
+          POSTGRES_PASSWORD: dampscan
+          POSTGRES_DB: dampscan
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      TEST_DATABASE_URL: postgresql://dampscan:dampscan@127.0.0.1:5432/dampscan
+      PGPASSWORD: dampscan
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Apply schema.sql
+        run: psql -h 127.0.0.1 -U dampscan -d dampscan -v ON_ERROR_STOP=1 -f db/schema.sql
+
+      - name: Re-apply schema.sql, which must be idempotent
+        run: psql -h 127.0.0.1 -U dampscan -d dampscan -v ON_ERROR_STOP=1 -f db/schema.sql
+
+      - name: Confirm the expected tables exist
+        run: |
+          psql -h 127.0.0.1 -U dampscan -d dampscan -v ON_ERROR_STOP=1 -tAc \
+            "select count(*) from information_schema.tables
+              where table_schema='public'
+                and table_name in ('leads','events','staff_users','rate_hits')" \
+            | grep -qx 4
+
+      # Unit tests, API integration tests, and the split-and-apply migration path.
+      - name: Run tests
+        run: npm test
+
+      # The site deliberately uses no em dashes. git grep exits 0 when it finds a
+      # match and 1 when it does not, so anything else is a broken check rather
+      # than a clean tree, and is failed explicitly instead of passing silently.
+      - name: Check no em dashes were introduced
+        run: |
+          # Built from its bytes, not written literally, so this file does not
+          # trip its own check.
+          dash=$(printf '\xe2\x80\x94')
+          set +e
+          git grep -nF -- "$dash"
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "::error::Em dash found. The site deliberately uses none."
+            exit 1
+          fi
+          if [ "$status" -ne 1 ]; then
+            echo "::error::em dash check could not run (git grep exited $status)"
+            exit 1
+          fi
+          echo "No em dashes."
+
+  migrate:
+    name: Apply schema to Neon
+    needs: test
+    # Production only, and only for a real merge, never for a pull request.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # schema.sql is idempotent, so this is safe to run on every merge. It adds
+      # new tables, indexes and columns and never drops anything, so it cannot
+      # destroy existing leads.
+      - name: npm run migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "::warning::DATABASE_URL secret is not set, so the migration was skipped."
+            echo "Add it under Settings, Secrets and variables, Actions."
+            exit 0
+          fi
+          npm run migrate

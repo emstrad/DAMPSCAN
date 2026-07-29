@@ -181,7 +181,7 @@ the visitor came from. The cookie notice on the page describes exactly this.
 
 ## Running the tests
 
-50 tests: 22 unit and 28 integration. The integration tests exercise the real
+56 tests: 22 unit, 28 API integration and 6 covering the migration path. The integration tests exercise the real
 handlers and the real SQL, with `lib/db.js` swapped for a `pg` client pointed at a
 local Postgres.
 
@@ -197,6 +197,73 @@ npm test
 
 Override the target with `TEST_DATABASE_URL`. Never point it at production: each run
 truncates every table. No test touches the network, FormSubmit is stubbed.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and every pull request:
+
+1. Starts a real Postgres 16 service container.
+2. Applies `db/schema.sql`, then applies it a second time to prove it is idempotent.
+3. Asserts all four tables exist.
+4. Runs `npm test`, all 56 tests.
+5. Fails the build if an em dash has crept in.
+
+On a push to `main`, and only then, a second job runs `npm run migrate` against
+Neon so the production schema is applied automatically. It needs one repository
+secret:
+
+- **`DATABASE_URL`**, under Settings, Secrets and variables, Actions. Use the same
+  pooled Neon string that Vercel has.
+
+Without that secret the job logs a warning and skips, so CI stays green while you
+are still setting things up rather than failing on a missing credential. The
+migration only ever adds tables, indexes and columns, so re-running it on every
+merge cannot destroy existing leads.
+
+## Forking this to a new GitHub account and Vercel project
+
+The code has nothing tied to a GitHub owner, repo name or Vercel project, so a
+fork works. What does not travel with the fork is the domain, the environment
+variables, the database and the staff accounts. Work through this:
+
+1. **Repoint the domain.** The site is static with no build step, so the canonical
+   link, `og:url`, `og:image`, JSON-LD, `sitemap.xml`, `robots.txt` and the
+   `vercel.json` www redirect all carry the domain literally.
+
+   ```sh
+   npm run set-domain -- --check                    # show what points where now
+   npm run set-domain -- --domain=newdomain.co.uk   # rewrite all of it
+   ```
+
+   Do not skip this. A fork left pointing at `dampscan.co.uk` still renders
+   perfectly in a browser while telling Google the real version of the page lives
+   on the old domain, so the new site competes with itself and loses. It is the one
+   mistake here that is invisible until rankings move.
+
+2. **Create a Neon project** for the fork, or point at the existing one. A forked
+   repo does not fork the database.
+
+3. **Set the environment variables in the new Vercel project.** All of them, for
+   Production and Preview. `SESSION_SECRET` and `IP_SALT` should be freshly
+   generated, not copied: reusing them means sessions minted by the old deployment
+   are still valid against the new one.
+
+4. **Add the `DATABASE_URL` secret** to the new GitHub repo if you want the
+   automatic migration job, otherwise run `npm run migrate` once by hand.
+
+5. **Create staff accounts.** They live in the database, so a new database has
+   none. `npm run create-user -- --email=... --role=admin`.
+
+6. **Re-activate FormSubmit** if the notification address changes. Activation is
+   per address, so an address that is already confirmed stays confirmed.
+
+7. **Replace the branding** if this is a different business:
+   `public/assets/dampscan-logo.svg`, `public/favicon.svg`, and the copy in
+   `public/index.html`.
+
+Vercel itself needs no special configuration on the new project. There is no build
+command and no framework preset: `vercel.json` sets `outputDirectory` to `public`,
+and `api/` is detected automatically.
 
 ## Front-end changes to `index.html`
 
