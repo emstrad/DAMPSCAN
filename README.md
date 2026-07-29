@@ -31,9 +31,8 @@ test/            unit and integration tests
 4. **Import into Vercel.** Connect the GitHub repo. No build command and no
    framework preset are needed: `vercel.json` sets `outputDirectory` to `public`.
    Set every environment variable below for **Production and Preview**, then deploy.
-5. **Create the first staff account.**
-   `npm run create-user -- --email=scott@damp-survey.com --name="Scott" --role=admin`
-   Then sign in at `https://dampscan.co.uk/staff` and confirm the dashboard loads.
+5. **Check the staff dashboard.** Sign in at `https://dampscan.co.uk/staff` with the
+   value you set for `STAFF_ACCESS_CODE` and confirm the dashboard loads.
 6. **Add the domains.** Add `dampscan.co.uk` and `www.dampscan.co.uk` in Vercel, then
    at the registrar set apex `A` to `76.76.21.21` and `www` `CNAME` to
    `cname.vercel-dns.com`. Wait for the certificate to issue.
@@ -56,7 +55,7 @@ test/            unit and integration tests
 | Click the header, mobile bar and closing CTA phone links | three `call_click` rows in the call log with placements `header`, `mobile-bar`, `closing` |
 | Load `/?utm_source=google&utm_medium=cpc&utm_campaign=damp-london` and book | the lead is attributed to channel `paid` and campaign `damp-london` |
 | `/staff/dashboard` while signed out | redirects to the login page, and `/api/admin/summary` returns `401` |
-| 6 wrong passwords in a row | the 6th returns `429` |
+| 6 wrong access codes in a row | the 6th returns `429` |
 | Lighthouse, mobile | performance and accessibility both 95 or higher |
 
 Everything in this table except email delivery, the domain and Lighthouse is
@@ -67,6 +66,7 @@ covered by `npm test`. See "Running the tests".
 | Name | Required | What it is |
 | --- | --- | --- |
 | `DATABASE_URL` | yes | Neon **pooled** connection string. |
+| `STAFF_ACCESS_CODE` | yes | The code typed at `/staff`. Under 4 characters and every login is refused, so it cannot be left blank by accident. |
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
 | `FORMSUBMIT_ENDPOINT` | yes | `https://formsubmit.co/ajax/scott@damp-survey.com`. |
@@ -115,8 +115,10 @@ phantom session and dilute the conversion rates.
 
 ### `staff_users`
 
-Accounts are created only by `npm run create-user`. There is no seeded account and
-no default password anywhere in this repo. `password_hash` is argon2id.
+Not used by the current login route, which takes a single access code instead. The
+table and the `create-user` / `set-user` scripts are kept so per-user accounts can
+be restored without rebuilding them. `password_hash` is argon2id. There is no
+seeded account and no default password anywhere in this repo.
 
 ### `rate_hits`
 
@@ -125,30 +127,39 @@ so an in-process counter would be bypassed by spreading requests across cold
 starts. Counters live here where every instance can see them, and old rows are
 pruned opportunistically.
 
-## Staff accounts
+## Staff access
 
-```sh
-# create
-npm run create-user -- --email=someone@example.com --name="Their Name" --role=staff
+Signing in at `/staff` takes a single shared access code and nothing else. The
+code lives in the `STAFF_ACCESS_CODE` environment variable and is deliberately
+not committed, because this repository is public and the dashboard holds customer
+names, emails, phone numbers, postcodes and free-text notes.
 
-# list
-npm run set-user -- --list
+To change the code, edit the variable in Vercel and redeploy. To sign everyone
+out immediately, rotate `SESSION_SECRET` as well, which invalidates every session
+cookie already issued.
 
-# revoke access
-npm run set-user -- --email=someone@example.com --disable
+A short numeric code has a small keyspace, so the route is defended by throttles
+rather than by the code's strength:
 
-# restore, change password, change role
-npm run set-user -- --email=someone@example.com --enable
-npm run set-user -- --email=someone@example.com --password
-npm run set-user -- --email=someone@example.com --role=admin
-```
+- 5 failed attempts per address per 15 minutes.
+- 50 failed attempts across **all** addresses per 15 minutes, because a per
+  address limit alone still lets a pool of addresses walk a four digit keyspace.
+- Every attempt is recorded as `staff_login` or `staff_login_failed`, so an
+  attack is visible in the dashboard rather than silent.
 
-Passwords are always prompted for, never passed as an argument, so they stay out of
-shell history and the process list.
+Two honest limitations of this design:
 
-Prefer `--disable` over deleting: it revokes access immediately and keeps the
-account's history. A session already issued stays valid until it expires, so if
-someone has to be cut off this second, rotate `SESSION_SECRET` as well.
+1. A successful sign in clears the global counter. That is deliberate, otherwise
+   50 failures from a stranger would lock the owner out of their own dashboard
+   for 15 minutes. The cost is that an attacker gets a fresh allowance after each
+   legitimate login rather than strictly one per window.
+2. There is one code, so there is no per-person audit trail. Every entry in the
+   log says "someone who knew the code", not who.
+
+If the dashboard ever needs more than one person, or a record of who saw what,
+move back to per-user accounts. The `staff_users` table and the
+`create-user` / `set-user` scripts are still present and working for exactly that
+reason, they are simply not consulted by the current login route.
 
 ## Security notes
 
