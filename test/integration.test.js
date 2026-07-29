@@ -113,10 +113,28 @@ beforeEach(async () => {
 after(async () => { await pool.end(); });
 
 /* ---------------------------------------------------------------- health ---- */
-test('health reports db true', async () => {
+test('health reports db true and a ready schema', async () => {
   const res = await call(health, { method: 'GET' });
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(res.json(), { ok: true, db: true });
+  const body = res.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.db, true);
+  assert.equal(body.schema.ready, true);
+  assert.deepEqual(body.schema.missing, []);
+});
+
+test('health names a missing table rather than just failing', async () => {
+  // The exact situation behind a "Sign in is temporarily unavailable": the
+  // database answers, but the table the login throttle needs is not there.
+  await pool.query('alter table rate_hits rename to rate_hits_hidden');
+  try {
+    const body = (await call(health, { method: 'GET' })).json();
+    assert.equal(body.db, true, 'the connection still works');
+    assert.equal(body.schema.ready, false);
+    assert.deepEqual(body.schema.missing, ['rate_hits']);
+  } finally {
+    await pool.query('alter table rate_hits_hidden rename to rate_hits');
+  }
 });
 
 test('health rejects POST with 405', async () => {
