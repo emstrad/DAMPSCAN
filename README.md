@@ -71,7 +71,6 @@ covered by `npm test`. See "Running the tests".
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
 | `FORMSUBMIT_ENDPOINT` | yes | `https://formsubmit.co/ajax/scott@damp-survey.com`. |
 | `NOTIFY_EMAIL` | no | Fallback used to build the FormSubmit URL if `FORMSUBMIT_ENDPOINT` is unset. |
-| `SITE_URL` | no | Public origin, `https://dampscan.co.uk`. |
 
 Generate the two secrets with:
 

@@ -90,10 +90,9 @@ async function main() {
 
   console.log(`\nDone, ${total} replacement(s).`);
   console.log('Still to do by hand:');
-  console.log('  1. Set SITE_URL in Vercel to https://' + to);
-  console.log('  2. Add ' + to + ' and www.' + to + ' as domains in Vercel');
-  console.log('  3. Replace public/assets/dampscan-logo.svg if the branding changes');
-  console.log('  4. Commit the result');
+  console.log('  1. Add ' + to + ' and www.' + to + ' as domains in Vercel');
+  console.log('  2. Replace public/assets/dampscan-logo.svg if the branding changes');
+  console.log('  3. Commit the result');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
