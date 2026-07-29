@@ -363,7 +363,10 @@ test('admin routes are 401 without a session', async () => {
 
 test('admin routes reject a tampered cookie', async () => {
   const cookie = await signedInCookie();
-  const tampered = cookie.slice(0, -2) + 'AA';
+  // Swapping in a fixed character can be a no-op when the signature already ends
+  // that way, which would leave this asserting that a VALID cookie is rejected.
+  const tampered = cookie.slice(0, -1) + (cookie.endsWith('A') ? 'B' : 'A');
+  assert.notEqual(tampered, cookie, 'the tamper must actually change the cookie');
   const res = await call(summary, { method: 'GET', url: '/api/admin/summary', headers: { cookie: tampered } });
   assert.equal(res.statusCode, 401);
 });
