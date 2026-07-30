@@ -93,17 +93,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "(www\\.)?atidampsurvey\\.co\\.uk"
-        }
-      ],
-      "destination": "/london.html"
-    }
   ]
 }
