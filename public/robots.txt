@@ -5,3 +5,4 @@ Disallow: /staff
 Disallow: /staff/
 
 Sitemap: https://dampscan.co.uk/sitemap.xml
+Sitemap: https://atidampsurvey.co.uk/sitemap-london.xml

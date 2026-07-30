@@ -9,6 +9,7 @@ import { requireMethod, requireSameOrigin, readJson, ipHash, str, json } from '.
 import { sanitiseUtm } from '../lib/validate.js';
 import { channelFor, deviceFor } from '../lib/attribution.js';
 import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { siteFor } from '../lib/site.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -48,8 +49,8 @@ export function sanitiseDetail(detail) {
 
 const INSERT = `
   insert into events (
-    session_id, type, detail, path, referrer, channel, utm, landing_page, device, ip_hash
-  ) values ($1::uuid, $2, $3::jsonb, $4, $5, $6, $7::jsonb, $8, $9, $10)`;
+    session_id, type, detail, path, referrer, channel, utm, landing_page, device, ip_hash, site
+  ) values ($1::uuid, $2, $3::jsonb, $4, $5, $6, $7::jsonb, $8, $9, $10, $11)`;
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
@@ -93,7 +94,8 @@ export default async function handler(req, res) {
       JSON.stringify(utm),
       str(body.landingPage, 300),
       deviceFor(req.headers['user-agent']),
-      hash
+      hash,
+      siteFor(req)
     ]);
 
     done();

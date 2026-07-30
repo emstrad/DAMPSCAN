@@ -7,13 +7,13 @@
   var node = DSUI.node, num = DSUI.num, pct = DSUI.pct, when = DSUI.when;
   var table = DSUI.table, get = DSUI.get;
 
-  var state = { range: '7d', stage: '', offset: 0, limit: 50, summary: null, leads: null };
+  var state = { range: '7d', site: '', stage: '', offset: 0, limit: 50, summary: null, leads: null };
 
   var PLACEMENTS = {
     header: 'Header', 'mobile-bar': 'Mobile bar', closing: 'Closing CTA',
     footer: 'Footer', page: 'In page'
   };
-  var LEAD_COLUMN_COUNT = 14;
+  var LEAD_COLUMN_COUNT = 15;
 
   function el(id){ return document.getElementById(id); }
 
@@ -154,6 +154,10 @@
 
   var LEAD_COLUMNS = [
     { label: 'When', get: function(r){ return when(r.createdAt); } },
+    { label: 'Site', get: function(r){
+        return node('span', 'tag ' + (r.site === 'ati-london' ? 'tag--accent' : 'tag--muted'),
+          r.site === 'ati-london' ? 'London' : 'Kent');
+      } },
     { label: 'Stage', get: function(r){
         return node('span', 'tag ' + (r.stage === 'complete' ? 'tag--good' : 'tag--muted'),
           r.stage === 'complete' ? 'Booked' : 'Partial');
@@ -193,26 +197,7 @@
 
   /* ---------- CSV export of the current page of leads ---------- */
   var CSV_COLUMNS = [
-    ['id', function(l){ return l.id; }],
-    ['created_at', function(l){ return l.createdAt; }],
-    ['stage', function(l){ return l.stage; }],
-    ['first_name', function(l){ return l.firstName; }],
-    ['email', function(l){ return l.email; }],
-    ['phone', function(l){ return l.phone; }],
-    ['postcode', function(l){ return l.postcode; }],
-    ['issues', function(l){ return (l.issues || []).join('; '); }],
-    ['role', function(l){ return l.role; }],
-    ['previous_survey', function(l){ return l.previousSurvey === null ? '' : l.previousSurvey ? 'Yes' : 'No'; }],
-    ['notes', function(l){ return l.notes; }],
-    ['channel', function(l){ return l.channel; }],
-    ['landing_page', function(l){ return l.landingPage; }],
-    ['referrer', function(l){ return l.referrer; }],
-    ['utm_source', function(l){ return l.utm && l.utm.utm_source; }],
-    ['utm_medium', function(l){ return l.utm && l.utm.utm_medium; }],
-    ['utm_campaign', function(l){ return l.utm && l.utm.utm_campaign; }],
-    ['device', function(l){ return l.device; }],
-    ['session_id', function(l){ return l.sessionId; }],
-    ['notified_at', function(l){ return l.notifiedAt; }]
+['id', function(l){ return l.id; }], ['created_at', function(l){ return l.createdAt; }], ['stage', function(l){ return l.stage; }], ['first_name', function(l){ return l.firstName; }], ['email', function(l){ return l.email; }], ['phone', function(l){ return l.phone; }], ['postcode', function(l){ return l.postcode; }], ['issues', function(l){ return (l.issues || []).join('; '); }], ['role', function(l){ return l.role; }], ['previous_survey', function(l){ return l.previousSurvey === null ? '' : l.previousSurvey ? 'Yes' : 'No'; }], ['notes', function(l){ return l.notes; }], ['channel', function(l){ return l.channel; }], ['landing_page', function(l){ return l.landingPage; }], ['referrer', function(l){ return l.referrer; }], ['utm_source', function(l){ return l.utm && l.utm.utm_source; }], ['utm_medium', function(l){ return l.utm && l.utm.utm_medium; }], ['utm_campaign', function(l){ return l.utm && l.utm.utm_campaign; }], ['device', function(l){ return l.device; }], ['site', function(l){ return l.site; }], ['session_id', function(l){ return l.sessionId; }], ['notified_at', function(l){ return l.notifiedAt; }]
   ];
 
   function exportCsv(){
@@ -229,11 +214,12 @@
 
     var leadQuery = '/api/admin/leads?range=' + state.range
       + '&limit=' + state.limit + '&offset=' + state.offset
-      + (state.stage ? '&stage=' + state.stage : '');
+      + (state.stage ? '&stage=' + state.stage : '')
+      + (state.site ? '&site=' + state.site : '');
 
     try {
       var results = await Promise.all([
-        get('/api/admin/summary?range=' + state.range),
+        get('/api/admin/summary?range=' + state.range + (state.site ? '&site=' + state.site : '')),
         get(leadQuery)
       ]);
       state.summary = results[0];
@@ -273,7 +259,8 @@
     });
   }
 
-  group('.ranges .pill', function(btn){ state.range = btn.dataset.range; });
+  group('[data-range]', function(btn){ state.range = btn.dataset.range; });
+  group('[data-site]', function(btn){ state.site = btn.dataset.site; });
   group('[data-stage]', function(btn){ state.stage = btn.dataset.stage; });
 
   el('prev').addEventListener('click', function(){

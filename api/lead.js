@@ -8,16 +8,17 @@ import { query, queryOne } from '../lib/db.js';
 import { json, requireMethod, requireSameOrigin, readJson, ipHash, str } from '../lib/http.js';
 import { validateLead } from '../lib/validate.js';
 import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { siteFor } from '../lib/site.js';
 
 export const config = { runtime: 'nodejs' };
 
 const UPSERT = `
   insert into leads (
     stage, first_name, email, postcode, phone, issues, role, previous_survey,
-    notes, session_id, source_path, referrer, utm, user_agent, ip_hash
+    notes, session_id, source_path, referrer, utm, user_agent, ip_hash, site
   ) values (
     $1, $2, $3, $4, $5, $6::text[], $7, $8,
-    $9, $10::uuid, $11, $12, $13::jsonb, $14, $15
+    $9, $10::uuid, $11, $12, $13::jsonb, $14, $15, $16
   )
   on conflict (session_id, stage) do update set
     updated_at      = now(),
@@ -34,7 +35,8 @@ const UPSERT = `
     referrer        = coalesce(excluded.referrer, leads.referrer),
     utm             = case when excluded.utm = '{}'::jsonb then leads.utm else excluded.utm end,
     user_agent      = coalesce(excluded.user_agent, leads.user_agent),
-    ip_hash         = coalesce(excluded.ip_hash, leads.ip_hash)
+    ip_hash         = coalesce(excluded.ip_hash, leads.ip_hash),
+    site            = excluded.site
   returning id, notified_at, (xmax = 0) as inserted`;
 
 export default async function handler(req, res) {
@@ -82,7 +84,8 @@ export default async function handler(req, res) {
       value.referrer,
       JSON.stringify(value.utm || {}),
       str(req.headers['user-agent'], 500),
-      hash
+      hash,
+      siteFor(req)
     ]);
   } catch (err) {
     console.error('lead write failed:', err.message);

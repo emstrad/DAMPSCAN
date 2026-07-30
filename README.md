@@ -6,7 +6,9 @@ A static page plus serverless functions. No framework, no bundler, no build step
 `public/` is served as-is and `api/` becomes Node functions on Vercel.
 
 ```
-public/          static site (index.html unchanged apart from the edits listed below)
+public/          static sites, both served from this one deployment
+  index.html     dampscan.co.uk, Kent and the South East
+  london.html    atidampsurvey.co.uk, the London arm
   staff/         login page, dashboard, shared CSS
 api/             serverless functions
   lead.js        POST, validates and writes the lead to Neon
@@ -16,7 +18,7 @@ api/             serverless functions
   auth/          login and logout
   admin/         dashboard data, auth required
 db/              schema.sql, migrate.js, account scripts
-lib/             db, validation, throttle, session, attribution, metrics
+lib/             db, validation, throttle, session, attribution, metrics, site
 test/            unit and integration tests
 ```
 
@@ -201,6 +203,28 @@ Two consequences worth knowing:
 - Delivery is best effort. Treat the dashboard as the record of what came in, and
   email as the prompt to go and look. Any lead whose `notify_error` is set is in the
   database and simply was not emailed.
+
+## Two sites, one deployment
+
+`dampscan.co.uk` and `atidampsurvey.co.uk` are served by the same Vercel project.
+`vercel.json` rewrites the London hostname to `public/london.html`, so each domain
+gets its own page, branding, phone number and inbox while `/api`, `/lib` and the
+dashboard stay single-source. A fix lands on both at once instead of being applied
+twice and drifting.
+
+This is invisible to search engines. Google sees two independent domains; it has
+no view of shared hosting, a shared repo or a shared database, and shared hosting
+is explicitly fine by its own guidance. The content is genuinely different, about
+4 percent overlap, which is what actually matters.
+
+Every lead and event carries a `site` column, derived in `lib/site.js` from the
+Host header and never trusted from the client, the same rule as `channel` and
+`device`. The dashboard has a Both / Kent / London selector, and `?site=` on
+`/api/admin/summary` and `/api/admin/leads` filters the same way. Values outside
+the whitelist are ignored rather than interpolated.
+
+Rows written before the London site existed default to `dampscan`, which is
+accurate rather than merely convenient.
 
 ## Analytics and privacy
 
