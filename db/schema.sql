@@ -92,3 +92,15 @@ create table if not exists rate_hits (
 
 create index if not exists rate_hits_lookup_idx on rate_hits (bucket, ip_hash, created_at desc);
 create index if not exists rate_hits_created_at_idx on rate_hits (created_at);
+
+-- ---------------------------------------------------------------------------
+-- site tagging
+-- One deployment serves dampscan.co.uk and atidampsurvey.co.uk, so every lead
+-- and event records which domain it came from. Existing rows predate the London
+-- site, so defaulting them to 'dampscan' is correct rather than merely convenient.
+-- ---------------------------------------------------------------------------
+alter table leads  add column if not exists site text not null default 'dampscan';
+alter table events add column if not exists site text not null default 'dampscan';
+
+create index if not exists leads_site_idx  on leads  (site, created_at desc);
+create index if not exists events_site_idx on events (site, created_at desc);

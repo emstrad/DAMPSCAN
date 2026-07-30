@@ -6,7 +6,7 @@
  * staff_users at all. This script is kept working so per-user accounts can be
  * restored later without rebuilding them.
  *
- *   npm run create-user -- --email=scott@damp-survey.com --name="Scott" --role=admin
+ *   npm run create-user -- --email=you@example.com --name="Your Name" --role=admin
  *
  * The password is prompted for, hashed with argon2id and only then written. No
  * default credential exists anywhere in this repo, and nothing is ever seeded.

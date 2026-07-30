@@ -10,6 +10,7 @@ import { query, queryOne } from '../../lib/db.js';
 import { json, requireMethod } from '../../lib/http.js';
 import { requireAuth } from '../../lib/session.js';
 import { normaliseRange } from '../../lib/metrics.js';
+import { normaliseSite } from '../../lib/site.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -36,7 +37,7 @@ function sinceExpr(range) {
 const LEADS = `
   select l.id, l.created_at, l.updated_at, l.stage, l.first_name, l.email, l.postcode,
          l.phone, l.issues, l.role, l.previous_survey, l.notes, l.session_id,
-         l.source_path, l.referrer, l.utm, l.notified_at, l.notify_error,
+         l.source_path, l.referrer, l.utm, l.notified_at, l.notify_error, l.site,
          a.channel, a.landing_page, a.device,
          (select count(*) from events e where e.session_id = l.session_id) as event_count
   from leads l
@@ -49,12 +50,14 @@ const LEADS = `
   ) a on true
    where l.created_at >= $SINCE
      and ($1::text is null or l.stage = $1::text)
+     and ($4::text is null or l.site = $4::text)
   order by l.created_at desc
   limit $2 offset $3`;
 
 const COUNT = `
   select count(*) as total from leads
-   where created_at >= $SINCE and ($1::text is null or stage = $1::text)`;
+   where created_at >= $SINCE and ($1::text is null or stage = $1::text)
+     and ($2::text is null or site = $2::text)`;
 
 /** Timelines for the page of leads just fetched, in one round trip. */
 const TIMELINES = `
@@ -79,13 +82,14 @@ export default async function handler(req, res) {
   const since = sinceExpr(range);
   const stageParam = params.get('stage');
   const stage = stageParam === 'partial' || stageParam === 'complete' ? stageParam : null;
+  const site = normaliseSite(params.get('site'));
   const limit = Math.max(1, intParam(params.get('limit'), 50, MAX_LIMIT));
   const offset = intParam(params.get('offset'), 0);
 
   try {
     const [rows, totals] = await Promise.all([
-      query(LEADS.replaceAll('$SINCE', since), [stage, limit, offset]),
-      queryOne(COUNT.replaceAll('$SINCE', since), [stage])
+      query(LEADS.replaceAll('$SINCE', since), [stage, limit, offset, site]),
+      queryOne(COUNT.replaceAll('$SINCE', since), [stage, site])
     ]);
 
     const sessionIds = [...new Set(rows.map((row) => row.session_id))];
@@ -108,6 +112,7 @@ export default async function handler(req, res) {
       ok: true,
       range,
       stage,
+      site,
       total: Number(totals.total),
       limit,
       offset,
@@ -125,6 +130,7 @@ export default async function handler(req, res) {
         previousSurvey: row.previous_survey,
         notes: row.notes,
         sessionId: row.session_id,
+        site: row.site,
         sourcePath: row.source_path,
         referrer: row.referrer,
         utm: row.utm || {},

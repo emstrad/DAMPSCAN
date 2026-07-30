@@ -15,6 +15,7 @@ import { json, requireMethod, requireSameOrigin, readJson, ipHash, str } from '.
 import { issueSession } from '../../lib/session.js';
 import { countHits, recordHit, clearHits, pruneRateHits, LIMITS } from '../../lib/ratelimit.js';
 import { deviceFor } from '../../lib/attribution.js';
+import { siteFor } from '../../lib/site.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -40,9 +41,9 @@ function codeMatches(submitted, expected) {
 async function logAttempt(type, req, detail = {}) {
   try {
     await query(
-      `insert into events (session_id, type, detail, path, channel, device, ip_hash)
-       values ($1::uuid, $2, $3::jsonb, '/staff', 'direct', $4, $5)`,
-      [randomUUID(), type, JSON.stringify(detail), deviceFor(req.headers['user-agent']), ipHash(req)]
+      `insert into events (session_id, type, detail, path, channel, device, ip_hash, site)
+       values ($1::uuid, $2, $3::jsonb, '/staff', 'direct', $4, $5, $6)`,
+      [randomUUID(), type, JSON.stringify(detail), deviceFor(req.headers['user-agent']), ipHash(req), siteFor(req)]
     );
   } catch (err) {
     console.warn(`could not record ${type}:`, err.message);

@@ -13,10 +13,10 @@ export default async function handler(req, res) {
   const session = requireAuth(req, res);
   if (!session) return;
 
-  const range = new URL(req.url, `https://${req.headers.host}`).searchParams.get('range');
+  const params = new URL(req.url, `https://${req.headers.host}`).searchParams;
 
   try {
-    const data = await summary(range);
+    const data = await summary(params.get('range'), params.get('site'));
     json(res, 200, { ok: true, viewer: { email: session.email, name: session.name }, ...data });
   } catch (err) {
     console.error('summary failed:', err.message);

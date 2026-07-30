@@ -48,6 +48,7 @@ const logout = (await import('../api/auth/logout.js')).default;
 const summary = (await import('../api/admin/summary.js')).default;
 const leadsRoute = (await import('../api/admin/leads.js')).default;
 const notified = (await import('../api/notified.js')).default;
+const { siteFor } = await import('../lib/site.js');
 
 /* ---------- minimal req/res doubles ---------- */
 function makeReq({ method = 'POST', url = '/', body, headers = {}, ip = '203.0.113.5' } = {}) {
@@ -142,6 +143,33 @@ test('health rejects POST with 405', async () => {
   const res = await call(health, { method: 'POST' });
   assert.equal(res.statusCode, 405);
   assert.equal(res.getHeader('allow'), 'GET');
+});
+
+/* ------------------------------------------------------------------ site ---- */
+test('the site is derived from the Host header, never trusted from the body', () => {
+  const at = (host) => siteFor({ headers: { host } });
+  assert.equal(at('dampscan.co.uk'), 'dampscan');
+  assert.equal(at('www.dampscan.co.uk'), 'dampscan');
+  assert.equal(at('atidampsurvey.co.uk'), 'ati-london');
+  assert.equal(at('www.atidampsurvey.co.uk'), 'ati-london');
+  assert.equal(at('ATIDAMPSURVEY.CO.UK'), 'ati-london', 'case must not matter');
+  assert.equal(at('atidampsurvey.co.uk:443'), 'ati-london', 'a port must not matter');
+  assert.equal(at(undefined), 'dampscan', 'a missing host falls back rather than throwing');
+  assert.equal(siteFor({ headers: { 'x-forwarded-host': 'atidampsurvey.co.uk', host: 'x.vercel.app' } }),
+    'ati-london', 'the forwarded host wins');
+});
+
+test('leads and events are tagged with the site that produced them', async () => {
+  const londonHeaders = { host: 'atidampsurvey.co.uk' };
+  await call(event, { body: { sessionId: SID_B, type: 'page_view' }, headers: londonHeaders });
+  const { id } = (await call(lead, { body: validLead({ sessionId: SID_B }), headers: londonHeaders })).json();
+  await call(lead, { body: validLead() });   // default host is dampscan.co.uk
+
+  const leadRows = await pool.query('select site from leads order by id');
+  assert.deepEqual(leadRows.rows.map((r) => r.site), ['ati-london', 'dampscan']);
+  const evRows = await pool.query('select site from events where session_id = $1', [SID_B]);
+  assert.equal(evRows.rows[0].site, 'ati-london');
+  assert.ok(id);
 });
 
 /* ------------------------------------------------------------------ lead ---- */
@@ -425,6 +453,37 @@ test('summary returns the expected shape and counts', async () => {
   assert.ok(Array.isArray(data.sources.byChannel));
   assert.equal(data.sources.byChannel[0].bookings, 1);
   assert.equal(data.sources.byChannel[0].bookingRate, 100);
+});
+
+test('summary and leads can be filtered to one site', async () => {
+  const cookie = await signedInCookie();
+  const london = { host: 'atidampsurvey.co.uk' };
+  await call(event, { body: { sessionId: SID_B, type: 'page_view' }, headers: london });
+  await call(lead, { body: validLead({ sessionId: SID_B }), headers: london });
+  await call(event, { body: { sessionId: SID_A, type: 'page_view' } });
+  await call(lead, { body: validLead() });
+
+  const both = (await call(summary, { method: 'GET', url: '/api/admin/summary?range=7d', headers: { cookie } })).json();
+  assert.equal(both.site, null);
+  assert.equal(both.counters.bookings, 2, 'unfiltered shows both sites');
+
+  const ldn = (await call(summary, { method: 'GET', url: '/api/admin/summary?range=7d&site=ati-london', headers: { cookie } })).json();
+  assert.equal(ldn.site, 'ati-london');
+  assert.equal(ldn.counters.bookings, 1);
+  assert.equal(ldn.counters.pageViews, 1);
+
+  const kentLeads = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=7d&site=dampscan', headers: { cookie } })).json();
+  assert.equal(kentLeads.total, 1);
+  assert.equal(kentLeads.leads[0].site, 'dampscan');
+});
+
+test('an unknown site filter is ignored rather than injected', async () => {
+  const cookie = await signedInCookie();
+  const res = await call(summary, {
+    method: 'GET', url: "/api/admin/summary?range=7d&site=' or 1=1--", headers: { cookie }
+  });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.json().site, null, 'falls back to both sites');
 });
 
 test('summary range is whitelisted, a junk value falls back to 7d', async () => {
