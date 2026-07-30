@@ -75,7 +75,7 @@
         body: JSON.stringify({ code: code.value.trim() })
       });
       if (res.ok) {
-        location.replace('/staff/dashboard');
+        location.replace('/staff/dashboard.html');
         return;
       }
       const body = await res.json().catch(function(){ return null; });
