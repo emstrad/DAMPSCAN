@@ -38,7 +38,7 @@ test/            unit and integration tests
    at the registrar set apex `A` to `76.76.21.21` and `www` `CNAME` to
    `cname.vercel-dns.com`. Wait for the certificate to issue.
 7. **Activate FormSubmit.** Submit the live form once from a browser. FormSubmit
-   sends a one-time activation email to `scott@damp-survey.com` that has to be
+   sends a one-time activation email to `tom@atidampsurvey.co.uk` that has to be
    confirmed before any notification will arrive. Leads are stored in Neon from the
    very first submission either way, so nothing is lost while this is pending.
 8. **Smoke test.** Work through the list below.
