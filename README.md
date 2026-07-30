@@ -262,6 +262,34 @@ major AI crawlers do not consume it yet, so this is cheap insurance, not a lever
 for a crawler makes that crawler ignore the wildcard group entirely, which would
 quietly drop the `/api` and `/staff` disallows for it.
 
+## Reviews
+
+The carousel on both sites is filled from the real Google listing. `/api/reviews`
+reads Place Details for whichever site the Host header names and the page swaps
+its cards for the result. Two things shape the design:
+
+- Place Details returns **at most five** reviews and Google picks which five.
+  There is no paging. The full set needs the Business Profile API, which is
+  owner-authenticated and behind an access request.
+- Places results may not be held indefinitely, so the response is cached at the
+  edge for a day. Google is called roughly once a day per region rather than
+  once per visitor, which also keeps it inside the free tier.
+
+Set `GOOGLE_MAPS_API_KEY`, `GOOGLE_PLACE_ID_DAMPSCAN` and `GOOGLE_PLACE_ID_ATI`
+to switch it on. Restrict the key by API rather than by HTTP referrer: the call
+is made from the server, so a referrer restriction blocks it.
+
+Unset, or rejected, or a listing with no reviews yet, all end the same way: an
+empty list, and the page leaves whatever is in its markup alone. Nothing is ever
+invented, and review text is escaped before it is inserted, because it is other
+people's writing arriving over the network.
+
+There is deliberately **no `aggregateRating`** in the structured data. Google's
+review snippet guidelines exclude ratings aggregated from another site, so
+marking up a Google score to win stars in Google's own results is not eligible
+and risks a manual action. The rating is shown to visitors, not claimed to the
+crawler.
+
 ## Analytics and privacy
 
 No third-party analytics, no advertising cookies, no cross-site tracking. The

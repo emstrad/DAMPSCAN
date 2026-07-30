@@ -25,7 +25,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"DampScan","description":"Independent damp, mould and timber survey specialists providing survey-led diagnosis and remediation across London and the South East.","url":"https://dampscan.co.uk/","image":"https://dampscan.co.uk/assets/dampscan-og.png","email":"tom@atidampsurvey.co.uk","telephone":"+447386225526","address":{"@type":"PostalAddress","addressRegion":"London","addressCountry":"GB"},"areaServed":[{"@type":"AdministrativeArea","name":"London"},{"@type":"AdministrativeArea","name":"Kent"},{"@type":"AdministrativeArea","name":"Surrey"},{"@type":"AdministrativeArea","name":"Essex"},{"@type":"AdministrativeArea","name":"East Sussex"},{"@type":"AdministrativeArea","name":"West Sussex"},{"@type":"AdministrativeArea","name":"Hertfordshire"},{"@type":"AdministrativeArea","name":"Berkshire"},{"@type":"AdministrativeArea","name":"Buckinghamshire"},{"@type":"AdministrativeArea","name":"South East England"}],"knowsAbout":["Rising damp","Penetrating damp","Condensation","Mould removal","Woodworm treatment","Wet and dry rot","Basement waterproofing","Ventilation","Damp surveys"],"priceRange":"££","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"120"}}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"DampScan","description":"Independent damp, mould and timber survey specialists providing survey-led diagnosis and remediation across London and the South East.","url":"https://dampscan.co.uk/","image":"https://dampscan.co.uk/assets/dampscan-og.png","email":"tom@atidampsurvey.co.uk","telephone":"+447386225526","address":{"@type":"PostalAddress","addressRegion":"London","addressCountry":"GB"},"areaServed":[{"@type":"AdministrativeArea","name":"London"},{"@type":"AdministrativeArea","name":"Kent"},{"@type":"AdministrativeArea","name":"Surrey"},{"@type":"AdministrativeArea","name":"Essex"},{"@type":"AdministrativeArea","name":"East Sussex"},{"@type":"AdministrativeArea","name":"West Sussex"},{"@type":"AdministrativeArea","name":"Hertfordshire"},{"@type":"AdministrativeArea","name":"Berkshire"},{"@type":"AdministrativeArea","name":"Buckinghamshire"},{"@type":"AdministrativeArea","name":"South East England"}],"knowsAbout":["Rising damp","Penetrating damp","Condensation","Mould removal","Woodworm treatment","Wet and dry rot","Basement waterproofing","Ventilation","Damp surveys"],"priceRange":"££"}
 </script>
 
 <script type="application/ld+json">
@@ -945,14 +945,51 @@ function placementOf(el){
 }
 
 /* ---------- Reviews marquee ----------
-   The cards are in the HTML so they can be read without JavaScript. The loop
-   needs each track twice to run seamlessly, and that second copy is decoration,
-   so it is made here rather than shipped in the markup. */
-(function loopReviews(){
-  ['track-a','track-b'].forEach(id => {
-    const track = document.getElementById(id);
-    if (track) track.innerHTML += track.innerHTML;
-  });
+   The cards in the markup are readable without JavaScript. If /api/reviews
+   returns real Google reviews they replace them, and if it returns none, or is
+   not configured yet, whatever is in the HTML stays. Nothing is invented here.
+   Either way each track is doubled at the end, because the loop needs two
+   copies to run seamlessly and that second copy is decoration, not content. */
+(function reviewsMarquee(){
+  const a = document.getElementById('track-a');
+  const b = document.getElementById('track-b');
+  if (!a || !b) return;
+
+  function double(){
+    a.innerHTML += a.innerHTML;
+    b.innerHTML += b.innerHTML;
+  }
+
+  /* Review text is other people's writing arriving over the network, so it is
+     escaped rather than trusted. */
+  function esc(value){
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function card(r){
+    const rating = Math.max(1, Math.min(5, Number(r.rating) || 5));
+    const stars = '&#9733;'.repeat(rating);
+    return '<article class="review"><div class="stars" aria-label="' + rating +
+      ' out of 5 stars">' + stars + '</div><p>' + esc(r.text) +
+      '</p><div class="review-attr"><span>' + esc(r.attr) +
+      '</span><span class="src">' + esc(r.src || 'Google') + '</span></div></article>';
+  }
+
+  fetch('/api/reviews', { headers: { Accept: 'application/json' } })
+    .then(res => (res.ok ? res.json() : null))
+    .then(data => {
+      const list = data && Array.isArray(data.reviews) ? data.reviews : [];
+      if (!list.length) return;
+      /* Two rows scrolling opposite ways look wrong in the same order, and
+         Places returns at most five reviews, so rotating by a fixed offset is
+         a no-op on a short list. Reversing always differs. */
+      a.innerHTML = list.map(card).join('');
+      b.innerHTML = list.slice().reverse().map(card).join('');
+    })
+    .catch(function(){ /* offline or blocked: the markup already has cards */ })
+    .then(double);
 })();
 
 /* ---------- Services tabs ----------
