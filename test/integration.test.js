@@ -448,7 +448,7 @@ test('summary returns the expected shape and counts', async () => {
   assert.equal(data.counters.callClicks, 1);
   assert.equal(data.counters.partials, 1);
   assert.equal(data.counters.bookings, 1);
-  assert.equal(data.counters.partialToComplete, 100);
+  assert.equal(data.counters.sessionToBooking, 100);
   assert.equal(data.funnel.step1, 1);
   assert.ok(Array.isArray(data.sources.byChannel));
   assert.equal(data.sources.byChannel[0].bookings, 1);

@@ -22,7 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"DampScan","description":"Independent damp, mould and timber survey specialists providing survey-led diagnosis and remediation across London and the South East.","url":"https://dampscan.co.uk/","image":"https://dampscan.co.uk/assets/dampscan-logo.svg","email":"tom@atidampsurvey.co.uk","telephone":"+447386225526","address":{"@type":"PostalAddress","addressRegion":"London","addressCountry":"GB"},"areaServed":[{"@type":"AdministrativeArea","name":"Greater London"},{"@type":"AdministrativeArea","name":"Kent"},{"@type":"AdministrativeArea","name":"Surrey"},{"@type":"AdministrativeArea","name":"Essex"},{"@type":"AdministrativeArea","name":"East Sussex"},{"@type":"AdministrativeArea","name":"West Sussex"},{"@type":"AdministrativeArea","name":"Hertfordshire"},{"@type":"AdministrativeArea","name":"Berkshire"},{"@type":"AdministrativeArea","name":"Buckinghamshire"},{"@type":"AdministrativeArea","name":"South East England"}],"knowsAbout":["Rising damp","Penetrating damp","Condensation","Mould removal","Woodworm treatment","Wet and dry rot","Basement waterproofing","Ventilation","Damp surveys"],"priceRange":"££","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"120"}}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"DampScan","description":"Independent damp, mould and timber survey specialists providing survey-led diagnosis and remediation across London and the South East.","url":"https://dampscan.co.uk/","image":"https://dampscan.co.uk/assets/dampscan-logo.svg","email":"tom@atidampsurvey.co.uk","telephone":"+447386225526","address":{"@type":"PostalAddress","addressRegion":"London","addressCountry":"GB"},"areaServed":[{"@type":"AdministrativeArea","name":"London"},{"@type":"AdministrativeArea","name":"Kent"},{"@type":"AdministrativeArea","name":"Surrey"},{"@type":"AdministrativeArea","name":"Essex"},{"@type":"AdministrativeArea","name":"East Sussex"},{"@type":"AdministrativeArea","name":"West Sussex"},{"@type":"AdministrativeArea","name":"Hertfordshire"},{"@type":"AdministrativeArea","name":"Berkshire"},{"@type":"AdministrativeArea","name":"Buckinghamshire"},{"@type":"AdministrativeArea","name":"South East England"}],"knowsAbout":["Rising damp","Penetrating damp","Condensation","Mould removal","Woodworm treatment","Wet and dry rot","Basement waterproofing","Ventilation","Damp surveys"],"priceRange":"££","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"120"}}
 </script>
 
 <style>
@@ -419,7 +419,7 @@ html{scroll-padding-top:88px}
 
           <!-- STEP 2, issue type -->
           <div class="fstep" data-step="2">
-            <div class="form-row">
+            <div class="form-row" data-require-one>
               <label id="issue-label">What are you dealing with? Tick anything that applies.</label>
               <div class="checks" role="group" aria-labelledby="issue-label">
                 <label class="check"><input type="checkbox" name="Issue" value="Damp" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Damp</label>
@@ -671,7 +671,7 @@ html{scroll-padding-top:88px}
     </div>
     <div class="area-grid">
       <article class="area-card">
-        <h3><span class="county">Greater London</span>Damp surveys in London</h3>
+        <h3><span class="county">London</span>Damp surveys in London</h3>
         <ul>
           <li>Central London</li><li>Croydon</li><li>Bromley</li><li>Wandsworth</li><li>Lewisham</li><li>Greenwich</li><li>Richmond</li><li>Kingston</li><li>Ealing</li><li>Barnet</li><li>Enfield</li><li>Havering</li>
         </ul>
@@ -954,11 +954,11 @@ const faqs = [
   { q:'Will this actually fix the problem?', a:"That depends entirely on getting the diagnosis right, which is why we survey before we quote. When the true cause is identified and treated properly, the problem doesn't come back. Most repeat damp problems we're called to are second visits to work that treated a symptom." },
   { q:"What's the guarantee?", a:"All remedial work we carry out is covered by an insured workmanship guarantee, with documentation you can hand on to a buyer or your insurer. The exact term depends on the treatment, it's stated clearly on your quote before you commit to anything." },
   { q:'What happens after I submit the form?', a:"A surveyor reviews your details and contacts you the same day to arrange a visit. Within 24 hours of that visit you get a written report with photographs, the diagnosed cause and a fixed-price quote. Then you decide, there's no obligation and nobody will chase you." },
-  { q:'How fast can you come out?', a:"We respond to every enquiry the same day and arrange the visit around you, then your written report follows within 24 hours of that visit. We cover Greater London, Kent, Surrey, Essex, Sussex, Hertfordshire and Berkshire, and can usually work around evenings and weekends." },
+  { q:'How fast can you come out?', a:"We respond to every enquiry the same day and arrange the visit around you, then your written report follows within 24 hours of that visit. We cover London, Kent, Surrey, Essex, Sussex, Hertfordshire and Berkshire, and can usually work around evenings and weekends." },
   { q:'Is the work messy?', a:"Some treatments involve removing plaster or lifting floor coverings, so there is dust, but we sheet up, protect finishes and clean down at the end of each day. Your report tells you exactly what will be disturbed before any work starts." },
   { q:'Can we stay in the house while work is carried out?', a:"In the overwhelming majority of cases, yes. We work room by room so you keep the rest of the property. If a job would genuinely make a room unusable for a period, we'll tell you upfront rather than on the day." },
   { q:"Do you work with landlords and letting agents?", a:"Yes, a large share of our work is certified inspections for landlords and managing agents dealing with reported damp and mould, including portfolio surveys across multiple properties. See the landlord section above." },
-  { q:'Which areas do you cover?', a:"Greater London and the wider South East, including Kent, Surrey, Essex, East and West Sussex, Hertfordshire, Berkshire and Buckinghamshire. Enter your postcode in the booking form and we'll confirm cover straight away." },
+  { q:'Which areas do you cover?', a:"London and the wider South East, including Kent, Surrey, Essex, East and West Sussex, Hertfordshire, Berkshire and Buckinghamshire. Enter your postcode in the booking form and we'll confirm cover straight away." },
   { q:'What if I just want a second opinion?', a:"That's one of the most useful things we do. If you've been quoted for invasive damp-proofing and it doesn't feel right, we'll survey independently and tell you honestly whether that work is justified." }
 ];
 
@@ -1017,7 +1017,6 @@ const faqs = [
   const dotsWrap = document.getElementById('dots');
   const label = document.getElementById('step-label');
   let current = 0;
-  let partialSent = false;
 
   function show(i){
     current = Math.max(0, Math.min(steps.length - 1, i));
@@ -1050,6 +1049,9 @@ const faqs = [
         if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (ok === false && !step.querySelector('[aria-invalid="true"]:focus')) field.focus(); }
         return;
       }
+      /* Only a row marked data-require-one needs a tick. Every other checkbox
+         row, such as the previous survey question, is optional. */
+      if (!row.hasAttribute('data-require-one')) return;
       const boxes = row.querySelectorAll('input[type="checkbox"]');
       if (boxes.length) {
         const bad = !Array.from(boxes).some(b => b.checked);
@@ -1210,11 +1212,75 @@ const faqs = [
     return { ok: true, errors: {} };
   }
 
+  /* --- PARTIAL LEAD ---------------------------------------------------
+     Step 1 gives us enough to call someone back, but a visitor who carries on
+     and books is not a partial at all. So the partial is armed once they pass
+     step 1 and then held back: it is only sent if they really do leave it
+     there, either by leaving the page or by going quiet for a long time with
+     the form still open. Submitting cancels it, so a booked survey never
+     arrives twice. */
+  const PARTIAL_IDLE_MS = 180000;
+  const PARTIAL_HIDDEN_MS = 45000;
+  let partialArmed = false;
+  let partialDone = false;
+  let idleTimer = 0;
+  let hiddenTimer = 0;
+
+  function armPartial(){
+    if (partialDone) return;
+    partialArmed = true;
+    bumpIdle();
+  }
+
+  function cancelPartial(){
+    partialArmed = false;
+    partialDone = true;
+    clearTimeout(idleTimer);
+    clearTimeout(hiddenTimer);
+  }
+
+  function bumpIdle(){
+    clearTimeout(idleTimer);
+    if (!partialArmed) return;
+    idleTimer = setTimeout(() => flushPartial(false), PARTIAL_IDLE_MS);
+  }
+
+  /* leaving means the page is on its way out, so the request has to be a
+     beacon: an ordinary fetch is routinely killed mid-flight during unload.
+     The lead still reaches the dashboard, it just cannot report back on the
+     notification email the way an idle flush can. */
+  function flushPartial(leaving){
+    if (!partialArmed || partialDone) return;
+    partialArmed = false;
+    partialDone = true;
+    clearTimeout(idleTimer);
+    clearTimeout(hiddenTimer);
+    if (leaving && navigator.sendBeacon) {
+      const body = new Blob([JSON.stringify(leadPayload('partial'))], { type: 'application/json' });
+      navigator.sendBeacon(LEAD_ENDPOINT, body);
+      return;
+    }
+    sendLead('partial');
+  }
+
+  /* pagehide is the last reliable moment before the page goes. A tab switch
+     only counts once they have stayed away a while, so glancing at another tab
+     and coming back to finish does not produce a partial. */
+  window.addEventListener('pagehide', () => flushPartial(true));
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      if (partialArmed) hiddenTimer = setTimeout(() => flushPartial(true), PARTIAL_HIDDEN_MS);
+      return;
+    }
+    clearTimeout(hiddenTimer);
+    bumpIdle();
+  });
+
   form.addEventListener('click', e => {
     if (e.target.closest('[data-next]')) {
       if (!validate()) return;
-      /* Step 1 complete = usable lead. Send it now in case they drop off. */
-      if (current === 0 && !partialSent) { partialSent = true; sendLead('partial'); }
+      /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
+      if (current === 0) armPartial();
       show(current + 1);
       track('form_step', { step: current + 1 });
     }
@@ -1230,12 +1296,15 @@ const faqs = [
     track('form_step', { step: 1 });
   });
 
-  /* Clear the error as soon as they start fixing it */
+  /* Clear the error as soon as they start fixing it, and keep the partial
+     lead on hold for as long as they are still working on the form. */
   form.addEventListener('input', e => {
+    bumpIdle();
     const row = e.target.closest('.form-row');
     if (row) setError(row, false);
   });
   form.addEventListener('change', e => {
+    bumpIdle();
     const row = e.target.closest('.form-row');
     if (row && e.target.type === 'checkbox') row.classList.remove('has-err');
   });
@@ -1243,12 +1312,17 @@ const faqs = [
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validate()) return;
+    /* They are booking, so the held partial is not a partial. Drop it. */
+    cancelPartial();
     const btn = form.querySelector('[type="submit"]');
     btn.disabled = true;
     btn.style.opacity = '.7';
     const result = await sendLead('complete');
     if (!result.ok) {
-      /* Server rejected a field. Give the button back and point at the problem. */
+      /* Server rejected a field, so nothing was written. Put the partial back
+         on hold as a fallback, then point at the problem. */
+      partialDone = false;
+      armPartial();
       btn.disabled = false;
       btn.style.opacity = '';
       showServerErrors(result.errors);

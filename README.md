@@ -50,8 +50,8 @@ test/            unit and integration tests
 | Check | Expected |
 | --- | --- |
 | `GET /api/health` | `{ "ok": true, "db": true }` |
-| Complete step 1 only | a `partial` row appears in `leads` |
-| Finish the form in the same tab | a `complete` row sharing the same `session_id` |
+| Complete step 1, then close the tab | a `partial` row appears in `leads` |
+| Finish the form in the same tab | one `complete` row, and no `partial` for that `session_id` |
 | The notification email | arrives with `Previous survey` populated |
 | Submit with the honeypot filled | `200`, and no row written |
 | Fire 10 rapid posts to `/api/lead` | the 9th and 10th return `429` |
@@ -86,11 +86,11 @@ Copy `.env.example` to `.env` for local work. `.gitignore` covers `.env*` except
 
 ### `leads`
 
-One row per `(session_id, stage)`, enforced by a unique index. A visitor who
-completes step 1 and then finishes the form produces two rows sharing one
-`session_id`: a `partial` and a `complete`. That is what stops a single enquiry
-being counted as two leads, and it is why the funnel can measure step 1 through to
-booking without guessing.
+One row per `(session_id, stage)`, enforced by a unique index. A `complete` is a
+booking. A `partial` is an abandonment: the page holds the step 1 details back and
+only sends them if the visitor leaves without finishing, so a visitor who books
+produces one row, not two. Both stages share a `session_id`, so a partial and any
+later contact still line up.
 
 `issues` is a `text[]` restricted to the six values the form offers. `role` is one
 of the five. `previous_survey` is a nullable boolean: `null` means the visitor
@@ -322,15 +322,15 @@ and `api/` is detected automatically.
 
 ## Front-end changes to `index.html`
 
-The design, layout, class names, section order and copy are untouched. The only
-edits are the ten that were specified:
+The design, layout, class names and section order are untouched. The original ten
+edits were:
 
 1. `LEAD_ENDPOINT` now points at `/api/lead`.
 2. A per-visit `sessionId` from `crypto.randomUUID()`, persisted in `sessionStorage`
    under `dampscan-session` and sent with both posts.
-3. `sendLead(stage)` posts the JSON shape `/api/lead` expects. Partial still fires
-   once when step 1 validates, complete on submit, and a network failure still shows
-   the success state.
+3. `sendLead(stage)` posts the JSON shape `/api/lead` expects. The partial is armed
+   once when step 1 validates and sent only on abandonment, complete goes on submit,
+   and a network failure still shows the success state.
 4. A visually hidden honeypot input using the existing `.sr-only` class.
 5. A `400` re-enables the submit button and renders the returned field errors
    through the existing `.form-row.has-err` and `.err` pattern. The server's
@@ -350,6 +350,13 @@ edits are the ten that were specified:
 Plus the SEO additions that were also specified: a canonical link, `og:url` and an
 absolute `og:image`. The JSON-LD `image` was made absolute at the same time, because
 a relative URL there is invalid, and `url` was added.
+
+Requested since, on both `index.html` and `london.html`:
+
+- The previous survey checkbox is optional. `validate()` used to require a tick in
+  any `.form-row` holding checkboxes, which silently made it mandatory. Only a row
+  marked `data-require-one` needs one now, and that is the issue picker.
+- Area copy says London rather than Greater London.
 
 Two things worth flagging:
 
