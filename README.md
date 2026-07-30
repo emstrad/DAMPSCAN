@@ -207,10 +207,23 @@ Two consequences worth knowing:
 ## Two sites, one deployment
 
 `dampscan.co.uk` and `atidampsurvey.co.uk` are served by the same Vercel project.
-`vercel.json` rewrites the London hostname to `public/london.html`, so each domain
+`middleware.js` rewrites the London hostname to `public/london.html`, so each domain
 gets its own page, branding, phone number and inbox while `/api`, `/lib` and the
 dashboard stay single-source. A fix lands on both at once instead of being applied
 twice and drifting.
+
+Routing lives in middleware rather than `vercel.json` because `vercel.json` rewrites
+are evaluated **after** the filesystem, so a rewrite on `/` never fires: `/` already
+matches `public/index.html`. Middleware runs first.
+
+Because one project serves both domains, every file is otherwise reachable on both
+hosts. Middleware also collapses those duplicates: `/index.html` redirects to the
+root it duplicates, and `/london.html` redirects to `https://atidampsurvey.co.uk/`.
+Preview deployments are exempt, since they have neither production host and would
+otherwise be unable to show the London page. `middleware.js` also serves
+`robots-london.txt`, `sitemap-london.xml` and `llms-london.txt` at the ordinary
+paths on the London host, so each domain advertises only its own. `test/middleware.test.js`
+covers all of it.
 
 This is invisible to search engines. Google sees two independent domains; it has
 no view of shared hosting, a shared repo or a shared database, and shared hosting
@@ -225,6 +238,29 @@ the whitelist are ignored rather than interpolated.
 
 Rows written before the London site existed default to `dampscan`, which is
 accurate rather than merely convenient.
+
+## Search and AI crawlers
+
+About half the text on each page used to be built by JavaScript from `services`,
+`reviews` and `faqs` arrays. Google renders JavaScript, but most AI crawlers do
+not, so roughly 1,450 words per page were invisible to them. All three blocks are
+now in the markup, and the JavaScript enhances what is there: the tab strip shows
+one pre-rendered panel at a time instead of writing `innerHTML`, and the review
+marquee duplicates its own track at runtime because the second copy is decoration
+rather than content. Crawlable text went from 1,285 to 2,749 words on `index.html`
+and 1,545 to 3,003 on `london.html`.
+
+Both pages carry `FAQPage` structured data built from the same questions, next to
+the existing `LocalBusiness` and `ProfessionalService` blocks.
+
+`llms.txt` and `llms-london.txt` state the facts each business would want quoted:
+areas, response times, what is included in a report, and the fact that ATi carries
+out no remedial work. The convention is a proposal rather than a standard and the
+major AI crawlers do not consume it yet, so this is cheap insurance, not a lever.
+
+`robots.txt` deliberately uses a single `User-agent: *` group. Adding a named group
+for a crawler makes that crawler ignore the wildcard group entirely, which would
+quietly drop the `/api` and `/staff` disallows for it.
 
 ## Analytics and privacy
 

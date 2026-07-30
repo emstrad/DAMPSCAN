@@ -17,6 +17,7 @@
 <meta property="og:image" content="https://atidampsurvey.co.uk/assets/ati-og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta property="og:locale" content="en_GB" />
 <link rel="icon" type="image/png" href="assets/ati-mark.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,6 +26,10 @@
 
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ProfessionalService","name":"ATI Damp Survey","description":"Independent damp and timber survey practice producing evidence-based written reports across London. No remedial work undertaken.","url":"https://atidampsurvey.co.uk/","image":"https://atidampsurvey.co.uk/assets/ati-mark.png","email":"team@atidampsurvey.co.uk","telephone":"+442033554944","address":{"@type":"PostalAddress","addressRegion":"London","addressCountry":"GB"},"areaServed":{"@type":"City","name":"London"},"serviceType":["Independent damp survey","Pre-purchase damp and timber survey","Landlord damp and mould report","Housing disrepair damp report","Condensation and mould assessment","Timber decay survey"],"priceRange":"££"}
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does an independent survey cost?","acceptedAnswer":{"@type":"Answer","text":"We quote a fixed fee before we attend, based on the property type and the scope you need. You will know the figure in our same day reply and there is no obligation to proceed. We do not quote for remedial work, so the fee is the whole of our commercial interest in your property."}},{"@type":"Question","name":"Why not just use the free survey a damp company offers?","acceptedAnswer":{"@type":"Answer","text":"Because it is a sales visit, not a survey. It carries no professional liability, it is produced by the party who will be paid for the treatment, and it will very rarely conclude that no work is required. Our report has no work attached to it."}},{"@type":"Question","name":"Do you carry out the repairs afterwards?","acceptedAnswer":{"@type":"Answer","text":"No, and we never will. That independence is the product. The report specifies what needs doing in enough detail for you to obtain comparable quotes from contractors of your own choosing."}},{"@type":"Question","name":"Can you recommend a contractor?","acceptedAnswer":{"@type":"Answer","text":"We deliberately do not, because a referral relationship would compromise the report. We will tell you what trade you need, what the specification must include, and what to be wary of in the quotes you receive."}},{"@type":"Question","name":"How long does the inspection take?","acceptedAnswer":{"@type":"Answer","text":"Usually 60 to 90 minutes for a flat or standard terrace, longer for a larger house, a basement, or a full timber inspection. We will not rush it, and we will not open up fabric without your consent."}},{"@type":"Question","name":"When do I get the report?","acceptedAnswer":{"@type":"Answer","text":"Within 24 hours of the inspection, by email, as a PDF. If anything found requires urgent attention we will tell you at the property rather than wait for the document."}},{"@type":"Question","name":"Will the report help me renegotiate a purchase?","acceptedAnswer":{"@type":"Answer","text":"That is one of its most common uses. Because it states cause, extent and an outline cost of the remedial specification, it gives your solicitor something concrete to put to the seller instead of a vague concern."}},{"@type":"Question","name":"Which parts of London do you cover?","acceptedAnswer":{"@type":"Answer","text":"All of it, north and south of the river, across every postcode district in London. Concentrating on one city's housing stock is a large part of why our diagnoses hold up, so put your postcode in the form and we will confirm the same day."}},{"@type":"Question","name":"Do you work for landlords and tenants?","acceptedAnswer":{"@type":"Answer","text":"Both, and for solicitors and agents acting for either. We take no position beyond what the evidence supports, which is why parties on opposite sides are willing to accept the same report."}}]}
 </script>
 
 <style>
@@ -209,6 +214,8 @@ section{padding-block:clamp(64px,8vw,116px)}
 @media (max-width:860px){.service-panel{grid-template-columns:1fr;padding-top:34px}}
 .service-content{display:flex;flex-direction:column;gap:18px;min-height:270px;transition:opacity .24s,transform .24s}
 .service-content.is-swapping{opacity:0;transform:translateY(6px)}
+.service-content .svc{display:flex;flex-direction:column;gap:18px}
+.service-content .svc[hidden]{display:none}
 .service-content h3{font-size:clamp(25px,2.7vw,34px);letter-spacing:-.02em}
 .service-content p{color:var(--muted);font-size:16px;line-height:1.66}
 .service-content .btn{align-self:flex-start;margin-top:8px}
@@ -598,9 +605,31 @@ html{scroll-padding-top:88px}
       <p class="lede">Whatever the symptom, the inspection is the same forensic process. Choose what you are dealing with to see how we approach it and what the report will tell you.</p>
     </div>
 
-    <div class="services-pills" role="tablist" aria-label="Services"></div>
+    <div class="services-pills" role="tablist" aria-label="Services">
+      <button class="pill" role="tab" aria-selected="true" data-svc="rising-damp">Suspected Rising Damp</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="penetrating-damp">Water Ingress</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="condensation">Condensation &amp; Humidity</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="mould">Mould Assessment</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="timber">Timber Decay &amp; Woodworm</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="basement">Basements &amp; Cellars</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="pre-purchase">Pre-Purchase Reports</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="landlord">Landlord &amp; Disrepair</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="second-opinion">Second Opinions</button>
+      <button class="pill" role="tab" aria-selected="false" data-svc="post-works">Post-Works Verification</button>
+    </div>
     <div class="service-panel">
-      <div class="service-content" id="service-content" role="tabpanel" aria-live="polite"></div>
+      <div class="service-content" id="service-content" role="tabpanel" aria-live="polite">
+        <div class="svc" data-svc="rising-damp"><h3>Suspected Rising Damp</h3><p>Genuine rising damp is far rarer in London housing stock than the number of injected damp courses would suggest. The same tide mark can be produced by hygroscopic salts in old plaster, a bridged or raised external ground level, a defective gully, or a slow leak beneath a floor.</p><p>We profile moisture at depth as well as at the surface, test for salt contamination, check external levels and drainage, and only then state whether capillary rise is actually occurring. In a good number of London inspections, it is not.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="penetrating-damp" hidden><h3>Water Ingress</h3><p>Lateral ingress in London terraces and mansion blocks usually traces back to something outside the affected room: perished pointing on an exposed elevation, a cracked parapet or valley, a blocked hopper, failed flashing at a rear addition, or a neighbour's overflow.</p><p>We inspect the external envelope alongside the internal damage and correlate the two, so the report identifies the defect rather than the stain. Where access limits what can be seen, the report says so explicitly instead of speculating.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="condensation" hidden><h3>Condensation &amp; Humidity</h3><p>London flats and converted houses generate a great deal of moisture in small, well-sealed volumes. Where extraction is inadequate and surfaces are cold, condensation follows, and it is frequently misdiagnosed as structural damp.</p><p>We record internal temperature, relative humidity, dew point and surface temperatures, assess existing extraction against the room use, and set out whether the cause is building fabric, ventilation provision, occupancy, or a combination. This distinction matters enormously in a dispute.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="mould" hidden><h3>Mould Assessment</h3><p>Mould is a symptom with several possible causes, and treating the surface without establishing which one you have is why it returns. Landlords and tenants often hold entirely opposite views about the reason, which is precisely why an independent view is useful.</p><p>The report records the extent and distribution of growth, the environmental conditions that permit it, the building defects contributing to it, and the remedial and ventilation measures required, in priority order.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="timber" hidden><h3>Timber Decay &amp; Woodworm</h3><p>Timber decay follows moisture, so a timber inspection is a moisture inspection. We examine accessible floor timbers, joist ends built into external walls, sub-floor ventilation, cellars and roof timbers.</p><p>The report distinguishes active from historic infestation, wet rot from dry rot, and cosmetic from structural loss. Where structural adequacy is in question we say what further opening up or engineering input is needed, rather than guessing at it.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="basement" hidden><h3>Basements &amp; Cellars</h3><p>London basement conversions and lower-ground flats are the single most common source of contested damp problems. Failed cementitious tanking, membrane systems installed over unresolved defects, and sumps that were never maintained are all routine findings.</p><p>We assess the existing waterproofing against BS 8102 principles, identify what type of system is present and whether it was ever appropriate, and report on what would be required to achieve the intended grade of use.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="pre-purchase" hidden><h3>Pre-Purchase Reports</h3><p>A valuation survey that recommends a specialist damp report is a starting point, not an answer. Buyers frequently receive a contractor's free quote in its place, which is not an independent assessment and carries no professional liability.</p><p>Our pre-purchase report gives you the cause, the extent, the remedial specification and an outline cost, in a form your solicitor can use and your seller can be shown. It is often the difference between a renegotiation and a guess.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="landlord" hidden><h3>Landlord &amp; Disrepair</h3><p>Where a tenant has reported damp or mould, an independent inspection establishes the facts before positions harden. Reports are prepared knowing they may be read by the tenant, an environmental health officer, an ombudsman or a court.</p><p>Findings are set out neutrally: what is a fabric defect and the landlord's responsibility, what relates to ventilation provision, and what relates to occupancy. Recommendations are prioritised by risk to health and to the building.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="second-opinion" hidden><h3>Second Opinions</h3><p>If you have been quoted for injection, hacking off plaster, tanking or a full replastering programme and something about it does not sit right, a second opinion costs a fraction of the works.</p><p>We review the existing quotation or report, inspect independently, and tell you whether the recommended scope is justified, partially justified, or unsupported by the evidence. We will say so plainly either way.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="post-works" hidden><h3>Post-Works Verification</h3><p>Remedial damp work is easy to pay for and hard to verify. Once plaster is back on and paint is dry, whether the specification was actually followed becomes very difficult to establish.</p><p>We inspect during or after works against the original specification and record what was done, what was omitted, and whether the moisture profile has actually improved. Useful for a retention release, an insurer, or a dispute.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+      </div>
       <aside class="service-aside" aria-label="What every report contains">
         <h4>Every report contains</h4>
         <ul>
@@ -624,8 +653,8 @@ html{scroll-padding-top:88px}
     </div>
   </div>
   <!-- PLACEHOLDER FEEDBACK: replace the reviews array in the script below with real client quotes before launch -->
-  <div class="carousel" aria-label="Client feedback"><div class="carousel-track" id="track-a"></div></div>
-  <div class="carousel" aria-hidden="true"><div class="carousel-track rev" id="track-b"></div></div>
+  <div class="carousel" aria-label="Client feedback"><div class="carousel-track" id="track-a"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We were quoted £9,400 for injection and replastering. ATI found a blocked gully and raised patio. The repair was £600.</p><div class="review-attr"><span>Homeowner, SE22</span><span class="src">Second opinion</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Our surveyor flagged damp and the seller refused to budge. The independent report gave us the evidence to take £11,000 off the price.</p><div class="review-attr"><span>Buyer, N4</span><span class="src">Pre-purchase</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tenant complaint had escalated to the council. The report separated fabric defects from ventilation clearly and the case closed.</p><div class="review-attr"><span>Landlord, E8</span><span class="src">Landlord report</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.</p><div class="review-attr"><span>Homeowner, SW11</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.</p><div class="review-attr"><span>Leaseholder, W9</span><span class="src">Basement</span></div></article></div></div>
+  <div class="carousel" aria-hidden="true"><div class="carousel-track rev" id="track-b"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.</p><div class="review-attr"><span>Homeowner, SW11</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.</p><div class="review-attr"><span>Leaseholder, W9</span><span class="src">Basement</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Report arrived the next morning as promised, and our solicitor could use it without a single query.</p><div class="review-attr"><span>Buyer, SE13</span><span class="src">Pre-purchase</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Instructed us to spend nothing at all in two of the three rooms. Not what a contractor would have said.</p><div class="review-attr"><span>Homeowner, NW6</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Managing four blocks and now use ATI for every reported case. The neutrality is the whole point.</p><div class="review-attr"><span>Managing agent, EC1</span><span class="src">Portfolio</span></div></article></div></div>
   <div class="container">
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
@@ -801,7 +830,17 @@ html{scroll-padding-top:88px}
       <span class="eyebrow">Straight answers</span>
       <h2 id="faq-heading" class="h-section">Fair questions about paying for a survey.</h2>
     </div>
-    <div class="faq-list" id="faq-list"></div>
+    <div class="faq-list" id="faq-list">
+      <details class="qa"><summary>What does an independent survey cost?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>We quote a fixed fee before we attend, based on the property type and the scope you need. You will know the figure in our same day reply and there is no obligation to proceed. We do not quote for remedial work, so the fee is the whole of our commercial interest in your property.</p></details>
+      <details class="qa"><summary>Why not just use the free survey a damp company offers?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>Because it is a sales visit, not a survey. It carries no professional liability, it is produced by the party who will be paid for the treatment, and it will very rarely conclude that no work is required. Our report has no work attached to it.</p></details>
+      <details class="qa"><summary>Do you carry out the repairs afterwards?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>No, and we never will. That independence is the product. The report specifies what needs doing in enough detail for you to obtain comparable quotes from contractors of your own choosing.</p></details>
+      <details class="qa"><summary>Can you recommend a contractor?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>We deliberately do not, because a referral relationship would compromise the report. We will tell you what trade you need, what the specification must include, and what to be wary of in the quotes you receive.</p></details>
+      <details class="qa"><summary>How long does the inspection take?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>Usually 60 to 90 minutes for a flat or standard terrace, longer for a larger house, a basement, or a full timber inspection. We will not rush it, and we will not open up fabric without your consent.</p></details>
+      <details class="qa"><summary>When do I get the report?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>Within 24 hours of the inspection, by email, as a PDF. If anything found requires urgent attention we will tell you at the property rather than wait for the document.</p></details>
+      <details class="qa"><summary>Will the report help me renegotiate a purchase?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>That is one of its most common uses. Because it states cause, extent and an outline cost of the remedial specification, it gives your solicitor something concrete to put to the seller instead of a vague concern.</p></details>
+      <details class="qa"><summary>Which parts of London do you cover?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>All of it, north and south of the river, across every postcode district in London. Concentrating on one city's housing stock is a large part of why our diagnoses hold up, so put your postcode in the form and we will confirm the same day.</p></details>
+      <details class="qa"><summary>Do you work for landlords and tenants?<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>Both, and for solicitors and agents acting for either. We take no position beyond what the evidence supports, which is why parties on opposite sides are willing to accept the same report.</p></details>
+    </div>
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       <span class="note">Still unsure? Call <a href="tel:+442033554944">020 3355 4944</a> and we&#39;ll answer honestly.</span>
@@ -992,101 +1031,35 @@ function placementOf(el){
   return 'page';
 }
 
-/* ---------- Services ---------- */
-const services = [
-  { key:'rising-damp', name:'Suspected Rising Damp', body:[
-    "Genuine rising damp is far rarer in London housing stock than the number of injected damp courses would suggest. The same tide mark can be produced by hygroscopic salts in old plaster, a bridged or raised external ground level, a defective gully, or a slow leak beneath a floor.",
-    "We profile moisture at depth as well as at the surface, test for salt contamination, check external levels and drainage, and only then state whether capillary rise is actually occurring. In a good number of London inspections, it is not."]},
-  { key:'penetrating-damp', name:'Water Ingress', body:[
-    "Lateral ingress in London terraces and mansion blocks usually traces back to something outside the affected room: perished pointing on an exposed elevation, a cracked parapet or valley, a blocked hopper, failed flashing at a rear addition, or a neighbour's overflow.",
-    "We inspect the external envelope alongside the internal damage and correlate the two, so the report identifies the defect rather than the stain. Where access limits what can be seen, the report says so explicitly instead of speculating."]},
-  { key:'condensation', name:'Condensation &amp; Humidity', body:[
-    "London flats and converted houses generate a great deal of moisture in small, well-sealed volumes. Where extraction is inadequate and surfaces are cold, condensation follows, and it is frequently misdiagnosed as structural damp.",
-    "We record internal temperature, relative humidity, dew point and surface temperatures, assess existing extraction against the room use, and set out whether the cause is building fabric, ventilation provision, occupancy, or a combination. This distinction matters enormously in a dispute."]},
-  { key:'mould', name:'Mould Assessment', body:[
-    "Mould is a symptom with several possible causes, and treating the surface without establishing which one you have is why it returns. Landlords and tenants often hold entirely opposite views about the reason, which is precisely why an independent view is useful.",
-    "The report records the extent and distribution of growth, the environmental conditions that permit it, the building defects contributing to it, and the remedial and ventilation measures required, in priority order."]},
-  { key:'timber', name:'Timber Decay &amp; Woodworm', body:[
-    "Timber decay follows moisture, so a timber inspection is a moisture inspection. We examine accessible floor timbers, joist ends built into external walls, sub-floor ventilation, cellars and roof timbers.",
-    "The report distinguishes active from historic infestation, wet rot from dry rot, and cosmetic from structural loss. Where structural adequacy is in question we say what further opening up or engineering input is needed, rather than guessing at it."]},
-  { key:'basement', name:'Basements &amp; Cellars', body:[
-    "London basement conversions and lower-ground flats are the single most common source of contested damp problems. Failed cementitious tanking, membrane systems installed over unresolved defects, and sumps that were never maintained are all routine findings.",
-    "We assess the existing waterproofing against BS 8102 principles, identify what type of system is present and whether it was ever appropriate, and report on what would be required to achieve the intended grade of use."]},
-  { key:'pre-purchase', name:'Pre-Purchase Reports', body:[
-    "A valuation survey that recommends a specialist damp report is a starting point, not an answer. Buyers frequently receive a contractor's free quote in its place, which is not an independent assessment and carries no professional liability.",
-    "Our pre-purchase report gives you the cause, the extent, the remedial specification and an outline cost, in a form your solicitor can use and your seller can be shown. It is often the difference between a renegotiation and a guess."]},
-  { key:'landlord', name:'Landlord &amp; Disrepair', body:[
-    "Where a tenant has reported damp or mould, an independent inspection establishes the facts before positions harden. Reports are prepared knowing they may be read by the tenant, an environmental health officer, an ombudsman or a court.",
-    "Findings are set out neutrally: what is a fabric defect and the landlord's responsibility, what relates to ventilation provision, and what relates to occupancy. Recommendations are prioritised by risk to health and to the building."]},
-  { key:'second-opinion', name:'Second Opinions', body:[
-    "If you have been quoted for injection, hacking off plaster, tanking or a full replastering programme and something about it does not sit right, a second opinion costs a fraction of the works.",
-    "We review the existing quotation or report, inspect independently, and tell you whether the recommended scope is justified, partially justified, or unsupported by the evidence. We will say so plainly either way."]},
-  { key:'post-works', name:'Post-Works Verification', body:[
-    "Remedial damp work is easy to pay for and hard to verify. Once plaster is back on and paint is dry, whether the specification was actually followed becomes very difficult to establish.",
-    "We inspect during or after works against the original specification and record what was done, what was omitted, and whether the moisture profile has actually improved. Useful for a retention release, an insurer, or a dispute."]}
-];
-
-/* ---------- Reviews (PLACEHOLDER, swap for real quotes) ---------- */
-const reviews = [
-  { text:'We were quoted £9,400 for injection and replastering. ATI found a blocked gully and raised patio. The repair was £600.', attr:'Homeowner, SE22', src:'Second opinion' },
-  { text:'Our surveyor flagged damp and the seller refused to budge. The independent report gave us the evidence to take £11,000 off the price.', attr:'Buyer, N4', src:'Pre-purchase' },
-  { text:'Tenant complaint had escalated to the council. The report separated fabric defects from ventilation clearly and the case closed.', attr:'Landlord, E8', src:'Landlord report' },
-  { text:'Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.', attr:'Homeowner, SW11', src:'Damp survey' },
-  { text:'Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.', attr:'Leaseholder, W9', src:'Basement' },
-  { text:'Report arrived the next morning as promised, and our solicitor could use it without a single query.', attr:'Buyer, SE13', src:'Pre-purchase' },
-  { text:'Instructed us to spend nothing at all in two of the three rooms. Not what a contractor would have said.', attr:'Homeowner, NW6', src:'Damp survey' },
-  { text:'Managing four blocks and now use ATI for every reported case. The neutrality is the whole point.', attr:'Managing agent, EC1', src:'Portfolio' }
-];
-
-/* ---------- FAQ ---------- */
-const faqs = [
-  { q:'What does an independent survey cost?', a:"We quote a fixed fee before we attend, based on the property type and the scope you need. You will know the figure in our same day reply and there is no obligation to proceed. We do not quote for remedial work, so the fee is the whole of our commercial interest in your property." },
-  { q:'Why not just use the free survey a damp company offers?', a:"Because it is a sales visit, not a survey. It carries no professional liability, it is produced by the party who will be paid for the treatment, and it will very rarely conclude that no work is required. Our report has no work attached to it." },
-  { q:'Do you carry out the repairs afterwards?', a:"No, and we never will. That independence is the product. The report specifies what needs doing in enough detail for you to obtain comparable quotes from contractors of your own choosing." },
-  { q:'Can you recommend a contractor?', a:"We deliberately do not, because a referral relationship would compromise the report. We will tell you what trade you need, what the specification must include, and what to be wary of in the quotes you receive." },
-  { q:'How long does the inspection take?', a:"Usually 60 to 90 minutes for a flat or standard terrace, longer for a larger house, a basement, or a full timber inspection. We will not rush it, and we will not open up fabric without your consent." },
-  { q:'When do I get the report?', a:"Within 24 hours of the inspection, by email, as a PDF. If anything found requires urgent attention we will tell you at the property rather than wait for the document." },
-  { q:'Will the report help me renegotiate a purchase?', a:"That is one of its most common uses. Because it states cause, extent and an outline cost of the remedial specification, it gives your solicitor something concrete to put to the seller instead of a vague concern." },
-  { q:'Which parts of London do you cover?', a:"All of it, north and south of the river, across every postcode district in London. Concentrating on one city's housing stock is a large part of why our diagnoses hold up, so put your postcode in the form and we will confirm the same day." },
-  { q:'Do you work for landlords and tenants?', a:"Both, and for solicitors and agents acting for either. We take no position beyond what the evidence supports, which is why parties on opposite sides are willing to accept the same report." }
-];
-
-/* ---------- Render reviews ---------- */
-(function renderReviews(){
-  const card = r => `<article class="review"><p>${r.text}</p><div class="review-attr"><span>${r.attr}</span><span class="src">${r.src}</span></div></article>`;
-  const a = reviews.slice(0,5).map(card).join('');
-  const b = reviews.slice(3).map(card).join('');
-  document.getElementById('track-a').innerHTML = a + a; // doubled for seamless marquee
-  document.getElementById('track-b').innerHTML = b + b;
+/* ---------- Reviews marquee ----------
+   The cards are in the HTML so they can be read without JavaScript. The loop
+   needs each track twice to run seamlessly, and that second copy is decoration,
+   so it is made here rather than shipped in the markup. */
+(function loopReviews(){
+  ['track-a','track-b'].forEach(id => {
+    const track = document.getElementById(id);
+    if (track) track.innerHTML += track.innerHTML;
+  });
 })();
 
-/* ---------- Render FAQ ---------- */
-(function renderFaq(){
-  document.getElementById('faq-list').innerHTML = faqs.map(f => `
-    <details class="qa"><summary>${f.q}<span class="qa-plus" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary><p>${f.a}</p></details>`).join('');
-})();
-
-/* ---------- Services tabs ---------- */
-(function renderServices(){
+/* ---------- Services tabs ----------
+   Every panel is in the HTML. This shows one at a time and keeps the fade. */
+(function serviceTabs(){
   const pillRow = document.querySelector('.services-pills');
   const panel = document.getElementById('service-content');
-  pillRow.innerHTML = services.map((s,i) => `<button class="pill" role="tab" aria-selected="${i===0}" data-svc="${s.key}">${s.name}</button>`).join('');
+  if (!pillRow || !panel) return;
+  const panels = Array.from(panel.querySelectorAll('.svc'));
 
-  function render(key){
-    const svc = services.find(s => s.key === key) || services[0];
+  function select(key){
+    if (!panels.some(s => s.dataset.svc === key)) return;
+    pillRow.querySelectorAll('.pill').forEach(p => p.setAttribute('aria-selected', String(p.dataset.svc === key)));
     panel.classList.add('is-swapping');
     setTimeout(() => {
-      panel.innerHTML = `<h3>${svc.name}</h3>${svc.body.map(p=>`<p>${p}</p>`).join('')}
-        <a href="#book" class="btn btn--primary">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>`;
+      panels.forEach(s => { s.hidden = s.dataset.svc !== key; });
       panel.classList.remove('is-swapping');
     }, 170);
   }
-  render(services[0].key);
 
-  function select(key){
-    pillRow.querySelectorAll('.pill').forEach(p => p.setAttribute('aria-selected', String(p.dataset.svc === key)));
-    render(key);
-  }
   pillRow.addEventListener('click', e => {
     const btn = e.target.closest('.pill');
     if (btn) select(btn.dataset.svc);

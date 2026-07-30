@@ -1,3 +1,12 @@
+# dampscan.co.uk
+#
+# One group only, deliberately. Adding a named group for a crawler makes that
+# crawler ignore this one entirely, so the disallows below would stop applying
+# to it. The AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended and
+# the rest) are allowed on purpose: being readable by them is the point.
+#
+# The London host gets robots-london.txt at this path, via middleware.js.
+
 User-agent: *
 Allow: /
 Disallow: /api/
@@ -5,4 +14,3 @@ Disallow: /staff
 Disallow: /staff/
 
 Sitemap: https://dampscan.co.uk/sitemap.xml
-Sitemap: https://atidampsurvey.co.uk/sitemap-london.xml
