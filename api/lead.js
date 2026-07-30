@@ -8,7 +8,6 @@ import { query, queryOne } from '../lib/db.js';
 import { json, requireMethod, requireSameOrigin, readJson, ipHash, str } from '../lib/http.js';
 import { validateLead } from '../lib/validate.js';
 import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
-import { sendLeadNotification } from '../lib/notify.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -106,21 +105,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // Email is a convenience. Record the outcome and answer 200 either way.
-  if (row.inserted || !row.notified_at) {
-    const result = await sendLeadNotification(value, id);
-    try {
-      await query(
-        result.ok
-          ? 'update leads set notified_at = now(), notify_error = null where id = $1'
-          : 'update leads set notify_error = $2 where id = $1',
-        result.ok ? [id] : [id, String(result.error).slice(0, 1000)]
-      );
-    } catch (err) {
-      console.warn('could not record notification outcome:', err.message);
-    }
-    if (!result.ok) console.warn(`lead ${id} saved but not emailed: ${result.error}`);
-  }
+  // The notification email is sent by the browser, not from here: FormSubmit
+  // sits behind Cloudflare and answers a serverless call with a bot challenge.
+  // The page reports the outcome to /api/notified, which stamps notified_at or
+  // notify_error on this row.
 
   json(res, 200, { ok: true, id });
 }

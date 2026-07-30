@@ -839,8 +839,14 @@ html{scroll-padding-top:88px}
    that one function to your CRM/webhook.
    ========================================================================= */
 
-/* Our own API. It owns validation, storage and the notification email. */
+/* Our own API. It owns validation and storage, and is the source of truth. */
 const LEAD_ENDPOINT = '/api/lead';
+
+/* FormSubmit is called from the browser, not from our functions: it sits behind
+   Cloudflare, which answers a server-to-server request with a bot challenge
+   rather than sending the email. Changing this address needs a commit, since a
+   static page cannot read environment variables. */
+const NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/scott@damp-survey.com';
 
 /* ---------- Visit session and first-party attribution (no cookies) ----------
    One id per visit, held in sessionStorage so it dies with the tab. The partial
@@ -1125,6 +1131,61 @@ const faqs = [
     }
   }
 
+  /* The notification email is sent from here rather than from our API, because
+     FormSubmit sits behind Cloudflare and answers a server-to-server call with a
+     bot challenge instead of sending anything. The lead is already stored by
+     /api/lead before this runs, so a blocked or abandoned browser costs the
+     email, never the enquiry. */
+  function emailNotification(stage, id){
+    const issues = Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value);
+    const who = val('f-name') || 'unknown';
+    const where = val('f-postcode') || 'no postcode';
+    const payload = {
+      _subject: (stage === 'complete' ? 'NEW survey booking, ' : 'PARTIAL lead (step 1), ') + who + ', ' + where,
+      _captcha: 'false',
+      _template: 'table',
+      'First name': val('f-name'),
+      Email: val('f-email'),
+      Phone: val('f-phone') || 'Not given',
+      Postcode: val('f-postcode'),
+      Issue: issues.length ? issues.join(', ') : 'Not given yet',
+      'Owner or landlord': document.getElementById('f-role').value || 'Not given yet',
+      'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
+      Notes: val('f-notes') || 'None',
+      'Lead stage': stage,
+      Submitted: new Date().toLocaleString('en-GB'),
+      'Lead ID': String(id || '')
+    };
+
+    /* Tell our API what happened, so the dashboard shows the truth rather than
+       "Pending" forever. Fire and forget, never surfaced to the visitor. */
+    const report = (ok, error) => {
+      try {
+        fetch('/api/notified', {
+          method: 'POST', keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: DS.id, stage: stage, ok: ok, error: error || '' })
+        }).catch(function(){});
+      } catch (e) {}
+    };
+
+    try {
+      fetch(NOTIFY_ENDPOINT, {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(r => r.json().catch(function(){ return null; }))
+        .then(body => {
+          const sent = body && String(body.success).toLowerCase() === 'true';
+          report(sent, sent ? '' : (body && body.message) || 'FormSubmit did not confirm the send.');
+        })
+        .catch(err => report(false, String((err && err.message) || err)));
+    } catch (e) {
+      report(false, String(e && e.message || e));
+    }
+  }
+
   /* Returns { ok, errors }. A network failure resolves ok, so the visitor is
      never trapped by something that is not their fault. A 400 does not, because
      the fields genuinely need fixing. */
@@ -1140,6 +1201,8 @@ const faqs = [
         const body = await res.json().catch(function(){ return null; });
         return { ok: false, errors: (body && body.errors) || {} };
       }
+      const saved = await res.json().catch(function(){ return null; });
+      emailNotification(stage, saved && saved.id);
     } catch (err) {
       /* Offline/preview or network blocked: the UI still advances so the visitor is never stuck */
       console.warn('Lead POST failed (stage: ' + stage + ')', err);
