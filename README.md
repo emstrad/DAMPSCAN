@@ -9,13 +9,14 @@ A static page plus serverless functions. No framework, no bundler, no build step
 public/          static site (index.html unchanged apart from the edits listed below)
   staff/         login page, dashboard, shared CSS
 api/             serverless functions
-  lead.js        POST, validates, writes to Neon, then notifies by email
+  lead.js        POST, validates and writes the lead to Neon
   event.js       POST, records one analytics event
+  notified.js    POST, records whether the browser sent the notification email
   health.js      GET, uptime check
   auth/          login and logout
   admin/         dashboard data, auth required
 db/              schema.sql, migrate.js, account scripts
-lib/             db, validation, notification, throttle, session, attribution, metrics
+lib/             db, validation, throttle, session, attribution, metrics
 test/            unit and integration tests
 ```
 
@@ -36,10 +37,10 @@ test/            unit and integration tests
 6. **Add the domains.** Add `dampscan.co.uk` and `www.dampscan.co.uk` in Vercel, then
    at the registrar set apex `A` to `76.76.21.21` and `www` `CNAME` to
    `cname.vercel-dns.com`. Wait for the certificate to issue.
-7. **Activate FormSubmit.** Submit the live form once. FormSubmit sends a one-time
-   activation email to `scott@damp-survey.com` that has to be confirmed before any
-   notification will arrive. Leads are stored in Neon from the very first
-   submission either way, so nothing is lost while this is pending.
+7. **Activate FormSubmit.** Submit the live form once from a browser. FormSubmit
+   sends a one-time activation email to `scott@damp-survey.com` that has to be
+   confirmed before any notification will arrive. Leads are stored in Neon from the
+   very first submission either way, so nothing is lost while this is pending.
 8. **Smoke test.** Work through the list below.
 
 ### Post-deploy smoke test
@@ -69,8 +70,6 @@ covered by `npm test`. See "Running the tests".
 | `STAFF_ACCESS_CODE` | yes | The code typed at `/staff`. Under 4 characters and every login is refused, so it cannot be left blank by accident. |
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
-| `FORMSUBMIT_ENDPOINT` | yes | `https://formsubmit.co/ajax/scott@damp-survey.com`. |
-| `NOTIFY_EMAIL` | no | Fallback used to build the FormSubmit URL if `FORMSUBMIT_ENDPOINT` is unset. |
 
 Generate the two secrets with:
 
@@ -180,6 +179,28 @@ reason, they are simply not consulted by the current login route.
   note cannot become a spreadsheet formula.
 - `/staff/*` is `noindex, nofollow` in the markup, via an `X-Robots-Tag` header, and
   disallowed in `robots.txt`.
+
+## Lead notifications
+
+The email is sent by the visitor's browser, not by our functions. FormSubmit sits
+behind Cloudflare, which answers a serverless request with a bot challenge page and
+a 403 rather than sending anything, so a server-side call cannot work. FormSubmit is
+built to be posted to from a browser, and that is what the page now does.
+
+The order is deliberate. `/api/lead` stores the lead first and answers, then the
+page posts to FormSubmit and reports the outcome to `/api/notified`, which stamps
+`notified_at` or `notify_error` on the row. A blocked, closed or ad-blocked browser
+therefore costs the email and never the enquiry, and the dashboard shows which of
+the two happened instead of claiming everything was sent.
+
+Two consequences worth knowing:
+
+- The notification address lives in `NOTIFY_ENDPOINT` at the top of the script in
+  `public/index.html`. A static page cannot read environment variables, so changing
+  where leads are emailed is a commit rather than a dashboard edit.
+- Delivery is best effort. Treat the dashboard as the record of what came in, and
+  email as the prompt to go and look. Any lead whose `notify_error` is set is in the
+  database and simply was not emailed.
 
 ## Analytics and privacy
 

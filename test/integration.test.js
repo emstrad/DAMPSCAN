@@ -47,6 +47,7 @@ const login = (await import('../api/auth/login.js')).default;
 const logout = (await import('../api/auth/logout.js')).default;
 const summary = (await import('../api/admin/summary.js')).default;
 const leadsRoute = (await import('../api/admin/leads.js')).default;
+const notified = (await import('../api/notified.js')).default;
 
 /* ---------- minimal req/res doubles ---------- */
 function makeReq({ method = 'POST', url = '/', body, headers = {}, ip = '203.0.113.5' } = {}) {
@@ -226,43 +227,8 @@ test('rate limit is per address, so one visitor cannot lock out another', async 
   assert.equal(other.statusCode, 200);
 });
 
-test('a 200 that says success false is recorded as NOT sent', async () => {
-  // FormSubmit answers 200 with {"success":"false"} while the address is still
-  // unactivated. Trusting the status code alone stamped notified_at on a lead
-  // that was never emailed, which hid the problem entirely.
-  globalThis.fetch = async () => ({
-    ok: true,
-    status: 200,
-    text: async () => JSON.stringify({ success: 'false', message: 'Please activate your form' })
-  });
-  const res = await call(lead, { body: validLead() });
-  assert.equal(res.statusCode, 200, 'the visitor is still told they are booked');
 
-  const { rows } = await pool.query('select notified_at, notify_error from leads where id = $1', [res.json().id]);
-  assert.equal(rows[0].notified_at, null, 'must not claim it was sent');
-  assert.match(rows[0].notify_error, /did not send.*activate/i);
-});
 
-test('a 200 with success true is recorded as sent', async () => {
-  globalThis.fetch = async () => ({
-    ok: true, status: 200, text: async () => JSON.stringify({ success: 'true', message: 'sent' })
-  });
-  const res = await call(lead, { body: validLead() });
-  const { rows } = await pool.query('select notified_at, notify_error from leads where id = $1', [res.json().id]);
-  assert.ok(rows[0].notified_at, 'notified_at is stamped');
-  assert.equal(rows[0].notify_error, null);
-});
-
-test('a failing notification is recorded but never fails the request', async () => {
-  globalThis.fetch = async () => ({ ok: false, status: 500, text: async () => 'boom' });
-  const res = await call(lead, { body: validLead() });
-  assert.equal(res.statusCode, 200, 'the database is the source of truth, email is a convenience');
-
-  const { rows } = await pool.query('select notified_at, notify_error from leads where id = $1', [res.json().id]);
-  assert.equal(rows[0].notified_at, null);
-  assert.match(rows[0].notify_error, /FormSubmit 500/);
-  globalThis.fetch = async () => ({ ok: true, status: 200, text: async () => '{"success":"true"}' });
-});
 
 test('a booking back-fills lead_id onto that session\'s earlier events', async () => {
   await call(event, { body: { sessionId: SID_A, type: 'page_view' } });
