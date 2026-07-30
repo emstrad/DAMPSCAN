@@ -24,10 +24,10 @@
       { k: 'Unique sessions', v: num(c.sessions) },
       { k: 'Call clicks', v: num(c.callClicks) },
       { k: 'Form opens', v: num(c.formOpens) },
-      { k: 'Step 1 partials', v: num(c.partials) },
+      { k: 'Step 1 dropouts', v: num(c.partials) },
       { k: 'Bookings', v: num(c.bookings), key: true },
-      { k: 'Session to partial', v: pct(c.sessionToPartial), s: num(c.partials) + ' of ' + num(c.sessions) + ' sessions' },
-      { k: 'Partial to booked', v: pct(c.partialToComplete), s: num(c.bookings) + ' of ' + num(c.partials) + ' partials', key: true }
+      { k: 'Dropout rate', v: pct(c.sessionToPartial), s: num(c.partials) + ' of ' + num(c.sessions) + ' sessions' },
+      { k: 'Session to booking', v: pct(c.sessionToBooking), s: num(c.bookings) + ' of ' + num(c.sessions) + ' sessions', key: true }
     ];
     var mount = el('tiles');
     mount.textContent = '';
