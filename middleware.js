@@ -18,10 +18,9 @@ const LONDON_HOST = /^(www\.)?atidampsurvey\.co\.uk$/i;
 export default function middleware(request) {
   const host = (request.headers.get('host') || '').split(':')[0];
   if (LONDON_HOST.test(host)) {
-    // cleanUrls is on, so the file is served at /london and the internal path
-    // /london.html resolves to nothing. Rewriting to the extension-ful path
-    // returns a 404 rather than the page.
-    return rewrite(new URL('/london', request.url));
+    // cleanUrls is off, so the file path is the only path and this is
+    // unambiguous. The browser still shows "/", because this is a rewrite.
+    return rewrite(new URL('/london.html', request.url));
   }
   return next();
 }

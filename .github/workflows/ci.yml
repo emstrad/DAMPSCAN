@@ -110,8 +110,10 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -z "${DATABASE_URL}" ]; then
-            echo "::warning::DATABASE_URL secret is not set, so the migration was skipped."
-            echo "Add it under Settings, Secrets and variables, Actions."
-            exit 0
+            echo "::error::DATABASE_URL secret is not set, so the schema was NOT applied."
+            echo "The code on main expects the current schema. Shipping it against an"
+            echo "un-migrated database breaks /api/lead at runtime, which loses bookings."
+            echo "Add the secret under Settings, Secrets and variables, Actions."
+            exit 1
           fi
           npm run migrate
