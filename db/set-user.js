@@ -2,10 +2,10 @@
 /**
  * Changes an existing staff account.
  *
- *   npm run set-user -- --email=scott@damp-survey.com --disable
- *   npm run set-user -- --email=scott@damp-survey.com --enable
- *   npm run set-user -- --email=scott@damp-survey.com --password
- *   npm run set-user -- --email=scott@damp-survey.com --role=admin
+ *   npm run set-user -- --email=you@example.com --disable
+ *   npm run set-user -- --email=you@example.com --enable
+ *   npm run set-user -- --email=you@example.com --password
+ *   npm run set-user -- --email=you@example.com --role=admin
  *   npm run set-user -- --list
  *
  * Disabling is preferred over deleting: it revokes access immediately while
