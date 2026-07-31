@@ -1,0 +1,90 @@
+/* Area pages. One stylesheet, two brands: the generator stamps data-site on the
+   root element, so the same markup wears the DampScan dark palette or the ATi
+   light one. Deliberately compact rather than a copy of the home page CSS,
+   which is inline there and would otherwise be duplicated on every area page. */
+*,*::before,*::after{box-sizing:border-box}
+
+:root[data-site="dampscan"]{
+  --bg:#0c1a2b;--bg-2:#081321;--card:#14243a;
+  --line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.15);
+  --accent:#4fa8e8;--accent-hi:#7cc3f5;--accent-soft:rgba(79,168,232,.12);
+  --text:#f5f8fc;--muted:#aebbcc;--muted-2:#7f8ea4;--on-accent:#06121f;
+}
+:root[data-site="ati"]{
+  --bg:#f5f5f3;--bg-2:#ebebe8;--card:#ffffff;
+  --line:rgba(17,33,60,.13);--line-strong:rgba(17,33,60,.24);
+  --accent:#17325a;--accent-hi:#2a5591;--accent-soft:rgba(23,50,90,.08);
+  --text:#11213c;--muted:#4a5871;--muted-2:#5b6780;--on-accent:#ffffff;
+}
+
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);line-height:1.65;
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hi)}
+img{max-width:100%;height:auto}
+h1,h2,h3{line-height:1.14;letter-spacing:-.02em;margin:0;font-weight:800}
+p,ul{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.wrap{max-width:900px;margin-inline:auto;padding:0 clamp(20px,4vw,40px)}
+
+/* ---------- header ---------- */
+.ahead{border-bottom:1px solid var(--line);background:var(--bg-2)}
+.ahead .wrap{display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding-block:16px;flex-wrap:wrap}
+.abrand{display:inline-flex;align-items:center;gap:12px;color:var(--text);font-weight:800;
+  font-size:19px;letter-spacing:-.03em;text-transform:uppercase}
+.abrand .hi{color:var(--accent)}
+.abrand img{height:34px;width:auto;text-transform:none}
+.ahead nav{display:flex;gap:18px;font-size:14.5px;font-weight:600}
+.ahead nav a{color:var(--muted)}
+.ahead nav a:hover{color:var(--text)}
+
+/* ---------- content ---------- */
+.crumb{font-size:13px;color:var(--muted-2);padding-top:26px}
+.crumb a{color:var(--muted-2)}
+.crumb a:hover{color:var(--accent)}
+
+.hero{padding:18px 0 8px}
+.hero h1{font-size:clamp(30px,5vw,46px)}
+.hero .lede{margin-top:18px;font-size:clamp(17px,2vw,19px);color:var(--muted)}
+
+.sec{padding:34px 0;border-top:1px solid var(--line);margin-top:34px}
+.sec:first-of-type{border-top:0;margin-top:0}
+.sec h2{font-size:clamp(22px,3vw,29px);margin-bottom:16px}
+.sec h3{font-size:17px;margin:24px 0 8px}
+.sec p + p{margin-top:14px}
+.sec p{color:var(--muted)}
+
+.ticks{list-style:none;padding:0;margin-top:16px;display:flex;flex-direction:column;gap:11px}
+.ticks li{position:relative;padding-left:28px;color:var(--muted)}
+.ticks li::before{content:"";position:absolute;left:4px;top:.62em;width:9px;height:9px;
+  border-radius:50%;background:var(--accent)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding:0;list-style:none}
+.chips li{border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;
+  font-size:13.5px;color:var(--muted)}
+
+.qa{border-top:1px solid var(--line);padding:18px 0}
+.qa summary{cursor:pointer;font-weight:700;font-size:16.5px;list-style:none}
+.qa summary::-webkit-details-marker{display:none}
+.qa[open] summary{color:var(--accent)}
+.qa p{margin-top:12px}
+
+.cta{background:var(--card);border:1px solid var(--line);border-radius:var(--radius,14px);
+  padding:clamp(22px,4vw,34px);margin:40px 0}
+.cta h2{font-size:clamp(21px,3vw,27px)}
+.cta p{color:var(--muted);margin-top:12px}
+.btn{display:inline-flex;align-items:center;gap:10px;margin-top:20px;min-height:52px;
+  padding:0 28px;border-radius:999px;background:var(--accent);color:var(--on-accent);
+  font-weight:700;font-size:15.5px;transition:background .2s,transform .2s}
+.btn:hover{background:var(--accent-hi);color:var(--on-accent);transform:translateY(-1px)}
+
+/* ---------- footer ---------- */
+.afoot{border-top:1px solid var(--line);background:var(--bg-2);margin-top:50px;
+  padding:30px 0;font-size:13.5px;color:var(--muted-2)}
+.afoot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.afoot a{color:var(--muted-2)}
+.afoot a:hover{color:var(--accent)}

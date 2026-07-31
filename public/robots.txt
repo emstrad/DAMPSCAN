@@ -12,5 +12,10 @@ Allow: /
 Disallow: /api/
 Disallow: /staff
 Disallow: /staff/
+# The area pages are served at /damp-survey/<area>. /areas/ is where the
+# files happen to sit, and indexing both would be the same page twice.
+Disallow: /areas/
+# Same for the service pages, which are served at /services/<name>.
+Disallow: /service-pages/
 
 Sitemap: https://dampscan.co.uk/sitemap.xml
