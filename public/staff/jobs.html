@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Jobs and earnings | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/staff/staff.css" />
+<script>
+/* Both sites share this staff area, so the hostname decides whose name is on
+   it. This runs in the head, before anything is painted, so neither brand ever
+   flashes the other's. The markup carries both lockups; staff.css hides one. */
+(function brand(){
+  var ati = /(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname);
+  if (!ati) return;
+  document.documentElement.setAttribute('data-brand', 'ati');
+  document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var icon = document.querySelector('link[rel="icon"]');
+  if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
+    <span class="logo-type">
+      <span class="logo-word">ATi <span class="scan">Damp</span></span>
+      <span class="logo-tag">Survey Practice</span>
+    </span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/staff/dashboard.html">Dashboard</a>
+    <a href="/staff/jobs.html" aria-current="page">Jobs</a>
+  </nav>
+  <div class="top-end">
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ranges" role="group" aria-label="Site" style="margin-bottom:10px">
+    <button class="pill" data-site="" aria-pressed="true">Both sites</button>
+    <button class="pill" data-site="dampscan" aria-pressed="false">DampScan, Kent</button>
+    <button class="pill" data-site="ati-london" aria-pressed="false">ATI, London</button>
+  </div>
+
+  <div class="ranges" role="group" aria-label="Date range">
+    <button class="pill" data-range="today" aria-pressed="false">Today</button>
+    <button class="pill" data-range="30d" aria-pressed="true">30 days</button>
+    <button class="pill" data-range="90d" aria-pressed="false">90 days</button>
+    <button class="pill" data-range="all" aria-pressed="false">All time</button>
+  </div>
+
+  <div class="state" id="state">Loading…</div>
+
+  <div id="content" hidden>
+    <section class="panel" aria-labelledby="h-earnings">
+      <h2 id="h-earnings">Earnings</h2>
+      <div class="tiles" id="tiles"></div>
+      <p class="panel-note" id="basis"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-add">
+      <h2 id="h-add">Add a job</h2>
+      <form id="job-form" novalidate>
+        <input type="hidden" id="j-id" />
+        <div class="jgrid">
+          <div class="form-row">
+            <label for="j-lead">From an enquiry</label>
+            <select id="j-lead"><option value="">Phone or manual</option></select>
+          </div>
+          <div class="form-row">
+            <label for="j-date">Date</label>
+            <input id="j-date" type="date" />
+          </div>
+          <div class="form-row">
+            <label for="j-name">Customer</label>
+            <input id="j-name" type="text" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="j-postcode">Postcode</label>
+            <input id="j-postcode" type="text" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="j-site">Site</label>
+            <select id="j-site">
+              <option value="dampscan">DampScan, Kent</option>
+              <option value="ati-london">ATI, London</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="j-type">Survey</label>
+            <select id="j-type"></select>
+          </div>
+          <div class="form-row">
+            <label for="j-price">Price &pound;</label>
+            <input id="j-price" type="text" inputmode="decimal" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="j-surveyor">Surveyed by</label>
+            <select id="j-surveyor">
+              <option value="tom">Tom</option>
+              <option value="ben">Ben</option>
+              <option value="scott">Scott</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="j-fee">Surveyor fee &pound;</label>
+            <input id="j-fee" type="text" inputmode="decimal" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="j-remedial">Remedial works &pound;</label>
+            <input id="j-remedial" type="text" inputmode="decimal" autocomplete="off" value="0" />
+          </div>
+          <div class="form-row">
+            <label for="j-status">Status</label>
+            <select id="j-status">
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-row jgrid-wide">
+            <label for="j-note">Note</label>
+            <input id="j-note" type="text" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="preview" id="preview" aria-live="polite"></div>
+        <span class="err" id="job-error" role="alert"></span>
+
+        <div class="top-end" style="margin-top:14px">
+          <button type="submit" class="btn btn--primary btn--sm" id="j-save">Save job</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="j-reset">Clear</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="h-jobs">
+      <h2 id="h-jobs">Jobs</h2>
+      <div class="top-end" style="margin-bottom:14px">
+        <button class="btn btn--ghost btn--sm" id="csv">Export CSV</button>
+      </div>
+      <div id="jobs"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-rates">
+      <h2 id="h-rates">Rate card</h2>
+      <p class="panel-note">Changes apply to jobs saved from now on. Jobs already
+        recorded keep the rates they were agreed at, so nothing already paid moves.</p>
+      <form id="rates-form" novalidate>
+        <div id="rate-rows"></div>
+        <div class="jgrid" style="margin-top:14px">
+          <div class="form-row">
+            <label for="r-tax">Tax set aside %</label>
+            <input id="r-tax" type="text" inputmode="decimal" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="r-lead">Lead fee %</label>
+            <input id="r-lead" type="text" inputmode="decimal" autocomplete="off" />
+          </div>
+        </div>
+        <span class="err" id="rates-error" role="alert"></span>
+        <div class="top-end" style="margin-top:14px">
+          <button type="submit" class="btn btn--ghost btn--sm">Save rate card</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
+
+<script src="/staff/ui.js"></script>
+<script src="/staff/jobs.js"></script>
+<script src="/staff/job-form.js"></script>
+</body>
+</html>

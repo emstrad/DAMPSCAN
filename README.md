@@ -190,6 +190,62 @@ changes there.
 Nothing behind the login is branded per site. It is one account, one session and
 one dashboard, with the Both / Kent / London selector doing the separating.
 
+## Jobs and earnings
+
+`/staff/jobs.html` records one row per job and works out what each of the three
+people earned. The waterfall, per survey:
+
+1. the price
+2. less the tax set aside, 20% by default
+3. less the lead fee, **taken on the post-tax figure**, to Scott
+4. less the surveyor fee, to whoever surveyed it
+5. the remainder, 50/50, to Tom and Ben
+
+Step 3 is the one worth stating out loud. On a 215 pound survey the lead fee is
+15% of 172.00, not of 215.00: 25.80 rather than 32.25, which moves Tom and Ben
+by 3.22 each.
+
+Scott is paid the lead fee on every job whoever surveyed it, and the surveyor
+fee as well when he does the survey. He does not share the remainder.
+
+Remedial work is deliberately simpler: tax off, then the lead fee to Scott. The
+balance is reported but not distributed, because Tom and Ben settle materials
+and labour between themselves offline.
+
+### Why jobs store their own rates
+
+A job row carries `tax_bp`, `lead_bp`, `lead_earner`, `partner_a`, `partner_b`
+and the three payout figures. It does not derive them from the current rate card
+at read time. Raising the surveyor fee next month must not silently rewrite what
+everyone earned last month, and an earnings record that changes retrospectively
+is worthless. Editing a job keeps the rates it was agreed at; only a new job
+takes today's.
+
+### Whole pence, and no lost pennies
+
+Every amount is an integer number of pence, in the database, in `lib/splits.js`
+and across the API. Pounds are a display format, converted at the edge of the
+browser. Floating point cannot hold 0.15 exactly, so a chain of percentage steps
+in floats drifts away from what anyone was actually paid.
+
+Rounding is to the nearest penny, halves away from zero. When the remainder does
+not divide evenly the odd penny goes to the first partner, in whichever
+direction the amount points, so the three payouts always add back to exactly
+what the job distributes. `test/splits.test.js` asserts that across 160
+combinations of price, fee and remedial value, including jobs priced below their
+own costs, where the split is negative and is shown that way rather than hidden.
+
+The browser recomputes the same waterfall while you type, for immediate
+feedback. The figure that gets stored is always the one the server returns, so
+the two cannot drift into disagreeing about what was paid.
+
+### The rate card
+
+`job_rates` holds the four survey types, `job_settings` the two percentages and
+who fills each role. Both are editable in the dashboard, so fees can change
+without a deploy. `/api/admin/rates` refuses a percentage outside 0 to 100 and
+an unknown person rather than storing it.
+
 ## Security notes
 
 - The staff session cookie is the only cookie the site sets. `httpOnly`, `Secure`,
