@@ -1,33 +1,25 @@
 /**
- * Every area page, in the order they were added.
+ * Every area page.
  *
- * One file per area rather than one big list: each is small enough to read and
- * edit on its own, and adding a town means adding a file rather than finding a
- * place in a thousand line array.
+ * The directory is the list. Adding a town means adding a file and nothing
+ * else: there is no register to update and therefore no way to write a page and
+ * forget to publish it, which is exactly what happened when this was a hand
+ * maintained set of imports.
  *
  * `npm run build:areas` turns these into public/areas/<site>/<slug>.html, which
  * middleware.js serves at /damp-survey/<slug> on the matching host.
  */
-import islington from './islington.js';
-import hackney from './hackney.js';
-import wandsworth from './wandsworth.js';
-import camden from './camden.js';
-import croydon from './croydon.js';
-import bromley from './bromley.js';
-import ealing from './ealing.js';
-import lewisham from './lewisham.js';
+import { readdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 
-import maidstone from './maidstone.js';
-import canterbury from './canterbury.js';
-import tunbridgeWells from './tunbridge-wells.js';
-import ashford from './ashford.js';
-import sevenoaks from './sevenoaks.js';
-import medway from './medway.js';
-import brighton from './brighton.js';
-import guildford from './guildford.js';
+const HERE = dirname(fileURLToPath(import.meta.url));
 
-/** ATi covers London. DampScan covers Kent and the wider South East. */
-export const areas = [
-  islington, hackney, wandsworth, camden, croydon, bromley, ealing, lewisham,
-  maidstone, canterbury, tunbridgeWells, ashford, sevenoaks, medway, brighton, guildford
-];
+const files = (await readdir(HERE))
+  .filter((f) => f.endsWith('.js') && f !== 'index.js')
+  .sort();
+
+/** Sorted by file name, so the build output is stable between runs. */
+export const areas = await Promise.all(
+  files.map((f) => import(`./${f}`).then((m) => m.default))
+);
