@@ -1,7 +1,7 @@
 /**
- * Builds the area pages.
+ * Builds the area and service pages.
  *
- *   npm run build:areas
+ *   npm run build:pages
  *
  * Vercel runs no build step: `public/` is served exactly as it is on disk. So
  * this is an authoring tool, not a deploy step, and its output is committed.
@@ -17,10 +17,13 @@ import { mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { areas } from '../content/areas/index.js';
+import { services } from '../content/services/index.js';
 import { render, distinctiveWordCount, SITES } from './area-template.js';
+import { render as renderService, distinctiveWordCount as serviceWords } from './service-template.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'areas');
+const SERVICES_OUT = join(ROOT, 'public', 'service-pages');
 
 /* A page whose only local content is its name is a doorway page. Google demotes
    those, and it would take the rest of the site down with it, so the build
@@ -58,6 +61,9 @@ export function sitemapFor(site, today) {
   const origin = SITES[site].origin;
   const urls = [
     { loc: `${origin}/`, priority: '1.0', changefreq: 'monthly' },
+    ...services
+      .filter((s) => s.site === site)
+      .map((s) => ({ loc: `${origin}/services/${s.slug}`, priority: '0.9', changefreq: 'monthly' })),
     ...areas
       .filter((a) => a.site === site)
       .map((a) => ({ loc: `${origin}/damp-survey/${a.slug}`, priority: '0.8', changefreq: 'monthly' }))
@@ -80,7 +86,7 @@ ${urls.map((u) => `  <url>
    difference between the area pages being crawled and being ignored. Written
    between markers so adding an area updates both sites automatically. */
 const HOME = { dampscan: 'public/index.html', ati: 'public/london.html' };
-const START = '<!-- area-links:start, filled by scripts/build-areas.js -->';
+const START = '<!-- area-links:start, filled by scripts/build-pages.js -->';
 const END = '<!-- area-links:end -->';
 
 async function writeHomeLinks() {
@@ -91,16 +97,25 @@ async function writeHomeLinks() {
     const to = html.indexOf(END);
     if (from === -1 || to === -1) throw new Error(`${file}: area link markers missing`);
 
-    const links = areas
+    const areaLinks = areas
       .filter((a) => a.site === site)
       .map((a) => `        <li><a href="/damp-survey/${a.slug}">Damp surveys in ${a.name}</a></li>`)
+      .join('\n');
+
+    const serviceLinks = services
+      .filter((s) => s.site === site)
+      .map((s) => `        <li><a href="/services/${s.slug}">${s.name}</a></li>`)
       .join('\n');
 
     const block = `${START}
     <div class="area-links">
       <h3>Area guides</h3>
       <ul>
-${links}
+${areaLinks}
+      </ul>
+      <h3 style="margin-top:22px">Guides by problem</h3>
+      <ul>
+${serviceLinks}
       </ul>
     </div>
     ${END}`;
@@ -117,16 +132,41 @@ async function writeSitemaps() {
   await writeFile(join(ROOT, 'public', 'sitemap-london.xml'), sitemapFor('ati', today), 'utf8');
 }
 
+function checkService(service, seen) {
+  const problems = [];
+  for (const field of ['slug', 'site', 'name', 'title', 'h1', 'intro', 'signsHeading', 'ctaHeading', 'ctaBody']) {
+    if (!service[field]) problems.push(`missing ${field}`);
+  }
+  for (const field of ['signs', 'sections', 'faq']) {
+    if (!Array.isArray(service[field]) || !service[field].length) problems.push(`${field} is empty`);
+  }
+  if (!SITES[service.site]) problems.push(`unknown site "${service.site}"`);
+
+  const key = `${service.site}/${service.slug}`;
+  if (seen.has(key)) problems.push('duplicate slug for this site');
+  seen.add(key);
+
+  if (!problems.length && serviceWords(service) < MIN_WORDS) {
+    problems.push(`only ${serviceWords(service)} words written for this service, needs ${MIN_WORDS}`);
+  }
+  return problems;
+}
+
 async function main() {
   const seen = new Set();
   const failures = [];
 
   for (const area of areas) {
     const problems = check(area, seen);
-    if (problems.length) failures.push(`${area.slug || '(no slug)'}: ${problems.join(', ')}`);
+    if (problems.length) failures.push(`area ${area.slug || '(no slug)'}: ${problems.join(', ')}`);
+  }
+  const seenServices = new Set();
+  for (const service of services) {
+    const problems = checkService(service, seenServices);
+    if (problems.length) failures.push(`service ${service.slug || '(no slug)'}: ${problems.join(', ')}`);
   }
   if (failures.length) {
-    console.error('Area content is not ready to build:\n  ' + failures.join('\n  '));
+    console.error('Page content is not ready to build:\n  ' + failures.join('\n  '));
     process.exit(1);
   }
 
@@ -141,6 +181,13 @@ async function main() {
     counts[area.site] = (counts[area.site] || 0) + 1;
   }
 
+  await rm(SERVICES_OUT, { recursive: true, force: true });
+  for (const service of services) {
+    const dir = join(SERVICES_OUT, service.site);
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, `${service.slug}.html`), renderService(service, services), 'utf8');
+  }
+
   await writeSitemaps();
   await writeHomeLinks();
 
@@ -149,7 +196,8 @@ async function main() {
     console.log(`${site}: ${built.length} pages`);
   }
   console.log(`${areas.length} area pages written to public/areas`);
-  console.log('sitemaps and home page area links rewritten');
+  console.log(`${services.length} service pages written to public/service-pages`);
+  console.log('sitemaps and home page links rewritten');
 }
 
 await main();

@@ -18,6 +18,7 @@ const SITES = {
     phoneLabel: '07386 225526',
     email: 'tom@atidampsurvey.co.uk',
     schemaType: 'LocalBusiness',
+    served: 'Kent and the South East of England',
     strap: 'Survey-led damp, mould and timber specialists'
   },
   ati: {
@@ -29,6 +30,7 @@ const SITES = {
     phoneLabel: '020 3355 4944',
     email: 'team@atidampsurvey.co.uk',
     schemaType: 'ProfessionalService',
+    served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work'
   }
 };

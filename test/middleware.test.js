@@ -116,3 +116,20 @@ test('an area path that is not a plain slug is left alone', () => {
     assert.equal(rewrittenTo(call(KENT, path)), null, path);
   }
 });
+
+test('a service page resolves to the right site directory', () => {
+  assert.equal(
+    rewrittenTo(call(KENT, '/services/rising-damp')),
+    '/service-pages/dampscan/rising-damp.html'
+  );
+  assert.equal(
+    rewrittenTo(call(LONDON, '/services/rising-damp')),
+    '/service-pages/ati/rising-damp.html'
+  );
+});
+
+test('a service path that is not a plain slug is left alone', () => {
+  for (const path of ['/services/', '/services/a/b', '/services/UPPER']) {
+    assert.equal(rewrittenTo(call(KENT, path)), null, path);
+  }
+});

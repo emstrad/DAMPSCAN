@@ -346,16 +346,16 @@ major AI crawlers do not consume it yet, so this is cheap insurance, not a lever
 for a crawler makes that crawler ignore the wildcard group entirely, which would
 quietly drop the `/api` and `/staff` disallows for it.
 
-## Area pages
+## Area and service pages
 
-Sixteen pages, eight per site, at `/damp-survey/<area>` on both domains. ATi
-covers London boroughs, DampScan covers Kent and the wider South East, matching
-the split described above.
+64 generated pages: 48 areas at `/damp-survey/<area>` and 16 services at
+`/services/<name>`, on whichever domain the Host header names. ATi covers all 33
+London boroughs, DampScan all 13 Kent districts plus Brighton and Guildford.
 
     content/areas/<slug>.js   one file per area, the content
     content/areas/index.js    the list
     scripts/area-template.js  the shared framing
-    scripts/build-areas.js    npm run build:areas
+    scripts/build-pages.js    npm run build:areas
     public/areas/<site>/      generated, committed
 
 Vercel runs no build step, so this is an authoring tool and its output is
@@ -363,11 +363,23 @@ committed. `test/areas.test.js` rebuilds every page in memory and compares it to
 the committed file, so an edit without a rebuild fails in CI rather than
 shipping a stale page.
 
-Files live under `public/areas/<site>/` because one Vercel project serves both
-domains, so `/damp-survey/maidstone` would otherwise be one file for both. The
-host picks the directory in `middleware.js`; the visitor and Google only ever
-see `/damp-survey/<slug>`, which is what each page's canonical says, and
-`/areas/` is disallowed in both robots files.
+Files live under `public/areas/<site>/` and `public/service-pages/<site>/`
+because one Vercel project serves both domains, so `/damp-survey/maidstone`
+would otherwise be one file for both. The host picks the directory in
+`middleware.js`; the visitor and Google only ever see the tidy URL, which is
+what each page's canonical says, and both file directories are disallowed in
+the robots files.
+
+### Why the service pages exist twice
+
+Both sites cover the same eight subjects. Written once and published on both,
+they would be duplicates across two domains the same owner controls, and Google
+would pick one and bury the other. They are written from the two businesses'
+actual positions instead: DampScan diagnoses and then carries out the work under
+an insured guarantee, ATi surveys only and writes for buyers, solicitors and
+disrepair claims. `test/areas.test.js` asserts that no two paired pages share a
+heading, an intro or any substantial sentence, so a future edit cannot quietly
+collapse them back into one document.
 
 ### Why one file per area, and why the build can fail
 

@@ -14,8 +14,9 @@
  *      every file is reachable on both hosts. Without these redirects the ATi
  *      page also answers on dampscan.co.uk/london.html, which is a duplicate
  *      of the ATi home page on the wrong brand's domain.
- *   3. Serve the area pages. /damp-survey/<slug> resolves to a different file
- *      on each host, so both sites can use the same tidy URL shape.
+ *   3. Serve the area and service pages. /damp-survey/<slug> and
+ *      /services/<slug> resolve to a different file on each host, so both sites
+ *      can use the same tidy URL shape.
  *
  * Everything else, /api, /staff, /assets, is shared by both domains and is not
  * matched here at all.
@@ -26,7 +27,8 @@ export const config = {
   matcher: [
     '/', '/index.html', '/london.html',
     '/robots.txt', '/sitemap.xml', '/llms.txt',
-    '/damp-survey/:slug'
+    '/damp-survey/:slug',
+    '/services/:slug'
   ]
 };
 
@@ -63,10 +65,13 @@ export default function middleware(request) {
   // serves both domains, so the files live in per site directories and the host
   // picks which one answers. The visitor and Google only ever see
   // /damp-survey/<slug>, which is what the canonical on each page says.
+  const dir = london ? 'ati' : 'dampscan';
+
   const area = path.match(/^\/damp-survey\/([a-z0-9-]+)$/);
-  if (area) {
-    return rewrite(new URL(`/areas/${london ? 'ati' : 'dampscan'}/${area[1]}.html`, request.url));
-  }
+  if (area) return rewrite(new URL(`/areas/${dir}/${area[1]}.html`, request.url));
+
+  const service = path.match(/^\/services\/([a-z0-9-]+)$/);
+  if (service) return rewrite(new URL(`/service-pages/${dir}/${service[1]}.html`, request.url));
 
   if (london) {
     const file = LONDON_FILES[path];

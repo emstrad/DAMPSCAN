@@ -13,7 +13,7 @@
     "set-user": "node db/set-user.js",
     "test": "node --experimental-test-module-mocks --test",
     "set-domain": "node db/set-domain.js",
-    "build:areas": "node scripts/build-areas.js"
+    "build:pages": "node scripts/build-pages.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

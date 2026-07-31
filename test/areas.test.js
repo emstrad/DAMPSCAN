@@ -124,3 +124,93 @@ test('nothing is escaped twice', async () => {
     assert.equal(html.includes('&amp;amp;'), false, `${area.slug} has a double escaped entity`);
   }
 });
+
+/* ------------------------------------------------------------- services ---- */
+
+test('both sites have a full set of service pages', async () => {
+  const { services } = await import('../content/services/index.js');
+  const bySite = {};
+  for (const s of services) bySite[s.site] = (bySite[s.site] || 0) + 1;
+  assert.equal(bySite.dampscan, bySite.ati, 'both sites cover the same subjects');
+  assert.ok(bySite.dampscan >= 8, 'at least eight services each');
+});
+
+test('every committed service page matches what the generator produces now', async () => {
+  const { services } = await import('../content/services/index.js');
+  const { render: renderService } = await import('../scripts/service-template.js');
+  for (const service of services) {
+    const onDisk = await readFile(
+      new URL(`../public/service-pages/${service.site}/${service.slug}.html`, import.meta.url),
+      'utf8'
+    );
+    assert.equal(onDisk, renderService(service, services), `${service.site}/${service.slug} is stale. Run: npm run build:pages`);
+  }
+});
+
+test('the two sites never say the same thing about the same service', async () => {
+  // This is the whole reason there are sixteen pages and not eight. Two pages
+  // on two domains competing for one query means Google picks one and buries
+  // the other, so any shared sentence here is wasted work at best.
+  const { services } = await import('../content/services/index.js');
+  const bySlug = new Map();
+  for (const s of services) {
+    const pair = bySlug.get(s.slug) || [];
+    pair.push(s);
+    bySlug.set(s.slug, pair);
+  }
+  for (const [slug, pair] of bySlug) {
+    assert.equal(pair.length, 2, `${slug} should exist on both sites`);
+    const [a, b] = pair;
+    assert.notEqual(a.intro, b.intro, `${slug}: the two intros are identical`);
+    assert.notEqual(a.h1, b.h1, `${slug}: the two headings are identical`);
+
+    const sentences = (s) => s.sections.flatMap((sec) => sec.paras).join(' ')
+      .split(/(?<=\.)\s+/).map((t) => t.trim()).filter((t) => t.split(/\s+/).length > 8);
+    const shared = sentences(a).filter((t) => sentences(b).includes(t));
+    assert.deepEqual(shared, [], `${slug}: shared sentences between the two sites`);
+  }
+});
+
+test('every service page is written at length for its own site', async () => {
+  const { services } = await import('../content/services/index.js');
+  const { distinctiveWordCount: count } = await import('../scripts/service-template.js');
+  for (const s of services) {
+    assert.ok(count(s) >= 250, `${s.site}/${s.slug} has only ${count(s)} words`);
+  }
+});
+
+test('service pages canonical to their public URL and link only within their site', async () => {
+  const { services } = await import('../content/services/index.js');
+  const { SITES } = await import('../scripts/area-template.js');
+  for (const service of services) {
+    const html = await readFile(
+      new URL(`../public/service-pages/${service.site}/${service.slug}.html`, import.meta.url),
+      'utf8'
+    );
+    const expected = `${SITES[service.site].origin}/services/${service.slug}`;
+    assert.ok(html.includes(`<link rel="canonical" href="${expected}" />`), `${service.slug} canonical`);
+    assert.equal(html.includes('/service-pages/'), false, `${service.slug} must not link to its own file path`);
+    for (const slug of service.related || []) {
+      assert.ok(
+        services.some((s) => s.slug === slug && s.site === service.site),
+        `${service.slug} links to ${slug}, which is not a service on ${service.site}`
+      );
+    }
+  }
+});
+
+test('both home pages link to their own service pages, and the sitemaps list them', async () => {
+  const { services } = await import('../content/services/index.js');
+  const { SITES } = await import('../scripts/area-template.js');
+  for (const [site, page, map] of [
+    ['dampscan', 'index.html', 'sitemap.xml'],
+    ['ati', 'london.html', 'sitemap-london.xml']
+  ]) {
+    const html = await readFile(new URL(`../public/${page}`, import.meta.url), 'utf8');
+    const xml = await readFile(new URL(`../public/${map}`, import.meta.url), 'utf8');
+    for (const s of services.filter((x) => x.site === site)) {
+      assert.ok(html.includes(`href="/services/${s.slug}"`), `${page} links to ${s.slug}`);
+      assert.ok(xml.includes(`<loc>${SITES[site].origin}/services/${s.slug}</loc>`), `${map} lists ${s.slug}`);
+    }
+  }
+});
