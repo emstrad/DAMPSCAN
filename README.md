@@ -162,6 +162,26 @@ move back to per-user accounts. The `staff_users` table and the
 `create-user` / `set-user` scripts are still present and working for exactly that
 reason, they are simply not consulted by the current login route.
 
+### One staff area, two brands
+
+`/staff` and `/staff/dashboard.html` are shared by both domains, so a surveyor
+arriving from the ATi footer used to land on a page wearing the DampScan name.
+Both lockups now sit in the markup and a small script in the `<head>` sets
+`data-brand` on `<html>` from `location.hostname`, with `staff.css` hiding the
+other one. It runs before paint, so neither site flashes the other's name, and
+it also swaps the title and the favicon.
+
+The hostname is the signal rather than a referrer or a query parameter, because
+those get stripped and this must not be guessable from the link that was
+clicked. With JavaScript off the DampScan lockup stands: the page still works,
+it is just wearing one of the two names.
+
+The ATi mark is dark navy artwork on transparency and would be invisible on the
+staff area's dark background, so both brands use a text lockup here.
+
+Nothing behind the login is branded per site. It is one account, one session and
+one dashboard, with the Both / Kent / London selector doing the separating.
+
 ## Security notes
 
 - The staff session cookie is the only cookie the site sets. `httpOnly`, `Secure`,
