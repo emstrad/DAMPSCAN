@@ -104,3 +104,76 @@ alter table events add column if not exists site text not null default 'dampscan
 
 create index if not exists leads_site_idx  on leads  (site, created_at desc);
 create index if not exists events_site_idx on events (site, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Job earnings
+--
+-- The rate card, the two global percentages, and one row per job. Jobs store
+-- the rates they were agreed at and the payout that was calculated, rather than
+-- deriving from the current rate card. Raising the surveyor fee next month must
+-- not silently rewrite what everyone earned last month.
+-- ---------------------------------------------------------------------------
+create table if not exists job_rates (
+  key                text primary key,
+  label              text not null,
+  price_pence        integer not null check (price_pence >= 0),
+  surveyor_fee_pence integer not null check (surveyor_fee_pence >= 0),
+  position           integer not null default 0,
+  active             boolean not null default true,
+  updated_at         timestamptz not null default now()
+);
+
+insert into job_rates (key, label, price_pence, surveyor_fee_pence, position) values
+  ('localised',      'Localised',      21500, 10000, 1),
+  ('full-house',     'Full House',     29500, 13000, 2),
+  ('large-property', 'Large Property', 37500, 16000, 3),
+  ('premium',        'Premium',        45000, 19000, 4)
+on conflict (key) do nothing;
+
+-- Single row, enforced by the primary key.
+create table if not exists job_settings (
+  id          boolean primary key default true check (id),
+  tax_bp      integer not null default 2000 check (tax_bp between 0 and 10000),
+  lead_bp     integer not null default 1500 check (lead_bp between 0 and 10000),
+  lead_earner text not null default 'scott',
+  partner_a   text not null default 'tom',
+  partner_b   text not null default 'ben',
+  updated_at  timestamptz not null default now()
+);
+
+insert into job_settings (id) values (true) on conflict (id) do nothing;
+
+create table if not exists jobs (
+  id                 bigserial primary key,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+  lead_id            bigint references leads (id) on delete set null,
+  site               text not null default 'dampscan',
+  job_date           date not null default current_date,
+  customer_name      text,
+  customer_postcode  text,
+  note               text,
+  survey_type        text,            -- the job_rates key, or null for a one-off price
+  survey_price_pence integer not null default 0 check (survey_price_pence >= 0),
+  surveyor           text not null check (surveyor in ('scott','tom','ben')),
+  surveyor_fee_pence integer not null default 0 check (surveyor_fee_pence >= 0),
+  remedial_pence     integer not null default 0 check (remedial_pence >= 0),
+  status             text not null default 'booked'
+                       check (status in ('booked','completed','cancelled')),
+  -- Rates as they stood when the job was saved.
+  tax_bp             integer not null check (tax_bp between 0 and 10000),
+  lead_bp            integer not null check (lead_bp between 0 and 10000),
+  lead_earner        text not null,
+  partner_a          text not null,
+  partner_b          text not null,
+  -- The payout. This is the ledger, not a derivation.
+  pay_scott_pence    integer not null default 0,
+  pay_tom_pence      integer not null default 0,
+  pay_ben_pence      integer not null default 0
+);
+
+create index if not exists jobs_date_idx on jobs (job_date desc, id desc);
+create index if not exists jobs_site_idx on jobs (site, job_date desc);
+create index if not exists jobs_lead_idx on jobs (lead_id);
+-- One job per lead, so clicking "create job" twice cannot double count it.
+create unique index if not exists jobs_lead_unique_idx on jobs (lead_id) where lead_id is not null;

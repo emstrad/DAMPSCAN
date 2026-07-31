@@ -161,3 +161,25 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 
 .state{padding:40px 0;text-align:center;color:var(--muted-2);font-size:14px}
 .empty{color:var(--muted-2);font-size:13.5px;padding:18px 0}
+
+/* ---------- Section tabs ---------- */
+.tabs{display:flex;gap:4px;margin-left:auto;margin-right:14px}
+.tabs a{padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);
+  border:1px solid transparent;transition:color .18s,background .18s,border-color .18s}
+.tabs a:hover{color:var(--text)}
+.tabs a[aria-current="page"]{color:var(--text);background:var(--slate);border-color:var(--line-strong)}
+
+/* ---------- Jobs form ---------- */
+.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.jgrid-wide{grid-column:1 / -1}
+.rate-row{margin-bottom:10px}
+
+/* The live split. Recomputed as you type, but the stored figure is always the
+   one the server returns, so the two can never disagree about what was paid. */
+.preview{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.preview-line{display:flex;flex-wrap:wrap;gap:10px}
+.preview-cell{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:10px;
+  background:var(--navy);border:1px solid var(--line);min-width:118px}
+.preview-cell.is-key{background:var(--accent-soft);border-color:var(--accent-ring)}
+.preview-cell .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
+.preview-cell .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}

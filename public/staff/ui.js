@@ -77,6 +77,36 @@
     mount.appendChild(wrap);
   }
 
+  /* Pence in, pounds out. The server deals only in whole pence; pounds are a
+     display format and never go back the other way without being converted. */
+  function money(pence) {
+    return (Number(pence || 0) / 100).toLocaleString('en-GB', {
+      style: 'currency', currency: 'GBP'
+    });
+  }
+
+  /** Pounds typed by a person to whole pence. "1,234.56" and " 12 " both work. */
+  function toPence(value) {
+    var cleaned = String(value === null || value === undefined ? '' : value).replace(/[\s,\u00a3]/g, '');
+    if (cleaned === '') return 0;
+    var n = Number(cleaned);
+    return Number.isFinite(n) ? Math.round(n * 100) : null;
+  }
+
+  /* Writes return their body either way: a 400 carries the field errors the
+     form needs to show, so it is not an exception. */
+  async function send(path, body, method) {
+    var res = await fetch(path, {
+      method: method || 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(body || {})
+    });
+    if (res.status === 401) { global.location.replace('/staff'); throw new Error('unauthorised'); }
+    var data = await res.json().catch(function () { return null; });
+    if (!res.ok && res.status !== 400) throw new Error('Request failed (' + res.status + ')');
+    return { ok: res.ok, status: res.status, data: data };
+  }
+
   function csvCell(value) {
     if (value === null || value === undefined) return '""';
     var s = String(value);
@@ -105,7 +135,8 @@
   }
 
   global.DSUI = {
-    node: node, num: num, pct: pct, when: when, get: get,
+    node: node, num: num, pct: pct, when: when, get: get, send: send,
+    money: money, toPence: toPence,
     table: table, csvCell: csvCell, downloadCsv: downloadCsv
   };
 })(window);

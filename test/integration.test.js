@@ -48,6 +48,8 @@ const logout = (await import('../api/auth/logout.js')).default;
 const summary = (await import('../api/admin/summary.js')).default;
 const leadsRoute = (await import('../api/admin/leads.js')).default;
 const notified = (await import('../api/notified.js')).default;
+const jobsRoute = (await import('../api/admin/jobs.js')).default;
+const ratesRoute = (await import('../api/admin/rates.js')).default;
 const { siteFor } = await import('../lib/site.js');
 
 /* ---------- minimal req/res doubles ---------- */
@@ -109,7 +111,19 @@ before(async () => {
 });
 
 beforeEach(async () => {
-  await pool.query('truncate leads, events, rate_hits, staff_users restart identity cascade');
+  await pool.query('truncate leads, events, rate_hits, staff_users, jobs restart identity cascade');
+  // job_rates and job_settings are seeded by schema.sql and are configuration,
+  // not test data, so they are reset to the seeded values rather than emptied.
+  // Both matter: a test that raises the Localised price must not leave it
+  // raised for the next one, which is exactly what happened when only the
+  // settings were reset here.
+  await pool.query(`update job_settings set tax_bp = 2000, lead_bp = 1500,
+    lead_earner = 'scott', partner_a = 'tom', partner_b = 'ben' where id = true`);
+  await pool.query(`update job_rates set price_pence = v.price, surveyor_fee_pence = v.fee
+    from (values ('localised', 21500, 10000), ('full-house', 29500, 13000),
+                 ('large-property', 37500, 16000), ('premium', 45000, 19000))
+         as v(key, price, fee)
+    where job_rates.key = v.key`);
 });
 
 after(async () => { await pool.end(); });
@@ -524,4 +538,152 @@ test('leads limit is capped so one request cannot pull everything', async () => 
   const cookie = await signedInCookie();
   const res = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?limit=99999', headers: { cookie } })).json();
   assert.equal(res.limit, 200);
+});
+
+/* ------------------------------------------------------------------ jobs ---- */
+
+async function createJob(cookie, over = {}) {
+  return call(jobsRoute, {
+    method: 'POST',
+    url: '/api/admin/jobs',
+    headers: { cookie },
+    body: { surveyType: 'localised', surveyor: 'tom', customerName: 'A Customer', ...over }
+  });
+}
+
+test('the jobs routes are 401 without a session', async () => {
+  assert.equal((await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs' })).statusCode, 401);
+  assert.equal((await call(ratesRoute, { method: 'GET', url: '/api/admin/rates' })).statusCode, 401);
+});
+
+test('a job takes its price and surveyor fee from the rate card', async () => {
+  const cookie = await signedInCookie();
+  const res = await createJob(cookie);
+  assert.equal(res.statusCode, 200);
+  const { job } = res.json();
+  assert.equal(job.surveyPricePence, 21500);
+  assert.equal(job.surveyorFeePence, 10000);
+  assert.deepEqual(job.pay, { scott: 2580, tom: 12310, ben: 2310 });
+});
+
+test('an explicit price overrides the rate card for a one off job', async () => {
+  const cookie = await signedInCookie();
+  const { job } = (await createJob(cookie, {
+    surveyType: null, surveyPricePence: 50000, surveyorFeePence: 12000, surveyor: 'ben'
+  })).json();
+  assert.equal(job.surveyPricePence, 50000);
+  // 500 -> 400 after tax -> 60 lead -> 120 surveyor -> 220 remainder -> 110 each
+  assert.deepEqual(job.pay, { scott: 6000, tom: 11000, ben: 12000 + 11000 });
+});
+
+test('a job records the rates it was agreed at, and a later rate change does not move it', async () => {
+  const cookie = await signedInCookie();
+  const first = (await createJob(cookie)).json().job;
+  assert.equal(first.rates.taxBp, 2000);
+  assert.equal(first.pay.scott, 2580);
+
+  // Put the lead fee up to 25% and the Localised survey to 250 pounds.
+  const changed = await call(ratesRoute, {
+    method: 'POST', url: '/api/admin/rates', headers: { cookie },
+    body: {
+      settings: { taxBp: 2000, leadBp: 2500, leadEarner: 'scott', partners: ['tom', 'ben'] },
+      rates: [{ key: 'localised', label: 'Localised', pricePence: 25000, surveyorFeePence: 10000, position: 1 }]
+    }
+  });
+  assert.equal(changed.statusCode, 200);
+
+  // The job already saved is untouched.
+  const listed = (await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie } })).json();
+  const stored = listed.jobs.find((j) => j.id === first.id);
+  assert.equal(stored.pay.scott, 2580, 'an old job keeps what it earned');
+  assert.equal(stored.rates.leadBp, 1500);
+
+  // A new one picks the change up.
+  const second = (await createJob(cookie)).json().job;
+  assert.equal(second.surveyPricePence, 25000);
+  assert.equal(second.rates.leadBp, 2500);
+  assert.equal(second.pay.scott, 5000, '25% of 200.00');
+});
+
+test('editing a job keeps its original rates', async () => {
+  const cookie = await signedInCookie();
+  const created = (await createJob(cookie)).json().job;
+
+  await call(ratesRoute, {
+    method: 'POST', url: '/api/admin/rates', headers: { cookie },
+    body: { settings: { taxBp: 4000, leadBp: 5000, leadEarner: 'scott', partners: ['tom', 'ben'] } }
+  });
+
+  // Add remedial work to the existing job.
+  const edited = (await call(jobsRoute, {
+    method: 'POST', url: '/api/admin/jobs', headers: { cookie },
+    body: { id: created.id, surveyType: 'localised', surveyor: 'tom', remedialPence: 400000 }
+  })).json().job;
+
+  assert.equal(edited.id, created.id, 'updated, not duplicated');
+  assert.equal(edited.rates.taxBp, 2000, 'still on the rates it was agreed at');
+  assert.equal(edited.pay.scott, 2580 + 48000, 'lead fee on the survey and on the remedial work');
+  assert.equal(edited.pay.tom, 12310, 'the remedial balance is settled offline, not paid here');
+});
+
+test('totals add up per person and ignore cancelled jobs', async () => {
+  const cookie = await signedInCookie();
+  await createJob(cookie, { surveyType: 'localised', surveyor: 'tom' });
+  await createJob(cookie, { surveyType: 'premium', surveyor: 'scott' });
+  await createJob(cookie, { surveyType: 'premium', surveyor: 'ben', status: 'cancelled' });
+
+  const { totals, jobs } = (await call(jobsRoute, {
+    method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie }
+  })).json();
+
+  assert.equal(jobs.length, 3, 'a cancelled job is still listed');
+  assert.equal(totals.jobs, 2, 'but not counted');
+  // Localised by Tom: scott 2580, tom 12310, ben 2310
+  // Premium by Scott: scott 5400 + 19000, tom 5800, ben 5800
+  assert.deepEqual(totals.pay, { scott: 2580 + 5400 + 19000, tom: 12310 + 5800, ben: 2310 + 5800 });
+});
+
+test('a lead can only become one job', async () => {
+  const cookie = await signedInCookie();
+  const leadRes = await call(lead, { body: validLead() });
+  const leadId = leadRes.json().id;
+
+  assert.equal((await createJob(cookie, { leadId })).statusCode, 200);
+  const second = await createJob(cookie, { leadId });
+  assert.equal(second.statusCode, 500, 'the unique index stops a lead being counted twice');
+});
+
+test('an unknown surveyor or survey type is refused', async () => {
+  const cookie = await signedInCookie();
+  const badPerson = await createJob(cookie, { surveyor: 'dave' });
+  assert.equal(badPerson.statusCode, 400);
+  assert.ok(badPerson.json().errors.surveyor);
+
+  const badType = await createJob(cookie, { surveyType: 'mansion' });
+  assert.equal(badType.statusCode, 400);
+  assert.ok(badType.json().errors.surveyType);
+});
+
+test('a nonsense percentage is refused rather than stored', async () => {
+  const cookie = await signedInCookie();
+  const res = await call(ratesRoute, {
+    method: 'POST', url: '/api/admin/rates', headers: { cookie },
+    body: { settings: { taxBp: 20000, leadBp: 1500, leadEarner: 'scott', partners: ['tom', 'ben'] } }
+  });
+  assert.equal(res.statusCode, 400);
+  assert.ok(res.json().errors.taxBp);
+
+  const still = (await call(ratesRoute, { method: 'GET', url: '/api/admin/rates', headers: { cookie } })).json();
+  assert.equal(still.settings.taxBp, 2000, 'unchanged');
+});
+
+test('a job can be deleted', async () => {
+  const cookie = await signedInCookie();
+  const created = (await createJob(cookie)).json().job;
+  const res = await call(jobsRoute, {
+    method: 'DELETE', url: '/api/admin/jobs', headers: { cookie }, body: { id: created.id }
+  });
+  assert.equal(res.statusCode, 200);
+  const { jobs } = (await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie } })).json();
+  assert.equal(jobs.length, 0);
 });
