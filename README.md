@@ -346,6 +346,56 @@ major AI crawlers do not consume it yet, so this is cheap insurance, not a lever
 for a crawler makes that crawler ignore the wildcard group entirely, which would
 quietly drop the `/api` and `/staff` disallows for it.
 
+## Area pages
+
+Sixteen pages, eight per site, at `/damp-survey/<area>` on both domains. ATi
+covers London boroughs, DampScan covers Kent and the wider South East, matching
+the split described above.
+
+    content/areas/<slug>.js   one file per area, the content
+    content/areas/index.js    the list
+    scripts/area-template.js  the shared framing
+    scripts/build-areas.js    npm run build:areas
+    public/areas/<site>/      generated, committed
+
+Vercel runs no build step, so this is an authoring tool and its output is
+committed. `test/areas.test.js` rebuilds every page in memory and compares it to
+the committed file, so an edit without a rebuild fails in CI rather than
+shipping a stale page.
+
+Files live under `public/areas/<site>/` because one Vercel project serves both
+domains, so `/damp-survey/maidstone` would otherwise be one file for both. The
+host picks the directory in `middleware.js`; the visitor and Google only ever
+see `/damp-survey/<slug>`, which is what each page's canonical says, and
+`/areas/` is disallowed in both robots files.
+
+### Why one file per area, and why the build can fail
+
+The point of an area page is the part that is only true of that place. Twenty
+pages with a town name swapped into the same paragraph is the doorway page
+pattern, and Google demotes it, which takes the rest of the site with it. So the
+generator refuses to build a page with under 250 words of area-specific copy,
+and the test suite additionally asserts that no two areas share their intro and
+housing stock text.
+
+The content is the housing stock and what it does when it gets wet, because that
+genuinely differs: bungaroosh and salt-contaminated seafront walls in Brighton,
+ragstone repointed in cement around Maidstone, timber frame sealed up with gypsum
+in Canterbury, lower ground floors and lightwells in Islington, cold bridging in
+Lewisham's system build, construction moisture in Ashford's new build estates.
+
+### What the build also writes
+
+Adding an area updates three things automatically, so a new page cannot end up
+orphaned:
+
+- its own page
+- both sitemaps
+- the "Area guides" link block on each home page, between markers
+
+A page nothing links to is a page Google treats as unimportant, so those home
+page links are load bearing rather than decorative.
+
 ## Reviews
 
 The carousel on both sites is filled from the real Google listing. `/api/reviews`

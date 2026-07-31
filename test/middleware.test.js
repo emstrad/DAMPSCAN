@@ -93,3 +93,26 @@ test('a host with a port is matched on the hostname alone', () => {
   const request = new Request(`https://${LONDON}/`, { headers: { host } });
   assert.equal(rewrittenTo(middleware(request)), '/london.html');
 });
+
+/* Area pages. Both sites use /damp-survey/<slug>, and the host decides which
+   file answers, so a wrong turn here serves the other brand's page. */
+test('an area page resolves to the right site directory', () => {
+  assert.equal(rewrittenTo(call(KENT, '/damp-survey/maidstone')), '/areas/dampscan/maidstone.html');
+  assert.equal(rewrittenTo(call(LONDON, '/damp-survey/islington')), '/areas/ati/islington.html');
+  assert.equal(rewrittenTo(call(`www.${LONDON}`, '/damp-survey/hackney')), '/areas/ati/hackney.html');
+});
+
+test('a preview deployment serves the Kent area pages', () => {
+  assert.equal(
+    rewrittenTo(call('dampscan-abc.vercel.app', '/damp-survey/brighton')),
+    '/areas/dampscan/brighton.html'
+  );
+});
+
+test('an area path that is not a plain slug is left alone', () => {
+  // The matcher only offers this one segment, but the handler is not allowed to
+  // assume that: a path it does not recognise must fall through, not rewrite.
+  for (const path of ['/damp-survey/', '/damp-survey/a/b', '/damp-survey/UPPER']) {
+    assert.equal(rewrittenTo(call(KENT, path)), null, path);
+  }
+});
