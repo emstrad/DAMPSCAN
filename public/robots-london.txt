@@ -1,0 +1,13 @@
+# atidampsurvey.co.uk
+#
+# Served at /robots.txt on the London host by middleware.js. One group only:
+# a named crawler group would override this one rather than add to it. The AI
+# crawlers are allowed on purpose.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /staff
+Disallow: /staff/
+
+Sitemap: https://atidampsurvey.co.uk/sitemap.xml

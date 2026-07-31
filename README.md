@@ -162,6 +162,26 @@ move back to per-user accounts. The `staff_users` table and the
 `create-user` / `set-user` scripts are still present and working for exactly that
 reason, they are simply not consulted by the current login route.
 
+### One staff area, two brands
+
+`/staff` and `/staff/dashboard.html` are shared by both domains, so a surveyor
+arriving from the ATi footer used to land on a page wearing the DampScan name.
+Both lockups now sit in the markup and a small script in the `<head>` sets
+`data-brand` on `<html>` from `location.hostname`, with `staff.css` hiding the
+other one. It runs before paint, so neither site flashes the other's name, and
+it also swaps the title and the favicon.
+
+The hostname is the signal rather than a referrer or a query parameter, because
+those get stripped and this must not be guessable from the link that was
+clicked. With JavaScript off the DampScan lockup stands: the page still works,
+it is just wearing one of the two names.
+
+The ATi mark is dark navy artwork on transparency and would be invisible on the
+staff area's dark background, so both brands use a text lockup here.
+
+Nothing behind the login is branded per site. It is one account, one session and
+one dashboard, with the Both / Kent / London selector doing the separating.
+
 ## Security notes
 
 - The staff session cookie is the only cookie the site sets. `httpOnly`, `Secure`,
@@ -207,10 +227,23 @@ Two consequences worth knowing:
 ## Two sites, one deployment
 
 `dampscan.co.uk` and `atidampsurvey.co.uk` are served by the same Vercel project.
-`vercel.json` rewrites the London hostname to `public/london.html`, so each domain
+`middleware.js` rewrites the London hostname to `public/london.html`, so each domain
 gets its own page, branding, phone number and inbox while `/api`, `/lib` and the
 dashboard stay single-source. A fix lands on both at once instead of being applied
 twice and drifting.
+
+Routing lives in middleware rather than `vercel.json` because `vercel.json` rewrites
+are evaluated **after** the filesystem, so a rewrite on `/` never fires: `/` already
+matches `public/index.html`. Middleware runs first.
+
+Because one project serves both domains, every file is otherwise reachable on both
+hosts. Middleware also collapses those duplicates: `/index.html` redirects to the
+root it duplicates, and `/london.html` redirects to `https://atidampsurvey.co.uk/`.
+Preview deployments are exempt, since they have neither production host and would
+otherwise be unable to show the London page. `middleware.js` also serves
+`robots-london.txt`, `sitemap-london.xml` and `llms-london.txt` at the ordinary
+paths on the London host, so each domain advertises only its own. `test/middleware.test.js`
+covers all of it.
 
 This is invisible to search engines. Google sees two independent domains; it has
 no view of shared hosting, a shared repo or a shared database, and shared hosting
@@ -225,6 +258,57 @@ the whitelist are ignored rather than interpolated.
 
 Rows written before the London site existed default to `dampscan`, which is
 accurate rather than merely convenient.
+
+## Search and AI crawlers
+
+About half the text on each page used to be built by JavaScript from `services`,
+`reviews` and `faqs` arrays. Google renders JavaScript, but most AI crawlers do
+not, so roughly 1,450 words per page were invisible to them. All three blocks are
+now in the markup, and the JavaScript enhances what is there: the tab strip shows
+one pre-rendered panel at a time instead of writing `innerHTML`, and the review
+marquee duplicates its own track at runtime because the second copy is decoration
+rather than content. Crawlable text went from 1,285 to 2,749 words on `index.html`
+and 1,545 to 3,003 on `london.html`.
+
+Both pages carry `FAQPage` structured data built from the same questions, next to
+the existing `LocalBusiness` and `ProfessionalService` blocks.
+
+`llms.txt` and `llms-london.txt` state the facts each business would want quoted:
+areas, response times, what is included in a report, and the fact that ATi carries
+out no remedial work. The convention is a proposal rather than a standard and the
+major AI crawlers do not consume it yet, so this is cheap insurance, not a lever.
+
+`robots.txt` deliberately uses a single `User-agent: *` group. Adding a named group
+for a crawler makes that crawler ignore the wildcard group entirely, which would
+quietly drop the `/api` and `/staff` disallows for it.
+
+## Reviews
+
+The carousel on both sites is filled from the real Google listing. `/api/reviews`
+reads Place Details for whichever site the Host header names and the page swaps
+its cards for the result. Two things shape the design:
+
+- Place Details returns **at most five** reviews and Google picks which five.
+  There is no paging. The full set needs the Business Profile API, which is
+  owner-authenticated and behind an access request.
+- Places results may not be held indefinitely, so the response is cached at the
+  edge for a day. Google is called roughly once a day per region rather than
+  once per visitor, which also keeps it inside the free tier.
+
+Set `GOOGLE_MAPS_API_KEY`, `GOOGLE_PLACE_ID_DAMPSCAN` and `GOOGLE_PLACE_ID_ATI`
+to switch it on. Restrict the key by API rather than by HTTP referrer: the call
+is made from the server, so a referrer restriction blocks it.
+
+Unset, or rejected, or a listing with no reviews yet, all end the same way: an
+empty list, and the page leaves whatever is in its markup alone. Nothing is ever
+invented, and review text is escaped before it is inserted, because it is other
+people's writing arriving over the network.
+
+There is deliberately **no `aggregateRating`** in the structured data. Google's
+review snippet guidelines exclude ratings aggregated from another site, so
+marking up a Google score to win stars in Google's own results is not eligible
+and risks a manual action. The rating is shown to visitors, not claimed to the
+crawler.
 
 ## Analytics and privacy
 

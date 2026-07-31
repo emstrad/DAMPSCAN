@@ -26,6 +26,16 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .logo-word .scan{color:var(--accent)}
 .logo-tag{font-size:max(9px,calc(var(--logo-size) * .365));letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);font-weight:600;white-space:nowrap}
 
+/* One staff area, two brands. Both lockups are in the markup and the hostname
+   picks one before paint, so neither site flashes the other's name. With no
+   JavaScript the DampScan lockup stands, which is the safe default: the page
+   still works, it is just wearing one of the two names.
+   The ATi mark is dark navy artwork on transparency and would be invisible on
+   this background, so the staff area uses a text lockup for both. */
+.brand-ati{display:none}
+:root[data-brand="ati"] .brand-dampscan{display:none}
+:root[data-brand="ati"] .brand-ati{display:inline-flex}
+
 /* ---------- Buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:0 26px;
   border-radius:999px;font-weight:600;font-size:15px;transition:background .2s,color .2s,transform .2s,border-color .2s}
