@@ -29,12 +29,45 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 /* One staff area, two brands. Both lockups are in the markup and the hostname
    picks one before paint, so neither site flashes the other's name. With no
    JavaScript the DampScan lockup stands, which is the safe default: the page
-   still works, it is just wearing one of the two names.
-   The ATi mark is dark navy artwork on transparency and would be invisible on
-   this background, so the staff area uses a text lockup for both. */
+   still works, it is just wearing one of the two names. */
 .brand-ati{display:none}
 :root[data-brand="ati"] .brand-dampscan{display:none}
 :root[data-brand="ati"] .brand-ati{display:inline-flex}
+
+/* The real ATi mark, next to the strapline with a rule between them, as on the
+   ATi site itself. */
+.logo-mark{gap:16px}
+.logo-mark img{display:block;height:auto}
+.logo-strap{border-left:1px solid var(--line-strong);padding-left:16px;
+  font-weight:700;font-size:15px;line-height:1.34;letter-spacing:-.01em;color:var(--text)}
+
+/* ---------- The ATi login screen ----------
+   The ATi mark is dark navy artwork on transparency, so it needs a light
+   background to exist on at all. Rather than make an exception for the image,
+   the whole ATi login screen takes the ATi site's own palette, which is what
+   someone arriving from that site expects to see.
+
+   Scoped to body.login. The dashboard is a dense data tool, tuned dark, and is
+   left alone: it is behind the login, where the two businesses are already one
+   account looking at one set of numbers. */
+:root[data-brand="ati"] body.login{
+  --navy:#f5f5f3;--navy-2:#ebebe8;--slate:#ffffff;--slate-2:#f0f2f6;
+  --line:rgba(17,33,60,.13);--line-strong:rgba(17,33,60,.24);
+  --accent:#17325a;--accent-hi:#2a5591;--accent-soft:rgba(23,50,90,.08);--accent-ring:rgba(23,50,90,.32);
+  --text:#11213c;--muted:#4a5871;--muted-2:#5b6780;
+  --warn:#a3341a;
+}
+/* The few places the dark theme hard codes a colour instead of reading a token. */
+:root[data-brand="ati"] body.login .login-wrap{
+  background:radial-gradient(120% 80% at 50% 0%,rgba(23,50,90,.07),transparent 62%),var(--navy-2)}
+:root[data-brand="ati"] body.login .login-card{
+  background:var(--slate);box-shadow:0 24px 60px -34px rgba(17,33,60,.4)}
+:root[data-brand="ati"] body.login .btn--primary{
+  color:#fff;box-shadow:0 6px 22px -10px rgba(23,50,90,.55)}
+:root[data-brand="ati"] body.login .form-row input{background:#fff}
+:root[data-brand="ati"] body.login .form-row input:focus{background:#fff}
+:root[data-brand="ati"] body.login .form-row input[aria-invalid="true"]{
+  border-color:#c05a3c;background:rgba(192,90,60,.07)}
 
 /* ---------- Buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:0 26px;

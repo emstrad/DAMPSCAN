@@ -20,12 +20,14 @@
   if (!ati) return;
   document.documentElement.setAttribute('data-brand', 'ati');
   document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var theme = document.querySelector('meta[name="theme-color"]');
+  if (theme) theme.content = '#ebebe8';
   var icon = document.querySelector('link[rel="icon"]');
   if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
 })();
 </script>
 </head>
-<body>
+<body class="login">
 <main class="login-wrap">
   <div class="login-card">
     <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
@@ -34,11 +36,9 @@
         <span class="logo-tag">Survey Specialists</span>
       </span>
     </a>
-    <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
-      <span class="logo-type">
-        <span class="logo-word">ATi <span class="scan">Damp</span></span>
-        <span class="logo-tag">Survey Practice</span>
-      </span>
+    <a href="/" class="logo logo-mark brand-ati" aria-label="ATi Damp Survey home">
+      <img src="/assets/ati-mark.png" alt="" width="88" height="63" loading="lazy" />
+      <span class="logo-strap">Independent Damp<br />Surveys &amp; Reports</span>
     </a>
 
     <h1>Staff login</h1>

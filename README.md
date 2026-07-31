@@ -176,8 +176,16 @@ those get stripped and this must not be guessable from the link that was
 clicked. With JavaScript off the DampScan lockup stands: the page still works,
 it is just wearing one of the two names.
 
-The ATi mark is dark navy artwork on transparency and would be invisible on the
-staff area's dark background, so both brands use a text lockup here.
+The ATi login screen takes the ATi site's own palette: off white, navy ink, and
+the real mark beside its strapline. The mark is dark navy artwork on
+transparency, so it needs a light background to exist on at all, and someone
+arriving from the ATi site expects to see that anyway. It is done by overriding
+the colour tokens on `body.login`, not by restyling each component.
+
+The dashboard is deliberately left dark for both brands. It is a dense data
+tool tuned for that, and it sits behind the login where the two businesses are
+already one account looking at one set of numbers. Only the header lockup
+changes there.
 
 Nothing behind the login is branded per site. It is one account, one session and
 one dashboard, with the Both / Kent / London selector doing the separating.
