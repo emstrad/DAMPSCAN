@@ -7,6 +7,7 @@
  * same paragraph is the doorway page pattern, and Google demotes it, so the
  * generator refuses to build a page whose distinctive copy is too short.
  */
+import { bookForm } from './book-form.js';
 
 const SITES = {
   dampscan: {
@@ -19,7 +20,14 @@ const SITES = {
     email: 'tom@atidampsurvey.co.uk',
     schemaType: 'LocalBusiness',
     served: 'Kent and the South East of England',
-    strap: 'Survey-led damp, mould and timber specialists'
+    strap: 'Survey-led damp, mould and timber specialists',
+    book: {
+      sessionKey: 'dampscan-session',
+      attrKey: 'dampscan-attr',
+      notify: 'https://formsubmit.co/ajax/tom@atidampsurvey.co.uk',
+      subjectPrefix: '',
+      dataLayerEvent: 'dampscan'
+    }
   },
   ati: {
     key: 'ati',
@@ -31,9 +39,37 @@ const SITES = {
     email: 'team@atidampsurvey.co.uk',
     schemaType: 'ProfessionalService',
     served: 'London',
-    strap: 'Independent damp and timber surveys, no remedial work'
+    strap: 'Independent damp and timber surveys, no remedial work',
+    book: {
+      sessionKey: 'ati-damp-session',
+      attrKey: 'ati-damp-attr',
+      notify: 'https://formsubmit.co/ajax/team@atidampsurvey.co.uk',
+      subjectPrefix: 'ATI London, ',
+      dataLayerEvent: 'ati-damp'
+    }
   }
 };
+
+
+/* The booking form needs the same per site values the home pages set inline.
+   A static page cannot read environment variables, so they live in SITES.
+   The closing script tags are split so this file cannot terminate the script
+   block of the page it is generating. */
+function bookScripts(site) {
+  const b = site.book;
+  return `
+<script>
+window.DS_CONFIG = {
+  sessionKey: '${b.sessionKey}',
+  attrKey: '${b.attrKey}',
+  notify: '${b.notify}',
+  subjectPrefix: '${b.subjectPrefix}',
+  dataLayerEvent: '${b.dataLayerEvent}'
+};
+</scr` + `ipt>
+<scr` + `ipt src="/assets/visit.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/book.js"></scr` + `ipt>`;
+}
 
 const esc = (value) =>
   String(value == null ? '' : value)
@@ -118,6 +154,7 @@ export function render(area, allAreas) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/area.css" />
+<link rel="stylesheet" href="/assets/book.css" />
 <script type="application/ld+json">${businessSchema(area, site, url)}</script>
 <script type="application/ld+json">${breadcrumbSchema(area, site, url)}</script>
 <script type="application/ld+json">${faqSchema(area)}</script>
@@ -131,7 +168,7 @@ export function render(area, allAreas) {
       <a href="/#services">Services</a>
       <a href="/#areas">Areas</a>
       <a href="/#faq">FAQs</a>
-      <a href="/#book">Book</a>
+      <a href="#book">Book</a>
     </nav>
   </div>
 </header>
@@ -168,14 +205,12 @@ export function render(area, allAreas) {
     </ul>
   </section>
 
-  <div class="cta">
+  <section class="sec" id="book-section">
     <h2>Book a survey in ${esc(area.name)}</h2>
     <p>Same day response to every enquiry, and your written report within 24 hours
-      of the visit. Put your postcode in the form and we will confirm cover and fee
-      the same day.</p>
-    <a class="btn" href="/#book">Book a survey</a>
-    <p style="margin-top:14px">Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
-  </div>
+      of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+    ${bookForm(site.key)}
+  </section>
 
   <section class="sec">
     <h2>${esc(area.name)} questions</h2>
@@ -197,10 +232,10 @@ ${nearby.length ? `
     <span><a href="/">Home</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
-
+${bookScripts(site)}
 </body>
 </html>
 `;
 }
 
-export { SITES };
+export { SITES, bookScripts };

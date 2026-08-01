@@ -9,12 +9,18 @@
   --line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.15);
   --accent:#4fa8e8;--accent-hi:#7cc3f5;--accent-soft:rgba(79,168,232,.12);
   --text:#f5f8fc;--muted:#aebbcc;--muted-2:#7f8ea4;--on-accent:#06121f;
+  /* Roles the booking form needs on top of the page palette. */
+  --line-strong:rgba(255,255,255,.15);--card-2:#101f33;--card-shadow:rgba(0,0,0,.85);
+  --warn:#f0a08b;--warn-soft:rgba(232,131,107,.06);
 }
 :root[data-site="ati"]{
   --bg:#f5f5f3;--bg-2:#ebebe8;--card:#ffffff;
   --line:rgba(17,33,60,.13);--line-strong:rgba(17,33,60,.24);
   --accent:#17325a;--accent-hi:#2a5591;--accent-soft:rgba(23,50,90,.08);
   --text:#11213c;--muted:#4a5871;--muted-2:#5b6780;--on-accent:#ffffff;
+  /* The form card stays flat and light here rather than fading to navy. */
+  --line-strong:rgba(17,33,60,.24);--card-2:#ffffff;--card-shadow:rgba(17,33,60,.28);
+  --warn:#a3341a;--warn-soft:rgba(163,52,26,.07);
 }
 
 html{scroll-behavior:smooth}

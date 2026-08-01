@@ -11,7 +11,9 @@
  * The shared page shell and site details come from area-template.js, so the
  * area and service pages stay visually identical without a second copy of it.
  */
-import { SITES } from './area-template.js';
+import { SITES, bookScripts } from './area-template.js';
+import { bookForm } from './book-form.js';
+
 
 const esc = (value) =>
   String(value == null ? '' : value)
@@ -90,6 +92,7 @@ export function render(service, allServices) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/area.css" />
+<link rel="stylesheet" href="/assets/book.css" />
 <script type="application/ld+json">${serviceSchema}</script>
 <script type="application/ld+json">${crumbSchema}</script>
 <script type="application/ld+json">${faqSchema}</script>
@@ -103,7 +106,7 @@ export function render(service, allServices) {
       <a href="/#services">Services</a>
       <a href="/#areas">Areas</a>
       <a href="/#faq">FAQs</a>
-      <a href="/#book">Book</a>
+      <a href="#book">Book</a>
     </nav>
   </div>
 </header>
@@ -128,12 +131,11 @@ export function render(service, allServices) {
     ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}
   </section>`).join('\n\n  ')}
 
-  <div class="cta">
+  <section class="sec" id="book-section">
     <h2>${esc(service.ctaHeading)}</h2>
-    <p>${service.ctaBody}</p>
-    <a class="btn" href="/#book">Book a survey</a>
-    <p style="margin-top:14px">Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
-  </div>
+    <p>${service.ctaBody} Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+    ${bookForm(site.key)}
+  </section>
 
   <section class="sec">
     <h2>Questions</h2>
@@ -155,7 +157,7 @@ ${related.length ? `
     <span><a href="/">Home</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
-
+${bookScripts(site)}
 </body>
 </html>
 `;
