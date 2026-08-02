@@ -427,6 +427,13 @@ The generated pages get the same markup and load the same files, so there is one
 implementation across 66 pages rather than three copies. `book.js` exits
 immediately on a page with no form, so it is safe to load everywhere.
 
+On the generated pages the form sits in a sticky column to the right of the
+content, so it follows the reader down the page and there is never a scroll back
+to enquire. The content itself keeps the order and shape it had. Below 1080px
+there is nowhere to put a sidebar, so the layout collapses to one column with the
+form after the content, and a fixed action bar with Call and Book a survey gives
+a way to reach it from anywhere on the page.
+
 `book.css` names colour roles with fallbacks, `--card` then `--slate`, `--bg`
 then `--navy`, so one stylesheet serves the dark DampScan home page, the light
 ATi one and both sets of generated pages. `area.css` supplies `--card-2`,

@@ -173,7 +173,8 @@ export function render(area, allAreas) {
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap page">
+  <div class="page-main">
   <p class="crumb"><a href="/">Home</a> / <a href="/#areas">Areas</a> / ${esc(area.name)}</p>
 
   <div class="hero">
@@ -205,13 +206,6 @@ export function render(area, allAreas) {
     </ul>
   </section>
 
-  <section class="sec" id="book-section">
-    <h2>Book a survey in ${esc(area.name)}</h2>
-    <p>Same day response to every enquiry, and your written report within 24 hours
-      of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
-    ${bookForm(site.key)}
-  </section>
-
   <section class="sec">
     <h2>${esc(area.name)} questions</h2>
     ${area.faq.map((f) => `<details class="qa"><summary>${esc(f.q)}</summary><p>${f.a}</p></details>`).join('\n    ')}
@@ -224,7 +218,22 @@ ${nearby.length ? `
     </ul>
   </section>
 ` : ''}
+  </div>
+
+  <aside class="page-aside">
+    <div class="booking">
+      <h2>Book a survey in ${esc(area.name)}</h2>
+      <p>Same day response to every enquiry, and your written report within 24
+        hours of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+      ${bookForm(site.key)}
+    </div>
+  </aside>
 </main>
+
+<div class="action-bar" role="group" aria-label="Quick actions">
+  <a href="tel:${site.phone}" class="btn btn--ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg> Call</a>
+  <a href="#book" class="btn btn--primary">Book a survey</a>
+</div>
 
 <footer class="afoot">
   <div class="wrap">
