@@ -214,3 +214,25 @@ test('both home pages link to their own service pages, and the sitemaps list the
     }
   }
 });
+
+test('each page carries its own SurveyMate slug and never the other site\'s', async () => {
+  // The two firms have separate listings. A DampScan badge on a London page
+  // would send an ATi visitor to the wrong firm's verification.
+  const { areas } = await import('../content/areas/index.js');
+  const { services } = await import('../content/services/index.js');
+  const { SITES } = await import('../scripts/area-template.js');
+
+  const pages = [
+    ...areas.map((a) => [a.site, `../public/areas/${a.site}/${a.slug}.html`]),
+    ...services.map((s) => [s.site, `../public/service-pages/${s.site}/${s.slug}.html`])
+  ];
+
+  for (const [site, path] of pages) {
+    const html = await readFile(new URL(path, import.meta.url), 'utf8');
+    const mine = SITES[site].surveyMateSlug;
+    const theirs = SITES[site === 'ati' ? 'dampscan' : 'ati'].surveyMateSlug;
+    assert.ok(html.includes(`find-a-surveyor/${mine}`), `${path} links to its own listing`);
+    assert.equal(html.includes(`find-a-surveyor/${theirs}`), false, `${path} must not link to the other firm`);
+    assert.ok(html.includes(`verified-badge/${mine}`), `${path} shows its own badge`);
+  }
+});

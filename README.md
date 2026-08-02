@@ -408,6 +408,43 @@ orphaned:
 A page nothing links to is a page Google treats as unimportant, so those home
 page links are load bearing rather than decorative.
 
+## The booking form is one implementation
+
+Every page on both sites carries the same booking form, driven by the same two
+scripts:
+
+    public/assets/visit.js   session, attribution and interaction tracking
+    public/assets/book.js    the form: stepper, validation, lead post, held partial
+    public/assets/book.css   its styles
+    scripts/book-form.js     the markup, for the generated pages
+
+It used to be inline in both home pages, 470 near-identical lines each, differing
+only in the sessionStorage keys, the dataLayer event name and the notification
+subject prefix. Those three now come from `window.DS_CONFIG`, set inline just
+above the script tags, because a static page cannot read environment variables.
+
+The generated pages get the same markup and load the same files, so there is one
+implementation across 66 pages rather than three copies. `book.js` exits
+immediately on a page with no form, so it is safe to load everywhere.
+
+On the generated pages the form sits in a sticky column to the right of the
+content, so it follows the reader down the page and there is never a scroll back
+to enquire. The content itself keeps the order and shape it had. Below 1080px
+there is nowhere to put a sidebar, so the layout collapses to one column with the
+form after the content, and a fixed action bar with Call and Book a survey gives
+a way to reach it from anywhere on the page.
+
+`book.css` names colour roles with fallbacks, `--card` then `--slate`, `--bg`
+then `--navy`, so one stylesheet serves the dark DampScan home page, the light
+ATi one and both sets of generated pages. `area.css` supplies `--card-2`,
+`--card-shadow` and `--warn` per theme, which is what stops the card fading to
+navy on the light pages.
+
+`book.js` is 353 lines, over the limit the rest of the project keeps to, and
+deliberately. It is one component, and the only seam in it runs straight through
+`showServerErrors`, so splitting it would add an interface without adding
+clarity. It is the second documented exception, alongside the home pages.
+
 ## Reviews
 
 The carousel on both sites is filled from the real Google listing. `/api/reviews`

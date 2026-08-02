@@ -32,6 +32,8 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Will this actually fix the problem?","acceptedAnswer":{"@type":"Answer","text":"That depends entirely on getting the diagnosis right, which is why we survey before we quote. When the true cause is identified and treated properly, the problem doesn't come back. Most repeat damp problems we're called to are second visits to work that treated a symptom."}},{"@type":"Question","name":"What's the guarantee?","acceptedAnswer":{"@type":"Answer","text":"All remedial work we carry out is covered by an insured workmanship guarantee, with documentation you can hand on to a buyer or your insurer. The exact term depends on the treatment, it's stated clearly on your quote before you commit to anything."}},{"@type":"Question","name":"What happens after I submit the form?","acceptedAnswer":{"@type":"Answer","text":"A surveyor reviews your details and contacts you the same day to arrange a visit. Within 24 hours of that visit you get a written report with photographs, the diagnosed cause and a fixed-price quote. Then you decide, there's no obligation and nobody will chase you."}},{"@type":"Question","name":"How fast can you come out?","acceptedAnswer":{"@type":"Answer","text":"We respond to every enquiry the same day and arrange the visit around you, then your written report follows within 24 hours of that visit. We cover Kent, Surrey, Essex, Sussex, Hertfordshire and Berkshire, and can usually work around evenings and weekends."}},{"@type":"Question","name":"Is the work messy?","acceptedAnswer":{"@type":"Answer","text":"Some treatments involve removing plaster or lifting floor coverings, so there is dust, but we sheet up, protect finishes and clean down at the end of each day. Your report tells you exactly what will be disturbed before any work starts."}},{"@type":"Question","name":"Can we stay in the house while work is carried out?","acceptedAnswer":{"@type":"Answer","text":"In the overwhelming majority of cases, yes. We work room by room so you keep the rest of the property. If a job would genuinely make a room unusable for a period, we'll tell you upfront rather than on the day."}},{"@type":"Question","name":"Do you work with landlords and letting agents?","acceptedAnswer":{"@type":"Answer","text":"Yes, a large share of our work is certified inspections for landlords and managing agents dealing with reported damp and mould, including portfolio surveys across multiple properties. See the landlord section above."}},{"@type":"Question","name":"Which areas do you cover?","acceptedAnswer":{"@type":"Answer","text":"Kent and the wider South East, including Surrey, Essex, East and West Sussex, Hertfordshire, Berkshire and Buckinghamshire. Properties inside London are surveyed by our sister practice, ATi Damp Survey, at atidampsurvey.co.uk. Enter your postcode in the booking form and we'll confirm cover straight away."}},{"@type":"Question","name":"What if I just want a second opinion?","acceptedAnswer":{"@type":"Answer","text":"That's one of the most useful things we do. If you've been quoted for invasive damp-proofing and it doesn't feel right, we'll survey independently and tell you honestly whether that work is justified."}}]}
 </script>
 
+<link rel="stylesheet" href="/assets/book.css" />
+
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:96px}
@@ -123,51 +125,6 @@ section{padding-block:clamp(64px,8vw,116px)}
 .hero-copy{align-items:stretch}
 .speed{max-width:none}
 }
-
-/* ---------- Multi-step form ---------- */
-.book-card{background:linear-gradient(180deg,var(--slate),#101f33);border:1px solid var(--line-strong);border-radius:18px;padding:clamp(22px,2.4vw,30px);box-shadow:0 30px 70px -30px rgba(0,0,0,.85)}
-.book-head{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
-.book-head h2{font-size:clamp(20px,1.9vw,24px);letter-spacing:-.01em}
-.book-head p{font-size:14px;color:var(--muted)}
-.dots{display:flex;gap:8px;align-items:center;margin-bottom:20px}
-.dots span{width:100%;height:4px;border-radius:999px;background:var(--line-strong);transition:background .25s}
-.dots span.is-done{background:var(--accent)}
-.dots .step-label{width:auto;height:auto;background:none;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);white-space:nowrap;flex-shrink:0;margin-left:6px;font-weight:600}
-.fstep{display:none;flex-direction:column;gap:14px}
-.fstep.is-active{display:flex}
-.form-row{display:flex;flex-direction:column;gap:6px}
-.form-row label{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
-.form-row .opt{text-transform:none;letter-spacing:0;color:var(--muted-2);font-weight:400}
-.form-row input,.form-row select,.form-row textarea{width:100%;background:var(--navy);border:1px solid var(--line-strong);border-radius:10px;color:var(--text);padding:13px 15px;font:inherit;font-size:16px;min-height:50px;transition:border-color .16s,background .16s}
-.form-row select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23aebbcc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
-.form-row textarea{min-height:86px;resize:vertical}
-.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--accent);background:var(--slate-2)}
-.form-row input[aria-invalid="true"]{border-color:#e8836b;background:rgba(232,131,107,.06)}
-.err{font-size:12.5px;color:#f0a08b;display:none}
-.form-row.has-err .err{display:block}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:420px){.two-col{grid-template-columns:1fr}}
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:520px){.checks{grid-template-columns:1fr}}
-.form-row label.check{font-size:14.5px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:500}
-.check{position:relative;display:flex;align-items:center;gap:11px;border:1px solid var(--line-strong);border-radius:11px;padding:13px 14px;font-size:14.5px;cursor:pointer;min-height:50px;transition:border-color .16s,background .16s}
-.check:hover{border-color:var(--accent-ring)}
-.check input{position:absolute;opacity:0;width:0;height:0}
-.check .box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--line-strong);flex-shrink:0;display:grid;place-items:center;color:transparent;transition:background .16s,border-color .16s,color .16s}
-.check input:checked~.box{background:var(--accent);border-color:var(--accent);color:#06121f}
-.check:has(input:checked){border-color:var(--accent-ring);background:var(--accent-soft)}
-.check input:focus-visible~.box{outline:2px solid var(--accent-hi);outline-offset:2px}
-.fnav{display:flex;gap:10px;align-items:center;margin-top:4px}
-.fnav .btn{flex:1}
-.back-link{background:none;color:var(--muted-2);font-size:13.5px;font-weight:500;padding:0 6px;flex:0 0 auto;min-height:44px}
-.back-link:hover{color:var(--text)}
-.form-foot{margin-top:14px;font-size:12px;color:var(--muted-2);line-height:1.5;text-align:center}
-.book-success{display:none;text-align:center;padding:14px 0 6px;flex-direction:column;gap:12px;align-items:center}
-.book-success .check-ring{width:56px;height:56px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;border:1px solid var(--accent-ring)}
-.book-success h3{font-size:21px}
-.book-success p{font-size:14.5px;color:var(--muted);max-width:38ch}
-.is-sent .book-body{display:none}
-.is-sent .book-success{display:flex}
 
 /* ---------- Trust bar ---------- */
 .trustbar{background:var(--slate);border-block:1px solid var(--line);padding-block:clamp(28px,3.4vw,38px)}
@@ -298,6 +255,12 @@ details.qa p{color:var(--muted);font-size:15.5px;line-height:1.68;padding-bottom
 .smate-seal .seal-icon{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
 .smate-seal strong{font-size:14px;letter-spacing:.02em}
 .smate-seal span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+/* The verified badge is served live by SurveyMate, so it reflects the current
+   status rather than a copy that would keep saying verified if it lapsed.
+   Fixed dimensions and lazy loading keep it off the critical path and stop it
+   shifting the layout when it arrives. */
+.smate-badge{display:inline-block;margin-top:16px;line-height:0}
+.smate-badge img{display:block;width:200px;height:64px}
 .smate-text{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
 .smate-text h2{font-size:clamp(21px,2.3vw,28px);letter-spacing:-.015em}
 .smate-text h2 .hash{color:var(--accent)}
@@ -819,6 +782,9 @@ html{scroll-padding-top:88px}
       <strong>SurveyMate</strong>
       <span>Approved contractor</span>
     </div>
+    <a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/dampscan" rel="noopener" target="_blank">
+        <img src="https://survey-mate.co.uk/api/verified-badge/dampscan" alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
+      </a>
     <div class="smate-text">
       <h2 id="smate-heading"><span class="hash">#</span>SurveyMate Standard</h2>
       <p>We use <a href="https://survey-mate.co.uk" target="_blank" rel="noopener">SurveyMate</a> to keep every damp and timber survey clear, structured and accountable, from the first inspection to the final report.</p>
@@ -908,6 +874,20 @@ html{scroll-padding-top:88px}
 </div>
 
 <script>
+/* Per site values for the shared scripts below. A static page cannot read
+   environment variables, so changing one of these needs a commit. */
+window.DS_CONFIG = {
+  sessionKey: 'dampscan-session',
+  attrKey: 'dampscan-attr',
+  notify: 'https://formsubmit.co/ajax/tom@atidampsurvey.co.uk',
+  subjectPrefix: '',
+  dataLayerEvent: 'dampscan'
+};
+</script>
+<script src="/assets/visit.js"></script>
+<script src="/assets/book.js"></script>
+<script>
+
 /* =========================================================================
    DampScan, site interactions
    Sections: service data · reviews · FAQ · multi-step booking form
@@ -919,69 +899,6 @@ html{scroll-padding-top:88px}
    ========================================================================= */
 
 /* Our own API. It owns validation and storage, and is the source of truth. */
-const LEAD_ENDPOINT = '/api/lead';
-
-/* FormSubmit is called from the browser, not from our functions: it sits behind
-   Cloudflare, which answers a server-to-server request with a bot challenge
-   rather than sending the email. Changing this address needs a commit, since a
-   static page cannot read environment variables. */
-const NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/tom@atidampsurvey.co.uk';
-
-/* ---------- Visit session and first-party attribution (no cookies) ----------
-   One id per visit, held in sessionStorage so it dies with the tab. The partial
-   and the complete post share it, which is how the two reconcile into one lead.
-   Referrer and utm_* are captured on first load and kept for the whole visit, so
-   an event fired later still knows where the visitor came from. */
-const DS = (function visitContext(){
-  const KEY = 'dampscan-session', ATTR = 'dampscan-attr';
-  const newId = () => {
-    try { return crypto.randomUUID(); } catch (e) {}
-    return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
-      (c ^ Math.random() * 16 >> c / 4).toString(16));
-  };
-  let id = null, attr = null;
-  try { id = sessionStorage.getItem(KEY); } catch (e) {}
-  if (!id) {
-    id = newId();
-    try { sessionStorage.setItem(KEY, id); } catch (e) {}
-  }
-  try { attr = JSON.parse(sessionStorage.getItem(ATTR) || 'null'); } catch (e) {}
-  if (!attr) {
-    const utm = {};
-    try {
-      new URLSearchParams(location.search).forEach((v, k) => {
-        if (/^(utm_|gclid|fbclid)/i.test(k)) utm[k.toLowerCase()] = v.slice(0, 120);
-      });
-    } catch (e) {}
-    attr = { referrer: document.referrer || '', utm, landingPage: location.pathname + location.search };
-    try { sessionStorage.setItem(ATTR, JSON.stringify(attr)); } catch (e) {}
-  }
-  return { id: id, referrer: attr.referrer, utm: attr.utm, landingPage: attr.landingPage };
-})();
-
-/* Fire and forget. Analytics must never slow the page or surface an error. */
-function track(type, detail){
-  try {
-    fetch('/api/event', {
-      method: 'POST', keepalive: true,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: DS.id, type: type, detail: detail || {}, path: location.pathname,
-        referrer: DS.referrer, utm: DS.utm, landingPage: DS.landingPage
-      })
-    }).catch(function(){});
-  } catch (e) {}
-}
-
-/* Which part of the page an interaction came from. */
-function placementOf(el){
-  if (el.closest('.site-header')) return 'header';
-  if (el.closest('.action-bar')) return 'mobile-bar';
-  if (el.closest('.closing')) return 'closing';
-  if (el.closest('.footer')) return 'footer';
-  return 'page';
-}
-
 /* ---------- Reviews marquee ----------
    The cards in the markup are readable without JavaScript. If /api/reviews
    returns real Google reviews they replace them, and if it returns none, or is
@@ -1056,358 +973,6 @@ function placementOf(el){
   document.querySelectorAll('[data-svc-link]').forEach(a => {
     a.addEventListener('click', () => select(a.dataset.svcLink));
   });
-})();
-
-/* ---------- Multi-step booking form ---------- */
-(function bookingForm(){
-  const card = document.getElementById('book');
-  const form = document.getElementById('book-form');
-  const steps = Array.from(form.querySelectorAll('.fstep'));
-  const dots = Array.from(document.querySelectorAll('#dots span:not(.step-label)'));
-  const dotsWrap = document.getElementById('dots');
-  const label = document.getElementById('step-label');
-  let current = 0;
-
-  function show(i){
-    current = Math.max(0, Math.min(steps.length - 1, i));
-    steps.forEach((s, n) => s.classList.toggle('is-active', n === current));
-    dots.forEach((d, n) => d.classList.toggle('is-done', n <= current));
-    label.textContent = `Step ${current + 1} of ${steps.length}`;
-    dotsWrap.setAttribute('aria-valuenow', String(current + 1));
-    const firstField = steps[current].querySelector('input, select, textarea');
-    if (firstField) firstField.focus({ preventScroll: true });
-  }
-
-  function setError(row, on){
-    row.classList.toggle('has-err', on);
-    const field = row.querySelector('input, select');
-    if (field) field.setAttribute('aria-invalid', String(on));
-  }
-
-  /* Validate only the visible step */
-  function validate(){
-    const step = steps[current];
-    let ok = true;
-
-    step.querySelectorAll('.form-row').forEach(row => {
-      const field = row.querySelector('input[required], select[required]');
-      if (field) {
-        let bad = !field.value.trim();
-        if (!bad && field.type === 'tel') bad = field.value.replace(/\D/g,'').length < 9;
-        if (!bad && field.type === 'email') bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(field.value.trim());
-        setError(row, bad);
-        if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (ok === false && !step.querySelector('[aria-invalid="true"]:focus')) field.focus(); }
-        return;
-      }
-      /* Only a row marked data-require-one needs a tick. Every other checkbox
-         row, such as the previous survey question, is optional. */
-      if (!row.hasAttribute('data-require-one')) return;
-      const boxes = row.querySelectorAll('input[type="checkbox"]');
-      if (boxes.length) {
-        const bad = !Array.from(boxes).some(b => b.checked);
-        row.classList.toggle('has-err', bad);
-        if (bad) { ok = false; track('form_error', { field: 'issues' }); }
-      }
-    });
-    return ok;
-  }
-
-  /* Collect the whole form as a flat object; checkboxes join with commas */
-  function collect(){
-    const data = new FormData(form);
-    const out = {};
-    for (const [k, v] of data.entries()) {
-      if (!String(v).trim()) continue;
-      out[k] = out[k] ? out[k] + ', ' + v : v;
-    }
-    out['Previous survey'] = document.getElementById('f-prev').checked ? 'Yes' : 'No';
-    return out;
-  }
-
-  /* --- CRM HOOK -------------------------------------------------------
-     Replace the body of this function with your CRM / webhook / GA call.
-     Fires twice per lead: stage 'partial' (after step 1) and 'complete'. */
-  function pushLeadToCRM(payload, stage){
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'dampscan_lead', stage, ...payload });
-    /* e.g. fetch('https://your-crm.example/webhook', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({stage, ...payload})}); */
-  }
-
-  const val = id => (document.getElementById(id).value || '').trim();
-
-  /* The JSON shape /api/lead expects. The server re-validates all of it. */
-  function leadPayload(stage){
-    const hp = form.querySelector('input[name="honeypot"]');
-    return {
-      stage: stage,
-      sessionId: DS.id,
-      firstName: val('f-name'),
-      email: val('f-email'),
-      postcode: val('f-postcode'),
-      phone: val('f-phone'),
-      issues: Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value),
-      role: document.getElementById('f-role').value || '',
-      previousSurvey: document.getElementById('f-prev').checked,
-      notes: val('f-notes'),
-      sourcePath: location.pathname,
-      referrer: DS.referrer,
-      utm: DS.utm,
-      landingPage: DS.landingPage,
-      honeypot: hp ? hp.value : ''
-    };
-  }
-
-  /* Server field key -> the input it belongs to, so a 400 lands on the right row. */
-  const ERROR_FIELDS = { firstName:'f-name', email:'f-email', postcode:'f-postcode', phone:'f-phone', role:'f-role' };
-
-  function showServerErrors(errors){
-    let firstBad = null;
-    Object.keys(errors || {}).forEach(key => {
-      if (key === 'issues') {
-        const issueRow = form.querySelector('.checks').closest('.form-row');
-        if (issueRow) { issueRow.classList.add('has-err'); if (!firstBad) firstBad = issueRow; }
-        return;
-      }
-      const field = document.getElementById(ERROR_FIELDS[key] || '');
-      const row = field && field.closest('.form-row');
-      if (!row) return;
-      setError(row, true);
-      const err = row.querySelector('.err');
-      if (err && errors[key]) err.textContent = errors[key];
-      if (!firstBad) firstBad = field;
-    });
-    if (firstBad) {
-      const step = firstBad.closest('.fstep');
-      if (step) show(steps.indexOf(step));
-      if (firstBad.focus) firstBad.focus();
-    }
-  }
-
-  /* The notification email is sent from here rather than from our API, because
-     FormSubmit sits behind Cloudflare and answers a server-to-server call with a
-     bot challenge instead of sending anything. The lead is already stored by
-     /api/lead before this runs, so a blocked or abandoned browser costs the
-     email, never the enquiry. */
-  function emailNotification(stage, id){
-    const issues = Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value);
-    const who = val('f-name') || 'unknown';
-    const where = val('f-postcode') || 'no postcode';
-    const payload = {
-      _subject: (stage === 'complete' ? 'NEW survey booking, ' : 'PARTIAL lead (step 1), ') + who + ', ' + where,
-      _captcha: 'false',
-      _template: 'table',
-      'First name': val('f-name'),
-      Email: val('f-email'),
-      Phone: val('f-phone') || 'Not given',
-      Postcode: val('f-postcode'),
-      Issue: issues.length ? issues.join(', ') : 'Not given yet',
-      'Owner or landlord': document.getElementById('f-role').value || 'Not given yet',
-      'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
-      Notes: val('f-notes') || 'None',
-      'Lead stage': stage,
-      Submitted: new Date().toLocaleString('en-GB'),
-      'Lead ID': String(id || '')
-    };
-
-    /* Tell our API what happened, so the dashboard shows the truth rather than
-       "Pending" forever. Fire and forget, never surfaced to the visitor. */
-    const report = (ok, error) => {
-      try {
-        fetch('/api/notified', {
-          method: 'POST', keepalive: true,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: DS.id, stage: stage, ok: ok, error: error || '' })
-        }).catch(function(){});
-      } catch (e) {}
-    };
-
-    try {
-      fetch(NOTIFY_ENDPOINT, {
-        method: 'POST', keepalive: true,
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(payload)
-      })
-        .then(r => r.json().catch(function(){ return null; }))
-        .then(body => {
-          const sent = body && String(body.success).toLowerCase() === 'true';
-          report(sent, sent ? '' : (body && body.message) || 'FormSubmit did not confirm the send.');
-        })
-        .catch(err => report(false, String((err && err.message) || err)));
-    } catch (e) {
-      report(false, String(e && e.message || e));
-    }
-  }
-
-  /* Returns { ok, errors }. A network failure resolves ok, so the visitor is
-     never trapped by something that is not their fault. A 400 does not, because
-     the fields genuinely need fixing. */
-  async function sendLead(stage){
-    pushLeadToCRM(collect(), stage);
-    try {
-      const res = await fetch(LEAD_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(leadPayload(stage))
-      });
-      if (res.status === 400) {
-        const body = await res.json().catch(function(){ return null; });
-        return { ok: false, errors: (body && body.errors) || {} };
-      }
-      const saved = await res.json().catch(function(){ return null; });
-      emailNotification(stage, saved && saved.id);
-    } catch (err) {
-      /* Offline/preview or network blocked: the UI still advances so the visitor is never stuck */
-      console.warn('Lead POST failed (stage: ' + stage + ')', err);
-    }
-    return { ok: true, errors: {} };
-  }
-
-  /* --- PARTIAL LEAD ---------------------------------------------------
-     Step 1 gives us enough to call someone back, but a visitor who carries on
-     and books is not a partial at all. So the partial is armed once they pass
-     step 1 and then held back: it is only sent if they really do leave it
-     there, either by leaving the page or by going quiet for a long time with
-     the form still open. Submitting cancels it, so a booked survey never
-     arrives twice. */
-  const PARTIAL_IDLE_MS = 180000;
-  const PARTIAL_HIDDEN_MS = 45000;
-  let partialArmed = false;
-  let partialDone = false;
-  let idleTimer = 0;
-  let hiddenTimer = 0;
-
-  function armPartial(){
-    if (partialDone) return;
-    partialArmed = true;
-    bumpIdle();
-  }
-
-  function cancelPartial(){
-    partialArmed = false;
-    partialDone = true;
-    clearTimeout(idleTimer);
-    clearTimeout(hiddenTimer);
-  }
-
-  function bumpIdle(){
-    clearTimeout(idleTimer);
-    if (!partialArmed) return;
-    idleTimer = setTimeout(() => flushPartial(false), PARTIAL_IDLE_MS);
-  }
-
-  /* leaving means the page is on its way out, so the request has to be a
-     beacon: an ordinary fetch is routinely killed mid-flight during unload.
-     The lead still reaches the dashboard, it just cannot report back on the
-     notification email the way an idle flush can. */
-  function flushPartial(leaving){
-    if (!partialArmed || partialDone) return;
-    partialArmed = false;
-    partialDone = true;
-    clearTimeout(idleTimer);
-    clearTimeout(hiddenTimer);
-    if (leaving && navigator.sendBeacon) {
-      const body = new Blob([JSON.stringify(leadPayload('partial'))], { type: 'application/json' });
-      navigator.sendBeacon(LEAD_ENDPOINT, body);
-      return;
-    }
-    sendLead('partial');
-  }
-
-  /* pagehide is the last reliable moment before the page goes. A tab switch
-     only counts once they have stayed away a while, so glancing at another tab
-     and coming back to finish does not produce a partial. */
-  window.addEventListener('pagehide', () => flushPartial(true));
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      if (partialArmed) hiddenTimer = setTimeout(() => flushPartial(true), PARTIAL_HIDDEN_MS);
-      return;
-    }
-    clearTimeout(hiddenTimer);
-    bumpIdle();
-  });
-
-  form.addEventListener('click', e => {
-    if (e.target.closest('[data-next]')) {
-      if (!validate()) return;
-      /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
-      if (current === 0) armPartial();
-      show(current + 1);
-      track('form_step', { step: current + 1 });
-    }
-    if (e.target.closest('[data-back]')) show(current - 1);
-  });
-
-  /* form_open once per visit, plus step 1 so the funnel has a first rung. */
-  let formOpened = false;
-  form.addEventListener('focusin', () => {
-    if (formOpened) return;
-    formOpened = true;
-    track('form_open');
-    track('form_step', { step: 1 });
-  });
-
-  /* Clear the error as soon as they start fixing it, and keep the partial
-     lead on hold for as long as they are still working on the form. */
-  form.addEventListener('input', e => {
-    bumpIdle();
-    const row = e.target.closest('.form-row');
-    if (row) setError(row, false);
-  });
-  form.addEventListener('change', e => {
-    bumpIdle();
-    const row = e.target.closest('.form-row');
-    if (row && e.target.type === 'checkbox') row.classList.remove('has-err');
-  });
-
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    if (!validate()) return;
-    /* They are booking, so the held partial is not a partial. Drop it. */
-    cancelPartial();
-    const btn = form.querySelector('[type="submit"]');
-    btn.disabled = true;
-    btn.style.opacity = '.7';
-    const result = await sendLead('complete');
-    if (!result.ok) {
-      /* Server rejected a field, so nothing was written. Put the partial back
-         on hold as a fallback, then point at the problem. */
-      partialDone = false;
-      armPartial();
-      btn.disabled = false;
-      btn.style.opacity = '';
-      showServerErrors(result.errors);
-      return;
-    }
-    track('form_submit');
-    card.classList.add('is-sent');
-    card.querySelector('.book-success h3').focus?.();
-  });
-
-  /* Action-bar / CTA taps land on the form with the first field focused */
-  document.addEventListener('click', e => {
-    if (e.target.closest('a[href="#book"]')) {
-      setTimeout(() => {
-        if (card.classList.contains('is-sent')) return;
-        const f = steps[current].querySelector('input, select, textarea');
-        if (f && window.matchMedia('(min-width: 821px)').matches) f.focus({ preventScroll: true });
-      }, 620);
-    }
-  });
-
-  show(0);
-})();
-
-/* ---------- Interaction tracking (delegated, nothing added to the markup) ---------- */
-(function tracking(){
-  track('page_view');
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a');
-    if (!a) return;
-    const href = a.getAttribute('href') || '';
-    if (href.indexOf('tel:') === 0) track('call_click', { placement: placementOf(a) });
-    else if (href.indexOf('mailto:') === 0) track('email_click', { placement: placementOf(a) });
-    else if (href === '#book') track('cta_click', { placement: placementOf(a) });
-  }, true);
 })();
 
 /* ---------- Active nav link ---------- */

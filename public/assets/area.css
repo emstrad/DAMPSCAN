@@ -9,12 +9,18 @@
   --line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.15);
   --accent:#4fa8e8;--accent-hi:#7cc3f5;--accent-soft:rgba(79,168,232,.12);
   --text:#f5f8fc;--muted:#aebbcc;--muted-2:#7f8ea4;--on-accent:#06121f;
+  /* Roles the booking form needs on top of the page palette. */
+  --line-strong:rgba(255,255,255,.15);--card-2:#101f33;--card-shadow:rgba(0,0,0,.85);
+  --warn:#f0a08b;--warn-soft:rgba(232,131,107,.06);
 }
 :root[data-site="ati"]{
   --bg:#f5f5f3;--bg-2:#ebebe8;--card:#ffffff;
   --line:rgba(17,33,60,.13);--line-strong:rgba(17,33,60,.24);
   --accent:#17325a;--accent-hi:#2a5591;--accent-soft:rgba(23,50,90,.08);
   --text:#11213c;--muted:#4a5871;--muted-2:#5b6780;--on-accent:#ffffff;
+  /* The form card stays flat and light here rather than fading to navy. */
+  --line-strong:rgba(17,33,60,.24);--card-2:#ffffff;--card-shadow:rgba(17,33,60,.28);
+  --warn:#a3341a;--warn-soft:rgba(163,52,26,.07);
 }
 
 html{scroll-behavior:smooth}
@@ -28,7 +34,7 @@ h1,h2,h3{line-height:1.14;letter-spacing:-.02em;margin:0;font-weight:800}
 p,ul{margin:0}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
-.wrap{max-width:900px;margin-inline:auto;padding:0 clamp(20px,4vw,40px)}
+.wrap{max-width:1200px;margin-inline:auto;padding:0 clamp(20px,4vw,40px)}
 
 /* ---------- header ---------- */
 .ahead{border-bottom:1px solid var(--line);background:var(--bg-2)}
@@ -73,14 +79,41 @@ p,ul{margin:0}
 .qa[open] summary{color:var(--accent)}
 .qa p{margin-top:12px}
 
-.cta{background:var(--card);border:1px solid var(--line);border-radius:var(--radius,14px);
-  padding:clamp(22px,4vw,34px);margin:40px 0}
-.cta h2{font-size:clamp(21px,3vw,27px)}
-.cta p{color:var(--muted);margin-top:12px}
-.btn{display:inline-flex;align-items:center;gap:10px;margin-top:20px;min-height:52px;
-  padding:0 28px;border-radius:999px;background:var(--accent);color:var(--on-accent);
-  font-weight:700;font-size:15.5px;transition:background .2s,transform .2s}
-.btn:hover{background:var(--accent-hi);color:var(--on-accent);transform:translateY(-1px)}
+/* ---------- two column layout: content left, booking form sticky right ----------
+   The content keeps the order and shape it had. The form moves alongside it and
+   follows the visitor down the page, so there is no scroll back to enquire.
+
+   Below 1080px there is nowhere to put a sidebar, so it becomes a single column
+   with the form after the content, and a fixed action bar gives a way to reach
+   it from anywhere on the page. */
+.page{display:grid;gap:clamp(28px,4vw,56px);grid-template-columns:minmax(0,1fr);
+  padding-bottom:var(--bar-h,0px)}
+.page-main{min-width:0}
+
+@media (min-width:1080px){
+  .page{grid-template-columns:minmax(0,1fr) 390px}
+  /* The padding lines the form up with the breadcrumb rather than sitting
+     tight under the header, and is what sticky then scrolls it out of. */
+  .page-aside{align-self:start;position:sticky;top:24px;padding-top:26px}
+}
+
+.booking{margin-top:26px}
+.booking h2{font-size:19px;margin-bottom:10px}
+.booking > p{color:var(--muted);font-size:14.5px;margin-bottom:16px}
+@media (min-width:1080px){ .booking{margin-top:0} }
+
+/* ---------- mobile action bar ---------- */
+.action-bar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;
+  background:var(--bg-2);border-top:1px solid var(--line-strong);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));gap:10px}
+.action-bar .btn{flex:1;min-height:52px;font-size:15px;padding:0 14px;margin-top:0}
+.action-bar .btn--ghost{background:transparent;border:1px solid var(--line-strong);color:var(--text)}
+.action-bar .btn--ghost:hover{background:var(--card);color:var(--text)}
+@media (max-width:1079px){
+  .action-bar{display:flex}
+  body{--bar-h:78px}
+  html{scroll-padding-top:20px}
+}
 
 /* ---------- footer ---------- */
 .afoot{border-top:1px solid var(--line);background:var(--bg-2);margin-top:50px;
@@ -88,3 +121,7 @@ p,ul{margin:0}
 .afoot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .afoot a{color:var(--muted-2)}
 .afoot a:hover{color:var(--accent)}
+
+/* SurveyMate verified badge, under the booking form in the sidebar. */
+.smate-badge{display:block;margin-top:18px;text-align:center;line-height:0}
+.smate-badge img{display:inline-block;width:200px;height:64px}
