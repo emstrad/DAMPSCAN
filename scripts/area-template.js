@@ -21,6 +21,7 @@ const SITES = {
     schemaType: 'LocalBusiness',
     served: 'Kent and the South East of England',
     strap: 'Survey-led damp, mould and timber specialists',
+    surveyMateSlug: 'dampscan',
     book: {
       sessionKey: 'dampscan-session',
       attrKey: 'dampscan-attr',
@@ -40,6 +41,7 @@ const SITES = {
     schemaType: 'ProfessionalService',
     served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work',
+    surveyMateSlug: 'ati-damp-survey',
     book: {
       sessionKey: 'ati-damp-session',
       attrKey: 'ati-damp-attr',
@@ -69,6 +71,19 @@ window.DS_CONFIG = {
 </scr` + `ipt>
 <scr` + `ipt src="/assets/visit.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/book.js"></scr` + `ipt>`;
+}
+
+/* SurveyMate serves the badge live from its own endpoint, so it reflects the
+   firm's current status rather than a copy that would keep saying verified if
+   the listing ever lapsed. Fixed dimensions and lazy loading keep it off the
+   critical path and stop it shifting the layout when it arrives. */
+function verifiedBadge(site) {
+  const slug = site.surveyMateSlug;
+  return `<a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/${slug}"
+      rel="noopener" target="_blank">
+      <img src="https://survey-mate.co.uk/api/verified-badge/${slug}"
+           alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
+    </a>`;
 }
 
 const esc = (value) =>
@@ -226,6 +241,7 @@ ${nearby.length ? `
       <p>Same day response to every enquiry, and your written report within 24
         hours of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
       ${bookForm(site.key)}
+      ${verifiedBadge(site)}
     </div>
   </aside>
 </main>
@@ -247,4 +263,4 @@ ${bookScripts(site)}
 `;
 }
 
-export { SITES, bookScripts };
+export { SITES, bookScripts, verifiedBadge };

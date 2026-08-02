@@ -255,6 +255,12 @@ details.qa p{color:var(--muted);font-size:15.5px;line-height:1.68;padding-bottom
 .smate-seal .seal-icon{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
 .smate-seal strong{font-size:14px;letter-spacing:.02em}
 .smate-seal span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+/* The verified badge is served live by SurveyMate, so it reflects the current
+   status rather than a copy that would keep saying verified if it lapsed.
+   Fixed dimensions and lazy loading keep it off the critical path and stop it
+   shifting the layout when it arrives. */
+.smate-badge{display:inline-block;margin-top:16px;line-height:0}
+.smate-badge img{display:block;width:200px;height:64px}
 .smate-text{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
 .smate-text h2{font-size:clamp(21px,2.3vw,28px);letter-spacing:-.015em}
 .smate-text h2 .hash{color:var(--accent)}
@@ -883,6 +889,9 @@ html{scroll-padding-top:88px}
       <strong>SurveyMate</strong>
       <span>Approved contractor</span>
     </div>
+    <a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/ati-damp-survey" rel="noopener" target="_blank">
+        <img src="https://survey-mate.co.uk/api/verified-badge/ati-damp-survey" alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
+      </a>
     <div class="smate-text">
       <h2 id="smate-heading"><span class="hash">#</span>SurveyMate Standard</h2>
       <p>Every ATI inspection is recorded through <a href="https://survey-mate.co.uk" target="_blank" rel="noopener">SurveyMate</a>, so each survey follows the same structured method and every finding is captured as dated evidence rather than a note made afterwards.</p>

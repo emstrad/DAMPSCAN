@@ -11,7 +11,7 @@
  * The shared page shell and site details come from area-template.js, so the
  * area and service pages stay visually identical without a second copy of it.
  */
-import { SITES, bookScripts } from './area-template.js';
+import { SITES, bookScripts, verifiedBadge } from './area-template.js';
 import { bookForm } from './book-form.js';
 
 
@@ -151,6 +151,7 @@ ${related.length ? `
       <h2>${esc(service.ctaHeading)}</h2>
       <p>${service.ctaBody} Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
       ${bookForm(site.key)}
+      ${verifiedBadge(site)}
     </div>
   </aside>
 </main>

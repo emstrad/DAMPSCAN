@@ -121,3 +121,7 @@ p,ul{margin:0}
 .afoot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .afoot a{color:var(--muted-2)}
 .afoot a:hover{color:var(--accent)}
+
+/* SurveyMate verified badge, under the booking form in the sidebar. */
+.smate-badge{display:block;margin-top:18px;text-align:center;line-height:0}
+.smate-badge img{display:inline-block;width:200px;height:64px}
