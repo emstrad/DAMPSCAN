@@ -20,6 +20,7 @@ import { areas } from '../content/areas/index.js';
 import { services } from '../content/services/index.js';
 import { render, distinctiveWordCount, SITES } from './area-template.js';
 import { render as renderService, distinctiveWordCount as serviceWords } from './service-template.js';
+import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './reviews-block.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'areas');
@@ -124,6 +125,19 @@ ${serviceLinks}
   }
 }
 
+/* The reviews we hold, written into the markup rather than fetched, because a
+   crawler that does not run JavaScript sees only what is in the HTML. */
+async function writeReviews() {
+  for (const [site, file] of Object.entries(HOME)) {
+    const path = join(ROOT, file);
+    const html = await readFile(path, 'utf8');
+    const from = html.indexOf(R_START);
+    const to = html.indexOf(R_END);
+    if (from === -1 || to === -1) throw new Error(`${file}: review markers missing`);
+    await writeFile(path, html.slice(0, from) + reviewsBlock(site) + html.slice(to + R_END.length), 'utf8');
+  }
+}
+
 async function writeSitemaps() {
   // One date for the whole build, taken once, so a run cannot straddle midnight
   // and stamp two different days across the two files.
@@ -190,6 +204,7 @@ async function main() {
 
   await writeSitemaps();
   await writeHomeLinks();
+  await writeReviews();
 
   for (const site of Object.keys(counts).sort()) {
     const built = await readdir(join(OUT, site));
@@ -198,6 +213,7 @@ async function main() {
   console.log(`${areas.length} area pages written to public/areas`);
   console.log(`${services.length} service pages written to public/service-pages`);
   console.log('sitemaps and home page links rewritten');
+  for (const site of Object.keys(HOME)) console.log(reviewsSummary(site));
 }
 
 await main();

@@ -14,6 +14,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { reviews } from '../content/reviews/index.js';
+import { MIN_REVIEWS } from '../lib/google-reviews.js';
+
+/** The same transformation the builder applies, so quotes compare like for like. */
+const escapeAsRendered = (text) =>
+  String(text)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .split('\n').join('<br />');
 
 const PUBLIC = new URL('../public/', import.meta.url).pathname;
 
@@ -32,10 +41,19 @@ const PAGES = htmlFiles(PUBLIC).map((path) => ({
   html: readFileSync(path, 'utf8')
 }));
 
-const HOMES = ['index.html', 'london.html'].map((name) => ({
-  name,
-  html: readFileSync(join(PUBLIC, name), 'utf8')
-}));
+/* The page script contains the same card markup as a string, because it renders
+   live reviews with it. Markup checks run against the document only, so that
+   template is not mistaken for a card on the page. Phrase checks keep the
+   scripts, since an invented quote could just as easily hide in one. */
+const HOMES = ['index.html', 'london.html'].map((name) => {
+  const html = readFileSync(join(PUBLIC, name), 'utf8');
+  return {
+    name,
+    site: name === 'index.html' ? 'dampscan' : 'ati',
+    html,
+    markup: html.replace(/<script[\s\S]*?<\/script>/g, '')
+  };
+});
 
 test('the shipped pages exist to be checked at all', () => {
   assert.ok(PAGES.length > 50, `expected the generated pages, found ${PAGES.length}`);
@@ -88,18 +106,35 @@ test('no invented testimonial survives on any page', () => {
   }
 });
 
-/* The carousel is kept so a real feed can drop into it. It ships empty and
-   hidden, and only /api/reviews may fill it, so an empty feed is an absent
-   section rather than a section of nothing. */
-test('both home pages ship the review carousel empty and hidden', () => {
-  for (const { name, html } of HOMES) {
-    assert.match(html, /<div class="carousel-track" id="track-a"><\/div>/, `${name}: track A is not empty`);
-    assert.match(html, /<div class="carousel-track rev" id="track-b"><\/div>/, `${name}: track B is not empty`);
-    const carousels = html.match(/<div class="carousel"[^>]*>/g) || [];
+/* The strong guarantee, and the reason the placeholder quotes cannot come back
+   in another form: every card on a shipped page must be traceable to a review
+   sitting in content/reviews, matched on the reviewer's own words. */
+test('every review card on a home page comes from content/reviews', () => {
+  for (const { name, site, markup } of HOMES) {
+    const held = reviews[site];
+    const cards = markup.match(/<article class="review">[\s\S]*?<\/article>/g) || [];
+    for (const card of cards) {
+      const quoted = card.match(/<p>([\s\S]*?)<\/p>/)[1];
+      const match = held.find((r) => quoted.startsWith(escapeAsRendered(r.text).slice(0, 60)));
+      assert.ok(match, `${name}: a card quotes words no held review contains: ${quoted.slice(0, 70)}`);
+      assert.ok(card.includes(`<span>${match.author}</span>`), `${name}: ${match.author} is misattributed`);
+    }
+  }
+});
+
+/* Below the floor the section ships empty and hidden, so a thin set of real
+   reviews is absent rather than displayed as if it were a full one. */
+test('a carousel is visible only where the site is at or above the floor', () => {
+  for (const { name, site, markup } of HOMES) {
+    const enough = reviews[site].length >= MIN_REVIEWS;
+    const carousels = markup.match(/<div class="carousel"[^>]*>/g) || [];
     assert.equal(carousels.length, 2, `${name}: expected two carousels`);
     for (const tag of carousels) {
-      assert.match(tag, /\shidden\b/, `${name}: a carousel ships visible: ${tag}`);
+      assert.equal(/\shidden\b/.test(tag), !enough, `${name}: wrong visibility for ${reviews[site].length} reviews`);
     }
+    const cards = (markup.match(/<article class="review">/g) || []).length;
+    // Each track carries the list twice, because the marquee loops on two copies.
+    assert.equal(cards, enough ? reviews[site].length * 4 : 0, `${name}: unexpected card count`);
   }
 });
 
@@ -116,9 +151,12 @@ test('both home pages replaced the quotes with what the client receives', () => 
 
 /* Google's terms require its data to be attributed where it is shown. The line
    ships hidden alongside the carousel and is revealed by the same code path. */
-test('both home pages carry a hidden Google attribution for the live feed', () => {
-  for (const { name, html } of HOMES) {
-    assert.match(html, /id="reviews-source" hidden/, `${name}: no attribution line`);
-    assert.ok(html.includes('Google Business Profile'), `${name}: the source is not named`);
+test('both home pages credit Google, shown or hidden with the carousel', () => {
+  for (const { name, site, markup } of HOMES) {
+    const enough = reviews[site].length >= MIN_REVIEWS;
+    const line = markup.match(/<p class="reviews-source"[^>]*>/);
+    assert.ok(line, `${name}: no attribution line`);
+    assert.equal(/\shidden\b/.test(line[0]), !enough, `${name}: attribution visibility does not match the carousel`);
+    assert.ok(markup.includes('Google Business Profile'), `${name}: the source is not named`);
   }
 });

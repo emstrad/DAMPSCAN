@@ -467,12 +467,25 @@ empty list, and the page leaves the section alone. Nothing is ever invented, and
 review text is escaped before it is inserted, because it is other people's
 writing arriving over the network.
 
-Fewer than `MIN_REVIEWS` (five) and the whole set is withheld, in
-`lib/google-reviews.js` rather than in either page, so there is one rule instead
-of one per site. Both carousels ship empty and `hidden`; only a successful fetch
-of five or more reveals them. A page with no reviews therefore has no review
-section at all, rather than a thin one, and `/api/reviews` logs the held count so
-a correctly configured but quiet feed is not mistaken for a broken one.
+Two sources can fill the carousel and they agree on the card markup, so they are
+indistinguishable on the page. `content/reviews/<site>.js` holds reviews copied
+from the Business Profile by hand, and `scripts/build-pages.js` writes them into
+the HTML between the `reviews:` markers. That is the one that matters for AI
+crawlers, which do not run JavaScript: a review that only exists after a fetch is
+a review they never see. `/api/reviews` then replaces them at runtime if the
+Places key is configured.
+
+Both obey the same floor. Fewer than `MIN_REVIEWS` (five) and the whole set is
+withheld, in `lib/google-reviews.js` rather than in either page, so there is one
+rule instead of one per site. Below it the carousels ship empty and `hidden`, so
+a page with a thin set has no review section at all rather than a thin one, and
+`/api/reviews` logs the held count so a configured but quiet feed is not mistaken
+for a broken one.
+
+Editing `content/reviews/` is the one place a fabricated quote could enter the
+site, so the rules are in the file header and `test/claims.test.js` matches every
+card on every shipped page back to an entry in it. Review text is reproduced
+exactly, typos included, because tidying somebody's words makes them ours.
 
 The section those quotes used to occupy now describes what the client receives.
 That copy is deliberately checkable: every line in it is a statement about what

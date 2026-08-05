@@ -22,6 +22,9 @@ const SITES = {
     served: 'Kent and the South East of England',
     strap: 'Survey-led damp, mould and timber specialists',
     surveyMateSlug: 'dampscan',
+    // Set to the Business Profile share link to credit Google where the
+    // reviews came from. Empty means the credit shows without a link.
+    profileUrl: '',
     book: {
       sessionKey: 'dampscan-session',
       attrKey: 'dampscan-attr',
@@ -42,6 +45,7 @@ const SITES = {
     served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work',
     surveyMateSlug: 'ati-damp-survey',
+    profileUrl: '',
     book: {
       sessionKey: 'ati-damp-session',
       attrKey: 'ati-damp-attr',

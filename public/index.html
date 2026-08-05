@@ -648,15 +648,16 @@ html{scroll-padding-top:88px}
       </li>
     </ul>
   </div>
-  <!-- Real Google reviews only. Both tracks are empty and both carousels are
-       hidden until the listing returns at least five, which /api/reviews
-       enforces. Nothing in here is ever written by us. -->
+  <!-- Real Google reviews, and only real ones. Written from content/reviews by
+       scripts/build-pages.js, replaced at runtime if /api/reviews returns a
+       live set, and hidden entirely below five either way. -->
+  <!-- reviews:start, filled by scripts/build-pages.js -->
   <div class="carousel" aria-label="Customer reviews" hidden><div class="carousel-track" id="track-a"></div></div>
   <div class="carousel" aria-hidden="true" hidden><div class="carousel-track rev" id="track-b"></div></div>
   <div class="container">
-    <p class="reviews-source" id="reviews-source" hidden>Reviews from our Google Business Profile.
-      <a href="https://www.google.com/maps" rel="noopener" target="_blank">Read them on Google</a></p>
+    <p class="reviews-source" id="reviews-source" hidden>Reviews from our Google Business Profile.</p>
   </div>
+  <!-- reviews:end -->
   <div class="container">
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
