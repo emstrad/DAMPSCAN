@@ -207,6 +207,11 @@ section{padding-block:clamp(64px,8vw,116px)}
 .ll-icon{width:38px;height:38px;flex-shrink:0;border-radius:9px;background:var(--accent-soft);border:1px solid var(--line-strong);color:var(--accent);display:grid;place-items:center}
 .ll-list strong{display:block;font-size:15px;font-weight:600}
 .ll-list span{color:var(--muted);font-size:14.5px;line-height:1.5}
+/* The deliverables list reuses the landlord list, in two columns where there
+   is room, because it is the same shape of content: label plus explanation. */
+.deliverables{margin-top:clamp(22px,3vw,36px)}
+.reviews-source{margin-top:22px;text-align:center;font-size:13px;color:var(--muted-2)}
+@media (min-width:900px){.deliverables{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(28px,4vw,56px)}}
 /* ---------- Areas we cover ---------- */
 .areas{background:var(--navy);border-top:1px solid var(--line)}
 .area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,20px)}
@@ -322,7 +327,7 @@ html{scroll-padding-top:88px}
         <ul class="nav-links">
           <li><a href="#how" data-nav="how">How It Works</a></li>
           <li><a href="#services" data-nav="services">Services</a></li>
-          <li><a href="#reviews" data-nav="reviews">Reviews</a></li>
+          <li><a href="#reviews" data-nav="reviews">The report</a></li>
           <li><a href="#landlords" data-nav="landlords">Landlords</a></li>
           <li><a href="#areas" data-nav="areas">London Coverage</a></li>
           <li><a href="#faq" data-nav="faq">FAQs</a></li>
@@ -611,18 +616,50 @@ html{scroll-padding-top:88px}
   </div>
 </section>
 
-<!-- ============================= TESTIMONIALS ============================= -->
-<section id="reviews" class="proof reveal" aria-labelledby="reviews-heading" data-screen-label="Reviews">
+<!-- ============================= WHAT YOU RECEIVE =============================
+     This section used to carry client quotes that were never given by a client.
+     It now sets out the document itself, which is the thing being bought, and
+     the carousel below stays empty until the Google listing supplies real ones.
+     The id stays #reviews so existing links and anchors keep working. -->
+<section id="reviews" class="proof reveal" aria-labelledby="reviews-heading" data-screen-label="The report">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Client feedback</span>
-      <h2 id="reviews-heading" class="h-section">What the report actually changed.</h2>
-      <p class="lede">Most people come to us already holding a quote. What they say afterwards is rarely about damp, and usually about the money the report saved or the argument it ended.</p>
+      <span class="eyebrow">What you receive</span>
+      <h2 id="reviews-heading" class="h-section">What you are buying is the document, so here is what is in it.</h2>
+      <p class="lede">Most people come to us already holding a quote and wanting to know whether it is justified. The report is what answers that. It is written on the assumption that somebody other than you will read it.</p>
     </div>
+    <ul class="ll-list deliverables">
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span>
+        <div><strong>Written for a third party to read</strong><span>Drafted on the assumption it reaches a seller, a solicitor, an environmental health officer or a court.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.2" y2="16.2"/></svg></span>
+        <div><strong>The cause, with the evidence behind it</strong><span>Moisture readings, surface temperatures and photographs, and the reasoning that connects them to a conclusion.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <div><strong>A specification you can put out to tender</strong><span>What needs doing, in enough detail to price. We undertake no remedial work, so we will not be bidding for it.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        <div><strong>What does not need doing</strong><span>Where a quote you are already holding goes beyond the defect we found, the report says so and explains why.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span>
+        <div><strong>Within 24 hours of the inspection</strong><span>Fixed fee agreed before we attend, so there is nothing to negotiate afterwards and zero commercial interest in the outcome.</span></div>
+      </li>
+    </ul>
   </div>
-  <!-- PLACEHOLDER FEEDBACK: replace the reviews array in the script below with real client quotes before launch -->
-  <div class="carousel" aria-label="Client feedback"><div class="carousel-track" id="track-a"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We were quoted £9,400 for injection and replastering. ATI found a blocked gully and raised patio. The repair was £600.</p><div class="review-attr"><span>Homeowner, SE22</span><span class="src">Second opinion</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Our surveyor flagged damp and the seller refused to budge. The independent report gave us the evidence to take £11,000 off the price.</p><div class="review-attr"><span>Buyer, N4</span><span class="src">Pre-purchase</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tenant complaint had escalated to the council. The report separated fabric defects from ventilation clearly and the case closed.</p><div class="review-attr"><span>Landlord, E8</span><span class="src">Landlord report</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.</p><div class="review-attr"><span>Homeowner, SW11</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.</p><div class="review-attr"><span>Leaseholder, W9</span><span class="src">Basement</span></div></article></div></div>
-  <div class="carousel" aria-hidden="true"><div class="carousel-track rev" id="track-b"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.</p><div class="review-attr"><span>Homeowner, SW11</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.</p><div class="review-attr"><span>Leaseholder, W9</span><span class="src">Basement</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Report arrived the next morning as promised, and our solicitor could use it without a single query.</p><div class="review-attr"><span>Buyer, SE13</span><span class="src">Pre-purchase</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Instructed us to spend nothing at all in two of the three rooms. Not what a contractor would have said.</p><div class="review-attr"><span>Homeowner, NW6</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Managing four blocks and now use ATI for every reported case. The neutrality is the whole point.</p><div class="review-attr"><span>Managing agent, EC1</span><span class="src">Portfolio</span></div></article></div></div>
+  <!-- Real Google reviews only. Both tracks are empty and both carousels are
+       hidden until the listing returns at least five, which /api/reviews
+       enforces. Nothing in here is ever written by us. -->
+  <div class="carousel" aria-label="Customer reviews" hidden><div class="carousel-track" id="track-a"></div></div>
+  <div class="carousel" aria-hidden="true" hidden><div class="carousel-track rev" id="track-b"></div></div>
+  <div class="container">
+    <p class="reviews-source" id="reviews-source" hidden>Reviews from our Google Business Profile.
+      <a href="https://www.google.com/maps" rel="noopener" target="_blank">Read them on Google</a></p>
+  </div>
   <div class="container">
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
@@ -1005,20 +1042,16 @@ window.DS_CONFIG = {
 
 /* Our own API. It owns validation and storage, and is the source of truth. */
 /* ---------- Reviews marquee ----------
-   The cards in the markup are readable without JavaScript. If /api/reviews
-   returns real Google reviews they replace them, and if it returns none, or is
-   not configured yet, whatever is in the HTML stays. Nothing is invented here.
-   Either way each track is doubled at the end, because the loop needs two
-   copies to run seamlessly and that second copy is decoration, not content. */
+   Both tracks ship empty and both carousels ship hidden. /api/reviews returns
+   real reviews or none at all, and it holds them back entirely until there are
+   at least five, so a thin carousel never appears and nothing is ever written
+   by us. If the fetch fails the section simply keeps its static content.
+   Once filled, each track is doubled, because the loop needs two copies to run
+   seamlessly and that second copy is decoration, not content. */
 (function reviewsMarquee(){
   const a = document.getElementById('track-a');
   const b = document.getElementById('track-b');
   if (!a || !b) return;
-
-  function double(){
-    a.innerHTML += a.innerHTML;
-    b.innerHTML += b.innerHTML;
-  }
 
   /* Review text is other people's writing arriving over the network, so it is
      escaped rather than trusted. */
@@ -1034,7 +1067,7 @@ window.DS_CONFIG = {
     return '<article class="review"><div class="stars" aria-label="' + rating +
       ' out of 5 stars">' + stars + '</div><p>' + esc(r.text) +
       '</p><div class="review-attr"><span>' + esc(r.attr) +
-      '</span><span class="src">' + esc(r.src || 'Google') + '</span></div></article>';
+      '</span><span class="src">' + esc(r.src || 'Google review') + '</span></div></article>';
   }
 
   fetch('/api/reviews', { headers: { Accept: 'application/json' } })
@@ -1042,14 +1075,24 @@ window.DS_CONFIG = {
     .then(data => {
       const list = data && Array.isArray(data.reviews) ? data.reviews : [];
       if (!list.length) return;
-      /* Two rows scrolling opposite ways look wrong in the same order, and
-         Places returns at most five reviews, so rotating by a fixed offset is
-         a no-op on a short list. Reversing always differs. */
+      /* Two rows scrolling opposite ways look wrong in the same order, and the
+         list is short, so rotating by a fixed offset is close to a no-op.
+         Reversing always differs. */
       a.innerHTML = list.map(card).join('');
       b.innerHTML = list.slice().reverse().map(card).join('');
+      a.innerHTML += a.innerHTML;
+      b.innerHTML += b.innerHTML;
+      document.querySelectorAll('#reviews .carousel').forEach(function(c){ c.hidden = false; });
+      /* Showing Google's review data obliges us to say where it came from, and
+         a link to the listing lets anyone check the words against the source. */
+      const source = document.getElementById('reviews-source');
+      const href = data.place && data.place.url;
+      if (source && href) {
+        source.querySelector('a').href = href;
+        source.hidden = false;
+      }
     })
-    .catch(function(){ /* offline or blocked: the markup already has cards */ })
-    .then(double);
+    .catch(function(){ /* offline or blocked: the section keeps its static content */ });
 })();
 
 /* ---------- Services tabs ----------

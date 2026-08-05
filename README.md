@@ -463,15 +463,32 @@ to switch it on. Restrict the key by API rather than by HTTP referrer: the call
 is made from the server, so a referrer restriction blocks it.
 
 Unset, or rejected, or a listing with no reviews yet, all end the same way: an
-empty list, and the page leaves whatever is in its markup alone. Nothing is ever
-invented, and review text is escaped before it is inserted, because it is other
-people's writing arriving over the network.
+empty list, and the page leaves the section alone. Nothing is ever invented, and
+review text is escaped before it is inserted, because it is other people's
+writing arriving over the network.
 
-There is deliberately **no `aggregateRating`** in the structured data. Google's
-review snippet guidelines exclude ratings aggregated from another site, so
-marking up a Google score to win stars in Google's own results is not eligible
-and risks a manual action. The rating is shown to visitors, not claimed to the
-crawler.
+Fewer than `MIN_REVIEWS` (five) and the whole set is withheld, in
+`lib/google-reviews.js` rather than in either page, so there is one rule instead
+of one per site. Both carousels ship empty and `hidden`; only a successful fetch
+of five or more reveals them. A page with no reviews therefore has no review
+section at all, rather than a thin one, and `/api/reviews` logs the held count so
+a correctly configured but quiet feed is not mistaken for a broken one.
+
+The section those quotes used to occupy now describes what the client receives.
+That copy is deliberately checkable: every line in it is a statement about what
+we do, not about what somebody thought of it.
+
+There is deliberately **no `aggregateRating`** in the structured data, and no
+star average or review count in the visible copy either. Google's review snippet
+guidelines exclude ratings aggregated from another site, so marking up a Google
+score to win stars in Google's own results is not eligible and risks a manual
+action. When the feed is live, each card is labelled `Google review` and the
+section links to the Business Profile, which is the attribution Google's terms
+require and lets anyone check the words against the source.
+
+`test/claims.test.js` reads the shipped HTML and fails the build on a returning
+star average, review count, invented testimonial or accreditation we do not
+hold. It is the reason none of that can quietly come back.
 
 ## Analytics and privacy
 

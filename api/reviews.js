@@ -15,7 +15,7 @@
  */
 import { json, requireMethod } from '../lib/http.js';
 import { siteFor } from '../lib/site.js';
-import { fetchGoogleReviews } from '../lib/google-reviews.js';
+import { fetchGoogleReviews, MIN_REVIEWS } from '../lib/google-reviews.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -35,6 +35,11 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
     json(res, 200, { ok: true, site, configured: result.reason !== 'no_api_key' && result.reason !== 'no_place_id', reviews: [] });
     return;
+  }
+
+  if (result.held) {
+    // Otherwise a correctly configured feed that shows nothing looks broken.
+    console.info(`reviews held for ${site}: ${result.held} of ${MIN_REVIEWS} needed`);
   }
 
   res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${DAY}, stale-while-revalidate=${DAY}`);

@@ -5,7 +5,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchGoogleReviews, placeIdFor } from '../lib/google-reviews.js';
+import { fetchGoogleReviews, placeIdFor, MIN_REVIEWS } from '../lib/google-reviews.js';
 
 const KEY = 'GOOGLE_MAPS_API_KEY';
 const PLACE = 'GOOGLE_PLACE_ID_DAMPSCAN';
@@ -35,19 +35,26 @@ function ok(body) {
   return async () => ({ ok: true, status: 200, json: async () => body, text: async () => '' });
 }
 
+/** N distinct valid reviews, so a case can sit either side of MIN_REVIEWS. */
+function realReviews(n) {
+  return Array.from({ length: n }, (_, i) => ({
+    rating: 5,
+    originalText: { text: `Found the leak in twenty minutes, number ${i + 1}.` },
+    authorAttribution: {
+      displayName: `Customer ${i + 1}`,
+      uri: `https://example.test/${i}`,
+      photoUri: `https://example.test/${i}.png`
+    },
+    publishTime: '2026-07-01T10:00:00Z'
+  }));
+}
+
 const GOOD = {
   displayName: { text: 'DampScan' },
   rating: 4.8,
   userRatingCount: 37,
   googleMapsUri: 'https://maps.google.com/?cid=1',
-  reviews: [
-    {
-      rating: 5,
-      originalText: { text: 'Found the leak in twenty minutes.' },
-      authorAttribution: { displayName: 'A Customer', uri: 'https://example.test/a', photoUri: 'https://example.test/a.png' },
-      publishTime: '2026-07-01T10:00:00Z'
-    }
-  ]
+  reviews: realReviews(MIN_REVIEWS)
 };
 
 test('an unset key is reported, not guessed around', async () => {
@@ -78,10 +85,10 @@ test('a real response is mapped to what the carousel renders', async () => {
       assert.equal(r.ok, true);
       assert.equal(r.place.total, 37);
       assert.equal(r.place.rating, 4.8);
-      assert.equal(r.reviews.length, 1);
+      assert.equal(r.reviews.length, MIN_REVIEWS);
       assert.deepEqual(
         { text: r.reviews[0].text, attr: r.reviews[0].attr, src: r.reviews[0].src, rating: r.reviews[0].rating },
-        { text: 'Found the leak in twenty minutes.', attr: 'A Customer', src: 'Google', rating: 5 }
+        { text: 'Found the leak in twenty minutes, number 1.', attr: 'Customer 1', src: 'Google review', rating: 5 }
       );
     });
   } finally { restore(); }
@@ -91,7 +98,7 @@ test('reviews missing text, author or a valid rating are dropped', async () => {
   const body = {
     ...GOOD,
     reviews: [
-      { rating: 5, originalText: { text: 'Kept.' }, authorAttribution: { displayName: 'Real Person' } },
+      ...realReviews(MIN_REVIEWS),
       { rating: 5, originalText: { text: '   ' }, authorAttribution: { displayName: 'No text' } },
       { rating: 5, originalText: { text: 'No author' }, authorAttribution: {} },
       { rating: 0, originalText: { text: 'Impossible rating' }, authorAttribution: { displayName: 'X' } },
@@ -102,8 +109,31 @@ test('reviews missing text, author or a valid rating are dropped', async () => {
   try {
     await withEnv({ [KEY]: 'k', [PLACE]: 'place-1' }, async () => {
       const r = await fetchGoogleReviews('dampscan');
-      assert.equal(r.reviews.length, 1);
-      assert.equal(r.reviews[0].text, 'Kept.');
+      assert.equal(r.reviews.length, MIN_REVIEWS);
+      assert.ok(r.reviews.every((v) => v.attr.startsWith('Customer ')));
+    });
+  } finally { restore(); }
+});
+
+test('a listing short of the minimum shows nothing at all, not a thin carousel', async () => {
+  const restore = stubFetch(ok({ ...GOOD, reviews: realReviews(MIN_REVIEWS - 1) }));
+  try {
+    await withEnv({ [KEY]: 'k', [PLACE]: 'place-1' }, async () => {
+      const r = await fetchGoogleReviews('dampscan');
+      assert.equal(r.ok, true);
+      assert.deepEqual(r.reviews, [], 'four real reviews are still withheld');
+      assert.equal(r.held, MIN_REVIEWS - 1, 'the count is reported so it can be logged');
+    });
+  } finally { restore(); }
+});
+
+test('the minimum itself is enough, and nothing is held back', async () => {
+  const restore = stubFetch(ok(GOOD));
+  try {
+    await withEnv({ [KEY]: 'k', [PLACE]: 'place-1' }, async () => {
+      const r = await fetchGoogleReviews('dampscan');
+      assert.equal(r.reviews.length, MIN_REVIEWS);
+      assert.equal(r.held, 0);
     });
   } finally { restore(); }
 });
