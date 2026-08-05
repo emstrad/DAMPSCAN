@@ -254,23 +254,15 @@ details.qa p{color:var(--muted);font-size:15.5px;line-height:1.68;padding-bottom
 
 /* ---------- SurveyMate standard band ---------- */
 .smate{background:var(--slate);border-top:1px solid var(--line);padding-block:clamp(44px,5.5vw,68px)}
-.smate-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,52px);align-items:start}
+.smate-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,52px);align-items:center}
+.smate-note{color:var(--muted);font-size:15.5px;line-height:1.68;max-width:68ch}
 @media (max-width:760px){.smate-grid{grid-template-columns:1fr;gap:22px}}
-.smate-seal{display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--navy);border:1px solid var(--accent-ring);border-radius:14px;padding:22px 26px;min-width:200px;text-align:center}
-.smate-seal .seal-icon{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
-.smate-seal strong{font-size:14px;letter-spacing:.02em}
-.smate-seal span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
 /* The verified badge is served live by SurveyMate, so it reflects the current
    status rather than a copy that would keep saying verified if it lapsed.
    Fixed dimensions and lazy loading keep it off the critical path and stop it
    shifting the layout when it arrives. */
-.smate-badge{display:inline-block;margin-top:16px;line-height:0}
+.smate-badge{display:inline-block;line-height:0}
 .smate-badge img{display:block;width:200px;height:64px}
-.smate-text{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
-.smate-text h2{font-size:clamp(21px,2.3vw,28px);letter-spacing:-.015em}
-.smate-text h2 .hash{color:var(--accent)}
-.smate-text p{color:var(--muted);font-size:15.5px;line-height:1.68;max-width:70ch}
-.smate-text a.smate-link{font-size:14px;font-weight:600;border-bottom:1px solid var(--accent-ring);padding-bottom:2px}
 
 /* ---------- Footer ---------- */
 .footer{background:var(--navy-2);border-top:1px solid var(--line);padding-block:60px 0;color:var(--muted);font-size:14.5px}
@@ -814,22 +806,13 @@ html{scroll-padding-top:88px}
 </section>
 
 <!-- ============================= SURVEYMATE STANDARD ============================= -->
-<section class="smate reveal" aria-labelledby="smate-heading" data-screen-label="SurveyMate standard">
+<!-- SurveyMate: the live badge, and one sentence in our own words beside it. -->
+<section class="smate reveal" aria-label="SurveyMate" data-screen-label="SurveyMate">
   <div class="container smate-grid">
-    <div class="smate-seal">
-      <span class="seal-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.4-2.9 8.2-7 9.5-4.1-1.3-7-5.1-7-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
-      <strong>SurveyMate</strong>
-      <span>Approved contractor</span>
-    </div>
     <a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/dampscan" rel="noopener" target="_blank">
-        <img src="https://survey-mate.co.uk/api/verified-badge/dampscan" alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
-      </a>
-    <div class="smate-text">
-      <h2 id="smate-heading"><span class="hash">#</span>SurveyMate Standard</h2>
-      <p>We use <a href="https://survey-mate.co.uk" target="_blank" rel="noopener">SurveyMate</a> to keep every damp and timber survey clear, structured and accountable, from the first inspection to the final report.</p>
-      <p>It helps us work to a consistently high standard, with thorough evidence capture, secure report delivery and verified client feedback.</p>
-      <a class="smate-link" href="https://survey-mate.co.uk" target="_blank" rel="noopener">Learn about the SurveyMate Standard</a>
-    </div>
+      <img src="https://survey-mate.co.uk/api/verified-badge/dampscan" alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
+    </a>
+    <p class="smate-note">Every survey we carry out is written up on <a href="https://survey-mate.co.uk" target="_blank" rel="noopener">SurveyMate</a>, which is why the report reads the same way each time and the evidence behind it is dated as it is captured rather than written from memory afterwards.</p>
   </div>
 </section>
 
