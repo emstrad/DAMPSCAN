@@ -22,7 +22,8 @@ const escapeAsRendered = (text) =>
   String(text)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .split('\n').join('<br />');
+    .split('\n').join('<br />')
+    .replace(/\u2014/g, '&mdash;');
 
 const PUBLIC = new URL('../public/', import.meta.url).pathname;
 
@@ -146,6 +147,32 @@ test('both home pages replaced the quotes with what the client receives', () => 
     assert.ok(html.includes('class="ll-list deliverables"'), `${name}: no deliverables list`);
     const items = html.match(/class="ll-list deliverables"[\s\S]*?<\/ul>/)[0].match(/<li>/g) || [];
     assert.ok(items.length >= 5, `${name}: only ${items.length} deliverables listed`);
+  }
+});
+
+/* The two firms are openly the same people, and the cross-links say so. What
+   they cannot share is the claim to be neutral. ATI sells no remedial work, so
+   "independent" is a fact about it. DampScan carries out the work it
+   recommends, so the same word there is a claim it cannot support, whatever it
+   would do for the rankings. DampScan sells diagnosis before a quote instead,
+   which is true of it. */
+test('only the site that sells no remedial work calls itself independent', () => {
+  const banned = /\bindependent(ly)?\b|\bsurvey[- ]led\b/i;
+  for (const { path, html } of PAGES) {
+    const isDampScan = path === 'index.html'
+      || path.startsWith('areas/dampscan/')
+      || path.startsWith('service-pages/dampscan/');
+    if (!isDampScan) continue;
+    const found = html.match(banned);
+    assert.ok(!found, `${path} claims to be ${found && found[0]}, and it sells the remedial work`);
+  }
+});
+
+test("ATI's own positioning was not collateral damage", () => {
+  const ati = PAGES.filter((p) => p.path === 'london.html' || p.path.startsWith('areas/ati/'));
+  assert.ok(ati.length > 30, 'the ATI pages were not found');
+  for (const { path, html } of ati) {
+    assert.match(html, /\bindependent\b/i, `${path} lost the word the whole practice rests on`);
   }
 });
 

@@ -6,7 +6,7 @@ export default {
   name: 'Damp Surveys',
   title: 'Damp Surveys | Kent & the South East | DampScan',
   metaDescription:
-    'Independent damp survey with calibrated readings, full external inspection and a written report within 24 hours, across Kent and the South East.',
+    'Damp survey with calibrated readings, full external inspection and a written report within 24 hours, across Kent and the South East.',
   h1: 'Damp surveys: the diagnosis comes before the quote',
   intro:
     'A damp survey should tell you what is wrong, why, and what to do about it, in enough detail that you could take the report to anybody. Most of what gets called a damp survey is an inspection carried out by a firm that sells the remedy, which is a different thing with a different incentive. We diagnose first and quote second, and the report stands on its own either way.',

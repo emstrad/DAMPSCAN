@@ -6,7 +6,7 @@ export default {
   name: 'Tunbridge Wells',
   title: 'Damp & Mould Surveys in Tunbridge Wells | DampScan',
   metaDescription:
-    'Damp, mould and timber surveys across Tunbridge Wells, TN1 to TN4. Survey-led diagnosis before anyone recommends a treatment.',
+    'Damp, mould and timber surveys across Tunbridge Wells, TN1 to TN4. The cause diagnosed before anyone recommends a treatment.',
   h1: 'Damp and mould surveys in Tunbridge Wells',
   intro:
     'Tunbridge Wells is built on sandstone on a hill, in a mixture of Regency stucco, high Victorian brick and the tile hanging and weatherboarding that the Wealden tradition brought with it. The slope and the tile hanging between them account for most of what we are called to.',

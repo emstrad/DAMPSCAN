@@ -20,7 +20,7 @@ const SITES = {
     email: 'tom@atidampsurvey.co.uk',
     schemaType: 'LocalBusiness',
     served: 'Kent and the South East of England',
-    strap: 'Survey-led damp, mould and timber specialists',
+    strap: 'Damp, mould and timber surveys across Kent and the South East',
     surveyMateSlug: 'dampscan',
     // Set to the Business Profile share link to credit Google where the
     // reviews came from. Empty means the credit shows without a link.

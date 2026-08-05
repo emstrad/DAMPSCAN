@@ -24,8 +24,12 @@ const esc = (value) =>
     .replace(/"/g, '&quot;');
 
 /* Reviewers use line breaks. Escape first, then turn the newlines they typed
-   into the only tag this is allowed to introduce. */
-const body = (text) => esc(text).split('\n').join('<br />');
+   into the only tag this is allowed to introduce.
+   The em dash goes out as an entity. A reviewer is entitled to type one and it
+   must reach the page exactly as written, but the repository bans the literal
+   character and this output is committed, so the entity satisfies both. */
+const body = (text) =>
+  esc(text).split('\n').join('<br />').replace(/\u2014/g, '&mdash;');
 
 function card(review) {
   const rating = Math.max(1, Math.min(5, Number(review.rating) || 5));

@@ -6,7 +6,7 @@ export default {
   name: 'Ashford',
   title: 'Damp & Mould Surveys in Ashford | DampScan',
   metaDescription:
-    'Damp, mould and timber surveys across Ashford, TN23 to TN26. Independent diagnosis for period homes and new build estates alike.',
+    'Damp, mould and timber surveys across Ashford, TN23 to TN26. The cause diagnosed before anyone quotes, for period homes and new build estates alike.',
   h1: 'Damp and mould surveys in Ashford',
   intro:
     'Ashford is unusual in Kent for how much of its housing is new. Alongside the Victorian railway terraces there are very large recent estates, and new build damp is a different subject entirely: it is about airtightness, ventilation and construction moisture rather than about anything having failed.',
