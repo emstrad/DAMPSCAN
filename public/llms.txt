@@ -46,6 +46,8 @@ disrepair cases where the report needs to have nothing to sell.
 ## Links
 
 - [DampScan](https://dampscan.co.uk/): services, areas, reviews and FAQs
+- [Services](https://dampscan.co.uk/services/): every damp, mould and timber service, one page each
+- [Areas we cover](https://dampscan.co.uk/damp-survey/): every district, with the local housing stock and how it fails
 - [Book a survey](https://dampscan.co.uk/#book): booking form
 - [FAQs](https://dampscan.co.uk/#faq): answers to the common questions
 

@@ -12,6 +12,7 @@
  * area and service pages stay visually identical without a second copy of it.
  */
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
+import { shell } from './page-shell.js';
 import { bookForm } from './book-form.js';
 
 
@@ -32,12 +33,7 @@ export function distinctiveWordCount(service) {
   ].join(' '));
 }
 
-function brandMark(site) {
-  if (!site.logo) return `<span class="abrand"><span>Damp</span><span class="hi">Scan</span></span>`;
-  return `<span class="abrand"><img src="${site.logo}" alt="" width="48" height="34" />ATi Damp Survey</span>`;
-}
-
-function schema(service, site, url, type, extra) {
+function schema(type, extra) {
   return JSON.stringify({ '@context': 'https://schema.org', '@type': type, ...extra });
 }
 
@@ -50,7 +46,7 @@ export function render(service, allServices) {
     .map((slug) => allServices.find((s) => s.slug === slug && s.site === service.site))
     .filter(Boolean);
 
-  const serviceSchema = schema(service, site, url, 'Service', {
+  const serviceSchema = schema('Service', {
     name: service.name,
     serviceType: service.name,
     description: service.metaDescription,
@@ -59,7 +55,7 @@ export function render(service, allServices) {
     areaServed: { '@type': 'Place', name: site.served }
   });
 
-  const faqSchema = schema(service, site, url, 'FAQPage', {
+  const faqSchema = schema('FAQPage', {
     mainEntity: service.faq.map((f) => ({
       '@type': 'Question',
       name: f.q,
@@ -67,53 +63,17 @@ export function render(service, allServices) {
     }))
   });
 
-  const crumbSchema = schema(service, site, url, 'BreadcrumbList', {
+  /* Middle rung is /services/, a real page, not an anchor on the home page. */
+  const crumbSchema = schema('BreadcrumbList', {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: site.brand, item: `${site.origin}/` },
-      { '@type': 'ListItem', position: 2, name: 'Services', item: `${site.origin}/#services` },
+      { '@type': 'ListItem', position: 2, name: 'Services', item: `${site.origin}/services/` },
       { '@type': 'ListItem', position: 3, name: service.name, item: url }
     ]
   });
 
-  return `<!DOCTYPE html>
-<html lang="en-GB" data-site="${site.key}">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>${esc(service.title)}</title>
-<meta name="description" content="${esc(service.metaDescription)}" />
-<link rel="canonical" href="${url}" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="${url}" />
-<meta property="og:title" content="${esc(service.title)}" />
-<meta property="og:description" content="${esc(service.metaDescription)}" />
-<meta property="og:locale" content="en_GB" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/area.css" />
-<link rel="stylesheet" href="/assets/book.css" />
-<script type="application/ld+json">${serviceSchema}</script>
-<script type="application/ld+json">${crumbSchema}</script>
-<script type="application/ld+json">${faqSchema}</script>
-</head>
-<body>
-
-<header class="ahead">
-  <div class="wrap">
-    <a href="/" aria-label="${esc(site.brand)} home">${brandMark(site)}</a>
-    <nav aria-label="Main">
-      <a href="/#services">Services</a>
-      <a href="/#areas">Areas</a>
-      <a href="/#faq">FAQs</a>
-      <a href="#book">Book</a>
-    </nav>
-  </div>
-</header>
-
-<main class="wrap page">
-  <div class="page-main">
-  <p class="crumb"><a href="/">Home</a> / <a href="/#services">Services</a> / ${esc(service.name)}</p>
+  const body = `
+  <p class="crumb"><a href="/">Home</a> / <a href="/services/">Services</a> / ${esc(service.name)}</p>
 
   <div class="hero">
     <h1>${esc(service.h1)}</h1>
@@ -132,7 +92,7 @@ export function render(service, allServices) {
     ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}
   </section>`).join('\n\n  ')}
 
-  <section class="sec">
+  <section class="sec" id="faq">
     <h2>Questions</h2>
     ${service.faq.map((f) => `<details class="qa"><summary>${esc(f.q)}</summary><p>${f.a}</p></details>`).join('\n    ')}
   </section>
@@ -143,32 +103,24 @@ ${related.length ? `
       ${related.map((r) => `<li><a href="/services/${r.slug}">${esc(r.name)}</a></li>`).join('\n      ')}
     </ul>
   </section>
-` : ''}
-  </div>
+` : ''}`;
 
-  <aside class="page-aside">
+  const aside = `
     <div class="booking">
       <h2>${esc(service.ctaHeading)}</h2>
       <p>${service.ctaBody} Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
-    </div>
-  </aside>
-</main>
+    </div>`;
 
-<div class="action-bar" role="group" aria-label="Quick actions">
-  <a href="tel:${site.phone}" class="btn btn--ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg> Call</a>
-  <a href="#book" class="btn btn--primary">Book a survey</a>
-</div>
-
-<footer class="afoot">
-  <div class="wrap">
-    <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
-  </div>
-</footer>
-${bookScripts(site)}
-</body>
-</html>
-`;
+  return shell({
+    site,
+    url,
+    title: service.title,
+    metaDescription: service.metaDescription,
+    schemas: [serviceSchema, crumbSchema, faqSchema],
+    body,
+    aside,
+    scripts: bookScripts(site)
+  });
 }

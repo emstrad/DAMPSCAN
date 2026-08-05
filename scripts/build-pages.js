@@ -21,10 +21,12 @@ import { services } from '../content/services/index.js';
 import { render, distinctiveWordCount, SITES } from './area-template.js';
 import { render as renderService, distinctiveWordCount as serviceWords } from './service-template.js';
 import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './reviews-block.js';
+import { render as renderHub } from './hub-template.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'areas');
 const SERVICES_OUT = join(ROOT, 'public', 'service-pages');
+const HUBS_OUT = join(ROOT, 'public', 'hubs');
 
 /* A page whose only local content is its name is a doorway page. Google demotes
    those, and it would take the rest of the site down with it, so the build
@@ -62,6 +64,8 @@ export function sitemapFor(site, today) {
   const origin = SITES[site].origin;
   const urls = [
     { loc: `${origin}/`, priority: '1.0', changefreq: 'monthly' },
+    { loc: `${origin}/services/`, priority: '0.9', changefreq: 'monthly' },
+    { loc: `${origin}/damp-survey/`, priority: '0.9', changefreq: 'monthly' },
     ...services
       .filter((s) => s.site === site)
       .map((s) => ({ loc: `${origin}/services/${s.slug}`, priority: '0.9', changefreq: 'monthly' })),
@@ -195,6 +199,16 @@ async function main() {
     counts[area.site] = (counts[area.site] || 0) + 1;
   }
 
+  await rm(HUBS_OUT, { recursive: true, force: true });
+  for (const site of Object.keys(SITES)) {
+    const dir = join(HUBS_OUT, site);
+    await mkdir(dir, { recursive: true });
+    const svc = services.filter((s) => s.site === site);
+    const ars = areas.filter((a) => a.site === site);
+    await writeFile(join(dir, 'services.html'), renderHub('services', site, svc), 'utf8');
+    await writeFile(join(dir, 'areas.html'), renderHub('areas', site, ars), 'utf8');
+  }
+
   await rm(SERVICES_OUT, { recursive: true, force: true });
   for (const service of services) {
     const dir = join(SERVICES_OUT, service.site);
@@ -212,6 +226,7 @@ async function main() {
   }
   console.log(`${areas.length} area pages written to public/areas`);
   console.log(`${services.length} service pages written to public/service-pages`);
+  console.log('4 hub pages written to public/hubs');
   console.log('sitemaps and home page links rewritten');
   for (const site of Object.keys(HOME)) console.log(reviewsSummary(site));
 }
