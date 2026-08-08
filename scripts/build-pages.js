@@ -64,8 +64,8 @@ export function sitemapFor(site, today) {
   const origin = SITES[site].origin;
   const urls = [
     { loc: `${origin}/`, priority: '1.0', changefreq: 'monthly' },
-    { loc: `${origin}/services/`, priority: '0.9', changefreq: 'monthly' },
-    { loc: `${origin}/damp-survey/`, priority: '0.9', changefreq: 'monthly' },
+    { loc: `${origin}/services`, priority: '0.9', changefreq: 'monthly' },
+    { loc: `${origin}/damp-survey`, priority: '0.9', changefreq: 'monthly' },
     ...services
       .filter((s) => s.site === site)
       .map((s) => ({ loc: `${origin}/services/${s.slug}`, priority: '0.9', changefreq: 'monthly' })),

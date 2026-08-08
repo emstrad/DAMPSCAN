@@ -118,14 +118,14 @@ test('an area path that is not a plain slug is left alone', () => {
 });
 
 test('the hubs resolve per host, and are what the nav points at', () => {
-  assert.equal(rewrittenTo(call(KENT, '/damp-survey/')), '/hubs/dampscan/areas.html');
-  assert.equal(rewrittenTo(call(LONDON, '/damp-survey/')), '/hubs/ati/areas.html');
-  assert.equal(rewrittenTo(call(KENT, '/services/')), '/hubs/dampscan/services.html');
-  assert.equal(rewrittenTo(call(LONDON, '/services/')), '/hubs/ati/services.html');
+  assert.equal(rewrittenTo(call(KENT, '/damp-survey')), '/hubs/dampscan/areas.html');
+  assert.equal(rewrittenTo(call(LONDON, '/damp-survey')), '/hubs/ati/areas.html');
+  assert.equal(rewrittenTo(call(KENT, '/services')), '/hubs/dampscan/services.html');
+  assert.equal(rewrittenTo(call(LONDON, '/services')), '/hubs/ati/services.html');
 });
 
-test('the bare hub path redirects to the trailing slash, so there is one URL', () => {
-  for (const [from, to] of [['/services', '/services/'], ['/damp-survey', '/damp-survey/']]) {
+test('the trailing slash form redirects onto the bare path, so there is one URL', () => {
+  for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey']]) {
     const res = call(KENT, from);
     assert.equal(res.status, 301, from);
     assert.equal(new URL(res.headers.get('location')).pathname, to, from);

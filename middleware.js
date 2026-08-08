@@ -69,12 +69,13 @@ export default function middleware(request) {
   const dir = london ? 'ati' : 'dampscan';
 
   // The hubs sit above the detail pages and are what the nav and the
-  // breadcrumbs point at. Canonical is the trailing slash form, so the bare
-  // path redirects rather than serving the same page on two URLs.
-  if (path === '/damp-survey') return Response.redirect(new URL('/damp-survey/', url), 301);
-  if (path === '/services') return Response.redirect(new URL('/services/', url), 301);
-  if (path === '/damp-survey/') return rewrite(new URL(`/hubs/${dir}/areas.html`, request.url));
-  if (path === '/services/') return rewrite(new URL(`/hubs/${dir}/services.html`, request.url));
+  // breadcrumbs point at. vercel.json sets trailingSlash false, so the bare
+  // path is canonical here too and the slashed form redirects onto it. Serving
+  // the slashed form instead would fight that setting and loop.
+  if (path === '/damp-survey/') return Response.redirect(new URL('/damp-survey', url), 301);
+  if (path === '/services/') return Response.redirect(new URL('/services', url), 301);
+  if (path === '/damp-survey') return rewrite(new URL(`/hubs/${dir}/areas.html`, request.url));
+  if (path === '/services') return rewrite(new URL(`/hubs/${dir}/services.html`, request.url));
 
   const area = path.match(/^\/damp-survey\/([a-z0-9-]+)$/);
   if (area) return rewrite(new URL(`/areas/${dir}/${area[1]}.html`, request.url));

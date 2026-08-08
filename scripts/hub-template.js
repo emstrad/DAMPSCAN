@@ -19,8 +19,8 @@ const esc = (value) =>
 
 /** Where each hub lives, and what the pages under it are called. */
 export const HUBS = {
-  services: { path: '/services/', label: 'Services', child: '/services/' },
-  areas: { path: '/damp-survey/', label: 'Areas', child: '/damp-survey/' }
+  services: { path: '/services', label: 'Services', child: '/services/' },
+  areas: { path: '/damp-survey', label: 'Areas', child: '/damp-survey/' }
 };
 
 function itemSchema(entries, site, kind) {

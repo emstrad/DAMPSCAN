@@ -137,7 +137,7 @@ function breadcrumbSchema(area, site, url) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: site.brand, item: site.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: 'Areas', item: site.origin + '/damp-survey/' },
+      { '@type': 'ListItem', position: 2, name: 'Areas', item: site.origin + '/damp-survey' },
       { '@type': 'ListItem', position: 3, name: area.name, item: url }
     ]
   });
@@ -153,7 +153,7 @@ export function render(area, allAreas) {
     .filter(Boolean);
 
   const body = `
-  <p class="crumb"><a href="/">Home</a> / <a href="/damp-survey/">Areas</a> / ${esc(area.name)}</p>
+  <p class="crumb"><a href="/">Home</a> / <a href="/damp-survey">Areas</a> / ${esc(area.name)}</p>
 
   <div class="hero">
     <h1>${esc(area.h1)}</h1>

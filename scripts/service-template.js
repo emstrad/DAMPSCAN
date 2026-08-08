@@ -67,13 +67,13 @@ export function render(service, allServices) {
   const crumbSchema = schema('BreadcrumbList', {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: site.brand, item: `${site.origin}/` },
-      { '@type': 'ListItem', position: 2, name: 'Services', item: `${site.origin}/services/` },
+      { '@type': 'ListItem', position: 2, name: 'Services', item: `${site.origin}/services` },
       { '@type': 'ListItem', position: 3, name: service.name, item: url }
     ]
   });
 
   const body = `
-  <p class="crumb"><a href="/">Home</a> / <a href="/services/">Services</a> / ${esc(service.name)}</p>
+  <p class="crumb"><a href="/">Home</a> / <a href="/services">Services</a> / ${esc(service.name)}</p>
 
   <div class="hero">
     <h1>${esc(service.h1)}</h1>

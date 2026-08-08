@@ -25,8 +25,8 @@ function brandMark(site) {
    page rather than a trip to the home page's. The hub pages have no FAQ, so
    they get the link to the home page's instead of a dead anchor. */
 function nav(ownFaq) {
-  return `      <a href="/services/">Services</a>
-      <a href="/damp-survey/">Areas</a>
+  return `      <a href="/services">Services</a>
+      <a href="/damp-survey">Areas</a>
       <a href="${ownFaq ? '#faq' : '/#faq'}">FAQs</a>
       <a href="#book">Book</a>`;
 }
@@ -88,7 +88,7 @@ ${nav(ownFaq)}
 <footer class="afoot">
   <div class="wrap">
     <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a> &middot; <a href="/services/">Services</a> &middot; <a href="/damp-survey/">Areas</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
+    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
 ${scripts}
