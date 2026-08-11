@@ -62,5 +62,5 @@ export default {
         'A typical survey takes between one and two hours on site depending on the size of the property and the extent of the problem, longer where a full timber inspection or underfloor access is involved. The written report follows within 24 hours of the visit. We respond to every enquiry the same day and arrange the visit around you, including evenings and weekends where that is what works.'
     },
   ],
-  related: ['rising-damp', 'condensation-and-mould', 'penetrating-damp']
+  related: ['rising-damp', 'condensation-and-mould', 'penetrating-damp', 'water-damage']
 };

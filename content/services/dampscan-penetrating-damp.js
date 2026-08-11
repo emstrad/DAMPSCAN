@@ -62,5 +62,5 @@ export default {
         'It can be, and it should be checked rather than assumed. Retrofit fill can settle over time and leave the top of the wall uninsulated, or bridge the cavity so water crosses from the outer leaf to the inner one. The signature is damp on the most weather exposed elevation, appearing after driving rain and drying between events, rather than constant damp at low level. We inspect for it directly and report what was found.'
     },
   ],
-  related: ['rising-damp', 'condensation-and-mould', 'damp-surveys']
+  related: ['rising-damp', 'condensation-and-mould', 'damp-surveys', 'water-damage']
 };

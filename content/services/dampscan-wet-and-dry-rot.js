@@ -61,5 +61,5 @@ export default {
         'It depends on how much section has been lost. Timber that is decayed but structurally intact can sometimes be treated in place once the moisture is dealt with. Timber that has lost significant section has to be cut out and replaced, or reinforced, because a chemical treatment does not restore strength. That is a structural judgement and the report should say plainly which category each affected member falls into.'
     },
   ],
-  related: ['timber-decay-and-woodworm', 'penetrating-damp', 'damp-surveys']
+  related: ['timber-decay-and-woodworm', 'penetrating-damp', 'damp-surveys', 'water-damage']
 };
