@@ -110,10 +110,25 @@ test('a preview deployment serves the Kent area pages', () => {
 });
 
 test('an area path that is not a plain slug is left alone', () => {
-  // The matcher only offers this one segment, but the handler is not allowed to
+  // The matcher only offers these segments, but the handler is not allowed to
   // assume that: a path it does not recognise must fall through, not rewrite.
-  for (const path of ['/damp-survey/', '/damp-survey/a/b', '/damp-survey/UPPER']) {
+  for (const path of ['/damp-survey/a/b', '/damp-survey/UPPER']) {
     assert.equal(rewrittenTo(call(KENT, path)), null, path);
+  }
+});
+
+test('the hubs resolve per host, and are what the nav points at', () => {
+  assert.equal(rewrittenTo(call(KENT, '/damp-survey')), '/hubs/dampscan/areas.html');
+  assert.equal(rewrittenTo(call(LONDON, '/damp-survey')), '/hubs/ati/areas.html');
+  assert.equal(rewrittenTo(call(KENT, '/services')), '/hubs/dampscan/services.html');
+  assert.equal(rewrittenTo(call(LONDON, '/services')), '/hubs/ati/services.html');
+});
+
+test('the trailing slash form redirects onto the bare path, so there is one URL', () => {
+  for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey']]) {
+    const res = call(KENT, from);
+    assert.equal(res.status, 301, from);
+    assert.equal(new URL(res.headers.get('location')).pathname, to, from);
   }
 });
 
@@ -129,7 +144,7 @@ test('a service page resolves to the right site directory', () => {
 });
 
 test('a service path that is not a plain slug is left alone', () => {
-  for (const path of ['/services/', '/services/a/b', '/services/UPPER']) {
+  for (const path of ['/services/a/b', '/services/UPPER']) {
     assert.equal(rewrittenTo(call(KENT, path)), null, path);
   }
 });

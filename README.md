@@ -463,15 +463,45 @@ to switch it on. Restrict the key by API rather than by HTTP referrer: the call
 is made from the server, so a referrer restriction blocks it.
 
 Unset, or rejected, or a listing with no reviews yet, all end the same way: an
-empty list, and the page leaves whatever is in its markup alone. Nothing is ever
-invented, and review text is escaped before it is inserted, because it is other
-people's writing arriving over the network.
+empty list, and the page leaves the section alone. Nothing is ever invented, and
+review text is escaped before it is inserted, because it is other people's
+writing arriving over the network.
 
-There is deliberately **no `aggregateRating`** in the structured data. Google's
-review snippet guidelines exclude ratings aggregated from another site, so
-marking up a Google score to win stars in Google's own results is not eligible
-and risks a manual action. The rating is shown to visitors, not claimed to the
-crawler.
+Two sources can fill the carousel and they agree on the card markup, so they are
+indistinguishable on the page. `content/reviews/<site>.js` holds reviews copied
+from the Business Profile by hand, and `scripts/build-pages.js` writes them into
+the HTML between the `reviews:` markers. That is the one that matters for AI
+crawlers, which do not run JavaScript: a review that only exists after a fetch is
+a review they never see. `/api/reviews` then replaces them at runtime if the
+Places key is configured.
+
+Both obey the same floor. Fewer than `MIN_REVIEWS` (five) and the whole set is
+withheld, in `lib/google-reviews.js` rather than in either page, so there is one
+rule instead of one per site. Below it the carousels ship empty and `hidden`, so
+a page with a thin set has no review section at all rather than a thin one, and
+`/api/reviews` logs the held count so a configured but quiet feed is not mistaken
+for a broken one.
+
+Editing `content/reviews/` is the one place a fabricated quote could enter the
+site, so the rules are in the file header and `test/claims.test.js` matches every
+card on every shipped page back to an entry in it. Review text is reproduced
+exactly, typos included, because tidying somebody's words makes them ours.
+
+The section those quotes used to occupy now describes what the client receives.
+That copy is deliberately checkable: every line in it is a statement about what
+we do, not about what somebody thought of it.
+
+There is deliberately **no `aggregateRating`** in the structured data, and no
+star average or review count in the visible copy either. Google's review snippet
+guidelines exclude ratings aggregated from another site, so marking up a Google
+score to win stars in Google's own results is not eligible and risks a manual
+action. When the feed is live, each card is labelled `Google review` and the
+section links to the Business Profile, which is the attribution Google's terms
+require and lets anyone check the words against the source.
+
+`test/claims.test.js` reads the shipped HTML and fails the build on a returning
+star average, review count, invented testimonial or accreditation we do not
+hold. It is the reason none of that can quietly come back.
 
 ## Analytics and privacy
 

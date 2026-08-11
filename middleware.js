@@ -14,9 +14,10 @@
  *      every file is reachable on both hosts. Without these redirects the ATi
  *      page also answers on dampscan.co.uk/london.html, which is a duplicate
  *      of the ATi home page on the wrong brand's domain.
- *   3. Serve the area and service pages. /damp-survey/<slug> and
- *      /services/<slug> resolve to a different file on each host, so both sites
- *      can use the same tidy URL shape.
+ *   3. Serve the hub, area and service pages. /damp-survey/ and /services/
+ *      resolve to a hub, and /damp-survey/<slug> and /services/<slug> to a
+ *      detail page, all to a different file on each host, so both sites can use
+ *      the same tidy URL shape.
  *
  * Everything else, /api, /staff, /assets, is shared by both domains and is not
  * matched here at all.
@@ -27,8 +28,8 @@ export const config = {
   matcher: [
     '/', '/index.html', '/london.html',
     '/robots.txt', '/sitemap.xml', '/llms.txt',
-    '/damp-survey/:slug',
-    '/services/:slug'
+    '/damp-survey', '/damp-survey/', '/damp-survey/:slug',
+    '/services', '/services/', '/services/:slug'
   ]
 };
 
@@ -66,6 +67,15 @@ export default function middleware(request) {
   // picks which one answers. The visitor and Google only ever see
   // /damp-survey/<slug>, which is what the canonical on each page says.
   const dir = london ? 'ati' : 'dampscan';
+
+  // The hubs sit above the detail pages and are what the nav and the
+  // breadcrumbs point at. vercel.json sets trailingSlash false, so the bare
+  // path is canonical here too and the slashed form redirects onto it. Serving
+  // the slashed form instead would fight that setting and loop.
+  if (path === '/damp-survey/') return Response.redirect(new URL('/damp-survey', url), 301);
+  if (path === '/services/') return Response.redirect(new URL('/services', url), 301);
+  if (path === '/damp-survey') return rewrite(new URL(`/hubs/${dir}/areas.html`, request.url));
+  if (path === '/services') return rewrite(new URL(`/hubs/${dir}/services.html`, request.url));
 
   const area = path.match(/^\/damp-survey\/([a-z0-9-]+)$/);
   if (area) return rewrite(new URL(`/areas/${dir}/${area[1]}.html`, request.url));

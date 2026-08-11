@@ -6,7 +6,7 @@ export default {
   name: 'Guildford',
   title: 'Damp & Mould Surveys in Guildford | DampScan',
   metaDescription:
-    'Damp, mould and timber surveys across Guildford, GU1 to GU5. Survey-led diagnosis with a written report within 24 hours of the visit.',
+    'Damp, mould and timber surveys across Guildford, GU1 to GU5. The cause diagnosed first, with a written report within 24 hours of the visit.',
   h1: 'Damp and mould surveys in Guildford',
   intro:
     'Guildford sits where the Wey cuts through the North Downs, which means chalk on the high ground, greensand and clay lower down, and a lot of houses on a slope. Where a house sits on that geology tells you a good deal about what its damp is likely to be before you go inside.',

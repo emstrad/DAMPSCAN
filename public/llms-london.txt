@@ -53,6 +53,8 @@ out remedial work.
 ## Links
 
 - [ATI Damp Survey](https://atidampsurvey.co.uk/): services, areas and FAQs
+- [Services](https://atidampsurvey.co.uk/services): every defect we inspect and report on, one page each
+- [London coverage](https://atidampsurvey.co.uk/damp-survey): every borough, with its building stock and failure patterns
 - [Book a survey](https://atidampsurvey.co.uk/#book): booking form
 - [FAQs](https://atidampsurvey.co.uk/#faq): answers to the common questions
 

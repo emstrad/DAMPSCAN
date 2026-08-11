@@ -20,9 +20,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta property="og:locale" content="en_GB" />
 <link rel="icon" type="image/png" href="assets/ati-mark.png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ProfessionalService","name":"ATI Damp Survey","description":"Independent damp and timber survey practice producing evidence-based written reports across London. No remedial work undertaken.","url":"https://atidampsurvey.co.uk/","image":"https://atidampsurvey.co.uk/assets/ati-mark.png","email":"team@atidampsurvey.co.uk","telephone":"+442033554944","address":{"@type":"PostalAddress","addressRegion":"London","addressCountry":"GB"},"areaServed":{"@type":"City","name":"London"},"serviceType":["Independent damp survey","Pre-purchase damp and timber survey","Landlord damp and mould report","Housing disrepair damp report","Condensation and mould assessment","Timber decay survey"],"priceRange":"££"}
@@ -35,6 +33,9 @@
 <link rel="stylesheet" href="/assets/book.css" />
 
 <style>
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 800;
+  font-display:swap;src:url(/assets/fonts/plus-jakarta-sans-var.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:96px}
 :root{
@@ -207,6 +208,11 @@ section{padding-block:clamp(64px,8vw,116px)}
 .ll-icon{width:38px;height:38px;flex-shrink:0;border-radius:9px;background:var(--accent-soft);border:1px solid var(--line-strong);color:var(--accent);display:grid;place-items:center}
 .ll-list strong{display:block;font-size:15px;font-weight:600}
 .ll-list span{color:var(--muted);font-size:14.5px;line-height:1.5}
+/* The deliverables list reuses the landlord list, in two columns where there
+   is room, because it is the same shape of content: label plus explanation. */
+.deliverables{margin-top:clamp(22px,3vw,36px)}
+.reviews-source{margin-top:22px;text-align:center;font-size:13px;color:var(--muted-2)}
+@media (min-width:900px){.deliverables{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(28px,4vw,56px)}}
 /* ---------- Areas we cover ---------- */
 .areas{background:var(--navy);border-top:1px solid var(--line)}
 .area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,20px)}
@@ -249,23 +255,17 @@ details.qa p{color:var(--muted);font-size:15.5px;line-height:1.68;padding-bottom
 
 /* ---------- SurveyMate standard band ---------- */
 .smate{background:var(--slate);border-top:1px solid var(--line);padding-block:clamp(44px,5.5vw,68px)}
-.smate-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,52px);align-items:start}
+.smate-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,52px);align-items:center}
+.smate-note{color:var(--muted);font-size:15.5px;line-height:1.68;max-width:68ch}
+/* Contextual link out of a service tab into that service page. */
+.svc-more{margin:16px 0 4px;font-size:14.5px;font-weight:600}
 @media (max-width:760px){.smate-grid{grid-template-columns:1fr;gap:22px}}
-.smate-seal{display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--navy);border:1px solid var(--accent-ring);border-radius:14px;padding:22px 26px;min-width:200px;text-align:center}
-.smate-seal .seal-icon{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
-.smate-seal strong{font-size:14px;letter-spacing:.02em}
-.smate-seal span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
 /* The verified badge is served live by SurveyMate, so it reflects the current
    status rather than a copy that would keep saying verified if it lapsed.
    Fixed dimensions and lazy loading keep it off the critical path and stop it
    shifting the layout when it arrives. */
-.smate-badge{display:inline-block;margin-top:16px;line-height:0}
+.smate-badge{display:inline-block;line-height:0}
 .smate-badge img{display:block;width:200px;height:64px}
-.smate-text{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
-.smate-text h2{font-size:clamp(21px,2.3vw,28px);letter-spacing:-.015em}
-.smate-text h2 .hash{color:var(--accent)}
-.smate-text p{color:var(--muted);font-size:15.5px;line-height:1.68;max-width:70ch}
-.smate-text a.smate-link{font-size:14px;font-weight:600;border-bottom:1px solid var(--accent-ring);padding-bottom:2px}
 
 /* ---------- Footer ---------- */
 .footer{background:var(--navy-2);border-top:1px solid var(--line);padding-block:60px 0;color:var(--muted);font-size:14.5px}
@@ -321,10 +321,10 @@ html{scroll-padding-top:88px}
       <nav aria-label="Primary">
         <ul class="nav-links">
           <li><a href="#how" data-nav="how">How It Works</a></li>
-          <li><a href="#services" data-nav="services">Services</a></li>
-          <li><a href="#reviews" data-nav="reviews">Reviews</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="#reviews" data-nav="reviews">The report</a></li>
           <li><a href="#landlords" data-nav="landlords">Landlords</a></li>
-          <li><a href="#areas" data-nav="areas">London Coverage</a></li>
+          <li><a href="/damp-survey">London Coverage</a></li>
           <li><a href="#faq" data-nav="faq">FAQs</a></li>
         </ul>
       </nav>
@@ -587,15 +587,15 @@ html{scroll-padding-top:88px}
     </div>
     <div class="service-panel">
       <div class="service-content" id="service-content" role="tabpanel" aria-live="polite">
-        <div class="svc" data-svc="rising-damp"><h3>Suspected Rising Damp</h3><p>Genuine rising damp is far rarer in London housing stock than the number of injected damp courses would suggest. The same tide mark can be produced by hygroscopic salts in old plaster, a bridged or raised external ground level, a defective gully, or a slow leak beneath a floor.</p><p>We profile moisture at depth as well as at the surface, test for salt contamination, check external levels and drainage, and only then state whether capillary rise is actually occurring. In a good number of London inspections, it is not.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="penetrating-damp" hidden><h3>Water Ingress</h3><p>Lateral ingress in London terraces and mansion blocks usually traces back to something outside the affected room: perished pointing on an exposed elevation, a cracked parapet or valley, a blocked hopper, failed flashing at a rear addition, or a neighbour's overflow.</p><p>We inspect the external envelope alongside the internal damage and correlate the two, so the report identifies the defect rather than the stain. Where access limits what can be seen, the report says so explicitly instead of speculating.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="condensation" hidden><h3>Condensation &amp; Humidity</h3><p>London flats and converted houses generate a great deal of moisture in small, well-sealed volumes. Where extraction is inadequate and surfaces are cold, condensation follows, and it is frequently misdiagnosed as structural damp.</p><p>We record internal temperature, relative humidity, dew point and surface temperatures, assess existing extraction against the room use, and set out whether the cause is building fabric, ventilation provision, occupancy, or a combination. This distinction matters enormously in a dispute.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="mould" hidden><h3>Mould Assessment</h3><p>Mould is a symptom with several possible causes, and treating the surface without establishing which one you have is why it returns. Landlords and tenants often hold entirely opposite views about the reason, which is precisely why an independent view is useful.</p><p>The report records the extent and distribution of growth, the environmental conditions that permit it, the building defects contributing to it, and the remedial and ventilation measures required, in priority order.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="timber" hidden><h3>Timber Decay &amp; Woodworm</h3><p>Timber decay follows moisture, so a timber inspection is a moisture inspection. We examine accessible floor timbers, joist ends built into external walls, sub-floor ventilation, cellars and roof timbers.</p><p>The report distinguishes active from historic infestation, wet rot from dry rot, and cosmetic from structural loss. Where structural adequacy is in question we say what further opening up or engineering input is needed, rather than guessing at it.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="basement" hidden><h3>Basements &amp; Cellars</h3><p>London basement conversions and lower-ground flats are the single most common source of contested damp problems. Failed cementitious tanking, membrane systems installed over unresolved defects, and sumps that were never maintained are all routine findings.</p><p>We assess the existing waterproofing against BS 8102 principles, identify what type of system is present and whether it was ever appropriate, and report on what would be required to achieve the intended grade of use.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="pre-purchase" hidden><h3>Pre-Purchase Reports</h3><p>A valuation survey that recommends a specialist damp report is a starting point, not an answer. Buyers frequently receive a contractor's free quote in its place, which is not an independent assessment and carries no professional liability.</p><p>Our pre-purchase report gives you the cause, the extent, the remedial specification and an outline cost, in a form your solicitor can use and your seller can be shown. It is often the difference between a renegotiation and a guess.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="rising-damp"><h3>Suspected Rising Damp</h3><p>Genuine rising damp is far rarer in London housing stock than the number of injected damp courses would suggest. The same tide mark can be produced by hygroscopic salts in old plaster, a bridged or raised external ground level, a defective gully, or a slow leak beneath a floor.</p><p>We profile moisture at depth as well as at the surface, test for salt contamination, check external levels and drainage, and only then state whether capillary rise is actually occurring. In a good number of London inspections, it is not.</p><p class="svc-more"><a href="/services/rising-damp">Read the full guide to rising damp</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="penetrating-damp" hidden><h3>Water Ingress</h3><p>Lateral ingress in London terraces and mansion blocks usually traces back to something outside the affected room: perished pointing on an exposed elevation, a cracked parapet or valley, a blocked hopper, failed flashing at a rear addition, or a neighbour's overflow.</p><p>We inspect the external envelope alongside the internal damage and correlate the two, so the report identifies the defect rather than the stain. Where access limits what can be seen, the report says so explicitly instead of speculating.</p><p class="svc-more"><a href="/services/penetrating-damp">Read the full guide to penetrating damp</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="condensation" hidden><h3>Condensation &amp; Humidity</h3><p>London flats and converted houses generate a great deal of moisture in small, well-sealed volumes. Where extraction is inadequate and surfaces are cold, condensation follows, and it is frequently misdiagnosed as structural damp.</p><p>We record internal temperature, relative humidity, dew point and surface temperatures, assess existing extraction against the room use, and set out whether the cause is building fabric, ventilation provision, occupancy, or a combination. This distinction matters enormously in a dispute.</p><p class="svc-more"><a href="/services/condensation-and-mould">Read the full guide to condensation and mould</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="mould" hidden><h3>Mould Assessment</h3><p>Mould is a symptom with several possible causes, and treating the surface without establishing which one you have is why it returns. Landlords and tenants often hold entirely opposite views about the reason, which is precisely why an independent view is useful.</p><p>The report records the extent and distribution of growth, the environmental conditions that permit it, the building defects contributing to it, and the remedial and ventilation measures required, in priority order.</p><p class="svc-more"><a href="/services/condensation-and-mould">Read the full guide to condensation and mould</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="timber" hidden><h3>Timber Decay &amp; Woodworm</h3><p>Timber decay follows moisture, so a timber inspection is a moisture inspection. We examine accessible floor timbers, joist ends built into external walls, sub-floor ventilation, cellars and roof timbers.</p><p>The report distinguishes active from historic infestation, wet rot from dry rot, and cosmetic from structural loss. Where structural adequacy is in question we say what further opening up or engineering input is needed, rather than guessing at it.</p><p class="svc-more"><a href="/services/timber-decay-and-woodworm">Read the full guide to timber decay and woodworm</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="basement" hidden><h3>Basements &amp; Cellars</h3><p>London basement conversions and lower-ground flats are the single most common source of contested damp problems. Failed cementitious tanking, membrane systems installed over unresolved defects, and sumps that were never maintained are all routine findings.</p><p>We assess the existing waterproofing against BS 8102 principles, identify what type of system is present and whether it was ever appropriate, and report on what would be required to achieve the intended grade of use.</p><p class="svc-more"><a href="/services/basement-waterproofing">Read the full guide to basement damp</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="pre-purchase" hidden><h3>Pre-Purchase Reports</h3><p>A valuation survey that recommends a specialist damp report is a starting point, not an answer. Buyers frequently receive a contractor's free quote in its place, which is not an independent assessment and carries no professional liability.</p><p>Our pre-purchase report gives you the cause, the extent, the remedial specification and an outline cost, in a form your solicitor can use and your seller can be shown. It is often the difference between a renegotiation and a guess.</p><p class="svc-more"><a href="/services/damp-surveys">Read the full guide to independent damp surveys</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
         <div class="svc" data-svc="landlord" hidden><h3>Landlord &amp; Disrepair</h3><p>Where a tenant has reported damp or mould, an independent inspection establishes the facts before positions harden. Reports are prepared knowing they may be read by the tenant, an environmental health officer, an ombudsman or a court.</p><p>Findings are set out neutrally: what is a fabric defect and the landlord's responsibility, what relates to ventilation provision, and what relates to occupancy. Recommendations are prioritised by risk to health and to the building.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
-        <div class="svc" data-svc="second-opinion" hidden><h3>Second Opinions</h3><p>If you have been quoted for injection, hacking off plaster, tanking or a full replastering programme and something about it does not sit right, a second opinion costs a fraction of the works.</p><p>We review the existing quotation or report, inspect independently, and tell you whether the recommended scope is justified, partially justified, or unsupported by the evidence. We will say so plainly either way.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+        <div class="svc" data-svc="second-opinion" hidden><h3>Second Opinions</h3><p>If you have been quoted for injection, hacking off plaster, tanking or a full replastering programme and something about it does not sit right, a second opinion costs a fraction of the works.</p><p>We review the existing quotation or report, inspect independently, and tell you whether the recommended scope is justified, partially justified, or unsupported by the evidence. We will say so plainly either way.</p><p class="svc-more"><a href="/services/damp-surveys">Read the full guide to independent damp surveys</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
         <div class="svc" data-svc="post-works" hidden><h3>Post-Works Verification</h3><p>Remedial damp work is easy to pay for and hard to verify. Once plaster is back on and paint is dry, whether the specification was actually followed becomes very difficult to establish.</p><p>We inspect during or after works against the original specification and record what was done, what was omitted, and whether the moisture profile has actually improved. Useful for a retention release, an insurer, or a dispute.</p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
       </div>
       <aside class="service-aside" aria-label="What every report contains">
@@ -611,18 +611,51 @@ html{scroll-padding-top:88px}
   </div>
 </section>
 
-<!-- ============================= TESTIMONIALS ============================= -->
-<section id="reviews" class="proof reveal" aria-labelledby="reviews-heading" data-screen-label="Reviews">
+<!-- ============================= WHAT YOU RECEIVE =============================
+     This section used to carry client quotes that were never given by a client.
+     It now sets out the document itself, which is the thing being bought, and
+     the carousel below stays empty until the Google listing supplies real ones.
+     The id stays #reviews so existing links and anchors keep working. -->
+<section id="reviews" class="proof reveal" aria-labelledby="reviews-heading" data-screen-label="The report">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Client feedback</span>
-      <h2 id="reviews-heading" class="h-section">What the report actually changed.</h2>
-      <p class="lede">Most people come to us already holding a quote. What they say afterwards is rarely about damp, and usually about the money the report saved or the argument it ended.</p>
+      <span class="eyebrow">What you receive</span>
+      <h2 id="reviews-heading" class="h-section">What you are buying is the document, so here is what is in it.</h2>
+      <p class="lede">Most people come to us already holding a quote and wanting to know whether it is justified. The report is what answers that. It is written on the assumption that somebody other than you will read it.</p>
     </div>
+    <ul class="ll-list deliverables">
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span>
+        <div><strong>Written for a third party to read</strong><span>Drafted on the assumption it reaches a seller, a solicitor, an environmental health officer or a court.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.2" y2="16.2"/></svg></span>
+        <div><strong>The cause, with the evidence behind it</strong><span>Moisture readings, surface temperatures and photographs, and the reasoning that connects them to a conclusion.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <div><strong>A specification you can put out to tender</strong><span>What needs doing, in enough detail to price. We undertake no remedial work, so we will not be bidding for it.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        <div><strong>What does not need doing</strong><span>Where a quote you are already holding goes beyond the defect we found, the report says so and explains why.</span></div>
+      </li>
+      <li>
+        <span class="ll-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span>
+        <div><strong>Within 24 hours of the inspection</strong><span>Fixed fee agreed before we attend, so there is nothing to negotiate afterwards and zero commercial interest in the outcome.</span></div>
+      </li>
+    </ul>
   </div>
-  <!-- PLACEHOLDER FEEDBACK: replace the reviews array in the script below with real client quotes before launch -->
-  <div class="carousel" aria-label="Client feedback"><div class="carousel-track" id="track-a"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We were quoted £9,400 for injection and replastering. ATI found a blocked gully and raised patio. The repair was £600.</p><div class="review-attr"><span>Homeowner, SE22</span><span class="src">Second opinion</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Our surveyor flagged damp and the seller refused to budge. The independent report gave us the evidence to take £11,000 off the price.</p><div class="review-attr"><span>Buyer, N4</span><span class="src">Pre-purchase</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tenant complaint had escalated to the council. The report separated fabric defects from ventilation clearly and the case closed.</p><div class="review-attr"><span>Landlord, E8</span><span class="src">Landlord report</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.</p><div class="review-attr"><span>Homeowner, SW11</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.</p><div class="review-attr"><span>Leaseholder, W9</span><span class="src">Basement</span></div></article></div></div>
-  <div class="carousel" aria-hidden="true"><div class="carousel-track rev" id="track-b"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Straightforward, unhurried, and explained what the readings actually meant rather than just quoting numbers at us.</p><div class="review-attr"><span>Homeowner, SW11</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Lower ground flat with three previous tanking attempts. First person to explain why none of them worked.</p><div class="review-attr"><span>Leaseholder, W9</span><span class="src">Basement</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Report arrived the next morning as promised, and our solicitor could use it without a single query.</p><div class="review-attr"><span>Buyer, SE13</span><span class="src">Pre-purchase</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Instructed us to spend nothing at all in two of the three rooms. Not what a contractor would have said.</p><div class="review-attr"><span>Homeowner, NW6</span><span class="src">Damp survey</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Managing four blocks and now use ATI for every reported case. The neutrality is the whole point.</p><div class="review-attr"><span>Managing agent, EC1</span><span class="src">Portfolio</span></div></article></div></div>
+  <!-- Real Google reviews, and only real ones. Written from content/reviews by
+       scripts/build-pages.js, replaced at runtime if /api/reviews returns a
+       live set, and hidden entirely below five either way. -->
+  <!-- reviews:start, filled by scripts/build-pages.js -->
+  <div class="carousel" aria-label="Customer reviews"><div class="carousel-track" id="track-a"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tom and Ben were brilliant from start to finish. Friendly, professional, and really knew their stuff. The report was clear, honest, and sent over quickly. Highly recommend ATI Damp Surveying!</p><div class="review-attr"><span>Gary Emberson</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We had this company at my parents house to survey. Professional and polite. Good communication and on time for appointment.</p><div class="review-attr"><span>Jacqueline Stokes</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Massive thanks to Ben and the team, came over very quickly, very professional and at a great cost.. wld recommend them all very highly</p><div class="review-attr"><span>Track day Junkie</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Best servey i have had done fast easy and everything got sorted A+++</p><div class="review-attr"><span>Lee</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Professional friendly service. Highly recommended</p><div class="review-attr"><span>Lisa Range</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tom and Ben were brilliant from start to finish. Friendly, professional, and really knew their stuff. The report was clear, honest, and sent over quickly. Highly recommend ATI Damp Surveying!</p><div class="review-attr"><span>Gary Emberson</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We had this company at my parents house to survey. Professional and polite. Good communication and on time for appointment.</p><div class="review-attr"><span>Jacqueline Stokes</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Massive thanks to Ben and the team, came over very quickly, very professional and at a great cost.. wld recommend them all very highly</p><div class="review-attr"><span>Track day Junkie</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Best servey i have had done fast easy and everything got sorted A+++</p><div class="review-attr"><span>Lee</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Professional friendly service. Highly recommended</p><div class="review-attr"><span>Lisa Range</span><span class="src">Google review</span></div></article></div></div>
+  <div class="carousel" aria-hidden="true"><div class="carousel-track rev" id="track-b"><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Professional friendly service. Highly recommended</p><div class="review-attr"><span>Lisa Range</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Best servey i have had done fast easy and everything got sorted A+++</p><div class="review-attr"><span>Lee</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Massive thanks to Ben and the team, came over very quickly, very professional and at a great cost.. wld recommend them all very highly</p><div class="review-attr"><span>Track day Junkie</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We had this company at my parents house to survey. Professional and polite. Good communication and on time for appointment.</p><div class="review-attr"><span>Jacqueline Stokes</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tom and Ben were brilliant from start to finish. Friendly, professional, and really knew their stuff. The report was clear, honest, and sent over quickly. Highly recommend ATI Damp Surveying!</p><div class="review-attr"><span>Gary Emberson</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Professional friendly service. Highly recommended</p><div class="review-attr"><span>Lisa Range</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Best servey i have had done fast easy and everything got sorted A+++</p><div class="review-attr"><span>Lee</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Massive thanks to Ben and the team, came over very quickly, very professional and at a great cost.. wld recommend them all very highly</p><div class="review-attr"><span>Track day Junkie</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>We had this company at my parents house to survey. Professional and polite. Good communication and on time for appointment.</p><div class="review-attr"><span>Jacqueline Stokes</span><span class="src">Google review</span></div></article><article class="review"><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p>Tom and Ben were brilliant from start to finish. Friendly, professional, and really knew their stuff. The report was clear, honest, and sent over quickly. Highly recommend ATI Damp Surveying!</p><div class="review-attr"><span>Gary Emberson</span><span class="src">Google review</span></div></article></div></div>
+  <div class="container">
+    <p class="reviews-source" id="reviews-source">Reviews from our Google Business Profile.</p>
+  </div>
+  <!-- reviews:end -->
   <div class="container">
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
@@ -882,22 +915,13 @@ html{scroll-padding-top:88px}
 </section>
 
 <!-- ============================= SURVEYMATE STANDARD ============================= -->
-<section class="smate reveal" aria-labelledby="smate-heading" data-screen-label="SurveyMate standard">
+<!-- SurveyMate: the live badge, and one sentence in our own words beside it. -->
+<section class="smate reveal" aria-label="SurveyMate" data-screen-label="SurveyMate">
   <div class="container smate-grid">
-    <div class="smate-seal">
-      <span class="seal-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.4-2.9 8.2-7 9.5-4.1-1.3-7-5.1-7-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
-      <strong>SurveyMate</strong>
-      <span>Approved contractor</span>
-    </div>
     <a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/ati-damp-survey" rel="noopener" target="_blank">
-        <img src="https://survey-mate.co.uk/api/verified-badge/ati-damp-survey" alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
-      </a>
-    <div class="smate-text">
-      <h2 id="smate-heading"><span class="hash">#</span>SurveyMate Standard</h2>
-      <p>Every ATI inspection is recorded through <a href="https://survey-mate.co.uk" target="_blank" rel="noopener">SurveyMate</a>, so each survey follows the same structured method and every finding is captured as dated evidence rather than a note made afterwards.</p>
-      <p>It gives our reports a consistent standard, secure delivery, and verified client feedback, which matters a great deal when a report may later be relied on by a third party.</p>
-      <a class="smate-link" href="https://survey-mate.co.uk" target="_blank" rel="noopener">Learn about the SurveyMate Standard</a>
-    </div>
+      <img src="https://survey-mate.co.uk/api/verified-badge/ati-damp-survey" alt="SurveyMate Verified Firm" width="200" height="64" loading="lazy" decoding="async" />
+    </a>
+    <p class="smate-note">We produce our reports on <a href="https://survey-mate.co.uk" target="_blank" rel="noopener">SurveyMate</a>, so an inspection follows the same method whoever attends and every finding is timestamped at the property. That matters when the report is later read by somebody who was not there.</p>
   </div>
 </section>
 
@@ -918,9 +942,9 @@ html{scroll-padding-top:88px}
         <ul class="footer-links">
           <li><a href="#why">Why Independent</a></li>
           <li><a href="#how">The Process</a></li>
-          <li><a href="#services">What We Report On</a></li>
+          <li><a href="/services">What We Report On</a></li>
           <li><a href="#landlords">Landlords &amp; Agents</a></li>
-          <li><a href="#areas">London Coverage</a></li>
+          <li><a href="/damp-survey">London Coverage</a></li>
           <li><a href="#faq">FAQs</a></li>
           <li><a href="#book">Request a Survey</a></li>
         </ul>
@@ -928,23 +952,25 @@ html{scroll-padding-top:88px}
       <div>
         <h4>Reports</h4>
         <ul class="footer-links">
-          <li><a href="#services" data-svc-link="rising-damp">Suspected rising damp</a></li>
-          <li><a href="#services" data-svc-link="penetrating-damp">Water ingress</a></li>
-          <li><a href="#services" data-svc-link="condensation">Condensation &amp; humidity</a></li>
-          <li><a href="#services" data-svc-link="timber">Timber decay</a></li>
-          <li><a href="#services" data-svc-link="pre-purchase">Pre-purchase reports</a></li>
-          <li><a href="#services" data-svc-link="second-opinion">Second opinions</a></li>
+          <li><a href="/services/basement-waterproofing">Basement Damp</a></li>
+          <li><a href="/services/condensation-and-mould">Condensation and Mould</a></li>
+          <li><a href="/services/damp-surveys">Independent Damp Surveys</a></li>
+          <li><a href="/services/penetrating-damp">Penetrating Damp</a></li>
+          <li><a href="/services/rising-damp">Rising Damp</a></li>
+          <li><a href="/services/timber-decay-and-woodworm">Timber Decay and Woodworm</a></li>
+          <li><a href="/services/ventilation">Ventilation</a></li>
+          <li><a href="/services/wet-and-dry-rot">Wet and Dry Rot</a></li>
         </ul>
       </div>
       <div>
         <h4>London postcodes</h4>
         <ul class="footer-links">
-          <li><a href="#areas">Damp survey North London</a></li>
-          <li><a href="#areas">Damp survey East London</a></li>
-          <li><a href="#areas">Damp survey South East London</a></li>
-          <li><a href="#areas">Damp survey South West London</a></li>
-          <li><a href="#areas">Damp survey West London</a></li>
-          <li><a href="#areas">Outer London boroughs</a></li>
+          <li><a href="/damp-survey/camden">Damp surveys in Camden</a></li>
+          <li><a href="/damp-survey/islington">Damp surveys in Islington</a></li>
+          <li><a href="/damp-survey/southwark">Damp surveys in Southwark</a></li>
+          <li><a href="/damp-survey/wandsworth">Damp surveys in Wandsworth</a></li>
+          <li><a href="/damp-survey/hackney">Damp surveys in Hackney</a></li>
+          <li><a href="/damp-survey">All areas we cover</a></li>
         </ul>
       </div>
       <div>
@@ -1005,20 +1031,16 @@ window.DS_CONFIG = {
 
 /* Our own API. It owns validation and storage, and is the source of truth. */
 /* ---------- Reviews marquee ----------
-   The cards in the markup are readable without JavaScript. If /api/reviews
-   returns real Google reviews they replace them, and if it returns none, or is
-   not configured yet, whatever is in the HTML stays. Nothing is invented here.
-   Either way each track is doubled at the end, because the loop needs two
-   copies to run seamlessly and that second copy is decoration, not content. */
+   Both tracks ship empty and both carousels ship hidden. /api/reviews returns
+   real reviews or none at all, and it holds them back entirely until there are
+   at least five, so a thin carousel never appears and nothing is ever written
+   by us. If the fetch fails the section simply keeps its static content.
+   Once filled, each track is doubled, because the loop needs two copies to run
+   seamlessly and that second copy is decoration, not content. */
 (function reviewsMarquee(){
   const a = document.getElementById('track-a');
   const b = document.getElementById('track-b');
   if (!a || !b) return;
-
-  function double(){
-    a.innerHTML += a.innerHTML;
-    b.innerHTML += b.innerHTML;
-  }
 
   /* Review text is other people's writing arriving over the network, so it is
      escaped rather than trusted. */
@@ -1034,7 +1056,7 @@ window.DS_CONFIG = {
     return '<article class="review"><div class="stars" aria-label="' + rating +
       ' out of 5 stars">' + stars + '</div><p>' + esc(r.text) +
       '</p><div class="review-attr"><span>' + esc(r.attr) +
-      '</span><span class="src">' + esc(r.src || 'Google') + '</span></div></article>';
+      '</span><span class="src">' + esc(r.src || 'Google review') + '</span></div></article>';
   }
 
   fetch('/api/reviews', { headers: { Accept: 'application/json' } })
@@ -1042,14 +1064,24 @@ window.DS_CONFIG = {
     .then(data => {
       const list = data && Array.isArray(data.reviews) ? data.reviews : [];
       if (!list.length) return;
-      /* Two rows scrolling opposite ways look wrong in the same order, and
-         Places returns at most five reviews, so rotating by a fixed offset is
-         a no-op on a short list. Reversing always differs. */
+      /* Two rows scrolling opposite ways look wrong in the same order, and the
+         list is short, so rotating by a fixed offset is close to a no-op.
+         Reversing always differs. */
       a.innerHTML = list.map(card).join('');
       b.innerHTML = list.slice().reverse().map(card).join('');
+      a.innerHTML += a.innerHTML;
+      b.innerHTML += b.innerHTML;
+      document.querySelectorAll('#reviews .carousel').forEach(function(c){ c.hidden = false; });
+      /* Showing Google's review data obliges us to say where it came from, and
+         a link to the listing lets anyone check the words against the source. */
+      const source = document.getElementById('reviews-source');
+      const href = data.place && data.place.url;
+      if (source && href) {
+        source.querySelector('a').href = href;
+        source.hidden = false;
+      }
     })
-    .catch(function(){ /* offline or blocked: the markup already has cards */ })
-    .then(double);
+    .catch(function(){ /* offline or blocked: the section keeps its static content */ });
 })();
 
 /* ---------- Services tabs ----------
@@ -1073,10 +1105,6 @@ window.DS_CONFIG = {
   pillRow.addEventListener('click', e => {
     const btn = e.target.closest('.pill');
     if (btn) select(btn.dataset.svc);
-  });
-  /* Footer service links jump to the tab */
-  document.querySelectorAll('[data-svc-link]').forEach(a => {
-    a.addEventListener('click', () => select(a.dataset.svcLink));
   });
 })();
 

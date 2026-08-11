@@ -1,3 +1,18 @@
+/* Plus Jakarta Sans, one variable file covering 400 to 800, latin subset,
+   served from this origin.
+
+   It used to come from fonts.googleapis.com, so first paint waited on a DNS
+   lookup, a TLS handshake and two round trips to a domain we do not control.
+   Measured on this repo, with Google Fonts unreachable, first contentful paint
+   went from 800ms to 13.7 seconds. That is not a normal figure, but it is the
+   shape of the dependency: the whole render sat behind somebody else's uptime.
+
+   font-display:swap so text paints immediately in the system font and swaps
+   when the file lands, which is why CLS stays at zero. */
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 800;
+  font-display:swap;src:url(/assets/fonts/plus-jakarta-sans-var.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
 /* Area pages. One stylesheet, two brands: the generator stamps data-site on the
    root element, so the same markup wears the DampScan dark palette or the ATi
    light one. Deliberately compact rather than a copy of the home page CSS,
@@ -72,6 +87,15 @@ p,ul{margin:0}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding:0;list-style:none}
 .chips li{border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;
   font-size:13.5px;color:var(--muted)}
+
+/* Hub list: the link carries the weight, the summary underneath is what makes
+   the hub worth landing on rather than a bare index of names. */
+.hub-list{list-style:none;padding:0;margin-top:20px;display:grid;gap:2px;
+  border-top:1px solid var(--line)}
+.hub-list li{padding:15px 0;border-bottom:1px solid var(--line)}
+.hub-list a{font-weight:700;font-size:16.5px}
+.hub-list span{display:block;margin-top:4px;color:var(--muted);font-size:14.5px;line-height:1.55}
+@media (min-width:760px){.hub-list{grid-template-columns:1fr 1fr;column-gap:clamp(24px,3vw,44px)}}
 
 .qa{border-top:1px solid var(--line);padding:18px 0}
 .qa summary{cursor:pointer;font-weight:700;font-size:16.5px;list-style:none}

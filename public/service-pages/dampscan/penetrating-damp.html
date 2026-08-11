@@ -11,13 +11,11 @@
 <meta property="og:title" content="Penetrating Damp Surveys &amp; Repairs | DampScan" />
 <meta property="og:description" content="Penetrating damp traced to where the water actually enters, across Kent and the South East. The stain is rarely above the defect." />
 <meta property="og:locale" content="en_GB" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Penetrating Damp","serviceType":"Penetrating Damp","description":"Penetrating damp traced to where the water actually enters, across Kent and the South East. The stain is rarely above the defect.","url":"https://dampscan.co.uk/services/penetrating-damp","provider":{"@type":"LocalBusiness","name":"DampScan","url":"https://dampscan.co.uk/","telephone":"+447386225526"},"areaServed":{"@type":"Place","name":"Kent and the South East of England"}}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DampScan","item":"https://dampscan.co.uk/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://dampscan.co.uk/#services"},{"@type":"ListItem","position":3,"name":"Penetrating Damp","item":"https://dampscan.co.uk/services/penetrating-damp"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DampScan","item":"https://dampscan.co.uk/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://dampscan.co.uk/services"},{"@type":"ListItem","position":3,"name":"Penetrating Damp","item":"https://dampscan.co.uk/services/penetrating-damp"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is the damp patch nowhere near the leak?","acceptedAnswer":{"@type":"Answer","text":"Because water follows the easiest path available and only becomes visible where it reaches a surface it can wet. Entering at a roof junction it may run along a joist, down a cavity or across a lintel and appear a floor below and several feet sideways. That is why examining only the stained wall establishes that the wall is wet and nothing more, and why the external inspection is the part that actually answers the question."}},{"@type":"Question","name":"It only leaks in certain weather. Is that useful?","acceptedAnswer":{"@type":"Answer","text":"Extremely. Damp that appears only in driving rain from one direction points at a specific exposed elevation and usually at render, pointing or cavity fill. Damp that appears only in prolonged heavy rain points at gutters and hoppers that cope until they do not. Damp that is constant regardless of weather points at plumbing or drainage instead. Tell us what you have noticed and when; it narrows the search considerably."}},{"@type":"Question","name":"Could cavity wall insulation be the cause?","acceptedAnswer":{"@type":"Answer","text":"It can be, and it should be checked rather than assumed. Retrofit fill can settle over time and leave the top of the wall uninsulated, or bridge the cavity so water crosses from the outer leaf to the inner one. The signature is damp on the most weather exposed elevation, appearing after driving rain and drying between events, rather than constant damp at low level. We inspect for it directly and report what was found."}}]}</script>
 </head>
 <body>
@@ -26,9 +24,9 @@
   <div class="wrap">
     <a href="/" aria-label="DampScan home"><span class="abrand"><span>Damp</span><span class="hi">Scan</span></span></a>
     <nav aria-label="Main">
-      <a href="/#services">Services</a>
-      <a href="/#areas">Areas</a>
-      <a href="/#faq">FAQs</a>
+      <a href="/services">Services</a>
+      <a href="/damp-survey">Areas</a>
+      <a href="#faq">FAQs</a>
       <a href="#book">Book</a>
     </nav>
   </div>
@@ -36,7 +34,7 @@
 
 <main class="wrap page">
   <div class="page-main">
-  <p class="crumb"><a href="/">Home</a> / <a href="/#services">Services</a> / Penetrating Damp</p>
+  <p class="crumb"><a href="/">Home</a> / <a href="/services">Services</a> / Penetrating Damp</p>
 
   <div class="hero">
     <h1>Penetrating damp: finding where the water actually gets in</h1>
@@ -73,7 +71,7 @@
     <p>Where DampScan carries out the repair it is covered by an insured workmanship guarantee. Where the right answer is a roofer or a drainage contractor, the report says that instead, and you are under no obligation to use us for anything.</p>
   </section>
 
-  <section class="sec">
+  <section class="sec" id="faq">
     <h2>Questions</h2>
     <details class="qa"><summary>Why is the damp patch nowhere near the leak?</summary><p>Because water follows the easiest path available and only becomes visible where it reaches a surface it can wet. Entering at a roof junction it may run along a joist, down a cavity or across a lintel and appear a floor below and several feet sideways. That is why examining only the stained wall establishes that the wall is wet and nothing more, and why the external inspection is the part that actually answers the question.</p></details>
     <details class="qa"><summary>It only leaks in certain weather. Is that useful?</summary><p>Extremely. Damp that appears only in driving rain from one direction points at a specific exposed elevation and usually at render, pointing or cavity fill. Damp that appears only in prolonged heavy rain points at gutters and hoppers that cope until they do not. Damp that is constant regardless of weather points at plumbing or drainage instead. Tell us what you have noticed and when; it narrows the search considerably.</p></details>
@@ -223,8 +221,8 @@
 
 <footer class="afoot">
   <div class="wrap">
-    <span>DampScan. Survey-led damp, mould and timber specialists.</span>
-    <span><a href="/">Home</a> &middot; <a href="tel:+447386225526">07386 225526</a> &middot; <a href="mailto:tom@atidampsurvey.co.uk">tom@atidampsurvey.co.uk</a></span>
+    <span>DampScan. Damp, mould and timber surveys across Kent and the South East.</span>
+    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="tel:+447386225526">07386 225526</a> &middot; <a href="mailto:tom@atidampsurvey.co.uk">tom@atidampsurvey.co.uk</a></span>
   </div>
 </footer>
 

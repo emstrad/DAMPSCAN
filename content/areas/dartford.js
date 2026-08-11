@@ -6,7 +6,7 @@ export default {
   name: 'Dartford',
   title: 'Damp & Mould Surveys in Dartford | DampScan',
   metaDescription:
-    'Damp, mould and timber surveys across Dartford, DA1 to DA4 and DA9. Survey-led diagnosis before anyone recommends a treatment.',
+    'Damp, mould and timber surveys across Dartford, DA1 to DA4 and DA9. The cause diagnosed before anyone recommends a treatment.',
   h1: 'Damp and mould surveys in Dartford',
   intro:
     'Dartford sits on chalk where the Darent meets the Thames, and the two halves of that sentence explain most of what we find. Chalk drains fast, so damp arrives and departs with the weather. The riverside and marsh edge at Stone and Greenhithe is low, alluvial and altogether wetter.',
