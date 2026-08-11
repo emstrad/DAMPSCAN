@@ -6,7 +6,7 @@ export default {
   name: 'Basement Damp',
   title: 'Independent Basement Damp Surveys, London | ATi Damp Survey',
   metaDescription:
-    'Independent basement and lower ground damp surveys across London. Second opinions on tanking and re-waterproofing quotes from a practice that installs nothing.',
+    'Independent basement and lower ground damp surveys across London. Second opinions on tanking quotes, from a practice that installs nothing.',
   h1: 'Basement damp: an independent view before you re-waterproof',
   intro:
     'London has more converted basements and lower ground floors than anywhere else in the country, and a re-waterproofing quote for one routinely runs into five figures. We survey them and write reports. We install no systems, tender for nothing and take no commission, which is the only sensible position from which to tell somebody their basement does not need redoing.',

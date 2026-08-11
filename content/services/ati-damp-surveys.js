@@ -6,7 +6,7 @@ export default {
   name: 'Independent Damp Surveys',
   title: 'Independent Damp Surveys, London | ATi Damp Survey',
   metaDescription:
-    'Independent damp surveys across London for buyers, owners, landlords, agents and solicitors. We carry out no remedial work, so the report has nothing to sell.',
+    'Independent damp surveys across London for buyers, owners, landlords and solicitors. We do no remedial work, so the report has nothing to sell.',
   h1: 'Independent damp surveys: a report with nothing to sell',
   intro:
     'The problem with most damp reports is structural rather than technical: the firm diagnosing the problem is the firm that would be paid to fix it. ATi carries out no remedial work of any kind. We do not install, we do not treat, we take no commission and we recommend no contractors, so a report concluding that nothing needs doing costs us exactly the same as one that does not.',

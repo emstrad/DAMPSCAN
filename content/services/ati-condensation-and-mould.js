@@ -6,7 +6,7 @@ export default {
   name: 'Condensation and Mould',
   title: 'Independent Condensation & Mould Reports | ATi Damp Survey',
   metaDescription:
-    'Independent condensation and mould reports across London, distinguishing building defects from occupation. Written for landlords, leaseholders and disrepair.',
+    'Independent condensation and mould reports across London, separating building defect from occupation. For landlords, leaseholders and disrepair.',
   h1: 'Condensation and mould: evidence, not blame',
   intro:
     'Mould in a rented or leasehold London flat almost always ends in the same argument: the landlord or freeholder says condensation, the occupier says the building. Both can be partly right, and neither position is worth much without measurements. We measure, and the report says which factors are actually driving it.',
