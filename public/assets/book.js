@@ -22,14 +22,29 @@
   const label = document.getElementById('step-label');
   let current = 0;
 
-  function show(i){
+  /* Programmatic focus fires focusin exactly like a tap does, and focusin is
+     what records the form as opened. Suppressing it around our own calls is
+     what keeps the funnel counting people rather than page loads. */
+  let selfFocus = false;
+  function focusField(el){
+    if (!el) return;
+    selfFocus = true;
+    el.focus({ preventScroll: true });
+    setTimeout(() => { selfFocus = false; }, 0);
+  }
+
+  /* focus is opt in. The initial render never focuses: doing so on load opens
+     the keyboard on mobile before anyone has asked for it, drops a keyboard
+     user into a sidebar form instead of the page they came for, and logs a
+     step one entry on every pageview. Advancing a step is different, because
+     the visitor pressed the button. */
+  function show(i, focus){
     current = Math.max(0, Math.min(steps.length - 1, i));
     steps.forEach((s, n) => s.classList.toggle('is-active', n === current));
     dots.forEach((d, n) => d.classList.toggle('is-done', n <= current));
     label.textContent = `Step ${current + 1} of ${steps.length}`;
     dotsWrap.setAttribute('aria-valuenow', String(current + 1));
-    const firstField = steps[current].querySelector('input, select, textarea');
-    if (firstField) firstField.focus({ preventScroll: true });
+    if (focus) focusField(steps[current].querySelector('input, select, textarea'));
   }
 
   function setError(row, on){
@@ -133,7 +148,7 @@
     if (firstBad) {
       const step = firstBad.closest('.fstep');
       if (step) show(steps.indexOf(step));
-      if (firstBad.focus) firstBad.focus();
+      focusField(firstBad);
     }
   }
 
@@ -286,16 +301,16 @@
       if (!validate()) return;
       /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
       if (current === 0) armPartial();
-      show(current + 1);
+      show(current + 1, true);
       track('form_step', { step: current + 1 });
     }
-    if (e.target.closest('[data-back]')) show(current - 1);
+    if (e.target.closest('[data-back]')) show(current - 1, true);
   });
 
   /* form_open once per visit, plus step 1 so the funnel has a first rung. */
   let formOpened = false;
   form.addEventListener('focusin', () => {
-    if (formOpened) return;
+    if (selfFocus || formOpened) return;
     formOpened = true;
     track('form_open');
     track('form_step', { step: 1 });
@@ -343,11 +358,12 @@
     if (e.target.closest('a[href="#book"]')) {
       setTimeout(() => {
         if (card.classList.contains('is-sent')) return;
-        const f = steps[current].querySelector('input, select, textarea');
-        if (f && window.matchMedia('(min-width: 821px)').matches) f.focus({ preventScroll: true });
+        if (window.matchMedia('(min-width: 821px)').matches) {
+          focusField(steps[current].querySelector('input, select, textarea'));
+        }
       }, 620);
     }
   });
 
-  show(0);
+  show(0, false);
 })();
