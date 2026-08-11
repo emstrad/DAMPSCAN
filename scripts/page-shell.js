@@ -61,6 +61,8 @@ ${schemas.map((s) => `<script type="application/ld+json">${s}</script>`).join('\
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
+
 <header class="ahead">
   <div class="wrap">
     <a href="/" aria-label="${esc(site.brand)} home">${brandMark(site)}</a>
@@ -70,7 +72,7 @@ ${nav(ownFaq)}
   </div>
 </header>
 
-<main class="wrap page">
+<main class="wrap page" id="main">
   <div class="page-main">${body}
   </div>
 
@@ -78,10 +80,10 @@ ${nav(ownFaq)}
   </aside>
 </main>
 
-<div class="action-bar" role="group" aria-label="Quick actions">
+<nav class="action-bar" aria-label="Quick actions">
   <a href="tel:${site.phone}" class="btn btn--ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg> Call</a>
   <a href="#book" class="btn btn--primary">Book a survey</a>
-</div>
+</nav>
 
 <footer class="afoot">
   <div class="wrap">

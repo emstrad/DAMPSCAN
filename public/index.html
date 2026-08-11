@@ -33,6 +33,13 @@
 <link rel="stylesheet" href="/assets/book.css" />
 
 <style>
+/* Visible only when focused, so a keyboard user is not made to tab the whole
+   header before reaching the content. */
+.skip-link{position:absolute;left:-9999px;top:0;z-index:200;padding:12px 18px;
+  font-weight:700;border-radius:0 0 10px 0}
+.skip-link:focus{left:0}
+.skip-link{background:var(--accent);color:#06121f}
+
 @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 800;
   font-display:swap;src:url(/assets/fonts/plus-jakarta-sans-var.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -178,7 +185,7 @@ section{padding-block:clamp(64px,8vw,116px)}
 .service-content p{color:var(--muted);font-size:16px;line-height:1.66}
 .service-content .btn{align-self:flex-start;margin-top:8px}
 .service-aside{background:var(--slate);border:1px solid var(--line);border-radius:var(--radius);padding:30px}
-.service-aside h4{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:18px}
+.service-aside .foot-h{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:18px}
 .service-aside ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px}
 .service-aside li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;line-height:1.5}
 .service-aside li svg{color:var(--accent);flex-shrink:0;margin-top:3px}
@@ -273,7 +280,7 @@ details.qa p{color:var(--muted);font-size:15.5px;line-height:1.68;padding-bottom
 @media (max-width:1080px){.footer-grid{grid-template-columns:1fr 1fr 1fr}}
 @media (max-width:760px){.footer-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.footer-grid{grid-template-columns:1fr}}
-.footer h4{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2);font-weight:600;margin-bottom:16px}
+.footer .foot-h{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2);font-weight:600;margin-bottom:16px}
 .footer-brand{display:flex;flex-direction:column;gap:16px;max-width:330px}
 .footer-brand p{font-size:14px;line-height:1.6}
 .footer-links{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
@@ -310,6 +317,7 @@ html{scroll-padding-top:88px}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <!-- ============================= HEADER ============================= -->
 <header class="site-header" id="site-header">
@@ -335,6 +343,8 @@ html{scroll-padding-top:88px}
     </div>
   </div>
 </header>
+
+<main id="main">
 
 <!-- ============================= HERO ============================= -->
 <section class="hero" id="top" data-screen-label="Hero">
@@ -598,7 +608,7 @@ html{scroll-padding-top:88px}
         <div class="svc" data-svc="water-damage" hidden><h3>Water Damage</h3><p>The expensive mistake after a leak is almost never the leak. It is redecorating three weeks later over fabric that is still wet inside, because the wall felt dry to the hand and nobody measured it. Six months on the paint blisters, a tide mark comes back, and the job is done twice.</p><p>We map the moisture rather than sample it, dry to the core with equipment sized to what actually got wet, and record the readings as we go so there is a documented drying curve at the end rather than an assurance. Reinstatement happens once the readings say the fabric is dry, under an insured workmanship guarantee.</p><p class="svc-more"><a href="/services/water-damage">Read the full guide to water damage</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div><div class="svc" data-svc="surveys" hidden><h3>Damp Surveys</h3><p>A damp survey is the right starting point if you suspect a problem, you're buying a property, or you've been quoted for invasive work and want a second opinion. We survey for homeowners, buyers, landlords and managing agents.</p><p>Each survey includes calibrated moisture readings, a thorough inspection inside and out, photographed evidence and a clear written report within 24 hours of the visit. We tell you what's actually happening, and just as importantly, what isn't.</p><p class="svc-more"><a href="/services/damp-surveys">Read the full guide to damp surveys</a></p><a href="#book" class="btn btn--primary">Book a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
       </div>
       <aside class="service-aside" aria-label="What to expect">
-        <h4>What to expect</h4>
+        <h3 class="foot-h">What to expect</h3>
         <ul>
           <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>On-site diagnostic survey by a qualified specialist</li>
           <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Written report with photographed findings, within 24 hours of the visit</li>
@@ -823,6 +833,8 @@ html{scroll-padding-top:88px}
 </section>
 
 <!-- ============================= FOOTER ============================= -->
+</main>
+
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
@@ -835,7 +847,7 @@ html{scroll-padding-top:88px}
         </div>
       </div>
       <div>
-        <h4>Navigate</h4>
+        <h3 class="foot-h">Navigate</h3>
         <ul class="footer-links">
           <li><a href="#how">How It Works</a></li>
           <li><a href="/services">Services</a></li>
@@ -847,7 +859,7 @@ html{scroll-padding-top:88px}
         </ul>
       </div>
       <div>
-        <h4>Services</h4>
+        <h3 class="foot-h">Services</h3>
         <ul class="footer-links">
           <li><a href="/services/basement-waterproofing">Basement Waterproofing</a></li>
           <li><a href="/services/condensation-and-mould">Condensation and Mould</a></li>
@@ -861,7 +873,7 @@ html{scroll-padding-top:88px}
         </ul>
       </div>
       <div>
-        <h4>Areas covered</h4>
+        <h3 class="foot-h">Areas covered</h3>
         <ul class="footer-links">
           <li><a href="/damp-survey/maidstone">Damp surveys in Maidstone</a></li>
           <li><a href="/damp-survey/canterbury">Damp surveys in Canterbury</a></li>
@@ -872,7 +884,7 @@ html{scroll-padding-top:88px}
         </ul>
       </div>
       <div>
-        <h4>Contact</h4>
+        <h3 class="foot-h">Contact</h3>
         <div class="footer-contact">
           <a href="tel:+447386225526">07386 225526</a>
           <a href="mailto:tom@atidampsurvey.co.uk">tom@atidampsurvey.co.uk</a>
@@ -892,10 +904,10 @@ html{scroll-padding-top:88px}
 </footer>
 
 <!-- ============================= STICKY MOBILE ACTION BAR ============================= -->
-<div class="action-bar" role="group" aria-label="Quick actions">
+<nav class="action-bar" aria-label="Quick actions">
   <a href="tel:+447386225526" class="btn btn--ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>Call Now</a>
   <a href="#book" class="btn btn--primary" data-focus-form>Book a Survey</a>
-</div>
+</nav>
 
 <!-- ============================= COOKIE NOTICE ============================= -->
 <div class="cookie" id="cookie" role="region" aria-label="Privacy notice">

@@ -38,11 +38,22 @@
   --warn:#a3341a;--warn-soft:rgba(163,52,26,.07);
 }
 
+/* Visible only when focused. A keyboard user should not have to tab the whole
+   header on every one of sixty-nine pages to reach the content. */
+.skip-link{position:absolute;left:-9999px;top:0;z-index:200;padding:12px 18px;
+  background:var(--accent);color:var(--on-accent);font-weight:700;
+  border-radius:0 0 10px 0}
+.skip-link:focus{left:0}
+
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--text);line-height:1.65;
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif;
   -webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}
+/* WCAG 1.4.1. A link inside running text cannot rely on colour alone, and
+   these sit in body copy where nothing else marks them out. Chips, nearby
+   lists and the hub list are not paragraphs, so they keep their own shape. */
+p a{text-decoration:underline;text-underline-offset:2px}
 a:hover{color:var(--accent-hi)}
 img{max-width:100%;height:auto}
 h1,h2,h3{line-height:1.14;letter-spacing:-.02em;margin:0;font-weight:800}
