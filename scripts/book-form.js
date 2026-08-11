@@ -7,7 +7,8 @@
  * the home pages load. One form, one implementation, four dozen pages.
  */
 export function bookForm(site) {
-  return `    <div class="book-card" id="book">
+  const brand = site === 'ati' ? ' is-brand' : '';
+  return `    <div class="book-card${brand}" id="book">
       <div class="book-body">
         <div class="book-head">
           <h2>Book your survey</h2>

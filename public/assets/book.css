@@ -5,9 +5,41 @@
    That way one stylesheet serves the dark DampScan home page, the light ATi one,
    and the area and service pages, without a second copy. */
 /* ---------- Multi-step form ---------- */
-.book-card{background:linear-gradient(180deg,var(--card, var(--slate)),var(--card-2,#101f33));
+.book-card{background:var(--card-2, var(--card, var(--slate)));
   border:1px solid var(--line-strong);border-radius:18px;padding:clamp(22px,2.4vw,30px);
   box-shadow:0 30px 70px -30px var(--card-shadow,rgba(0,0,0,.85))}
+
+/* ATi's card sits on the brand blue rather than the page background, so the
+   whole thing flips to light on dark. The overrides live on the card itself,
+   as custom properties, so the page palette around it is untouched and the
+   shared rules below need no ATi specific copies. The inputs are the one
+   exception: they stay white with dark text, because a form field that matches
+   its card does not read as a field. */
+.book-card.is-brand{
+  background:var(--brand-card,#17325a);border-color:rgba(255,255,255,.16);
+  /* Set explicitly, not just as a token: descendants inherit the computed
+     colour from body, so redefining --text alone would not reach them. */
+  color:#ffffff;
+  --text:#ffffff;--muted:#cfdbee;--muted-2:#aec1dc;
+  --line-strong:rgba(255,255,255,.3);
+  --accent:#ffffff;--accent-hi:#e9f0fb;--on-accent:#17325a;
+  --accent-soft:rgba(255,255,255,.14);--accent-ring:rgba(255,255,255,.4);
+  --warn:#ffc9b6;--warn-soft:rgba(255,255,255,.1)}
+.book-card.is-brand .form-row input,
+.book-card.is-brand .form-row select,
+.book-card.is-brand .form-row textarea{background:#ffffff;color:#11213c;
+  border-color:rgba(255,255,255,.34)}
+.book-card.is-brand .form-row input:focus,
+.book-card.is-brand .form-row select:focus,
+.book-card.is-brand .form-row textarea:focus{background:#ffffff;border-color:#ffffff}
+.book-card.is-brand .form-row select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2311213c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")}
+.book-card.is-brand .form-row input[aria-invalid="true"]{background:#fff3ee;border-color:#ff9c78}
+/* The home page defines .btn--primary in its own inline CSS, so this needs the
+   extra specificity to win. A navy button on a navy card is barely a button. */
+.book-card.is-brand .btn--primary{background:#ffffff;color:#17325a;box-shadow:0 6px 22px -8px rgba(0,0,0,.45)}
+.book-card.is-brand .btn--primary:hover{background:#e9f0fb;color:#17325a}
+.book-card.is-brand .back-link{background:none;color:#cfdbee}
+.book-card.is-brand .back-link:hover{color:#ffffff}
 .book-head{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
 .book-head h2{font-size:clamp(20px,1.9vw,24px);letter-spacing:-.01em}
 .book-head p{font-size:14px;color:var(--muted)}
