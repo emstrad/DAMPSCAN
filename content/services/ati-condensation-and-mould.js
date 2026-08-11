@@ -61,5 +61,5 @@ export default {
         'In most cases yes, and where conditions vary a great deal we will say so. A single visit captures surface temperatures, humidity, dew point, moisture readings, the mould distribution and the measured ventilation performance, which resolves the large majority of these questions. Where a property is behaving very differently at different times, monitoring over a period adds real value and we will recommend it rather than pretending one afternoon settled it.'
     },
   ],
-  related: ['ventilation', 'penetrating-damp', 'damp-surveys']
+  related: ['ventilation', 'penetrating-damp', 'damp-surveys', 'water-damage']
 };

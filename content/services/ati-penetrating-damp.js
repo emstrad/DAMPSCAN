@@ -62,5 +62,5 @@ export default {
         'No, and you should be wary of anyone who says they do without reading the lease. We establish the physical facts: where water enters, what it passes through and where it emerges, described in the same terms a lease uses. Applying the lease to those facts is a matter for you or your solicitor, and it is far easier to do once the facts are not in dispute.'
     },
   ],
-  related: ['rising-damp', 'condensation-and-mould', 'damp-surveys']
+  related: ['rising-damp', 'condensation-and-mould', 'damp-surveys', 'water-damage']
 };

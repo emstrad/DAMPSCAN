@@ -61,5 +61,5 @@ export default {
         'It is written on the assumption that somebody will read it looking for reasons to reject it. That means recorded readings against locations rather than general statements, comparison points, measured ventilation performance rather than description, photographs, and clear separation between what was observed, what was measured and what is concluded from them. Independence is the other half of it, and it is why we structured the practice this way.'
     },
   ],
-  related: ['rising-damp', 'condensation-and-mould', 'penetrating-damp']
+  related: ['rising-damp', 'condensation-and-mould', 'penetrating-damp', 'water-damage']
 };
