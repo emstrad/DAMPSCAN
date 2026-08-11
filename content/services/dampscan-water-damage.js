@@ -76,7 +76,7 @@ export default {
     {
       q: 'Will my insurance pay for this?',
       a:
-        'Escape of water is covered by most household buildings policies, and a sudden burst or appliance failure is normally straightforward. Damage that has developed slowly, from a joint that has been weeping for a year say, is commonly excluded under gradual damage wording. Your insurer decides that, not us. What we supply is the evidence they assess it on: the source, the extent, the readings and a scope with a price. Check your own policy for trace and access cover, which can contribute to the cost of locating a leak, though whether it extends to survey fees varies between insurers.'
+        'Escape of water is covered by most household buildings policies, and a sudden burst or appliance failure is normally straightforward. Damage that has developed slowly, from a joint that has been weeping for a year say, is commonly excluded under gradual damage wording. Your insurer decides that, not us. What we supply is the evidence they assess it on: the source, the extent, the readings and a scope with a price. The survey fee itself is payable by you, and anything you recover from your insurer afterwards is between the two of you.'
     },
   ],
   related: ['penetrating-damp', 'wet-and-dry-rot', 'damp-surveys']

@@ -54,7 +54,7 @@ export default {
       paras: [
         'A drying company or a restoration contractor who would carry out the works has an obvious interest in the scope being large, and insurers treat their reports accordingly. A loss adjuster is appointed and paid by the insurer. Between those two positions there is often nobody looking at the building on its own terms.',
         'ATi carries out no remedial work of any kind, takes no commission, recommends no contractors and has no relationship with any insurer. There is nothing in the conclusion for us either way, which is the only reason the conclusion carries weight with the party being asked to pay.',
-        'Fixed fee agreed before we attend, and the written report within 24 hours of the inspection. Some policies include trace and access cover, but that is aimed at the cost of locating a leak and making good the search, and insurers differ on whether it reaches an independent survey fee at all. Assume the fee is yours unless your insurer confirms otherwise in writing.',
+        'Fixed fee agreed before we attend, and the written report within 24 hours of the inspection. The fee is payable by whoever instructs us. If you intend to put it to your insurer, that is a conversation to have with them first, and it does not change what you owe us.',
       ]
     },
   ],
