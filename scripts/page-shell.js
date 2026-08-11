@@ -54,9 +54,7 @@ export function shell({ site, url, title, metaDescription, schemas = [], body, a
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(metaDescription)}" />
 <meta property="og:locale" content="en_GB" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
 ${schemas.map((s) => `<script type="application/ld+json">${s}</script>`).join('\n')}

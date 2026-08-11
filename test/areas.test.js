@@ -282,3 +282,52 @@ test('every hub links to every one of its children', async () => {
     }
   }
 });
+
+/* The font used to come from fonts.googleapis.com, which put a DNS lookup, a
+   TLS handshake and two round trips to somebody else's server in front of first
+   paint. It is served from this origin now, and nothing may put it back. */
+test('no page loads its font, or anything else, from a third party', async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const root = new URL('../public/', import.meta.url).pathname;
+
+  const walk = async (dir) => {
+    const out = [];
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) out.push(...await walk(path));
+      else if (entry.name.endsWith('.html')) out.push(path);
+    }
+    return out;
+  };
+
+  for (const path of await walk(root)) {
+    const html = await readFile(path, 'utf8');
+    const rel = path.slice(root.length);
+    assert.ok(!html.includes('fonts.googleapis.com'), `${rel} still loads Google Fonts`);
+    assert.ok(!html.includes('fonts.gstatic.com'), `${rel} still preconnects to Google Fonts`);
+    // Every render-blocking stylesheet must be same origin.
+    for (const [, href] of html.matchAll(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"/g)) {
+      assert.ok(href.startsWith('/'), `${rel} loads a stylesheet from ${href}`);
+    }
+  }
+});
+
+test('the font is one self-hosted variable file, preloaded', async () => {
+  const { readFile, stat } = await import('node:fs/promises');
+  const root = new URL('../public/', import.meta.url).pathname;
+  const file = `${root}assets/fonts/plus-jakarta-sans-var.woff2`;
+
+  const size = (await stat(file)).size;
+  assert.ok(size > 10000 && size < 60000, `the font file is ${size} bytes, which is not a woff2 subset`);
+
+  for (const page of ['index.html', 'london.html', 'areas/dampscan/maidstone.html']) {
+    const html = await readFile(root + page, 'utf8');
+    assert.match(html, /rel="preload" as="font"[^>]+plus-jakarta-sans-var\.woff2/, `${page} does not preload the font`);
+  }
+  // The face itself: inline on the home pages, in area.css for generated ones.
+  for (const f of ['index.html', 'london.html']) {
+    assert.match(await readFile(root + f, 'utf8'), /@font-face\{font-family:'Plus Jakarta Sans'/, `${f} has no @font-face`);
+  }
+  assert.match(await readFile(`${root}assets/area.css`, 'utf8'), /@font-face\{font-family:'Plus Jakarta Sans'/);
+});
