@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB" data-site="dampscan">
+<html lang="en-GB" class="no-js" data-site="dampscan">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +12,11 @@
 <meta property="og:description" content="Damp survey with calibrated readings, full external inspection and a written report within 24 hours, across Kent and the South East." />
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
+<style>:root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}</style>
+<script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Damp Surveys","serviceType":"Damp Surveys","description":"Damp survey with calibrated readings, full external inspection and a written report within 24 hours, across Kent and the South East.","url":"https://dampscan.co.uk/services/damp-surveys","provider":{"@type":"LocalBusiness","name":"DampScan","url":"https://dampscan.co.uk/","telephone":"+447386225526"},"areaServed":{"@type":"Place","name":"Kent and the South East of England"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DampScan","item":"https://dampscan.co.uk/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://dampscan.co.uk/services"},{"@type":"ListItem","position":3,"name":"Damp Surveys","item":"https://dampscan.co.uk/services/damp-surveys"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a damp survey cost?","acceptedAnswer":{"@type":"Answer","text":"It depends on the size of the property and how much is in question, which is why the fee is confirmed when you enquire rather than quoted here as a headline. What is worth comparing it against is the cost of the treatment it might avoid: a survey is a small fraction of a typical injection and replastering quote for a ground floor, and a meaningful share of the surveys we carry out conclude that the treatment is not required."}},{"@type":"Question","name":"Do I have to use you for the work?","acceptedAnswer":{"@type":"Answer","text":"No, and a good number of clients do not. The report is written to stand on its own, with enough detail that you could hand it to any competent contractor. Where we quote for the work the quote is separate from the report, and declining it changes nothing about what the report says. That separation is deliberate, because a diagnosis that only makes sense if you buy the remedy is not a diagnosis."}},{"@type":"Question","name":"How long does the visit take and when do I get the report?","acceptedAnswer":{"@type":"Answer","text":"A typical survey takes between one and two hours on site depending on the size of the property and the extent of the problem, longer where a full timber inspection or underfloor access is involved. The written report follows within 24 hours of the visit. We respond to every enquiry the same day and arrange the visit around you, including evenings and weekends where that is what works."}}]}</script>
@@ -22,15 +25,30 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="ahead">
-  <div class="wrap">
-    <a href="/" aria-label="DampScan home"><span class="abrand"><span>Damp</span><span class="hi">Scan</span></span></a>
-    <nav aria-label="Main">
-      <a href="/services">Services</a>
-      <a href="/damp-survey">Areas</a>
-      <a href="#faq">FAQs</a>
-      <a href="#book">Book</a>
-    </nav>
+<header class="site-header" id="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand" aria-label="DampScan home"><span class="logo"><span class="logo-type"><span class="logo-word">Damp<span class="scan">Scan</span></span><span class="logo-tag">Survey Specialists</span></span></span></a>
+    <div class="nav-end">
+      <nav aria-label="Primary">
+        <button class="nav-toggle" type="button" aria-expanded="false"
+          aria-controls="primary-nav" aria-label="Menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle-text">Menu</span>
+        </button>
+        <ul class="nav-links" id="primary-nav">
+          <li><a href="/#how">How It Works</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/#reviews">What you get</a></li>
+          <li><a href="/#landlords">Landlords</a></li>
+          <li><a href="/damp-survey">Areas</a></li>
+          <li><a href="#faq">FAQs</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        <a href="tel:+447386225526" class="call-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>07386 225526</a>
+        <a href="#book" class="btn btn--primary">Book a Survey</a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -241,5 +259,6 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js"></script>
 <script src="/assets/book.js"></script>
+<script src="/assets/menu.js" defer></script>
 </body>
 </html>

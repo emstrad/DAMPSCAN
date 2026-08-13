@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB" data-site="dampscan">
+<html lang="en-GB" class="no-js" data-site="dampscan">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +12,11 @@
 <meta property="og:description" content="Damp, mould and timber surveys across Tunbridge Wells, TN1 to TN4. The cause diagnosed before anyone recommends a treatment." />
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
+<style>:root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}</style>
+<script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"DampScan","url":"https://dampscan.co.uk/damp-survey/tunbridge-wells","telephone":"+447386225526","email":"tom@atidampsurvey.co.uk","areaServed":{"@type":"Place","name":"Tunbridge Wells"},"description":"Damp, mould and timber surveys across Tunbridge Wells, TN1 to TN4. The cause diagnosed before anyone recommends a treatment."}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DampScan","item":"https://dampscan.co.uk/"},{"@type":"ListItem","position":2,"name":"Areas","item":"https://dampscan.co.uk/damp-survey"},{"@type":"ListItem","position":3,"name":"Tunbridge Wells","item":"https://dampscan.co.uk/damp-survey/tunbridge-wells"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you inspect tile hanging without taking it apart?","acceptedAnswer":{"@type":"Answer","text":"Close up visual inspection with access equipment, combined with internal moisture readings that establish where the water is arriving and in what pattern. Slipped, cracked and frost damaged tiles are visible once you are at the elevation rather than looking up at it, and the internal pattern tells you which part of the elevation to concentrate on. Where the battens and felt behind are in question, that needs a small area lifted, and the report specifies where rather than recommending stripping the whole elevation."}},{"@type":"Question","name":"The damp is worse after heavy rain and dries out between. What causes that?","acceptedAnswer":{"@type":"Answer","text":"That pattern almost always points at water arriving from outside rather than rising from below, which is genuinely useful because it rules out the expensive treatment straight away. On a sloping site here the usual causes are garden run off reaching the wall, an overflowing gutter or hopper, a failed tile hung elevation on the weather side, or blown render. Rising damp does not switch on and off with the weather. Damp that correlates with rainfall has a route in, and the survey is about finding it."}}]}</script>
@@ -22,15 +25,30 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="ahead">
-  <div class="wrap">
-    <a href="/" aria-label="DampScan home"><span class="abrand"><span>Damp</span><span class="hi">Scan</span></span></a>
-    <nav aria-label="Main">
-      <a href="/services">Services</a>
-      <a href="/damp-survey">Areas</a>
-      <a href="#faq">FAQs</a>
-      <a href="#book">Book</a>
-    </nav>
+<header class="site-header" id="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand" aria-label="DampScan home"><span class="logo"><span class="logo-type"><span class="logo-word">Damp<span class="scan">Scan</span></span><span class="logo-tag">Survey Specialists</span></span></span></a>
+    <div class="nav-end">
+      <nav aria-label="Primary">
+        <button class="nav-toggle" type="button" aria-expanded="false"
+          aria-controls="primary-nav" aria-label="Menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle-text">Menu</span>
+        </button>
+        <ul class="nav-links" id="primary-nav">
+          <li><a href="/#how">How It Works</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/#reviews">What you get</a></li>
+          <li><a href="/#landlords">Landlords</a></li>
+          <li><a href="/damp-survey">Areas</a></li>
+          <li><a href="#faq">FAQs</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        <a href="tel:+447386225526" class="call-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>07386 225526</a>
+        <a href="#book" class="btn btn--primary">Book a Survey</a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -253,5 +271,6 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js"></script>
 <script src="/assets/book.js"></script>
+<script src="/assets/menu.js" defer></script>
 </body>
 </html>

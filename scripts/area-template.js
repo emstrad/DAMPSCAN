@@ -23,6 +23,19 @@ const SITES = {
     served: 'Kent and the South East of England',
     strap: 'Damp, mould and timber surveys across Kent and the South East',
     surveyMateSlug: 'dampscan',
+    ctaLabel: 'Book a Survey',
+    headBg: 'rgba(8,19,33,.86)',
+    headSolid: '#081321',
+    /* The wordmark, matching the home page exactly. */
+    lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Damp<span class="scan">Scan</span></span><span class="logo-tag">Survey Specialists</span></span></span>',
+    nav: [
+      { label: 'How It Works', href: '/#how' },
+      { label: 'Services', href: '/services' },
+      { label: 'What you get', href: '/#reviews' },
+      { label: 'Landlords', href: '/#landlords' },
+      { label: 'Areas', href: '/damp-survey' },
+      { label: 'FAQs', href: 'FAQ' }
+    ],
     // Set to the Business Profile share link to credit Google where the
     // reviews came from. Empty means the credit shows without a link.
     profileUrl: '',
@@ -46,6 +59,19 @@ const SITES = {
     served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work',
     surveyMateSlug: 'ati-damp-survey',
+    ctaLabel: 'Request a Survey',
+    headBg: 'rgba(245,245,243,.9)',
+    headSolid: '#f5f5f3',
+    lockup: '<span class="logo"><img src="/assets/ati-mark.png" alt="" /><span class="logo-tag">Independent Damp Surveys &amp; Reports</span></span>',
+    nav: [
+      { label: 'How It Works', href: '/#how' },
+      { label: 'Services', href: '/services' },
+      { label: 'Prices', href: '/pricing' },
+      { label: 'The report', href: '/#reviews' },
+      { label: 'Landlords', href: '/#landlords' },
+      { label: 'London Coverage', href: '/damp-survey' },
+      { label: 'FAQs', href: 'FAQ' }
+    ],
     profileUrl: '',
     book: {
       sessionKey: 'ati-damp-session',

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB" data-site="ati">
+<html lang="en-GB" class="no-js" data-site="ati">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +12,11 @@
 <meta property="og:description" content="Independent condensation and mould reports across London, separating building defect from occupation. For landlords, leaseholders and disrepair." />
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
+<style>:root{--head-bg:rgba(245,245,243,.9);--head-solid:#f5f5f3}</style>
+<script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Condensation and Mould","serviceType":"Condensation and Mould","description":"Independent condensation and mould reports across London, separating building defect from occupation. For landlords, leaseholders and disrepair.","url":"https://atidampsurvey.co.uk/services/condensation-and-mould","provider":{"@type":"ProfessionalService","name":"ATi Damp Survey","url":"https://atidampsurvey.co.uk/","telephone":"+442033554944"},"areaServed":{"@type":"Place","name":"London"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ATi Damp Survey","item":"https://atidampsurvey.co.uk/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://atidampsurvey.co.uk/services"},{"@type":"ListItem","position":3,"name":"Condensation and Mould","item":"https://atidampsurvey.co.uk/services/condensation-and-mould"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Our landlord says the mould is our lifestyle. Is that a defence?","acceptedAnswer":{"@type":"Answer","text":"Only up to a point, and it is testable. A dwelling is expected to cope with the moisture that normal occupation generates, and the provision for that is ventilation. If the extract moves materially less air than it should, or discharges into a void, or does not exist, the building is failing whatever the occupancy. Equally, if surfaces are measurably colder than they should be because of a cold bridge, condensation will occur at humidity levels no household could avoid. Measurement settles it; assertion does not."}},{"@type":"Question","name":"What makes a report usable in a disrepair claim?","acceptedAnswer":{"@type":"Answer","text":"Independence, measurement and specificity. It needs readings recorded against locations rather than general statements, the mould pattern mapped against the structure, ventilation performance tested rather than described, comparison points so a cold bridge is demonstrated rather than claimed, and photographs. And it needs to come from somebody with no financial interest in what the remedy turns out to be, which is why we carry out no remedial work."}},{"@type":"Question","name":"Can you assess a flat in one visit?","acceptedAnswer":{"@type":"Answer","text":"In most cases yes, and where conditions vary a great deal we will say so. A single visit captures surface temperatures, humidity, dew point, moisture readings, the mould distribution and the measured ventilation performance, which resolves the large majority of these questions. Where a property is behaving very differently at different times, monitoring over a period adds real value and we will recommend it rather than pretending one afternoon settled it."}}]}</script>
@@ -22,16 +25,31 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="ahead">
-  <div class="wrap">
-    <a href="/" aria-label="ATi Damp Survey home"><span class="abrand"><img src="/assets/ati-mark.png" alt="" width="48" height="34" />ATi Damp Survey</span></a>
-    <nav aria-label="Main">
-      <a href="/services">Services</a>
-      <a href="/damp-survey">Areas</a>
-      <a href="/pricing">Prices</a>
-      <a href="#faq">FAQs</a>
-      <a href="#book">Book</a>
-    </nav>
+<header class="site-header" id="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand" aria-label="ATi Damp Survey home"><span class="logo"><img src="/assets/ati-mark.png" alt="" /><span class="logo-tag">Independent Damp Surveys &amp; Reports</span></span></a>
+    <div class="nav-end">
+      <nav aria-label="Primary">
+        <button class="nav-toggle" type="button" aria-expanded="false"
+          aria-controls="primary-nav" aria-label="Menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle-text">Menu</span>
+        </button>
+        <ul class="nav-links" id="primary-nav">
+          <li><a href="/#how">How It Works</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/pricing">Prices</a></li>
+          <li><a href="/#reviews">The report</a></li>
+          <li><a href="/#landlords">Landlords</a></li>
+          <li><a href="/damp-survey">London Coverage</a></li>
+          <li><a href="#faq">FAQs</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        <a href="tel:+442033554944" class="call-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>020 3355 4944</a>
+        <a href="#book" class="btn btn--primary">Request a Survey</a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -241,5 +259,6 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js"></script>
 <script src="/assets/book.js"></script>
+<script src="/assets/menu.js" defer></script>
 </body>
 </html>

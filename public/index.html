@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB" class="no-js">
+<html lang="en-GB" class="no-js" data-site="dampscan">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,9 +30,12 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Will this actually fix the problem?","acceptedAnswer":{"@type":"Answer","text":"That depends entirely on getting the diagnosis right, which is why we survey before we quote. When the true cause is identified and treated properly, the problem doesn't come back. Most repeat damp problems we're called to are second visits to work that treated a symptom."}},{"@type":"Question","name":"What's the guarantee?","acceptedAnswer":{"@type":"Answer","text":"All remedial work we carry out is covered by an insured workmanship guarantee, with documentation you can hand on to a buyer or your insurer. The exact term depends on the treatment, it's stated clearly on your quote before you commit to anything."}},{"@type":"Question","name":"What happens after I submit the form?","acceptedAnswer":{"@type":"Answer","text":"A surveyor reviews your details and contacts you the same day to arrange a visit. Within 24 hours of that visit you get a written report with photographs, the diagnosed cause and a fixed-price quote. Then you decide, there's no obligation and nobody will chase you."}},{"@type":"Question","name":"How fast can you come out?","acceptedAnswer":{"@type":"Answer","text":"We respond to every enquiry the same day and arrange the visit around you, then your written report follows within 24 hours of that visit. We cover Kent, Surrey, Essex, Sussex, Hertfordshire and Berkshire, and can usually work around evenings and weekends."}},{"@type":"Question","name":"Is the work messy?","acceptedAnswer":{"@type":"Answer","text":"Some treatments involve removing plaster or lifting floor coverings, so there is dust, but we sheet up, protect finishes and clean down at the end of each day. Your report tells you exactly what will be disturbed before any work starts."}},{"@type":"Question","name":"Can we stay in the house while work is carried out?","acceptedAnswer":{"@type":"Answer","text":"In the overwhelming majority of cases, yes. We work room by room so you keep the rest of the property. If a job would genuinely make a room unusable for a period, we'll tell you upfront rather than on the day."}},{"@type":"Question","name":"Do you work with landlords and letting agents?","acceptedAnswer":{"@type":"Answer","text":"Yes, a large share of our work is certified inspections for landlords and managing agents dealing with reported damp and mould, including portfolio surveys across multiple properties. See the landlord section above."}},{"@type":"Question","name":"Which areas do you cover?","acceptedAnswer":{"@type":"Answer","text":"Kent and the wider South East, including Surrey, Essex, East and West Sussex, Hertfordshire, Berkshire and Buckinghamshire. Properties inside London are surveyed by our sister practice, ATi Damp Survey, at atidampsurvey.co.uk. Enter your postcode in the booking form and we'll confirm cover straight away."}},{"@type":"Question","name":"What if I just want a second opinion?","acceptedAnswer":{"@type":"Answer","text":"That's one of the most useful things we do. If you've been quoted for invasive damp-proofing and it doesn't feel right, we'll survey it properly and tell you honestly whether that work is justified."}}]}
 </script>
 
+<link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/book.css" />
 
 <style>
+:root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}
+
 /* Visible only when focused, so a keyboard user is not made to tab the whole
    header before reaching the content. */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:200;padding:12px 18px;
@@ -86,35 +89,10 @@ section{padding-block:clamp(64px,8vw,116px)}
 .btn:focus-visible,.pill:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent-hi);outline-offset:3px}
 
 /* ---------- Logo lockup ---------- */
-.logo{--logo-size:22px;display:inline-flex;align-items:center;line-height:1;color:var(--text)}
-.logo-type{display:flex;flex-direction:column;gap:calc(var(--logo-size) * .2)}
-.logo-word{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:var(--logo-size);letter-spacing:-.035em;text-transform:uppercase;white-space:nowrap}
-.logo-word .scan{color:var(--accent)}
-.logo-tag{font-size:max(9px,calc(var(--logo-size) * .365));letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);font-weight:600;white-space:nowrap}
 .brand .logo{--logo-size:clamp(21px,2.4vw,26px)}
 .footer-brand .logo{--logo-size:27px}
 
 /* ---------- Header ---------- */
-.site-header{position:fixed;inset:0 0 auto 0;z-index:60;padding-block:14px;border-bottom:1px solid transparent;background:rgba(8,19,33,.86);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-bottom-color:var(--line);transition:padding .3s}
-.nav{display:flex;justify-content:space-between;align-items:center;gap:20px}
-.brand{display:inline-flex;align-items:center;min-height:44px;flex-shrink:0}
-.nav-end{display:flex;align-items:center;gap:clamp(14px,2.4vw,34px)}
-.nav-links{display:flex;gap:clamp(16px,2vw,28px);list-style:none;padding:0;margin:0}
-.nav-links a{font-size:14px;font-weight:500;color:var(--muted);position:relative;padding:8px 0;white-space:nowrap;transition:color .18s}
-.nav-links a::after{content:"";position:absolute;left:50%;bottom:2px;width:0;height:1px;background:var(--accent);transition:width .22s,left .22s}
-.nav-links a:hover,.nav-links a.is-active{color:var(--text)}
-.nav-links a.is-active::after{width:100%;left:0}
-.nav-cta{display:flex;align-items:center;gap:clamp(10px,1.4vw,18px)}
-.nav-cta .btn{min-height:44px;padding:0 20px;font-size:14px}
-.call-link{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);min-height:44px;white-space:nowrap;transition:color .18s}
-.call-link svg{color:var(--accent)}
-.call-link:hover{color:var(--accent-hi)}
-@media (max-width:760px){.call-link span,.nav-cta .call-link{font-size:14px}}
-/* Deliberately not display:none any more. With scripting the panel rule below
-   takes over; without it the links wrap onto a second line and stay usable,
-   which is the whole point of the no-js guard. */
-@media (max-width:980px){html.no-js .nav-links{flex-wrap:wrap;gap:10px 18px;padding-top:10px}}
-@media (max-width:520px){.nav-cta .btn{display:none}}
 
 /* ---------- Hero ---------- */
 .hero{position:relative;padding-block:clamp(104px,13vh,150px) clamp(56px,7vw,92px);background:radial-gradient(120% 80% at 82% 0%,rgba(79,168,232,.14),transparent 62%),var(--navy);overflow:hidden}
@@ -318,54 +296,6 @@ html{scroll-padding-top:88px}
 @keyframes revealIn{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}html{scroll-behavior:auto}}
 
-/* ---------- Mobile menu ----------
-   Below 980px the header nav used to be display:none with nothing in its
-   place, so a phone got a header with no navigation at all. The links are
-   still real links in the markup; this only changes where they are shown.
-
-   The no-js guard matters: the links are hidden only once the document has
-   confirmed scripting is running. If menu.js never loads, the nav renders as
-   a wrapped list and everything remains reachable. */
-.nav-toggle{display:none;align-items:center;gap:9px;background:none;border:0;
-  color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer;
-  min-height:44px;min-width:44px;padding:0 4px;border-radius:10px}
-.nav-toggle-bars{display:grid;gap:4px;width:20px}
-.nav-toggle-bars span{display:block;height:2px;border-radius:2px;background:currentColor;
-  transition:transform .22s ease,opacity .16s ease}
-.nav-open .nav-toggle-bars span:nth-child(1){transform:translateY(6px) rotate(45deg)}
-.nav-open .nav-toggle-bars span:nth-child(2){opacity:0}
-.nav-open .nav-toggle-bars span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
-
-@media (max-width:980px){
-  html:not(.no-js) .nav-toggle{display:inline-flex}
-  /* The panel is a normal block in the flow until it is needed, so the markup
-     order and the reading order stay the same as the visual one. */
-  html:not(.no-js) .nav-links{position:fixed;inset:auto 0 0 0;top:var(--head-h,72px);
-    display:flex;flex-direction:column;gap:0;z-index:90;overflow-y:auto;
-    background:var(--navy);border-top:1px solid var(--line);
-    padding:8px clamp(20px,5vw,32px) calc(24px + env(safe-area-inset-bottom));
-    transform:translateY(-8px);opacity:0;visibility:hidden;
-    transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s}
-  html:not(.no-js).nav-open .nav-links{transform:none;opacity:1;visibility:visible;
-    transition:opacity .2s ease,transform .2s ease}
-  .nav-links li{border-bottom:1px solid var(--line)}
-  .nav-links li:last-child{border-bottom:0}
-  .nav-links a{display:block;padding:16px 2px;font-size:16.5px;color:var(--text)}
-  /* The page behind must not scroll while the panel is over it. */
-  html.nav-open,html.nav-open body{overflow:hidden}
-}
-/* backdrop-filter on the header makes it the containing block for any fixed
-   position descendant, which collapsed the panel to the height of the header
-   itself. The blur exists only to soften content scrolling underneath, and
-   nothing scrolls while the menu is open, so it is dropped for that period and
-   the header goes fully opaque instead. */
-html.nav-open .site-header{backdrop-filter:none;-webkit-backdrop-filter:none;
-  background:var(--navy)}
-
-@media (prefers-reduced-motion:reduce){
-  .nav-toggle-bars span,html:not(.no-js) .nav-links{transition-duration:.001ms}
-}
-:root{--head-h:72px}
 </style>
 <script>document.documentElement.classList.remove('no-js')</script>
 </head>

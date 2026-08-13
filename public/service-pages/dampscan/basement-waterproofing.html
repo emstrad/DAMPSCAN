@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB" data-site="dampscan">
+<html lang="en-GB" class="no-js" data-site="dampscan">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +12,11 @@
 <meta property="og:description" content="Basement and cellar waterproofing across Kent and the South East, designed for the water that is actually there rather than to a standard specification." />
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
+<style>:root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}</style>
+<script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Basement Waterproofing","serviceType":"Basement Waterproofing","description":"Basement and cellar waterproofing across Kent and the South East, designed for the water that is actually there rather than to a standard specification.","url":"https://dampscan.co.uk/services/basement-waterproofing","provider":{"@type":"LocalBusiness","name":"DampScan","url":"https://dampscan.co.uk/","telephone":"+447386225526"},"areaServed":{"@type":"Place","name":"Kent and the South East of England"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DampScan","item":"https://dampscan.co.uk/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://dampscan.co.uk/services"},{"@type":"ListItem","position":3,"name":"Basement Waterproofing","item":"https://dampscan.co.uk/services/basement-waterproofing"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Our cellar has started leaking. Does the whole system need replacing?","acceptedAnswer":{"@type":"Answer","text":"Usually not, and this is the most common overspecification in this part of the trade. Cavity drainage systems have maintainable parts that fail long before the membrane does: channels silt up, sumps fill, pumps fail and float switches stick. Most of the failures we inspect are in those. We survey the whole system including the parts a re tanking quote tends not to mention, and report what has actually failed rather than what would be most profitable to replace."}},{"@type":"Question","name":"Tanking or cavity drainage?","acceptedAnswer":{"@type":"Answer","text":"It depends on what the water is doing and on the structure. Tanking resists water and is unforgiving of movement and of any missed detail, so it suits sound structures with modest pressure. Cavity drainage manages water and tolerates imperfection, which suits higher pressure and older, less predictable structures, at the cost of requiring maintenance. The wrong choice is expensive either way, which is why the water is surveyed before the system is chosen."}},{"@type":"Question","name":"Does a waterproofed basement need maintaining?","acceptedAnswer":{"@type":"Answer","text":"A cavity drainage system certainly does, and a great many owners are never told so. Channels need clearing, sumps need checking, pumps need servicing and battery backups need testing. An annual check costs very little and prevents the kind of failure that gets diagnosed as the waterproofing having failed. Any system we install is handed over with a schedule setting out what needs doing and when."}}]}</script>
@@ -22,15 +25,30 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="ahead">
-  <div class="wrap">
-    <a href="/" aria-label="DampScan home"><span class="abrand"><span>Damp</span><span class="hi">Scan</span></span></a>
-    <nav aria-label="Main">
-      <a href="/services">Services</a>
-      <a href="/damp-survey">Areas</a>
-      <a href="#faq">FAQs</a>
-      <a href="#book">Book</a>
-    </nav>
+<header class="site-header" id="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand" aria-label="DampScan home"><span class="logo"><span class="logo-type"><span class="logo-word">Damp<span class="scan">Scan</span></span><span class="logo-tag">Survey Specialists</span></span></span></a>
+    <div class="nav-end">
+      <nav aria-label="Primary">
+        <button class="nav-toggle" type="button" aria-expanded="false"
+          aria-controls="primary-nav" aria-label="Menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle-text">Menu</span>
+        </button>
+        <ul class="nav-links" id="primary-nav">
+          <li><a href="/#how">How It Works</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/#reviews">What you get</a></li>
+          <li><a href="/#landlords">Landlords</a></li>
+          <li><a href="/damp-survey">Areas</a></li>
+          <li><a href="#faq">FAQs</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        <a href="tel:+447386225526" class="call-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>07386 225526</a>
+        <a href="#book" class="btn btn--primary">Book a Survey</a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -240,5 +258,6 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js"></script>
 <script src="/assets/book.js"></script>
+<script src="/assets/menu.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,99 @@
+/* The site header, shared by the two home pages and all seventy generated ones.
+
+   It used to exist twice: an elaborate fixed header inline on each home page,
+   and a plain static one in the generated page template. So the logo, the
+   layout and the whole feel of the site changed the moment a visitor followed
+   a link off the home page, which is the sort of thing that reads as two
+   different companies.
+
+   The chrome below was byte identical between the two home pages, so only the
+   background colour and the brand lockup are per site. Those hang off the
+   data-site attribute on the root element, which every page now carries.
+
+   Colours are taken with fallbacks because the home pages and the generated
+   pages name the same roles differently: --navy against --bg, --ink against
+   --text. One stylesheet, four palettes, no second copy. */
+
+/* ---------- chrome ---------- */
+.site-header{position:fixed;inset:0 0 auto 0;z-index:60;padding-block:14px;
+  border-bottom:1px solid var(--line);
+  background:var(--head-bg);
+  backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
+  transition:padding .3s}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.brand{display:inline-flex;align-items:center;min-height:44px;flex-shrink:0}
+.nav-end{display:flex;align-items:center;gap:clamp(14px,2.4vw,34px)}
+.nav-links{display:flex;gap:clamp(16px,2vw,28px);list-style:none;padding:0;margin:0}
+.nav-links a{font-size:14px;font-weight:500;color:var(--muted);position:relative;
+  padding:8px 0;white-space:nowrap;transition:color .18s}
+.nav-links a::after{content:"";position:absolute;left:50%;bottom:2px;width:0;height:1px;
+  background:var(--accent);transition:width .22s,left .22s}
+.nav-links a:hover,.nav-links a.is-active{color:var(--text)}
+.nav-links a.is-active::after{width:100%;left:0}
+.nav-cta{display:flex;align-items:center;gap:clamp(10px,1.4vw,18px)}
+.nav-cta .btn{min-height:44px;padding:0 20px;font-size:14px;white-space:nowrap}
+.call-link{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;
+  color:var(--text);min-height:44px;white-space:nowrap;transition:color .18s}
+.call-link svg{color:var(--accent)}
+.call-link:hover{color:var(--accent-hi)}
+@media (max-width:760px){.call-link span,.nav-cta .call-link{font-size:14px}}
+@media (max-width:520px){.nav-cta .btn{display:none}}
+
+/* ---------- brand, the one genuinely per site piece ----------
+   Verbatim from the home pages, scoped by data-site. --logo-size is the only
+   addition: the home pages set it per placement with .brand .logo and
+   .footer-brand .logo, and those rules still win because the inline sheet is
+   loaded after this one. Generated pages have no such rule and take these. */
+.logo{display:inline-flex;align-items:center;line-height:1;color:var(--text)}
+
+[data-site="dampscan"] .logo{--logo-size:22px}
+[data-site="dampscan"] .logo-type{display:flex;flex-direction:column;gap:calc(var(--logo-size) * .2)}
+[data-site="dampscan"] .logo-word{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:var(--logo-size);letter-spacing:-.035em;text-transform:uppercase;white-space:nowrap}
+[data-site="dampscan"] .logo-word .scan{color:var(--accent)}
+[data-site="dampscan"] .logo-tag{font-size:max(9px,calc(var(--logo-size) * .365));letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);font-weight:600;white-space:nowrap}
+
+[data-site="ati"] .logo{--logo-size:23px;gap:.62em}
+[data-site="ati"] .logo img{width:auto;height:calc(var(--logo-size) * 1.85);display:block}
+[data-site="ati"] .logo-tag{font-size:max(9.5px,calc(var(--logo-size) * .4));letter-spacing:.02em;color:var(--muted);font-weight:600;max-width:11ch;line-height:1.25;border-left:1px solid var(--line-strong);padding-left:.7em;text-transform:none}
+
+/* ---------- mobile menu ----------
+   Below 980px the links become a panel under the header. The no-js guard is
+   the whole reason this degrades safely: the links are ordinary links, and
+   they are only hidden once an inline script has confirmed scripting runs. */
+.nav-toggle{display:none;align-items:center;gap:9px;background:none;border:0;
+  color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer;
+  min-height:44px;min-width:44px;padding:0 4px;border-radius:10px}
+.nav-toggle-bars{display:grid;gap:4px;width:20px}
+.nav-toggle-bars span{display:block;height:2px;border-radius:2px;background:currentColor;
+  transition:transform .22s ease,opacity .16s ease}
+.nav-open .nav-toggle-bars span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.nav-open .nav-toggle-bars span:nth-child(2){opacity:0}
+.nav-open .nav-toggle-bars span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+@media (max-width:980px){
+  html:not(.no-js) .nav-toggle{display:inline-flex}
+  html.no-js .nav-links{flex-wrap:wrap;gap:10px 18px;padding-top:10px}
+  html:not(.no-js) .nav-links{position:fixed;inset:auto 0 0 0;top:var(--head-h,72px);
+    display:flex;flex-direction:column;gap:0;z-index:90;overflow-y:auto;
+    background:var(--head-solid);border-top:1px solid var(--line);
+    padding:8px clamp(20px,5vw,32px) calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(-8px);opacity:0;visibility:hidden;
+    transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s}
+  html:not(.no-js).nav-open .nav-links{transform:none;opacity:1;visibility:visible;
+    transition:opacity .2s ease,transform .2s ease}
+  .nav-links li{border-bottom:1px solid var(--line)}
+  .nav-links li:last-child{border-bottom:0}
+  .nav-links a{display:block;padding:16px 2px;font-size:16.5px;color:var(--text)}
+  html.nav-open,html.nav-open body{overflow:hidden}
+}
+
+/* backdrop-filter makes the header the containing block for any fixed position
+   descendant, which collapses the panel to the header's own height. The blur
+   only softens content scrolling underneath and nothing scrolls while the menu
+   is open, so it goes opaque for that period instead. */
+html.nav-open .site-header{backdrop-filter:none;-webkit-backdrop-filter:none;
+  background:var(--head-solid)}
+
+@media (prefers-reduced-motion:reduce){
+  .nav-toggle-bars span,html:not(.no-js) .nav-links{transition-duration:.001ms}
+}

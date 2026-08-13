@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB" data-site="dampscan">
+<html lang="en-GB" class="no-js" data-site="dampscan">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +12,11 @@
 <meta property="og:description" content="Condensation and mould diagnosed properly across Kent and the South East. Cold surfaces and failed ventilation are building faults, not lifestyle." />
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
 <link rel="stylesheet" href="/assets/book.css" />
+<style>:root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}</style>
+<script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Condensation and Mould","serviceType":"Condensation and Mould","description":"Condensation and mould diagnosed properly across Kent and the South East. Cold surfaces and failed ventilation are building faults, not lifestyle.","url":"https://dampscan.co.uk/services/condensation-and-mould","provider":{"@type":"LocalBusiness","name":"DampScan","url":"https://dampscan.co.uk/","telephone":"+447386225526"},"areaServed":{"@type":"Place","name":"Kent and the South East of England"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DampScan","item":"https://dampscan.co.uk/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://dampscan.co.uk/services"},{"@type":"ListItem","position":3,"name":"Condensation and Mould","item":"https://dampscan.co.uk/services/condensation-and-mould"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"We have been told to open the windows more. Is that the answer?","acceptedAnswer":{"@type":"Answer","text":"It is part of the picture and it is rarely all of it. If a surface is cold enough, moisture will condense on it at humidity levels that occur in any normally occupied home, and no reasonable amount of window opening changes that. If an extract fan moves a fraction of the air it should, ventilation is not being provided regardless of behaviour. Both are measurable, and the measurements are what separate a genuine ventilation shortfall from advice to live differently."}},{"@type":"Question","name":"Is mould a health risk?","acceptedAnswer":{"@type":"Answer","text":"It can be, particularly for people with asthma or other respiratory conditions, and for the very young and the elderly. That is why it is worth treating as a building fault to be fixed rather than a cosmetic problem to be wiped down. Cleaning the surface removes what is visible and does nothing about the conditions that grew it, which is why it comes back in the same place each winter."}},{"@type":"Question","name":"Will positive input ventilation solve it?","acceptedAnswer":{"@type":"Answer","text":"Sometimes, and it is not a universal answer. It works by gently introducing filtered air from the loft to dilute and displace moist air, which suits a house with a reasonably open layout and a loft to mount it in. It suits a flat, a house with a converted loft, or a property with severe cold bridging much less well. The system has to match the building, which is why we survey before recommending one rather than recommending one by default."}}]}</script>
@@ -22,15 +25,30 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="ahead">
-  <div class="wrap">
-    <a href="/" aria-label="DampScan home"><span class="abrand"><span>Damp</span><span class="hi">Scan</span></span></a>
-    <nav aria-label="Main">
-      <a href="/services">Services</a>
-      <a href="/damp-survey">Areas</a>
-      <a href="#faq">FAQs</a>
-      <a href="#book">Book</a>
-    </nav>
+<header class="site-header" id="site-header">
+  <div class="wrap nav">
+    <a href="/" class="brand" aria-label="DampScan home"><span class="logo"><span class="logo-type"><span class="logo-word">Damp<span class="scan">Scan</span></span><span class="logo-tag">Survey Specialists</span></span></span></a>
+    <div class="nav-end">
+      <nav aria-label="Primary">
+        <button class="nav-toggle" type="button" aria-expanded="false"
+          aria-controls="primary-nav" aria-label="Menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle-text">Menu</span>
+        </button>
+        <ul class="nav-links" id="primary-nav">
+          <li><a href="/#how">How It Works</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/#reviews">What you get</a></li>
+          <li><a href="/#landlords">Landlords</a></li>
+          <li><a href="/damp-survey">Areas</a></li>
+          <li><a href="#faq">FAQs</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        <a href="tel:+447386225526" class="call-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>07386 225526</a>
+        <a href="#book" class="btn btn--primary">Book a Survey</a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -240,5 +258,6 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js"></script>
 <script src="/assets/book.js"></script>
+<script src="/assets/menu.js" defer></script>
 </body>
 </html>

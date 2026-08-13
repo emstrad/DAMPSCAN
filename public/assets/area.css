@@ -27,6 +27,7 @@
   /* Roles the booking form needs on top of the page palette. */
   --line-strong:rgba(255,255,255,.15);--card-2:#101f33;--card-shadow:rgba(0,0,0,.85);
   --warn:#f0a08b;--warn-soft:rgba(232,131,107,.06);
+  --head-bg:rgba(8,19,33,.86);--head-solid:#081321;
 }
 :root[data-site="ati"]{
   --bg:#f5f5f3;--bg-2:#ebebe8;--card:#ffffff;
@@ -36,6 +37,7 @@
   /* The form card stays flat and light here rather than fading to navy. */
   --line-strong:rgba(17,33,60,.24);--card-2:#ffffff;--card-shadow:rgba(17,33,60,.28);
   --warn:#a3341a;--warn-soft:rgba(163,52,26,.07);
+  --head-bg:rgba(245,245,243,.9);--head-solid:#f5f5f3;
 }
 
 /* Visible only when focused. A keyboard user should not have to tab the whole
@@ -62,20 +64,20 @@ p,ul{margin:0}
 
 .wrap{max-width:1200px;margin-inline:auto;padding:0 clamp(20px,4vw,40px)}
 
-/* ---------- header ---------- */
-.ahead{border-bottom:1px solid var(--line);background:var(--bg-2)}
-.ahead .wrap{display:flex;align-items:center;justify-content:space-between;
-  gap:16px;padding-block:16px;flex-wrap:wrap}
-.abrand{display:inline-flex;align-items:center;gap:12px;color:var(--text);font-weight:800;
-  font-size:19px;letter-spacing:-.03em;text-transform:uppercase}
-.abrand .hi{color:var(--accent)}
-.abrand img{height:34px;width:auto;text-transform:none}
-.ahead nav{display:flex;gap:18px;font-size:14.5px;font-weight:600}
-.ahead nav a{color:var(--muted)}
-.ahead nav a:hover{color:var(--text)}
+/* The header itself lives in header.css, shared with the home pages. What
+   belongs here is only the room the fixed header needs, since these pages open
+   with a breadcrumb rather than a tall hero. The value is a little over the
+   header's real height so the crumb clears it without JavaScript. */
+body{padding-top:92px}
+@media (max-width:600px){body{padding-top:84px}}
+
+/* Button roles the shared header needs and only book.css otherwise defines. */
+.btn--primary{background:var(--accent);color:var(--on-accent)}
+.btn--primary:hover{background:var(--accent-hi);color:var(--on-accent)}
 
 /* ---------- content ---------- */
 .crumb{font-size:13px;color:var(--muted-2);padding-top:26px}
+.page-aside{padding-top:0}
 .crumb a{color:var(--muted-2)}
 .crumb a:hover{color:var(--accent)}
 
