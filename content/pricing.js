@@ -21,9 +21,12 @@ export const pricing = {
   intro:
     'Most damp surveys in London are free, and that is the problem with them. A free survey is paid for by the work it recommends, which is why so many of them recommend work. We sell no remedial work at all, so the survey is the whole transaction and the price can simply be published.',
 
-  /* The one number the customer needs before anything else. */
-  vat: 'Every figure on this page is the total payable. Nothing is added afterwards.',
-  payment: 'The fee is agreed in writing before we attend and invoiced after the report is delivered.',
+  /* Two separate claims, and neither is allowed to overreach. The old wording
+     said nothing is ever added and then listed an add on, which is the kind of
+     thing this practice exists to stop other people doing. */
+  vat: 'Every figure on this page is the total payable.',
+  fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. There is one optional extra, an invasive inspection, and it is never carried out unless you agree to it on the day.',
+  payment: 'Invoiced after the report is delivered.',
 
   bands: [
     {
@@ -65,12 +68,14 @@ export const pricing = {
   ],
 
   invasive: {
-    name: 'Invasive inspection',
+    name: 'The one optional extra',
+    heading: 'Invasive inspection, from £85',
     price: 'From £85',
     body: [
-      'Some things cannot be established from the surface. Where a conclusion depends on what is behind a finish, we form small openings, record what is there and photograph it.',
-      'It is quoted separately because it is optional and because it is not always needed. We will tell you on site whether it would change the answer, and if it would not, we will not do it.',
-      'Openings are kept as small as the question allows and made good where the finish permits. Where a finish cannot be restored invisibly, we say so before we open it, not afterwards.'
+      'Some things cannot be established from the surface. Where the answer depends on what is behind a finish, we form small openings, record what is there and photograph it. Without that, the report has to say the cause is probable rather than established, and probable is worth less to a solicitor, an insurer or a seller.',
+      'It is charged separately because it is genuinely optional. Most surveys do not need it. You are not asked to decide in advance and there is no box to tick when booking: we look first, and if opening up would not change the conclusion, we say so and it costs you nothing.',
+      'The £85 covers the invasive work on a single survey visit, not each opening, so a survey needing three small openings costs the same as one needing one. It rises only where a property needs an unusual number of them or specialist access, and in that case we give you the figure on site before starting.',
+      'Openings are kept as small as the question allows and made good where the finish permits. Where a finish cannot be restored invisibly, tiling and wallpaper being the usual cases, we say so before we open it and you can decide to leave it closed.'
     ]
   },
 
@@ -118,7 +123,7 @@ export const pricing = {
     },
     {
       q: 'Can the price change after you arrive?',
-      a: 'No. The fee is agreed in writing before the visit and it does not move, including if the property turns out to be larger or more awkward than described. The only thing quoted separately is an invasive inspection, and that is optional, discussed on site, and never carried out without you agreeing to it first.'
+      a: 'The survey fee cannot, including if the property turns out to be larger or more awkward than described. The only way your total ends up higher than the band price is if you agree on the day to an invasive inspection, which starts at £85 for the visit. We will only suggest it where opening up would actually change the conclusion, and if it would not we will tell you that instead.'
     },
     {
       q: 'Do you offer a discount for booking online?',

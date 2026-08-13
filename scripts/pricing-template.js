@@ -90,7 +90,7 @@ export function render() {
     <p class="lede">${esc(pricing.intro)}</p>
   </div>
 
-  <p class="vat-note"><strong>${esc(pricing.vat)}</strong> ${esc(pricing.payment)}</p>
+  <p class="vat-note"><strong>${esc(pricing.vat)}</strong> ${esc(pricing.fixedFee)} ${esc(pricing.payment)}</p>
 
   <section class="sec">
     <h2>Which one is my property</h2>
@@ -105,8 +105,9 @@ ${pricing.bands.map(band).join('\n')}
       would cost, before doing anything.</p>
   </section>
 
-  <section class="sec">
-    <h2>${esc(pricing.invasive.name)}, from ${esc(pricing.invasive.price.replace(/^From /, ''))}</h2>
+  <section class="sec sec--extra">
+    <p class="eyebrow-note">${esc(pricing.invasive.name)}</p>
+    <h2>${esc(pricing.invasive.heading)}</h2>
     ${pricing.invasive.body.map((p) => `<p>${esc(p)}</p>`).join('\n    ')}
   </section>
 
