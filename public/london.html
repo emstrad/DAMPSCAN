@@ -142,6 +142,11 @@ section{padding-block:clamp(64px,8vw,116px)}
 .card p{color:var(--muted);font-size:14.5px;line-height:1.6}
 .section-cta{margin-top:clamp(32px,4vw,48px);display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .section-cta .note{font-size:13px;color:var(--muted-2)}
+/* The secondary route for somebody who wants the number before the form. Same
+   height as the primary so the pair reads as two options rather than a button
+   and an afterthought. */
+.section-cta .btn--ghost{background:transparent;border-color:var(--accent-ring);color:var(--text)}
+.section-cta .btn--ghost:hover{background:var(--slate);border-color:var(--accent);color:var(--accent)}
 
 /* ---------- How it works ---------- */
 .how{background:var(--slate);border-top:1px solid var(--line)}
@@ -526,6 +531,7 @@ html{scroll-padding-top:88px}
     </div>
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <a href="/pricing" class="btn btn--ghost btn--lg">See our prices</a>
       <span class="note">Short form. Same day reply. Surveys across London.</span>
     </div>
   </div>
@@ -662,6 +668,7 @@ html{scroll-padding-top:88px}
   <div class="container">
     <div class="section-cta">
       <a href="#book" class="btn btn--primary btn--lg">Request a Survey<svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <a href="/pricing" class="btn btn--ghost btn--lg">See our prices</a>
       <span class="note">Fixed fee quoted before we attend. No obligation to proceed.</span>
     </div>
   </div>
