@@ -90,7 +90,7 @@ export function render() {
     <p class="lede">${esc(pricing.intro)}</p>
   </div>
 
-  <p class="vat-note"><strong>${esc(pricing.vat)}</strong> ${esc(pricing.fixedFee)}</p>
+  <p class="price-note"><strong>${esc(pricing.priceLead)}</strong> ${esc(pricing.fixedFee)}</p>
 
   <section class="sec">
     <h2>Which one is my property</h2>

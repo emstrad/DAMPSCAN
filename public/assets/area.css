@@ -111,9 +111,9 @@ p,ul{margin:0}
 /* Pricing bands. The price is the biggest thing in the card because that is
    what the reader came for, but the scope sits directly under it so the number
    is never read on its own. */
-.vat-note{margin-top:22px;padding:14px 18px;border:1px solid var(--line-strong);
+.price-note{margin-top:22px;padding:14px 18px;border:1px solid var(--line-strong);
   border-radius:12px;background:var(--accent-soft);font-size:14.5px;color:var(--muted)}
-.vat-note strong{color:var(--text)}
+.price-note strong{color:var(--text)}
 .bands{display:grid;gap:16px;margin-top:22px;grid-template-columns:1fr}
 @media (min-width:640px){.bands{grid-template-columns:1fr 1fr}}
 .band{border:1px solid var(--line-strong);border-radius:14px;padding:22px}

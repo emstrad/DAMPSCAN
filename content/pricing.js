@@ -6,10 +6,11 @@
  * entire transaction, which is exactly why the price can be published: there is
  * no remedial work behind it for the fee to be a loss leader against.
  *
- * The VAT position is confirmed: the practice is not registered, so there is
- * none to add. If that ever changes, the wording has to change with it on the
- * day registration takes effect, because a price that quietly becomes ex VAT is
- * the sort of thing this page exists to argue against.
+ * The page states that the figure shown is the figure paid, without going into
+ * why. If the practice's tax position ever changes so that something does get
+ * added to these prices, that line has to change on the same day, because a
+ * price that quietly stops being the total is the sort of thing this page
+ * exists to argue against.
  */
 export const pricing = {
   site: 'ati',
@@ -24,7 +25,7 @@ export const pricing = {
   /* Two separate claims, and neither is allowed to overreach. The old wording
      said nothing is ever added and then listed an add on, which is the kind of
      thing this practice exists to stop other people doing. */
-  vat: 'We are not VAT registered, so there is no VAT to add. The price you see is the price you pay.',
+  priceLead: 'The price you see is the price you pay.',
   fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. There is one optional extra, an invasive inspection, and it is never carried out unless you agree to it on the day.',
 
   bands: [
