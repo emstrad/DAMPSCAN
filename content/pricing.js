@@ -67,17 +67,10 @@ export const pricing = {
     }
   ],
 
-  invasive: {
-    name: 'The one optional extra',
-    heading: 'Invasive inspection, from £85',
-    price: 'From £85',
-    body: [
-      'Some things cannot be established from the surface. Where the answer depends on what is behind a finish, we form small openings, record what is there and photograph it. Without that, the report has to say the cause is probable rather than established, and probable is worth less to a solicitor, an insurer or a seller.',
-      'It is charged separately because it is genuinely optional. Most surveys do not need it. You are not asked to decide in advance and there is no box to tick when booking: we look first, and if opening up would not change the conclusion, we say so and it costs you nothing.',
-      'The £85 covers the invasive work on a single survey visit, not each opening, so a survey needing three small openings costs the same as one needing one. It rises only where a property needs an unusual number of them or specialist access, and in that case we give you the figure on site before starting.',
-      'Openings are kept as small as the question allows and made good where the finish permits. Where a finish cannot be restored invisibly, tiling and wallpaper being the usual cases, we say so before we open it and you can decide to leave it closed.'
-    ]
-  },
+  /* Printed inside every band card, identical in each, because it applies to
+     every band and a reader comparing two cards should not have to notice that
+     only one of them mentions it. */
+  invasiveLine: 'Invasive checks, if needed: £85. If we find something on site that can only be settled by opening up, we carry the tools for it: small incisions in plaster, a length of skirting off, a floorboard lifted. Agreed with you before we start, never after.',
 
   included: [
     'A qualified surveyor on site for as long as the property takes, not a fixed appointment slot',

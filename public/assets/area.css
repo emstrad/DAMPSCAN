@@ -126,12 +126,10 @@ p,ul{margin:0}
 .band-best{margin-top:12px;font-size:15px}
 .band-note{margin-top:10px;font-size:14px;color:var(--muted-2)}
 .band-foot{margin-top:18px;font-size:14.5px;color:var(--muted)}
-/* The optional extra is set apart deliberately. Burying it would be the same
-   evasion as the old wording, and it is the one thing that can change a total. */
-.sec--extra{border:1px solid var(--line-strong);border-radius:14px;
-  padding:26px clamp(20px,3vw,30px);margin-top:34px}
-.eyebrow-note{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  font-weight:700;color:var(--accent);margin-bottom:8px}
+/* The invasive line sits at the foot of every card, separated by a rule so it
+   reads as a condition of the price rather than as part of the description. */
+.band-extra{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+  font-size:13.5px;line-height:1.5;color:var(--muted-2)}
 
 .qa{border-top:1px solid var(--line);padding:18px 0}
 .qa summary{cursor:pointer;font-weight:700;font-size:16.5px;list-style:none}

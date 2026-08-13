@@ -75,6 +75,7 @@ function band(b) {
         <p class="band-scope">${esc(b.scope)}</p>
         <p class="band-best">${esc(b.best)}</p>
         <p class="band-note">${esc(b.note)}</p>
+        <p class="band-extra">${esc(pricing.invasiveLine)}</p>
       </article>`;
 }
 
@@ -105,11 +106,6 @@ ${pricing.bands.map(band).join('\n')}
       would cost, before doing anything.</p>
   </section>
 
-  <section class="sec sec--extra">
-    <p class="eyebrow-note">${esc(pricing.invasive.name)}</p>
-    <h2>${esc(pricing.invasive.heading)}</h2>
-    ${pricing.invasive.body.map((p) => `<p>${esc(p)}</p>`).join('\n    ')}
-  </section>
 
   <section class="sec">
     <h2>What every survey includes, whichever band</h2>

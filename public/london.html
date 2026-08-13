@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en-GB" class="no-js">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -109,7 +109,10 @@ section{padding-block:clamp(64px,8vw,116px)}
 .call-link svg{color:var(--accent)}
 .call-link:hover{color:var(--accent-hi)}
 @media (max-width:760px){.call-link span,.nav-cta .call-link{font-size:14px}}
-@media (max-width:980px){.nav-links{display:none}}
+/* Deliberately not display:none any more. With scripting the panel rule below
+   takes over; without it the links wrap onto a second line and stay usable,
+   which is the whole point of the no-js guard. */
+@media (max-width:980px){html.no-js .nav-links{flex-wrap:wrap;gap:10px 18px;padding-top:10px}}
 @media (max-width:520px){.nav-cta .btn{display:none}}
 
 /* ---------- Hero ---------- */
@@ -314,7 +317,57 @@ html{scroll-padding-top:88px}
 @supports (animation-timeline:view()){.reveal{animation:revealIn linear both;animation-timeline:view();animation-range:entry 0% cover 16%}}
 @keyframes revealIn{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}html{scroll-behavior:auto}}
+
+/* ---------- Mobile menu ----------
+   Below 980px the header nav used to be display:none with nothing in its
+   place, so a phone got a header with no navigation at all. The links are
+   still real links in the markup; this only changes where they are shown.
+
+   The no-js guard matters: the links are hidden only once the document has
+   confirmed scripting is running. If menu.js never loads, the nav renders as
+   a wrapped list and everything remains reachable. */
+.nav-toggle{display:none;align-items:center;gap:9px;background:none;border:0;
+  color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer;
+  min-height:44px;min-width:44px;padding:0 4px;border-radius:10px}
+.nav-toggle-bars{display:grid;gap:4px;width:20px}
+.nav-toggle-bars span{display:block;height:2px;border-radius:2px;background:currentColor;
+  transition:transform .22s ease,opacity .16s ease}
+.nav-open .nav-toggle-bars span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.nav-open .nav-toggle-bars span:nth-child(2){opacity:0}
+.nav-open .nav-toggle-bars span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+@media (max-width:980px){
+  html:not(.no-js) .nav-toggle{display:inline-flex}
+  /* The panel is a normal block in the flow until it is needed, so the markup
+     order and the reading order stay the same as the visual one. */
+  html:not(.no-js) .nav-links{position:fixed;inset:auto 0 0 0;top:var(--head-h,72px);
+    display:flex;flex-direction:column;gap:0;z-index:90;overflow-y:auto;
+    background:var(--navy);border-top:1px solid var(--line);
+    padding:8px clamp(20px,5vw,32px) calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(-8px);opacity:0;visibility:hidden;
+    transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s}
+  html:not(.no-js).nav-open .nav-links{transform:none;opacity:1;visibility:visible;
+    transition:opacity .2s ease,transform .2s ease}
+  .nav-links li{border-bottom:1px solid var(--line)}
+  .nav-links li:last-child{border-bottom:0}
+  .nav-links a{display:block;padding:16px 2px;font-size:16.5px;color:var(--text)}
+  /* The page behind must not scroll while the panel is over it. */
+  html.nav-open,html.nav-open body{overflow:hidden}
+}
+/* backdrop-filter on the header makes it the containing block for any fixed
+   position descendant, which collapsed the panel to the height of the header
+   itself. The blur exists only to soften content scrolling underneath, and
+   nothing scrolls while the menu is open, so it is dropped for that period and
+   the header goes fully opaque instead. */
+html.nav-open .site-header{backdrop-filter:none;-webkit-backdrop-filter:none;
+  background:var(--navy)}
+
+@media (prefers-reduced-motion:reduce){
+  .nav-toggle-bars span,html:not(.no-js) .nav-links{transition-duration:.001ms}
+}
+:root{--head-h:78px}
 </style>
+<script>document.documentElement.classList.remove('no-js')</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -327,7 +380,12 @@ html{scroll-padding-top:88px}
     </a>
     <div class="nav-end">
       <nav aria-label="Primary">
-        <ul class="nav-links">
+        <button class="nav-toggle" type="button" aria-expanded="false"
+          aria-controls="primary-nav" aria-label="Menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle-text">Menu</span>
+        </button>
+        <ul class="nav-links" id="primary-nav">
           <li><a href="#how" data-nav="how">How It Works</a></li>
           <li><a href="/services">Services</a></li>
           <li><a href="/pricing">Prices</a></li>
@@ -1157,5 +1215,6 @@ window.DS_CONFIG = {
   });
 })();
 </script>
+<script src="/assets/menu.js" defer></script>
 </body>
 </html>
