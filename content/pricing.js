@@ -6,10 +6,10 @@
  * entire transaction, which is exactly why the price can be published: there is
  * no remedial work behind it for the fee to be a loss leader against.
  *
- * TWO FIELDS NEED CONFIRMING BY THE PRACTICE BEFORE THIS IS RELIED ON:
- *   vat      the current wording assumes the figure shown is the figure paid
- *   payment  when the fee is actually due
- * Both appear verbatim on the page. Change the strings, not the layout.
+ * The VAT position is confirmed: the practice is not registered, so there is
+ * none to add. If that ever changes, the wording has to change with it on the
+ * day registration takes effect, because a price that quietly becomes ex VAT is
+ * the sort of thing this page exists to argue against.
  */
 export const pricing = {
   site: 'ati',
@@ -24,9 +24,8 @@ export const pricing = {
   /* Two separate claims, and neither is allowed to overreach. The old wording
      said nothing is ever added and then listed an add on, which is the kind of
      thing this practice exists to stop other people doing. */
-  vat: 'Every figure on this page is the total payable.',
+  vat: 'We are not VAT registered, so there is no VAT to add. The price you see is the price you pay.',
   fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. There is one optional extra, an invasive inspection, and it is never carried out unless you agree to it on the day.',
-  payment: 'Invoiced after the report is delivered.',
 
   bands: [
     {
@@ -97,10 +96,6 @@ export const pricing = {
     {
       h: 'Evenings and weekends cost no more',
       p: 'We work around tenants and working days as a matter of course. There is no out of hours premium.'
-    },
-    {
-      h: 'Expert witness work is separate',
-      p: 'A report written to CPR Part 35 standard for litigation is a different piece of work with different duties, and is quoted on its own terms. An ordinary report is admissible evidence in most disputes without going that far.'
     },
     {
       h: 'A second visit, if you need one',
