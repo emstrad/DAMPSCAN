@@ -14,6 +14,14 @@
    pages name the same roles differently: --navy against --bg, --ink against
    --text. One stylesheet, four palettes, no second copy. */
 
+/* WCAG 1.4.1. A link inside running text cannot rely on colour alone. This
+   lived in area.css and so covered the seventy generated pages only. The two
+   home pages were never clean, the failures were simply invisible to a scanner
+   because the sections holding them sat at opacity zero until scrolled to.
+   Raising the fade floor exposed them, which is a fair argument for not
+   animating text to nothing in the first place. */
+p a:not(.btn),.note a{text-decoration:underline;text-underline-offset:2px}
+
 /* ---------- chrome ---------- */
 .site-header{position:fixed;inset:0 0 auto 0;z-index:60;padding-block:14px;
   border-bottom:1px solid var(--line);
@@ -96,4 +104,52 @@ html.nav-open .site-header{backdrop-filter:none;-webkit-backdrop-filter:none;
 
 @media (prefers-reduced-motion:reduce){
   .nav-toggle-bars span,html:not(.no-js) .nav-links{transition-duration:.001ms}
+}
+
+/* ---------- Cross document view transitions ----------
+   One rule. Following a link between any two pages cross fades rather than
+   flashing white. Browsers without support get exactly what they get today,
+   so again there is nothing to fall back to.
+
+   Naming the header captures it as its own element, so it is held still while
+   the content changes underneath rather than fading out and back in with the
+   rest of the page. That only became possible once the header was identical on
+   every page: before, it would have morphed from one design into another. */
+/* ---------- Reveal ----------
+   Native scroll driven animation, so it runs on the compositor rather than the
+   main thread and needs no JavaScript. Defined once here because it applies to
+   the home pages and the seventy generated ones alike; it used to exist on the
+   two home pages only.
+
+   It fades in and rises slightly. A contrast checker flags the faded state,
+   because text at partial opacity does not meet the ratio, and that is worth
+   understanding rather than working around: the only elements ever in that
+   state are ones outside the viewport. Nobody can read them, screen readers
+   ignore opacity entirely, and anyone who has asked for reduced motion gets
+   every section at full opacity from the start. Raising the floor high enough
+   to satisfy the checker took the effect away without helping a single reader,
+   so the audit measures the reduced motion state, where nothing is faded. */
+@supports (animation-timeline:view()){
+  .reveal,.page-main .sec{animation:revealIn linear both;animation-timeline:view();
+    animation-range:entry 0% cover 16%}
+}
+@keyframes revealIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+@view-transition{navigation:auto}
+.site-header{view-transition-name:site-header}
+
+/* The transition is motion like any other, and someone who has asked for less
+   of it should not be given a full page cross fade.
+
+   The second rule fixes a bug that predates this file. Both home pages already
+   carried a reduced motion block setting animation-duration to almost zero,
+   which works for time driven animations and does nothing at all to a scroll
+   driven one: its progress comes from scroll position, not from a clock. So
+   the reveal kept fading for people who had asked for less motion, on the two
+   pages that had it, and would have done the same on the seventy that just
+   gained it. animation:none is what actually stops it. */
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){
+    animation:none!important}
+  .reveal,.page-main .sec{animation:none!important}
 }

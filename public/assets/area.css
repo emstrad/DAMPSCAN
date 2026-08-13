@@ -52,10 +52,6 @@ body{margin:0;background:var(--bg);color:var(--text);line-height:1.65;
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif;
   -webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}
-/* WCAG 1.4.1. A link inside running text cannot rely on colour alone, and
-   these sit in body copy where nothing else marks them out. Chips, nearby
-   lists and the hub list are not paragraphs, so they keep their own shape. */
-p a{text-decoration:underline;text-underline-offset:2px}
 a:hover{color:var(--accent-hi)}
 img{max-width:100%;height:auto}
 h1,h2,h3{line-height:1.14;letter-spacing:-.02em;margin:0;font-weight:800}
@@ -132,6 +128,12 @@ body{padding-top:92px}
    reads as a condition of the price rather than as part of the description. */
 .band-extra{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
   font-size:13.5px;line-height:1.5;color:var(--muted-2)}
+
+/* These pages had no reduced motion rule of their own. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto}
+}
 
 .qa{border-top:1px solid var(--line);padding:18px 0}
 .qa summary{cursor:pointer;font-weight:700;font-size:16.5px;list-style:none}
