@@ -53,6 +53,7 @@ out remedial work.
 ## Links
 
 - [ATI Damp Survey](https://atidampsurvey.co.uk/): services, areas and FAQs
+- [Prices](https://atidampsurvey.co.uk/pricing): four fixed bands from 215 pounds, what each includes and what is never added
 - [Services](https://atidampsurvey.co.uk/services): every defect we inspect and report on, one page each
 - [London coverage](https://atidampsurvey.co.uk/damp-survey): every borough, with its building stock and failure patterns
 - [Book a survey](https://atidampsurvey.co.uk/#book): booking form

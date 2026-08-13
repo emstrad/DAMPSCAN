@@ -108,6 +108,25 @@ p,ul{margin:0}
 .hub-list span{display:block;margin-top:4px;color:var(--muted);font-size:14.5px;line-height:1.55}
 @media (min-width:760px){.hub-list{grid-template-columns:1fr 1fr;column-gap:clamp(24px,3vw,44px)}}
 
+/* Pricing bands. The price is the biggest thing in the card because that is
+   what the reader came for, but the scope sits directly under it so the number
+   is never read on its own. */
+.vat-note{margin-top:22px;padding:14px 18px;border:1px solid var(--line-strong);
+  border-radius:12px;background:var(--accent-soft);font-size:14.5px;color:var(--muted)}
+.vat-note strong{color:var(--text)}
+.bands{display:grid;gap:16px;margin-top:22px;grid-template-columns:1fr}
+@media (min-width:640px){.bands{grid-template-columns:1fr 1fr}}
+.band{border:1px solid var(--line-strong);border-radius:14px;padding:22px}
+.band--fixed{border-color:var(--accent);background:var(--accent-soft)}
+.band h3{font-size:16px;margin-bottom:6px}
+.band-price{font-size:clamp(28px,4vw,36px);font-weight:800;letter-spacing:-.03em;
+  color:var(--accent);line-height:1.05;margin:0}
+.band-scope{font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--muted-2);margin-top:8px}
+.band-best{margin-top:12px;font-size:15px}
+.band-note{margin-top:10px;font-size:14px;color:var(--muted-2)}
+.band-foot{margin-top:18px;font-size:14.5px;color:var(--muted)}
+
 .qa{border-top:1px solid var(--line);padding:18px 0}
 .qa summary{cursor:pointer;font-weight:700;font-size:16.5px;list-style:none}
 .qa summary::-webkit-details-marker{display:none}

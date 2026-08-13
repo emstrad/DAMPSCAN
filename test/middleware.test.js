@@ -124,6 +124,17 @@ test('the hubs resolve per host, and are what the nav points at', () => {
   assert.equal(rewrittenTo(call(LONDON, '/services')), '/hubs/ati/services.html');
 });
 
+test('prices resolve on ATi and do not exist on DampScan', () => {
+  // DampScan's survey fee is one line inside a larger job, so the Kent host
+  // must not resolve this to the wrong firm's published fees. It falls
+  // through, and with no file at that path the response is a 404.
+  assert.equal(rewrittenTo(call(LONDON, '/pricing')), '/pricing/ati.html');
+  assert.equal(rewrittenTo(call(KENT, '/pricing')), null);
+  const slash = call(LONDON, '/pricing/');
+  assert.equal(slash.status, 301);
+  assert.equal(new URL(slash.headers.get('location')).pathname, '/pricing');
+});
+
 test('the trailing slash form redirects onto the bare path, so there is one URL', () => {
   for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey']]) {
     const res = call(KENT, from);

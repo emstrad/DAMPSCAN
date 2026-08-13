@@ -24,9 +24,11 @@ function brandMark(site) {
 /* Every page carries its own FAQ section, so the nav link is a jump down this
    page rather than a trip to the home page's. The hub pages have no FAQ, so
    they get the link to the home page's instead of a dead anchor. */
-function nav(ownFaq) {
+function nav(ownFaq, site) {
+  // Prices are published by ATi only, so the link exists on ATi only.
+  const prices = site.key === 'ati' ? '\n      <a href="/pricing">Prices</a>' : '';
   return `      <a href="/services">Services</a>
-      <a href="/damp-survey">Areas</a>
+      <a href="/damp-survey">Areas</a>${prices}
       <a href="${ownFaq ? '#faq' : '/#faq'}">FAQs</a>
       <a href="#book">Book</a>`;
 }
@@ -67,7 +69,7 @@ ${schemas.map((s) => `<script type="application/ld+json">${s}</script>`).join('\
   <div class="wrap">
     <a href="/" aria-label="${esc(site.brand)} home">${brandMark(site)}</a>
     <nav aria-label="Main">
-${nav(ownFaq)}
+${nav(ownFaq, site)}
     </nav>
   </div>
 </header>
@@ -88,7 +90,7 @@ ${nav(ownFaq)}
 <footer class="afoot">
   <div class="wrap">
     <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
+    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a>${site.key === 'ati' ? ' &middot; <a href="/pricing">Prices</a>' : ''} &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
 ${scripts}

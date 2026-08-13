@@ -29,7 +29,8 @@ export const config = {
     '/', '/index.html', '/london.html',
     '/robots.txt', '/sitemap.xml', '/llms.txt',
     '/damp-survey', '/damp-survey/', '/damp-survey/:slug',
-    '/services', '/services/', '/services/:slug'
+    '/services', '/services/', '/services/:slug',
+    '/pricing', '/pricing/'
   ]
 };
 
@@ -72,6 +73,11 @@ export default function middleware(request) {
   // breadcrumbs point at. vercel.json sets trailingSlash false, so the bare
   // path is canonical here too and the slashed form redirects onto it. Serving
   // the slashed form instead would fight that setting and loop.
+  // Prices are published by ATi only, so on the Kent host this falls through
+  // to a 404 rather than resolving to the wrong firm's fees.
+  if (path === '/pricing/') return Response.redirect(new URL('/pricing', url), 301);
+  if (path === '/pricing' && london) return rewrite(new URL('/pricing/ati.html', request.url));
+
   if (path === '/damp-survey/') return Response.redirect(new URL('/damp-survey', url), 301);
   if (path === '/services/') return Response.redirect(new URL('/services', url), 301);
   if (path === '/damp-survey') return rewrite(new URL(`/hubs/${dir}/areas.html`, request.url));
