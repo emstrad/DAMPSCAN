@@ -113,10 +113,6 @@ export const pricing = {
     {
       q: 'Can the price change after you arrive?',
       a: 'The survey fee cannot, including if the property turns out to be larger or more awkward than described. The only way your total ends up higher than the band price is if you agree on the day to an invasive inspection, which starts at £85 for the visit. We will only suggest it where opening up would actually change the conclusion, and if it would not we will tell you that instead.'
-    },
-    {
-      q: 'Do you offer a discount for booking online?',
-      a: 'Yes. Booking through the form on this site takes 20% off the survey fee. It costs us less to take a booking that way than to work through it on the phone, and the saving is passed on rather than kept.'
     }
   ]
 };

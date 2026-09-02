@@ -10,7 +10,6 @@ export function bookForm(site) {
   const brand = site === 'ati' ? ' is-brand' : '';
   return `    <div class="book-card${brand}" id="book">
       <div class="book-body">
-        <p class="book-offer"><span>20% off</span> when you book online, applied to your survey fee before we attend.</p>
       <div class="book-head">
           <h2>Book your survey</h2>
           <p>Takes about 30 seconds.</p>

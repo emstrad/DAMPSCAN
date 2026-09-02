@@ -40,17 +40,6 @@
 .book-card.is-brand .btn--primary:hover{background:#e9f0fb;color:#17325a}
 .book-card.is-brand .back-link{background:none;color:#cfdbee}
 .book-card.is-brand .back-link:hover{color:#ffffff}
-/* The online booking discount. Deliberately quiet: a loud sale sticker reads
-   wrong above a form that books a professional survey. */
-.book-offer{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin:0 0 14px;
-  padding:9px 13px;border:1px solid var(--accent-ring,rgba(255,255,255,.4));
-  border-radius:12px;background:var(--accent-soft,rgba(255,255,255,.12));
-  font-size:12.5px;line-height:1.45;color:var(--muted)}
-.book-offer span{font-weight:800;font-size:13.5px;letter-spacing:-.01em;color:var(--accent);
-  text-transform:uppercase}
-.book-card.is-brand .book-offer span{color:#ffffff}
-.book-card.is-brand .book-offer{color:#dbe5f4}
-
 .book-head{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
 .book-head h2{font-size:clamp(20px,1.9vw,24px);letter-spacing:-.01em}
 .book-head p{font-size:14px;color:var(--muted)}
