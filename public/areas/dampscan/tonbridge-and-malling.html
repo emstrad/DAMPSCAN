@@ -210,7 +210,7 @@
               </div>
               <!-- Shown instead of the three fields once the picker has filled them,
                    so a found address is one line rather than three boxes. -->
-              <p class="addr-chosen" id="f-addr-chosen" hidden>
+              <p class="addr-chosen" id="f-addr-chosen" tabindex="-1" hidden>
                 <span id="f-addr-chosen-text"></span>
                 <button type="button" class="link-btn" id="f-addr-change">Change</button>
               </p>
@@ -250,6 +250,8 @@
                 <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
               </div>
             </details>
+            <!-- What the submit button is saying, for anyone not looking at it. -->
+            <p class="sr-only" role="status" id="submit-status"></p>
             <div class="fnav">
               <button type="button" class="back-link" data-back>← Back</button>
               <button type="submit" class="btn btn--primary btn--lg">

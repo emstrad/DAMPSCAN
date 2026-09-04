@@ -23,7 +23,9 @@
       var li = document.createElement('li');
       var a = document.createElement('a');
       a.href = '/api/admin/attachment?path=' + encodeURIComponent(path);
-      a.textContent = path.split('/').pop();
+      /* Same rule as api/admin/attachment.js: the uuid stays in the href and
+         comes off the label. */
+      a.textContent = path.split('/').pop().replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, '');
       a.rel = 'noopener';
       li.appendChild(a);
       ul.appendChild(li);

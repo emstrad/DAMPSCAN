@@ -50,12 +50,26 @@
     label.textContent = `Step ${current + 1} of ${steps.length}`;
     dotsWrap.setAttribute('aria-valuenow', String(current + 1));
     if (focus) focusField(steps[current].querySelector('input, select, textarea'));
+    /* address.js and upload.js stand on their own, so this is how they learn a
+       step has changed without reaching into this file. */
+    form.dispatchEvent(new CustomEvent('ds:step', { detail: { step: current + 1 } }));
   }
 
   function setError(row, on){
     row.classList.toggle('has-err', on);
-    const field = row.querySelector('input, select');
+    const field = row.querySelector('[required]') || row.querySelector('input, select');
     if (field) field.setAttribute('aria-invalid', String(on));
+  }
+
+  /* Format checks for a field that may be empty but must be right when it is
+     not. The server does the same, but by the time it answers the files have
+     already been uploaded and the visitor has waited for nothing. */
+  function formatBad(field){
+    const v = field.value.trim();
+    if (!v) return false;
+    if (field.type === 'tel') return v.replace(/\D/g, '').length < 9;
+    if (field.type === 'email') return !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    return false;
   }
 
   /* Validate only the visible step */
@@ -64,11 +78,10 @@
     let ok = true;
 
     step.querySelectorAll('.form-row').forEach(row => {
-      const field = row.querySelector('input[required], select[required]');
+      const field = row.querySelector('input[required], select[required]')
+        || row.querySelector('input[type="tel"], input[type="email"]');
       if (field) {
-        let bad = !field.value.trim();
-        if (!bad && field.type === 'tel') bad = field.value.replace(/\D/g,'').length < 9;
-        if (!bad && field.type === 'email') bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(field.value.trim());
+        const bad = (field.required && !field.value.trim()) || formatBad(field);
         setError(row, bad);
         if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (!step.querySelector('[aria-invalid="true"]:focus')) focusField(field); }
         return;
@@ -110,8 +123,8 @@
   const val = id => (document.getElementById(id).value || '').trim();
 
   /* Blob pathnames for whatever upload.js managed to store, filled in on
-     submit. Held here rather than re-read from the file input so a rejected
-     submission does not upload the same photos a second time. */
+     submit. upload.js remembers what it has already sent, so a submission the
+     server bounces and a second attempt does not upload the same photos twice. */
   let uploaded = [];
 
   /* The JSON shape /api/lead expects. The server re-validates all of it. */
@@ -191,9 +204,12 @@
          cannot carry them. Each link goes to /api/admin/attachment, so it
          opens for a signed-in staff member and for nobody else. That is the
          point: a forwarded email does not leak somebody's survey. */
-      Attachments: uploaded.length
-        ? uploaded.map(p => location.origin + '/api/admin/attachment?path=' + encodeURIComponent(p)).join('\n')
-        : 'None',
+      ...(uploaded.length
+        ? Object.fromEntries(uploaded.map((p, i) => [
+            'Attachment ' + (i + 1),
+            location.origin + '/api/admin/attachment?path=' + encodeURIComponent(p)
+          ]))
+        : { Attachments: 'None' }),
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
       Notes: val('f-notes') || 'None',
@@ -319,14 +335,16 @@
     bumpIdle();
   });
 
+  function advance(){
+    if (!validate()) return;
+    /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
+    if (current === 0) armPartial();
+    show(current + 1, true);
+    track('form_step', { step: current + 1 });
+  }
+
   form.addEventListener('click', e => {
-    if (e.target.closest('[data-next]')) {
-      if (!validate()) return;
-      /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
-      if (current === 0) armPartial();
-      show(current + 1, true);
-      track('form_step', { step: current + 1 });
-    }
+    if (e.target.closest('[data-next]')) advance();
     if (e.target.closest('[data-back]')) show(current - 1, true);
   });
 
@@ -352,9 +370,18 @@
     if (row && e.target.type === 'checkbox') row.classList.remove('has-err');
   });
 
+  let submitting = false;
+  const progress = document.getElementById('submit-status');
+  const announce = (text) => { if (progress) progress.textContent = text; };
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    /* The only submit button is on the last step, so Enter in a field on an
+       earlier one reaches here as an implicit submission. It means "next". */
+    if (current < steps.length - 1) { advance(); return; }
+    if (submitting) return;
     if (!validate()) return;
+    submitting = true;
     /* They are booking, so the held partial is not a partial. Drop it. */
     cancelPartial();
     const btn = form.querySelector('[type="submit"]');
@@ -370,14 +397,19 @@
     let filesFailed = 0;
     if (window.DS_UPLOAD) {
       const done = await window.DS_UPLOAD((n, total) => {
-        btn.textContent = `Sending file ${n} of ${total}…`;
+        const text = `Sending file ${n} of ${total}…`;
+        btn.textContent = text;
+        announce(text);
       });
       uploaded = done.paths;
       filesFailed = done.failed;
       btn.innerHTML = btnLabel;
     }
+    announce('Sending your booking…');
 
     const result = await sendLead('complete');
+    submitting = false;
+    announce('');
     if (!result.ok) {
       /* Server rejected a field, so nothing was written. Put the partial back
          on hold as a fallback, then point at the problem. */

@@ -15,7 +15,7 @@
  * written to fall back to typed fields when it sees it.
  */
 import { json, requireMethod, ipHash } from '../lib/http.js';
-import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { rateLimitBoth, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
 import { lookupAddresses } from '../lib/address.js';
 
 export const config = { runtime: 'nodejs' };
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   const url = new URL(req.url, 'http://localhost');
   const postcode = (url.searchParams.get('postcode') || '').slice(0, 12);
 
-  const limit = await rateLimit({ ...LIMITS.address, ipHash: ipHash(req) });
+  const limit = await rateLimitBoth({ perIp: LIMITS.address, global: LIMITS.addressGlobal, ipHash: ipHash(req) });
   if (!limit.ok) {
     res.setHeader('Retry-After', String(LIMITS.address.windowSeconds));
     json(res, 429, { ok: false, error: 'too_many_requests' });

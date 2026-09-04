@@ -41,6 +41,19 @@
 
   let accepted = [];
 
+  /* File object to stored pathname. A submission the server bounces comes
+     back through DS_UPLOAD a second time with the same files, and without this
+     it would upload them again: same bytes, second bill, and a lead row that
+     names only the second copy. The map is keyed on the File itself, so a
+     changed selection produces new keys and the old ones are simply not asked
+     for again. */
+  const sent = new Map();
+
+  /* A stalled PUT on a bad connection would otherwise hold the booking open
+     for as long as the browser cared to wait. A minute is generous for 25MB on
+     anything that is going to succeed at all. */
+  const UPLOAD_TIMEOUT_MS = 60000;
+
   const size = (bytes) => (bytes < 1024 * 1024
     ? Math.max(1, Math.round(bytes / 1024)) + 'KB'
     : (bytes / 1024 / 1024).toFixed(1) + 'MB');
@@ -108,9 +121,9 @@
   const json = (res) => (res.ok ? res.json() : null);
 
   /** Straight to Blob. Resolves with the stored pathname, or null to fall back. */
-  async function direct(file){
+  async function direct(file, signal){
     const res = await fetch('/api/upload-url', {
-      method: 'POST',
+      method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ name: file.name, type: file.type || '' })
     });
@@ -118,7 +131,7 @@
     if (!ticket || !ticket.ok || !ticket.url) return null;
 
     const put = await fetch(ticket.url, {
-      method: 'PUT',
+      method: 'PUT', signal,
       headers: { 'Content-Type': file.type || 'application/octet-stream' },
       body: file
     });
@@ -126,10 +139,10 @@
   }
 
   /** Through our own function. Capped by the platform, so large files skip it. */
-  async function proxied(file){
+  async function proxied(file, signal){
     if (file.size > PROXY_BYTES) return null;
     const res = await fetch('/api/upload?name=' + encodeURIComponent(file.name), {
-      method: 'POST',
+      method: 'POST', signal,
       headers: { 'Content-Type': file.type || 'application/octet-stream' },
       body: file
     });
@@ -148,16 +161,24 @@
     let failed = 0;
 
     for (let i = 0; i < accepted.length; i++) {
+      const original = accepted[i];
+      if (sent.has(original)) { paths.push(sent.get(original)); continue; }
+
       if (onProgress) onProgress(i + 1, accepted.length);
+      const abort = new AbortController();
+      const timer = setTimeout(() => abort.abort(), UPLOAD_TIMEOUT_MS);
       let path = null;
       try {
-        const file = await shrink(accepted[i]);
-        path = await direct(file);
-        if (!path) path = await proxied(file);
+        const file = await shrink(original);
+        path = await direct(file, abort.signal);
+        if (!path) path = await proxied(file, abort.signal);
       } catch {
         path = null;
+      } finally {
+        clearTimeout(timer);
       }
-      if (path) paths.push(path); else failed++;
+      if (path) { paths.push(path); sent.set(original, path); }
+      else failed++;
     }
     return { paths, failed };
   };

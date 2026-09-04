@@ -9,7 +9,7 @@
  */
 import { queryOne } from '../../lib/db.js';
 import { json, requireMethod } from '../../lib/http.js';
-import { requireAuth } from '../../lib/session.js';
+import { readSession } from '../../lib/session.js';
 import { readAttachment } from '../../lib/blob.js';
 import { Readable } from 'node:stream';
 
@@ -17,10 +17,30 @@ export const config = { runtime: 'nodejs' };
 
 const OWNED = `select 1 from leads where $1 = any(files) limit 1`;
 
+/* The uuid the presign put on the front to keep two survey.pdf apart is not
+   something a person should have to read. Kept in step with leads-table.js. */
+const UUID_PREFIX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i;
+export const downloadName = (path) => path.split('/').pop().replace(UUID_PREFIX, '');
+
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'GET')) return;
-  const session = requireAuth(req, res);
-  if (!session) return;
+
+  /* These links arrive by email and get opened on a phone that has never seen
+     the staff area, so a signed-out browser is sent to sign in and then back
+     here, rather than shown a JSON 401 it cannot do anything with. Anything
+     that is not a browser navigation still gets the 401. */
+  const session = readSession(req);
+  if (!session) {
+    if (String(req.headers.accept || '').includes('text/html')) {
+      res.statusCode = 302;
+      res.setHeader('Location', '/staff?next=' + encodeURIComponent(req.url));
+      res.setHeader('Cache-Control', 'no-store');
+      res.end();
+      return;
+    }
+    json(res, 401, { ok: false, error: 'unauthorised' });
+    return;
+  }
 
   const path = new URL(req.url, `https://${req.headers.host}`).searchParams.get('path') || '';
   if (!path) {
@@ -52,7 +72,7 @@ export default async function handler(req, res) {
   if (file.size) res.setHeader('Content-Length', String(file.size));
   /* attachment, not inline: a PDF or an image rendered in the dashboard's own
      origin is a stored file deciding what the staff area looks like. */
-  res.setHeader('Content-Disposition', `attachment; filename="${path.split('/').pop()}"`);
+  res.setHeader('Content-Disposition', `attachment; filename="${downloadName(path)}"`);
   res.setHeader('Cache-Control', 'private, no-store');
   Readable.fromWeb(file.stream).pipe(res);
 }

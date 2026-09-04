@@ -22,12 +22,14 @@ let ownedPaths = [];
 let stored = [];
 let storeFails = false;
 let presignFails = false;
+/* Bucket name to hit count, so one test can push the global ceiling over. */
+let hits = {};
 
 mock.module('../lib/db.js', {
   namedExports: {
     sql: () => { throw new Error('not used in tests'); },
-    // Every rate limit check passes: throttling has its own tests.
-    query: async () => [{ hits: 1 }],
+    // Per-IP throttling has its own tests; here only the global ceiling is exercised.
+    query: async (text, params = []) => [{ hits: hits[params[0]] ?? 1 }],
     queryOne: async (text, params = []) => {
       if (text.includes('any(files)')) return ownedPaths.includes(params[0]) ? { '?column?': 1 } : null;
       return { hits: 1 };
@@ -62,6 +64,7 @@ mock.module('../lib/blob.js', {
 
 const upload = (await import('../api/upload.js')).default;
 const uploadUrl = (await import('../api/upload-url.js')).default;
+const { downloadName } = await import('../api/admin/attachment.js');
 const attachment = (await import('../api/admin/attachment.js')).default;
 const { signSession, COOKIE_NAME } = await import('../lib/session.js');
 
@@ -94,12 +97,12 @@ async function post(url, contentType, chunks) {
   return res;
 }
 
-async function get(path, cookie) {
+async function get(path, cookie, accept) {
   const res = makeRes();
   const req = {
     method: 'GET',
     url: '/api/admin/attachment?path=' + encodeURIComponent(path),
-    headers: { host: 'dampscan.co.uk', ...(cookie ? { cookie } : {}) },
+    headers: { host: 'dampscan.co.uk', ...(cookie ? { cookie } : {}), ...(accept ? { accept } : {}) },
     socket: { remoteAddress: '203.0.113.9' }
   };
   await attachment(req, res);
@@ -117,6 +120,7 @@ beforeEach(() => {
   stored = [];
   storeFails = false;
   presignFails = false;
+  hits = {};
   process.env.BLOB_READ_WRITE_TOKEN = 'test-token';
 });
 
@@ -272,4 +276,51 @@ test('a blob no lead points at is a 404 even for staff', async () => {
 test('a missing path is a 400', async () => {
   const res = await get('', staffCookie());
   assert.equal(res.statusCode, 400);
+});
+
+/* ------------------------------------------------------ global ceiling ---- */
+test('the global upload ceiling refuses even a quiet address once it is reached', async () => {
+  // A pool of addresses each under its own limit is how a per-IP throttle is
+  // walked past, and this route writes 25MB a time into a store billed by the
+  // gigabyte. The ceiling is what turns that from a bill into a 429.
+  hits = { upload_global: 201 };
+  const res = await ticket({ name: 'survey.pdf', type: 'application/pdf' });
+  assert.equal(res.statusCode, 429);
+  assert.equal(stored.length, 0);
+});
+
+test('under the ceiling, the per-IP limit still applies on its own', async () => {
+  hits = { upload: 21 };
+  const res = await post('/api/upload?name=wall.jpg', 'image/jpeg', [Buffer.alloc(16)]);
+  assert.equal(res.statusCode, 429);
+});
+
+/* ------------------------------------------------ email link on a phone ---- */
+test('a signed-out browser navigation is sent to sign in, and told where to come back to', async () => {
+  // The link arrives by email and is opened on a phone that has never seen
+  // the staff area. A JSON 401 there is a dead end.
+  const res = await get('leads/2026-09-04/report.pdf', null, 'text/html,application/xhtml+xml');
+  assert.equal(res.statusCode, 302);
+  assert.equal(res.getHeader('location'),
+    '/staff?next=' + encodeURIComponent('/api/admin/attachment?path=leads%2F2026-09-04%2Freport.pdf'));
+  assert.equal(res.getHeader('cache-control'), 'no-store');
+});
+
+test('a signed-out non-browser request still gets the 401, never a redirect', async () => {
+  const res = await get('leads/2026-09-04/report.pdf', null, 'application/json');
+  assert.equal(res.statusCode, 401);
+});
+
+test('the download filename drops the uuid the presign put on the front', () => {
+  assert.equal(downloadName('leads/2026-09-04/0b21f0d4-5c9e-4a1b-9f77-2b3c4d5e6f70-survey.pdf'), 'survey.pdf');
+  // The proxy route names files differently, and those are left alone.
+  assert.equal(downloadName('leads/2026-09-04/survey-Ab3x9.pdf'), 'survey-Ab3x9.pdf');
+});
+
+test('the streamed file is named for a person, not for the store', async () => {
+  const path = 'leads/2026-09-04/0b21f0d4-5c9e-4a1b-9f77-2b3c4d5e6f70-report.pdf';
+  ownedPaths = [path];
+  const res = await get(path, staffCookie());
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.getHeader('content-disposition'), 'attachment; filename="report.pdf"');
 });

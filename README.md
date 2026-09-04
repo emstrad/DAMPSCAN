@@ -471,12 +471,20 @@ source does not: `postcodes.io` is free but returns coordinates and
 administrative areas rather than delivery points, so it cannot answer "which
 flat", and the OS Places API is free only for public sector use.
 
-The feature works with no provider at all. With no `ADDRESS_API_KEY` set,
-`/api/address` answers `configured: false`, the form says "Please type the
-address below" and puts the cursor in the first field. The full address still
-reaches the lead. Adding a key upgrades typing into picking and changes nothing
-else: the typed fields stay, the picker only fills them in, and once it has,
-they collapse to one line with a Change link.
+The feature works with no provider at all, and the visitor never has to ask for
+it either way. Arriving at step 3 runs the lookup on the postcode from step 1
+by itself. With no `ADDRESS_API_KEY` set, `/api/address` answers
+`configured: false`, the Find address row is removed and what is left is three
+ordinary fields, which is remembered for the session so the row is not shown
+again. With a key, the addresses are already listed when the step appears. The
+typed fields stay either way, the picker only fills them in, and once it has,
+they collapse to one line with a Change link. An automatic lookup never takes
+focus from a field the visitor has moved on to, and Enter in the postcode box
+looks up rather than submitting the form.
+
+`/api/address` has a per-IP limit and a global ceiling, because it spends money
+on our behalf and has no login to fail: a pool of addresses each under its own
+limit is how a per-IP throttle is walked past.
 
 `lib/address.js` is provider agnostic rather than holding an adapter each.
 Nearly every UK provider returns PAF's own field names, because they are all
@@ -523,12 +531,18 @@ that is the difference between a booking and an abandoned form. PDFs are sent
 untouched, since a survey report is the one thing here worth full quality.
 
 Files upload on submit rather than on selection, one request each, with the
-button reporting progress. **Nothing here can cost a booking.** `upload.js` never
-rejects, `/api/upload` answers 200 even when the store is unreachable, and
+button reporting progress and a live region saying the same for anyone not
+looking at it. **Nothing here can cost a booking.** `upload.js` never rejects,
+a stalled upload is abandoned after a minute rather than holding the booking
+open, `/api/upload` answers 200 even when the store is unreachable, and
 anything that failed is reported on the confirmation as "reply to your
-confirmation email with it" rather than as an error to fix. Validation is
+confirmation email with it" rather than as an error to fix. A submission the
+server bounces and a second attempt does not upload the same files twice:
+`upload.js` remembers what it has sent, keyed on the File itself. Validation is
 duplicated in the browser and on the server; the browser copy exists to save
-somebody uploading a 40MB photo before it is refused, and is not trusted.
+somebody uploading a 40MB photo before it is refused, and is not trusted. Both
+upload routes carry a global ceiling as well as a per-IP limit, since they write
+into a store billed by the gigabyte.
 
 Blobs are stored **private**. A previous damp report carries an address, a
 surveyor's findings and often photographs of somebody's home, and a public blob
@@ -542,9 +556,22 @@ With no `BLOB_READ_WRITE_TOKEN` the upload answers `not configured` and the
 booking is unaffected.
 
 The notification email carries `/api/admin/attachment` links rather than the
-files, because FormSubmit sends it from the browser and cannot carry a private
-blob. Those links open for a signed-in staff member and nobody else, so a
-forwarded email does not leak somebody's survey.
+files, one field each, because FormSubmit sends it from the browser and cannot
+carry a private blob. Those links open for a signed-in staff member and nobody
+else, so a forwarded email does not leak somebody's survey. Opened on a phone
+that has never seen the staff area, the link goes to sign in and then straight
+back to the file; `next` is only honoured for a path on this site, so the login
+page cannot be used as a redirector. The download is named `survey.pdf`, not
+`0b21f0d4-...-survey.pdf`: the uuid stays in the pathname and comes off the
+label.
+
+The only submit button on the form is on the last step, so Enter in a field on
+an earlier step reaches the submit handler as an implicit submission. It is
+treated as "next": the current step is validated and the form advances, which
+is what the visitor meant. A second submit while the first is in flight is
+ignored, so a double tap books once. Optional fields with a format, the phone
+number, are checked in the browser as well as on the server, because by the
+time the server answers the photos have already been uploaded.
 
 `book.js` is over 400 lines, over the limit the rest of the project keeps to, and
 deliberately. It is one component, and the only seam in it runs straight through

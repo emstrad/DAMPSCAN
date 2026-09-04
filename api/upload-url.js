@@ -16,7 +16,7 @@
  * read without a staff login.
  */
 import { json, requireMethod, requireSameOrigin, readJson, ipHash, str } from '../lib/http.js';
-import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { rateLimitBoth, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
 import { presignAttachment, blobConfigured, ATTACHMENT_TYPES, MAX_ATTACHMENT_BYTES } from '../lib/blob.js';
 
 export const config = { runtime: 'nodejs' };
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
   if (!requireSameOrigin(req, res)) return;
 
-  const limit = await rateLimit({ ...LIMITS.upload, ipHash: ipHash(req) });
+  const limit = await rateLimitBoth({ perIp: LIMITS.upload, global: LIMITS.uploadGlobal, ipHash: ipHash(req) });
   if (!limit.ok) {
     res.setHeader('Retry-After', String(LIMITS.upload.windowSeconds));
     json(res, 429, { ok: false, error: 'too_many_requests' });

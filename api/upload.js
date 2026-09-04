@@ -15,7 +15,7 @@
  * treats it as "we could not take the file" rather than as a broken booking.
  */
 import { json, requireMethod, requireSameOrigin, ipHash } from '../lib/http.js';
-import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { rateLimitBoth, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
 import { storeAttachment, blobConfigured, ATTACHMENT_TYPES, MAX_PROXY_BYTES } from '../lib/blob.js';
 
 export const config = { runtime: 'nodejs' };
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
   if (!requireSameOrigin(req, res)) return;
 
-  const limit = await rateLimit({ ...LIMITS.upload, ipHash: ipHash(req) });
+  const limit = await rateLimitBoth({ perIp: LIMITS.upload, global: LIMITS.uploadGlobal, ipHash: ipHash(req) });
   if (!limit.ok) {
     res.setHeader('Retry-After', String(LIMITS.upload.windowSeconds));
     json(res, 429, { ok: false, error: 'too_many_requests' });

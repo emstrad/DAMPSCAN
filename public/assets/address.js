@@ -24,7 +24,28 @@
   const chosenText = document.getElementById('f-addr-chosen-text');
   const change = document.getElementById('f-addr-change');
 
+  const lookupRow = find.closest('.addr-find');
+  const form = find.closest('form');
+
   let last = '';
+
+  /* Remembered across the session, so a visitor who reaches step 3 twice does
+     not see a Find address button that has already been shown to do nothing.
+     Wrapped because storage access throws in some private modes. */
+  const OFF_KEY = 'ds_addr_off';
+  const remember = (v) => { try { sessionStorage.setItem(OFF_KEY, v); } catch (e) {} };
+  const recalled = () => { try { return sessionStorage.getItem(OFF_KEY) === '1'; } catch (e) { return false; } };
+
+  /* No provider means the lookup row is a button that cannot work. Removing it
+     leaves three ordinary fields, which is the form as it was before any of
+     this existed and the right thing to show. */
+  function switchOff(){
+    remember('1');
+    if (lookupRow) lookupRow.hidden = true;
+    say('');
+    if (document.activeElement === pcField) document.getElementById('f-addr1').focus();
+  }
+  if (recalled() && lookupRow) lookupRow.hidden = true;
 
   /* Collapse the three fields down to the one line they add up to. Only ever
      reached after a successful pick, so somebody typing their own address
@@ -34,6 +55,10 @@
     chosenText.textContent = label;
     chosen.hidden = false;
     fields.hidden = true;
+    /* The select that had focus is hidden now, and focus that lands on body
+       is a screen reader user losing their place. The chosen line reads out
+       the address and the Change button after it. */
+    chosen.focus();
   }
 
   function expand(focus){
@@ -48,9 +73,15 @@
   /* Whatever they gave at step 1 is almost always the same postcode, so it
      is copied across rather than asked for twice. */
   const step1 = document.getElementById('f-postcode');
-  if (step1) {
-    step1.addEventListener('change', () => { if (!pcField.value.trim()) pcField.value = step1.value; });
+  let copied = '';
+  function syncFromStep1(){
+    if (!step1) return;
+    const theirs = pcField.value.trim();
+    /* Overwrite when the box is empty or still holds what we put there. A
+       postcode they typed into this box themselves is left alone. */
+    if (!theirs || theirs === copied) { copied = step1.value.trim(); pcField.value = copied; }
   }
+  if (step1) step1.addEventListener('change', syncFromStep1);
 
   function say(text){ status.textContent = text || ''; }
 
@@ -76,29 +107,38 @@
     collapse(a.label);
   });
 
-  find.addEventListener('click', () => {
+  /**
+   * @param {boolean} asked  true for a click or Enter, false when the lookup
+   *   runs by itself on arriving at step 3. An unasked lookup that finds
+   *   nothing says nothing: the fields are already there to type into, and a
+   *   message about a search nobody started is just noise.
+   */
+  function lookup(asked){
     const pc = pcField.value.trim() || (step1 ? step1.value.trim() : '');
-    if (!pc) { say('Enter a postcode first.'); pcField.focus(); return; }
+    if (!pc) { if (asked) { say('Enter a postcode first.'); pcField.focus(); } return; }
     /* Same postcode twice is only worth skipping when it already produced a
        list. After a failure the second click has to be a real retry, or the
        button appears broken. */
     if (pc === last && !pick.hidden) return;
+    if (!asked && pc === last) return;
     last = pc;
     pcField.value = pc;
     find.disabled = true;
     say('Looking up addresses…');
+    const focusWas = document.activeElement;
 
     fetch('/api/address?postcode=' + encodeURIComponent(pc), { headers: { Accept: 'application/json' } })
       .then(res => (res.ok ? res.json() : null))
       .then(data => {
+        if (data && data.configured === false) { switchOff(); return; }
         const list = data && Array.isArray(data.addresses) ? data.addresses : [];
         if (!list.length) {
-          /* No key, no results, or a provider having a bad day. All three end
-             the same way, because to the visitor they are the same thing. */
+          /* No results, or a provider having a bad day. To the visitor they
+             are the same thing. */
           pick.hidden = true;
           expand(false);
-          say('Please type the address below.');
-          document.getElementById('f-addr1').focus();
+          say(asked ? 'Please type the address below.' : '');
+          if (asked) document.getElementById('f-addr1').focus();
           return;
         }
         select.innerHTML = '';
@@ -115,9 +155,30 @@
         });
         pick.hidden = false;
         say('');
-        select.focus();
+        /* Only take focus if the visitor has not moved on since. An automatic
+           lookup that yanks them out of the field they are typing in is worse
+           than one they have to reach for. */
+        if (asked || document.activeElement === focusWas || document.activeElement === pcField) select.focus();
       })
-      .catch(() => { pick.hidden = true; expand(false); say('Please type the address below.'); })
+      .catch(() => { pick.hidden = true; expand(false); say(asked ? 'Please type the address below.' : ''); })
       .then(() => { find.disabled = false; });
+  }
+
+  find.addEventListener('click', () => lookup(true));
+
+  /* Enter in the postcode box means find, not book. Without this it reaches
+     the only submit button on the form, which is the one on this step. */
+  pcField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); lookup(true); }
   });
+
+  /* Arriving at step 3 with a postcode from step 1 is the moment somebody
+     wants their address listed, so it is listed without being asked. */
+  if (form) {
+    form.addEventListener('ds:step', (e) => {
+      if (e.detail.step !== 3 || recalled()) return;
+      syncFromStep1();
+      lookup(false);
+    });
+  }
 })();
