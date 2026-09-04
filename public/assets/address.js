@@ -19,7 +19,31 @@
   const select = document.getElementById('f-addr-select');
   if (!find || !pcField || !select) return;
 
+  const fields = document.getElementById('f-addr-fields');
+  const chosen = document.getElementById('f-addr-chosen');
+  const chosenText = document.getElementById('f-addr-chosen-text');
+  const change = document.getElementById('f-addr-change');
+
   let last = '';
+
+  /* Collapse the three fields down to the one line they add up to. Only ever
+     reached after a successful pick, so somebody typing their own address
+     never has it taken away from them mid-sentence. */
+  function collapse(label){
+    if (!fields || !chosen) return;
+    chosenText.textContent = label;
+    chosen.hidden = false;
+    fields.hidden = true;
+  }
+
+  function expand(focus){
+    if (!fields || !chosen) return;
+    chosen.hidden = true;
+    fields.hidden = false;
+    if (focus) document.getElementById('f-addr1').focus();
+  }
+
+  if (change) change.addEventListener('click', () => expand(true));
 
   /* Whatever they gave at step 1 is almost always the same postcode, so it
      is copied across rather than asked for twice. */
@@ -45,7 +69,11 @@
 
   select.addEventListener('change', () => {
     const a = select.options[select.selectedIndex] && select.options[select.selectedIndex]._addr;
-    if (a) fill(a);
+    if (!a) return;
+    fill(a);
+    pick.hidden = true;
+    say('');
+    collapse(a.label);
   });
 
   find.addEventListener('click', () => {
@@ -68,6 +96,7 @@
           /* No key, no results, or a provider having a bad day. All three end
              the same way, because to the visitor they are the same thing. */
           pick.hidden = true;
+          expand(false);
           say('Please type the address below.');
           document.getElementById('f-addr1').focus();
           return;
@@ -88,7 +117,7 @@
         say('');
         select.focus();
       })
-      .catch(() => { pick.hidden = true; say('Please type the address below.'); })
+      .catch(() => { pick.hidden = true; expand(false); say('Please type the address below.'); })
       .then(() => { find.disabled = false; });
   });
 })();

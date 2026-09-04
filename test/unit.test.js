@@ -94,6 +94,10 @@ test('attachment paths only survive if they match what we ourselves write', () =
   const good = 'leads/2026-09-04/survey-Ab3x9.pdf';
   assert.deepEqual(attachmentPaths([good]), [good]);
 
+  // The presigned path shape: a uuid prefix keeps two "survey.pdf" apart.
+  const presigned = 'leads/2026-09-04/0b21f0d4-5c9e-4a1b-9f77-2b3c4d5e6f70-survey.pdf';
+  assert.deepEqual(attachmentPaths([presigned]), [presigned]);
+
   // Anything pointing outside the leads prefix, climbing out of it, or naming
   // an absolute URL is dropped rather than stored and later linked to.
   assert.deepEqual(attachmentPaths([
@@ -109,9 +113,9 @@ test('attachment paths only survive if they match what we ourselves write', () =
   assert.deepEqual(attachmentPaths(undefined), []);
 });
 
-test('attachments are deduplicated and capped at five', () => {
-  const many = Array.from({ length: 9 }, (_, i) => `leads/2026-09-04/photo-${i}.jpg`);
-  assert.equal(attachmentPaths(many).length, 5);
+test('attachments are deduplicated and capped at ten', () => {
+  const many = Array.from({ length: 15 }, (_, i) => `leads/2026-09-04/photo-${i}.jpg`);
+  assert.equal(attachmentPaths(many).length, 10);
 
   const dupe = 'leads/2026-09-04/photo-0.jpg';
   assert.deepEqual(attachmentPaths([dupe, dupe, dupe]), [dupe]);

@@ -74,7 +74,7 @@ covered by `npm test`. See "Running the tests".
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
 | `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
 | `ADDRESS_PROVIDER` | no | Which lookup provider the key belongs to. Only `getaddress` is wired up, and that is the default. |
-| `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
+| `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. Set automatically once a Blob store is attached to the project. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
 
 Generate the two secrets with:
 
@@ -481,17 +481,31 @@ is unauthenticated and it sits in front of somebody's metered bill.
 
 ### Attachments
 
-The same step takes previous surveys and photos, up to five files, PDFs and
-images only. It is not gated behind the "I have had a survey before" tick: a
-photo of the affected wall is worth having from anybody.
+The same step takes previous surveys and photos, up to ten files of 25MB each,
+PDFs and images only. It is not gated behind the "I have had a survey before"
+tick: a photo of the affected wall is worth having from anybody.
 
-A Vercel serverless function will not accept a request body over 4.5MB, which a
-photo straight off a modern phone already exceeds. Rather than refuse it, images
-are drawn through a canvas and re-encoded before sending: 2000px on the long
-edge at quality 0.82. A 2.8MB camera JPEG goes out at around 300KB, which uploads
-far quicker on mobile data and is still more detail than anyone inspects a damp
-patch with. PDFs cannot be shrunk, so one over 4MB is refused at selection with
-somewhere else to send it.
+**The 25MB is ours. The path there exists because 4.5MB is Vercel's.** A
+serverless function will not accept a request body over 4.5MB, which a previous
+damp survey full of photographs comfortably exceeds, and that limit is
+infrastructure level rather than something `vercel.json` can change. So there
+are two upload paths, tried in order:
+
+1. `/api/upload-url` presigns a PUT and the browser sends the file straight to
+   Blob. It never passes through a function, so the platform limit does not
+   apply. The pathname is generated server side and the token is scoped to that
+   one path, so a presigned URL cannot be aimed at anything else in the store,
+   and the content type and size ceiling are signed into the URL for Vercel to
+   enforce rather than trusted from the browser.
+2. `/api/upload` proxies the bytes. Capped just under 4.5MB. This is the
+   fallback for when presigning is unavailable, so a store that cannot presign
+   degrades to small files rather than breaking.
+
+Photos are still re-encoded through a canvas before either path, at 2000px on
+the long edge and quality 0.82, even though the size limit no longer requires
+it. A 2.8MB camera JPEG goes out at around 300KB, and on a phone on mobile data
+that is the difference between a booking and an abandoned form. PDFs are sent
+untouched, since a survey report is the one thing here worth full quality.
 
 Files upload on submit rather than on selection, one request each, with the
 button reporting progress. **Nothing here can cost a booking.** `upload.js` never
@@ -511,6 +525,11 @@ the whole store.
 
 With no `BLOB_READ_WRITE_TOKEN` the upload answers `not configured` and the
 booking is unaffected.
+
+The notification email carries `/api/admin/attachment` links rather than the
+files, because FormSubmit sends it from the browser and cannot carry a private
+blob. Those links open for a signed-in staff member and nobody else, so a
+forwarded email does not leak somebody's survey.
 
 `book.js` is over 400 lines, over the limit the rest of the project keeps to, and
 deliberately. It is one component, and the only seam in it runs straight through

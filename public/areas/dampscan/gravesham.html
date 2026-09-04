@@ -204,13 +204,21 @@
                 <label for="f-addr-select">Pick your address</label>
                 <select id="f-addr-select"></select>
               </div>
-              <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
-                placeholder="House number and street" required />
-              <span class="err">Please give the address for the survey.</span>
-              <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
-                placeholder="Flat, building or area (optional)" />
-              <input id="f-town" name="Town" type="text" autocomplete="address-level2"
-                placeholder="Town or city" />
+              <!-- Shown instead of the three fields once the picker has filled them,
+                   so a found address is one line rather than three boxes. -->
+              <p class="addr-chosen" id="f-addr-chosen" hidden>
+                <span id="f-addr-chosen-text"></span>
+                <button type="button" class="link-btn" id="f-addr-change">Change</button>
+              </p>
+              <div class="addr-fields" id="f-addr-fields">
+                <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
+                  placeholder="House number and street" required />
+                <span class="err">Please give the address for the survey.</span>
+                <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
+                  placeholder="Flat, building or area (optional)" />
+                <input id="f-town" name="Town" type="text" autocomplete="address-level2"
+                  placeholder="Town or city" />
+              </div>
             </div>
             <div class="form-row">
               <label for="f-role">Are you the owner or the landlord?</label>
@@ -231,19 +239,25 @@
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
             </div>
-            <div class="form-row">
-              <label for="f-files">Previous surveys or photos <span class="opt">(optional)</span></label>
-              <input id="f-files" name="Files" type="file" multiple
-                accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
-              <p class="file-hint">Up to 5 photos or PDFs. Large photos are shrunk before
-                sending, so a picture straight off your phone is fine. An earlier report or a
-                shot of the affected wall often says more than a paragraph.</p>
-              <ul class="file-list" id="f-file-list"></ul>
-            </div>
-            <div class="form-row">
-              <label for="f-notes">Anything we should know? <span class="opt">(optional)</span></label>
-              <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
-            </div>
+            <details class="fold">
+              <summary>Add photos or a previous report <span class="opt">(optional)</span></summary>
+              <div class="form-row">
+                <label for="f-files" class="sr-only">Previous surveys or photos</label>
+                <input id="f-files" name="Files" type="file" multiple
+                  accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
+                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. Photos are shrunk
+                  before sending, so one straight off your phone is fine. An earlier report or a
+                  shot of the affected wall often says more than a paragraph.</p>
+                <ul class="file-list" id="f-file-list"></ul>
+              </div>
+            </details>
+            <details class="fold">
+              <summary>Anything else we should know? <span class="opt">(optional)</span></summary>
+              <div class="form-row">
+                <label for="f-notes" class="sr-only">Anything we should know?</label>
+                <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
+              </div>
+            </details>
             <div class="fnav">
               <button type="button" class="back-link" data-back>← Back</button>
               <button type="submit" class="btn btn--primary btn--lg">

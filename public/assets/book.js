@@ -28,6 +28,11 @@
   let selfFocus = false;
   function focusField(el){
     if (!el) return;
+    /* Optional sections are folded away, and a field inside a closed <details>
+       cannot be focused. Anything pointing at one has to open it first, or a
+       validation error lands somewhere nobody can see. */
+    let fold = el.closest('details');
+    while (fold) { fold.open = true; fold = fold.parentElement.closest('details'); }
     selfFocus = true;
     el.focus({ preventScroll: true });
     setTimeout(() => { selfFocus = false; }, 0);
@@ -65,7 +70,7 @@
         if (!bad && field.type === 'tel') bad = field.value.replace(/\D/g,'').length < 9;
         if (!bad && field.type === 'email') bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(field.value.trim());
         setError(row, bad);
-        if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (ok === false && !step.querySelector('[aria-invalid="true"]:focus')) field.focus(); }
+        if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (!step.querySelector('[aria-invalid="true"]:focus')) focusField(field); }
         return;
       }
       /* Only a row marked data-require-one needs a tick. Every other checkbox
@@ -182,8 +187,13 @@
       /* The address is the whole point of asking for it: it needs to be in the
          email as well as the dashboard, or somebody still chases it. */
       Address: [val('f-addr1'), val('f-addr2'), val('f-town')].filter(Boolean).join(', ') || 'Not given yet',
+      /* Links rather than the files themselves, because the blobs are private
+         and the email is sent from the browser through FormSubmit, which
+         cannot carry them. Each link goes to /api/admin/attachment, so it
+         opens for a signed-in staff member and for nobody else. That is the
+         point: a forwarded email does not leak somebody's survey. */
       Attachments: uploaded.length
-        ? uploaded.length + ' attached, in the staff dashboard'
+        ? uploaded.map(p => location.origin + '/api/admin/attachment?path=' + encodeURIComponent(p)).join('\n')
         : 'None',
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
       'Owner or landlord': document.getElementById('f-role').value || 'Not given yet',

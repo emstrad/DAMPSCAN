@@ -21,6 +21,7 @@ process.env.IP_SALT = 'attachment-test-salt';
 let ownedPaths = [];
 let stored = [];
 let storeFails = false;
+let presignFails = false;
 
 mock.module('../lib/db.js', {
   namedExports: {
@@ -37,7 +38,13 @@ mock.module('../lib/db.js', {
 
 mock.module('../lib/blob.js', {
   namedExports: {
+    ATTACHMENT_TYPES: ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp', 'application/pdf'],
+    MAX_ATTACHMENT_BYTES: 25 * 1024 * 1024,
+    MAX_PROXY_BYTES: 4 * 1024 * 1024,
     blobConfigured: () => Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    presignAttachment: async (name) => (presignFails
+      ? { ok: false, reason: 'presign_failed' }
+      : { ok: true, url: 'https://blob.example/put?sig=abc', path: `leads/2026-09-04/uuid-${name}` }),
     storeAttachment: async (name, contentType, body) => {
       if (storeFails) return { ok: false, reason: 'store_failed' };
       const path = `leads/2026-09-04/${name}`;
@@ -54,6 +61,7 @@ mock.module('../lib/blob.js', {
 });
 
 const upload = (await import('../api/upload.js')).default;
+const uploadUrl = (await import('../api/upload-url.js')).default;
 const attachment = (await import('../api/admin/attachment.js')).default;
 const { signSession, COOKIE_NAME } = await import('../lib/session.js');
 
@@ -108,7 +116,59 @@ beforeEach(() => {
   ownedPaths = [];
   stored = [];
   storeFails = false;
+  presignFails = false;
   process.env.BLOB_READ_WRITE_TOKEN = 'test-token';
+});
+
+/** POST /api/upload-url with a JSON body. */
+async function ticket(body, headers){
+  const res = makeRes();
+  await uploadUrl({
+    method: 'POST',
+    url: '/api/upload-url',
+    headers: { host: 'dampscan.co.uk', 'x-forwarded-for': '203.0.113.9', ...headers },
+    body,
+    socket: { remoteAddress: '203.0.113.9' }
+  }, res);
+  return res;
+}
+
+/* ------------------------------------------------------- presigned upload ---- */
+test('a presigned PUT is handed back, with the path it will land at', async () => {
+  const res = await ticket({ name: 'survey.pdf', type: 'application/pdf' });
+  assert.equal(res.statusCode, 200);
+  const body = res.json();
+  assert.equal(body.ok, true);
+  assert.match(body.url, /^https:\/\//);
+  assert.equal(body.path, 'leads/2026-09-04/uuid-survey.pdf');
+  // This is the whole point of the route: past what a function will carry.
+  assert.ok(body.maxBytes > 4.5 * 1024 * 1024);
+});
+
+test('the presign route refuses a type we do not take', async () => {
+  const res = await ticket({ name: 'payload.exe', type: 'application/x-msdownload' });
+  assert.equal(res.statusCode, 415);
+});
+
+test('presigning that fails answers 200, so the browser can fall back', async () => {
+  presignFails = true;
+  const res = await ticket({ name: 'survey.pdf', type: 'application/pdf' });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.json().ok, false);
+  assert.equal(res.json().error, 'presign_failed');
+});
+
+test('no store configured is reported the same way on the presign route', async () => {
+  delete process.env.BLOB_READ_WRITE_TOKEN;
+  const res = await ticket({ name: 'survey.pdf', type: 'application/pdf' });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.json().error, 'not_configured');
+});
+
+test('the presign route is same-origin only', async () => {
+  const res = await ticket({ name: 'survey.pdf', type: 'application/pdf' },
+    { origin: 'https://evil.example' });
+  assert.equal(res.statusCode, 403);
 });
 
 /* ---------------------------------------------------------------- upload ---- */

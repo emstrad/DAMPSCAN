@@ -53,9 +53,10 @@
 .fstep{display:none;flex-direction:column;gap:14px}
 .fstep.is-active{display:flex}
 .form-row{display:flex;flex-direction:column;gap:6px}
-/* A class rule beats the user agent's [hidden], so the address picker stayed on
-   screen with an empty select until this was here. */
-.form-row[hidden]{display:none}
+/* A class rule beats the user agent's [hidden], and several blocks in this form
+   are toggled with it, so one rule settles all of them. Without this the address
+   picker sat on screen with an empty select. */
+.book-card [hidden]{display:none}
 .form-row label{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
 .form-row .opt{text-transform:none;letter-spacing:0;color:var(--muted-2);font-weight:400}
 .form-row input,.form-row select,.form-row textarea{width:100%;background:var(--bg, var(--navy));border:1px solid var(--line-strong);border-radius:10px;color:var(--text);padding:13px 15px;font:inherit;font-size:16px;min-height:50px;transition:border-color .16s,background .16s}
@@ -92,6 +93,30 @@
 .addr-status{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted-2)}
 .addr-status:empty{display:none}
 .addr-pick{gap:6px}
+.addr-fields{display:flex;flex-direction:column;gap:10px}
+/* The found address, standing in for the three fields once the picker has
+   filled them. Three boxes of text somebody did not type is just noise. */
+.addr-chosen{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;
+  font-size:14.5px;line-height:1.5;color:var(--text)}
+.link-btn{background:none;padding:0;font:inherit;font-size:13px;font-weight:600;
+  color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:0}
+.link-btn:hover{color:var(--accent-hi)}
+
+/* Optional sections, folded away so step 3 is not one long scroll. Native
+   details/summary: it is keyboard operable and announced as expandable without
+   a line of script, which a div with a click handler is not. */
+.fold{border:1px solid var(--line-strong);border-radius:12px;padding:0 15px}
+.fold[open]{padding-bottom:15px}
+.fold>summary{list-style:none;cursor:pointer;padding:14px 0;min-height:50px;
+  display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text)}
+.fold>summary::-webkit-details-marker{display:none}
+/* The chevron is decorative, so it is drawn rather than announced. */
+.fold>summary::after{content:"";margin-left:auto;width:9px;height:9px;flex-shrink:0;
+  border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:rotate(45deg) translate(-2px,-2px);transition:transform .18s}
+.fold[open]>summary::after{transform:rotate(225deg) translate(-1px,-1px)}
+.fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.fold .opt{text-transform:none;letter-spacing:0;color:var(--muted-2);font-weight:400;font-size:13px}
 
 /* File row. The native control is left as a native control: a styled label over
    a hidden input loses the keyboard behaviour and the "no file chosen" text

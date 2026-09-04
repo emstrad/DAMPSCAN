@@ -16,20 +16,18 @@
  */
 import { json, requireMethod, requireSameOrigin, ipHash } from '../lib/http.js';
 import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
-import { storeAttachment, blobConfigured } from '../lib/blob.js';
+import { storeAttachment, blobConfigured, ATTACHMENT_TYPES, MAX_PROXY_BYTES } from '../lib/blob.js';
 
 export const config = { runtime: 'nodejs' };
 
-/* Vercel will not carry a request body over 4.5MB into a serverless function,
-   so a larger cap here would only fail further out, with a platform error page
-   instead of our JSON. The browser shrinks photos to fit before sending. */
-const MAX_BYTES = 4 * 1024 * 1024;
+/* This is the fallback path. Files normally go straight from the browser to
+   Blob via a URL from /api/upload-url, which has no size limit worth speaking
+   of. Posting through here is what happens when presigning is unavailable, and
+   4.5MB is as much as Vercel will carry into a function, so the cap sits just
+   under it rather than failing further out with a platform error page. */
+const MAX_BYTES = MAX_PROXY_BYTES;
 
-/* Kept in step with public/assets/upload.js. The client copy is there to save
-   somebody a 40MB upload before it is refused; this one is the check. */
-const TYPES = new Set([
-  'image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp', 'application/pdf'
-]);
+const TYPES = new Set(ATTACHMENT_TYPES);
 const EXTENSIONS = /\.(jpe?g|png|heic|heif|webp|pdf)$/i;
 
 /**
