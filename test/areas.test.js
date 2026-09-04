@@ -14,6 +14,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { areas } from '../content/areas/index.js';
 import { render, distinctiveWordCount, SITES } from '../scripts/area-template.js';
+import { assetHashes, stampAssets } from '../scripts/asset-version.js';
+
+/* The build stamps every asset reference with a content hash after rendering,
+   so a committed page is the render plus the stamps. Compare like with like. */
+const hashes = await assetHashes(new URL('..', import.meta.url).pathname);
+const built = (html) => stampAssets(html, hashes);
 
 const file = (a) => new URL(`../public/areas/${a.site}/${a.slug}.html`, import.meta.url);
 
@@ -29,8 +35,8 @@ test('every committed page matches what the generator produces now', async () =>
     const onDisk = await readFile(file(area), 'utf8');
     assert.equal(
       onDisk,
-      render(area, areas),
-      `${area.site}/${area.slug} is stale. Run: npm run build:areas`
+      built(render(area, areas)),
+      `${area.site}/${area.slug} is stale. Run: npm run build:pages`
     );
   }
 });
@@ -147,7 +153,7 @@ test('every committed service page matches what the generator produces now', asy
       new URL(`../public/service-pages/${service.site}/${service.slug}.html`, import.meta.url),
       'utf8'
     );
-    assert.equal(onDisk, renderService(service, services), `${service.site}/${service.slug} is stale. Run: npm run build:pages`);
+    assert.equal(onDisk, built(renderService(service, services)), `${service.site}/${service.slug} is stale. Run: npm run build:pages`);
   }
 });
 

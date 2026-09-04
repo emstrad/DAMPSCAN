@@ -30,7 +30,11 @@ test/            unit and integration tests
    pooler is what keeps connection counts sane.
 3. **Create the schema.** `npm install`, then with `DATABASE_URL` set in `.env`,
    run `npm run migrate`. `schema.sql` is idempotent, so this is also how you roll
-   a later schema change forward.
+   a later schema change forward. **Do that before merging a change that adds a
+   column**, not after: Vercel deploys on the push and CI applies the schema a
+   minute or two later, and in between the new code runs against the old table.
+   For `/api/lead` that means bookings answered with a 500. Adding a column
+   first is safe, because the old code simply does not mention it.
 4. **Import into Vercel.** Connect the GitHub repo. No build command and no
    framework preset are needed: `vercel.json` sets `outputDirectory` to `public`.
    Set every environment variable below for **Production and Preview**, then deploy.
