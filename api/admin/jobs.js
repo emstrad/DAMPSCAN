@@ -62,6 +62,8 @@ function toRow(r) {
     surveyorFeePence: r.surveyor_fee_pence,
     remedialPence: r.remedial_pence,
     status: r.status,
+    depositPaidAt: r.deposit_paid_at,
+    paidAt: r.paid_at,
     rates: {
       taxBp: r.tax_bp,
       leadBp: r.lead_bp,
@@ -201,7 +203,7 @@ async function save(req, res, body) {
     str(body.jobDate, 10) || null,
     str(body.customerName, 120) || null,
     str(body.customerPostcode, 12) || null,
-    str(body.note, 500) || null,
+    str(body.note, 2000) || null,
     amounts.type,
     amounts.price,
     surveyor,

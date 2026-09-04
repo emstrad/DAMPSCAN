@@ -198,3 +198,16 @@ create index if not exists jobs_site_idx on jobs (site, job_date desc);
 create index if not exists jobs_lead_idx on jobs (lead_id);
 -- One job per lead, so clicking "create job" twice cannot double count it.
 create unique index if not exists jobs_lead_unique_idx on jobs (lead_id) where lead_id is not null;
+
+-- ---------------------------------------------------------------------------
+-- Client cards
+--
+-- A booked job is a client, and the card the staff area shows for one is the
+-- job joined to its lead. The only state a card carries that a job did not
+-- already is whether the money has arrived. Timestamps rather than booleans,
+-- so "paid" also says when, and so a payment webhook can set them later with
+-- no schema change: it writes the same column a tick in the dashboard does.
+-- The deposit is always half the survey price and is derived, never stored.
+-- ---------------------------------------------------------------------------
+alter table jobs add column if not exists deposit_paid_at timestamptz;
+alter table jobs add column if not exists paid_at         timestamptz;

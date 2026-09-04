@@ -113,6 +113,19 @@ test('the address and attachment columns exist and are optional', async () => {
   assert.equal(columns.get('files').is_nullable, 'NO', 'files is an array, so empty is {} and never null');
 });
 
+test('the payment columns on jobs exist and are optional timestamps', async () => {
+  const { rows } = await client.query(
+    `select column_name, is_nullable, data_type from information_schema.columns
+      where table_schema = $1 and table_name = 'jobs'
+        and column_name in ('deposit_paid_at', 'paid_at')`, [SCRATCH]
+  );
+  assert.equal(rows.length, 2, 'both columns exist');
+  for (const r of rows) {
+    assert.equal(r.is_nullable, 'YES', `${r.column_name}: unpaid is null, not false`);
+    assert.equal(r.data_type, 'timestamp with time zone', `${r.column_name}: when, not whether`);
+  }
+});
+
 test('a lead with no address and no files still inserts', async () => {
   const sid = '77777777-7777-4777-8777-777777777777';
   const { rows } = await client.query(

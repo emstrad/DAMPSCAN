@@ -227,6 +227,35 @@ Remedial work is deliberately simpler: tax off, then the lead fee to Scott. The
 balance is reported but not distributed, because Tom and Ben settle materials
 and labour between themselves offline.
 
+### Client cards
+
+A booked job is a client. `/staff/clients.html` shows one card per job that is
+not cancelled, and a card is the job joined to the enquiry it came from, so the
+address, phone, email, what they said was wrong and any attachments are on it
+without anyone typing them twice. Saving a job as booked on the Jobs page is
+what creates the card; there is no clients table and nothing to keep in step.
+A job recorded by hand still gets a card with whatever the form was given.
+
+Clicking a card opens a native `<dialog>` with everything on it, the
+attachments as download links, a Google Maps link for the address, and two
+payment boxes: **deposit paid** and **paid in full**. The deposit is always half
+the survey price. It is derived by `/api/admin/clients` rather than stored, so
+correcting a price on the Jobs page corrects the deposit with it; the odd penny,
+if there is one, sits on the deposit. Both boxes are timestamps on `jobs`,
+`deposit_paid_at` and `paid_at`, not booleans: a tick records when, a re-save
+keeps the original time, an untick clears it, and paid in full implies the
+deposit. The Jobs page never writes those two columns, so editing a job cannot
+unpay it.
+
+That shape is also the point at which payment gets automated later. A Stripe or
+GoCardless webhook that confirms a deposit calls the same route with
+`{id, depositPaid: true}` and writes the same column a tick does. Nothing in the
+dashboard needs to know which of the two happened.
+
+The survey date on the card is the job's `job_date`, one field under two
+labels, so the earnings periods and the card can never disagree about when a
+survey is.
+
 ### Why jobs store their own rates
 
 A job row carries `tax_bp`, `lead_bp`, `lead_earner`, `partner_a`, `partner_b`

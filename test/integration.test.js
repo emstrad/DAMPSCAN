@@ -50,6 +50,7 @@ const leadsRoute = (await import('../api/admin/leads.js')).default;
 const notified = (await import('../api/notified.js')).default;
 const jobsRoute = (await import('../api/admin/jobs.js')).default;
 const ratesRoute = (await import('../api/admin/rates.js')).default;
+const clientsRoute = (await import('../api/admin/clients.js')).default;
 const { siteFor } = await import('../lib/site.js');
 
 /* ---------- minimal req/res doubles ---------- */
@@ -731,4 +732,127 @@ test('a job can be deleted', async () => {
   assert.equal(res.statusCode, 200);
   const { jobs } = (await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie } })).json();
   assert.equal(jobs.length, 0);
+});
+
+/* --------------------------------------------------------------- clients ---- */
+async function bookedJob(cookie, extra = {}) {
+  const leadRes = (await call(lead, { body: validLead({
+    addressLine1: 'Flat 6, Trafalgar Point', addressLine2: '137 Downham Road', town: 'London',
+    files: ['leads/2026-09-04/uuid-report.pdf'], notes: 'Back bedroom, since spring'
+  }) })).json();
+  const job = (await call(jobsRoute, { body: {
+    leadId: leadRes.id, customerName: 'Priya', surveyType: 'full-house', surveyor: 'tom',
+    jobDate: '2026-09-18', status: 'booked', ...extra
+  }, headers: { cookie } })).json();
+  return { leadId: leadRes.id, job: job.job };
+}
+
+test('a booked job is a client card, with the enquiry pulled through', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+
+  const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } });
+  assert.equal(res.statusCode, 200);
+  const [c] = res.json().clients;
+  assert.equal(c.id, job.id);
+  assert.equal(c.name, 'Priya');
+  assert.equal(c.email, 'priya@example.com');
+  assert.deepEqual(c.address, { line1: 'Flat 6, Trafalgar Point', line2: '137 Downham Road', town: 'London', postcode: 'SE1 2AB' });
+  assert.deepEqual(c.files, ['leads/2026-09-04/uuid-report.pdf']);
+  assert.deepEqual(c.issues, ['Damp', 'Mould']);
+  assert.equal(c.leadNotes, 'Back bedroom, since spring');
+  assert.equal(c.surveyDate, '2026-09-18');
+  assert.equal(c.survey.label, 'Full House');
+  assert.equal(c.survey.pricePence, 29500);
+});
+
+test('the deposit is always half the price, derived rather than stored, odd penny on the deposit', async () => {
+  const cookie = await signedInCookie();
+  await bookedJob(cookie, { surveyType: null, surveyPricePence: 29501 });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } })).json().clients;
+  assert.equal(c.money.depositPence, 14751);
+  assert.equal(c.money.balancePence, 14750);
+  assert.equal(c.money.depositPaidAt, null);
+  assert.equal(c.money.paidAt, null);
+});
+
+test('ticking deposit stamps a time, ticking it again keeps it, unticking clears it', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  const post = (body) => call(clientsRoute, { body, headers: { cookie } });
+
+  const first = (await post({ id: job.id, depositPaid: true })).json().client;
+  assert.ok(first.money.depositPaidAt, 'ticked means a timestamp');
+  assert.equal(first.money.paidAt, null, 'the other box is untouched');
+
+  await new Promise((r) => setTimeout(r, 20));
+  const again = (await post({ id: job.id, depositPaid: true, note: 'Rang to confirm' })).json().client;
+  assert.equal(String(again.money.depositPaidAt), String(first.money.depositPaidAt),
+    'saving the notes must not move the date the deposit was paid');
+  assert.equal(again.note, 'Rang to confirm');
+
+  const cleared = (await post({ id: job.id, depositPaid: false })).json().client;
+  assert.equal(cleared.money.depositPaidAt, null);
+});
+
+test('paid in full implies the deposit was paid', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  const c = (await call(clientsRoute, { body: { id: job.id, paid: true }, headers: { cookie } })).json().client;
+  assert.ok(c.money.paidAt);
+  assert.ok(c.money.depositPaidAt, 'you cannot have paid the lot without the half');
+});
+
+test('the survey date and notes are editable from the card, and the job sees the same values', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  const c = (await call(clientsRoute, { body: { id: job.id, jobDate: '2026-09-25', note: 'Key with neighbour' }, headers: { cookie } })).json().client;
+  assert.equal(c.surveyDate, '2026-09-25');
+  assert.equal(c.note, 'Key with neighbour');
+
+  const jobs = (await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie } })).json().jobs;
+  assert.equal(String(jobs[0].jobDate).slice(0, 10), '2026-09-25', 'one date, not two');
+  assert.equal(jobs[0].note, 'Key with neighbour');
+});
+
+test('editing the job on the Jobs page does not clear the payment boxes', async () => {
+  // The jobs route rewrites every column it knows about. It must not know
+  // about these two.
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  await call(clientsRoute, { body: { id: job.id, paid: true }, headers: { cookie } });
+  await call(jobsRoute, { body: { id: job.id, customerName: 'Priya S', surveyType: 'full-house', surveyor: 'tom', status: 'completed' }, headers: { cookie } });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?status=completed', headers: { cookie } })).json().clients;
+  assert.ok(c.money.paidAt, 'still paid');
+  assert.equal(c.name, 'Priya S');
+});
+
+test('cancelled jobs are not clients, and the status filter works', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  await call(jobsRoute, { body: { id: job.id, surveyType: 'full-house', surveyor: 'tom', status: 'cancelled' }, headers: { cookie } });
+  for (const status of ['booked', 'completed', 'all']) {
+    const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?status=' + status, headers: { cookie } });
+    assert.deepEqual(res.json().clients, [], `a cancelled job showed up under ${status}`);
+  }
+});
+
+test('a job recorded by hand, with no lead, is still a card', async () => {
+  const cookie = await signedInCookie();
+  await call(jobsRoute, { body: { customerName: 'Walk-in', customerPostcode: 'ME14 1AA', surveyType: 'localised', surveyor: 'ben' }, headers: { cookie } });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } })).json().clients;
+  assert.equal(c.name, 'Walk-in');
+  assert.equal(c.leadId, null);
+  assert.equal(c.address.postcode, 'ME14 1AA');
+  assert.deepEqual(c.files, []);
+});
+
+test('the clients route needs a session, rejects a bad id, and rejects an empty update', async () => {
+  assert.equal((await call(clientsRoute, { method: 'GET', url: '/api/admin/clients' })).statusCode, 401);
+  const cookie = await signedInCookie();
+  assert.equal((await call(clientsRoute, { body: { id: 'x', paid: true }, headers: { cookie } })).statusCode, 400);
+  assert.equal((await call(clientsRoute, { body: { id: 999999, paid: true }, headers: { cookie } })).statusCode, 404);
+  const { job } = await bookedJob(cookie);
+  assert.equal((await call(clientsRoute, { body: { id: job.id }, headers: { cookie } })).statusCode, 400);
+  assert.equal((await call(clientsRoute, { body: { id: job.id, jobDate: 'next tuesday' }, headers: { cookie } })).statusCode, 400);
 });
