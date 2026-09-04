@@ -5,11 +5,14 @@
   'use strict';
 
   var U = global.DSUI;
+  var D = global.DSCLIENTDIALOG;   // client-dialog.js: the big view of one client
+  var SITE = D.SITE;
+  var addressLines = D.addressLines;
+  var fillDialog = D.fill;
   var el = function (id) { return document.getElementById(id); };
 
-  var state = { site: '', status: 'booked', clients: [], open: null, opener: null };
-
-  var SITE = { 'ati-london': 'London', dampscan: 'Kent' };
+  var state = { site: '', view: 'upcoming', clients: [], open: null, opener: null,
+    query: '', all: null };   // `all` caches every client, fetched the first time a search needs it
 
   /* "Thu 10 Sep" for a date, "Today" and "Tomorrow" where they apply, since a
      surveyor scanning the board wants to know that faster than a date. */
@@ -27,14 +30,6 @@
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()]
       + (d.getFullYear() !== today.getFullYear() ? ' ' + d.getFullYear() : '');
-  }
-
-  function addressLines(c) {
-    return [c.address.line1, c.address.line2, c.address.town, c.address.postcode].filter(Boolean);
-  }
-
-  function displayName(path) {
-    return path.split('/').pop().replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, '');
   }
 
   /* ---------- the grid ---------- */
@@ -61,93 +56,63 @@
       c.money.paidAt ? 'Paid in full' : 'Balance ' + U.money(c.money.balancePence)));
     if (c.files.length) chips.appendChild(U.node('span', 'tag tag--muted', c.files.length === 1 ? '1 file' : c.files.length + ' files'));
     if (c.status === 'completed') chips.appendChild(U.node('span', 'tag tag--muted', 'Completed'));
+    /* Archived by the calendar but never marked done: it wants either
+       completing on the Jobs page or a new date, and the chip says so. */
+    else if (c.archived) chips.appendChild(U.node('span', 'tag tag--warn', 'Date passed, not marked done'));
     b.appendChild(chips);
 
     b.addEventListener('click', function () { open(c, b); });
     return b;
   }
 
+  /* ---------- search ---------- */
+  var squash = function (s) { return String(s || '').toLowerCase().replace(/\s+/g, ''); };
+
+  /* Everything a person might type to find a card, as one lowercase string,
+     plus a copy with the spaces removed so "n13gz" finds "N1 3GZ" and
+     "07700900123" finds "07700 900123". */
+  function haystack(c) {
+    var bits = [c.name, c.email, c.phone, c.address.line1, c.address.line2, c.address.town,
+      c.address.postcode, c.survey.label, c.survey.surveyor, c.note]
+      .filter(Boolean).join(' ').toLowerCase();
+    return { text: bits, tight: bits.replace(/\s+/g, '') };
+  }
+
+  function matches(c, query) {
+    var hay = haystack(c);
+    /* Every word typed has to be found somewhere: "priya london" narrows,
+       it does not widen. */
+    return query.toLowerCase().split(/\s+/).filter(Boolean).every(function (tok) {
+      return hay.text.indexOf(tok) !== -1 || hay.tight.indexOf(squash(tok)) !== -1;
+    });
+  }
+
+  function shown() {
+    if (!state.query) return state.clients;
+    return (state.all || []).filter(function (c) { return matches(c, state.query); });
+  }
+
   function render() {
     var mount = el('cards');
     mount.textContent = '';
-    if (!state.clients.length) {
-      mount.appendChild(U.node('p', 'empty', state.status === 'booked'
-        ? 'No surveys booked in. Save a job as booked on the Jobs page and it appears here.'
-        : 'Nothing here yet.'));
+    var list = shown();
+    if (!list.length) {
+      var empty = {
+        upcoming: 'No surveys coming up. Save a job as booked on the Jobs page and it appears here.',
+        archive: 'Nothing archived yet. A card moves here the day after its survey date, or when the job is marked completed.',
+        all: 'No clients yet.'
+      };
+      mount.appendChild(U.node('p', 'empty', state.query
+        ? 'Nobody matches "' + state.query + '". Names, addresses, postcodes, emails and phone numbers all count.'
+        : (empty[state.view] || empty.all)));
     }
-    state.clients.forEach(function (c) { mount.appendChild(card(c)); });
+    list.forEach(function (c) { mount.appendChild(card(c)); });
 
-    var due = state.clients.filter(function (c) { return !c.money.paidAt; }).length;
-    el('summary').textContent = state.clients.length
-      ? U.num(state.clients.length) + (state.clients.length === 1 ? ' client' : ' clients')
-        + (due ? ', ' + U.num(due) + ' with money still to come' : ', all paid')
-      : '';
-  }
-
-  /* ---------- the dialog ---------- */
-  function lines(mount, items) {
-    mount.textContent = '';
-    items.forEach(function (item, i) {
-      if (i) mount.appendChild(document.createElement('br'));
-      if (typeof item === 'string') mount.appendChild(document.createTextNode(item));
-      else mount.appendChild(item);
-    });
-  }
-
-  function link(href, text) {
-    var a = document.createElement('a');
-    a.href = href; a.textContent = text;
-    return a;
-  }
-
-  function fillDialog(c) {
-    el('c-name').textContent = c.name || 'No name';
-    el('c-sub').textContent = c.survey.label + ' survey, ' + U.money(c.survey.pricePence)
-      + (c.survey.remedialPence ? ' plus ' + U.money(c.survey.remedialPence) + ' remedial' : '')
-      + ' · surveyed by ' + (c.survey.surveyor || 'unassigned').replace(/^./, function (m) { return m.toUpperCase(); })
-      + ' · ' + (SITE[c.site] || c.site);
-
-    var contact = [];
-    if (c.phone) contact.push(link('tel:' + c.phone.replace(/\s+/g, ''), c.phone));
-    if (c.email) contact.push(link('mailto:' + c.email, c.email));
-    lines(el('c-contact'), contact.length ? contact : ['No contact details on the enquiry']);
-
-    var addr = addressLines(c);
-    lines(el('c-address'), addr.length ? addr : ['No address on file. Add one on the Jobs page or ask the client.']);
-    var maps = el('c-maps');
-    maps.hidden = !addr.length;
-    if (addr.length) maps.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(addr.join(', '));
-
-    var enquiry = [];
-    if (c.issues.length) enquiry.push('Dealing with: ' + c.issues.join(', '));
-    if (c.previousSurvey !== null && c.previousSurvey !== undefined) enquiry.push(c.previousSurvey ? 'Has had a survey before' : 'No previous survey');
-    if (c.leadNotes) enquiry.push('They said: ' + c.leadNotes);
-    if (!c.leadId) enquiry.push('Recorded by hand on the Jobs page, not from the website form.');
-    lines(el('c-enquiry'), enquiry.length ? enquiry : ['Nothing beyond the booking itself.']);
-
-    var files = el('c-files');
-    files.textContent = '';
-    if (!c.files.length) files.appendChild(U.node('li', 'empty', 'None attached'));
-    c.files.forEach(function (path) {
-      var li = document.createElement('li');
-      var a = link('/api/admin/attachment?path=' + encodeURIComponent(path), displayName(path));
-      a.className = 'pill';
-      li.appendChild(a);
-      files.appendChild(li);
-    });
-
-    el('c-deposit').checked = Boolean(c.money.depositPaidAt);
-    el('c-deposit-amt').textContent = U.money(c.money.depositPence) + ', half the survey price';
-    el('c-deposit-when').textContent = c.money.depositPaidAt ? 'on ' + U.when(c.money.depositPaidAt) : '';
-    el('c-paid').checked = Boolean(c.money.paidAt);
-    el('c-paid-amt').textContent = U.money(c.survey.pricePence) + ' in total';
-    el('c-paid-when').textContent = c.money.paidAt ? 'on ' + U.when(c.money.paidAt) : '';
-
-    el('c-date').value = c.surveyDate || '';
-    el('c-note').value = c.note || '';
-    el('c-edit').href = '/staff/jobs.html#job-' + c.id;
-    el('client-error').classList.remove('is-shown');
-    el('c-saved').textContent = '';
+    var due = list.filter(function (c) { return !c.money.paidAt; }).length;
+    var count = U.num(list.length) + (list.length === 1 ? ' client' : ' clients');
+    el('summary').textContent = state.query
+      ? (list.length ? count + ' matching, searched across upcoming and archived' : '')
+      : (list.length ? count + (due ? ', ' + U.num(due) + ' with money still to come' : ', all paid') : '');
   }
 
   function open(c, opener) {
@@ -199,7 +164,9 @@
     /* Swap the fresh card in where the old one was, and redraw the dialog from
        it so the "on <date>" beside a box reflects what was actually stored. */
     var fresh = res.data.client;
-    state.clients = state.clients.map(function (x) { return x.id === fresh.id ? fresh : x; });
+    var swap = function (x) { return x.id === fresh.id ? fresh : x; };
+    state.clients = state.clients.map(swap);
+    if (state.all) state.all = state.all.map(swap);
     state.open = fresh;
     fillDialog(fresh);
     render();
@@ -208,10 +175,14 @@
 
   /* ---------- loading and wiring ---------- */
   async function refresh() {
-    var qs = '?status=' + state.status + (state.site ? '&site=' + state.site : '');
+    var siteQs = state.site ? '&site=' + state.site : '';
     try {
-      var data = await U.get('/api/admin/clients' + qs);
+      var data = await U.get('/api/admin/clients?view=' + state.view + siteQs);
       state.clients = data.clients || [];
+      /* A refresh is also the moment a stale search cache goes. It is refetched
+         on the next keystroke that needs it. */
+      state.all = null;
+      if (state.query) state.all = (await U.get('/api/admin/clients?view=all' + siteQs)).clients || [];
       render();
       el('state').hidden = true;
       el('content').hidden = false;
@@ -233,7 +204,28 @@
     });
   }
   pills('[data-site]', 'site');
-  pills('[data-status]', 'status');
+  pills('[data-view]', 'view');
+
+  /* Typing searches every client on the chosen site, whatever view is
+     pressed: a name is a name whether the survey is next week or last year.
+     Fetched once per site and reused per keystroke; a short debounce so a
+     fast typist is not rendering on every letter. */
+  var searchTimer = 0;
+  el('search').addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    var q = el('search').value.trim();
+    searchTimer = setTimeout(async function () {
+      state.query = q;
+      if (q && !state.all) {
+        try {
+          state.all = (await U.get('/api/admin/clients?view=all' + (state.site ? '&site=' + state.site : ''))).clients || [];
+        } catch (err) {
+          state.all = [];
+        }
+      }
+      render();
+    }, 120);
+  });
 
   el('client-form').addEventListener('submit', save);
   el('client-dialog').addEventListener('close', function () {

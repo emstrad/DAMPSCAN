@@ -1,7 +1,7 @@
 /**
  * /api/admin/clients
  *
- *   GET   ?status=booked|completed|all&site=   the client cards
+ *   GET   ?view=upcoming|archive|all&site=   the client cards
  *   POST  {id, depositPaid?, paid?, jobDate?, note?}   update one card
  *
  * A client card is a booked job joined to the enquiry it came from, so there
@@ -14,6 +14,13 @@
  * stored, so a job whose price is corrected on the Jobs page shows the right
  * deposit on its card without a second edit. The odd penny, if there is one,
  * goes on the deposit.
+ *
+ * A card archives itself the day after its survey date. That is a view, not a
+ * status change: the job stays booked until somebody marks it completed on the
+ * Jobs page, because a survey whose date has passed may have been rescheduled
+ * rather than done, and the earnings tiles should not be told otherwise by a
+ * calendar. "Today" is London's today, not the server's, so a card does not
+ * archive an hour early in summer.
  *
  * Paid and deposit are timestamps set when a box is ticked and cleared when it
  * is unticked. Ticking a box that is already ticked keeps the original time:
@@ -28,8 +35,11 @@ import { normaliseSite } from '../../lib/site.js';
 
 export const config = { runtime: 'nodejs' };
 
+const TODAY = `(now() at time zone 'Europe/London')::date`;
+
 const SELECT = `
   select j.id, j.created_at, j.updated_at, j.lead_id, j.site, j.job_date, j.status,
+         (j.status = 'completed' or j.job_date < ${TODAY}) as archived,
          j.customer_name, j.customer_postcode, j.note, j.survey_type, j.survey_price_pence,
          j.remedial_pence, j.surveyor, j.deposit_paid_at, j.paid_at,
          r.label as survey_label,
@@ -59,6 +69,9 @@ export function toCard(r) {
     leadId: r.lead_id == null ? null : Number(r.lead_id),
     site: r.site,
     status: r.status,
+    /* Decided by the database against London's date, so every browser agrees
+       with the server about which board a card is on. */
+    archived: Boolean(r.archived),
     surveyDate: isoDate(r.job_date),
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -94,24 +107,28 @@ export function toCard(r) {
   };
 }
 
+const VIEWS = {
+  upcoming: { where: `j.status = 'booked' and j.job_date >= ${TODAY}`, order: 'j.job_date asc, j.id asc' },
+  archive:  { where: `(j.status = 'completed' or j.job_date < ${TODAY})`, order: 'j.job_date desc, j.id desc' },
+  all:      { where: 'true', order: 'j.job_date desc, j.id desc' }
+};
+
 async function list(req, res) {
   const url = new URL(req.url, 'http://localhost');
-  const statusParam = url.searchParams.get('status') || 'booked';
-  const status = statusParam === 'completed' ? 'completed' : statusParam === 'all' ? null : 'booked';
+  const param = url.searchParams.get('view') || 'upcoming';
+  const view = VIEWS[param] ? param : 'upcoming';
   const site = normaliseSite(url.searchParams.get('site'));
 
-  /* Upcoming surveys soonest first; a history most recent first. */
-  const order = status === 'booked' ? 'j.job_date asc, j.id asc' : 'j.job_date desc, j.id desc';
   const rows = await query(
     `${SELECT}
       where j.status <> 'cancelled'
-        and ($1::text is null or j.status = $1::text)
-        and ($2::text is null or j.site = $2::text)
-      order by ${order}
+        and ${VIEWS[view].where}
+        and ($1::text is null or j.site = $1::text)
+      order by ${VIEWS[view].order}
       limit 500`,
-    [status, site]
+    [site]
   );
-  json(res, 200, { ok: true, status: statusParam, site, clients: rows.map(toCard) });
+  json(res, 200, { ok: true, view, site, clients: rows.map(toCard) });
 }
 
 /* A tick sets the time if it is not already set; an untick clears it. $N is

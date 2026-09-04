@@ -256,6 +256,25 @@ The survey date on the card is the job's `job_date`, one field under two
 labels, so the earnings periods and the card can never disagree about when a
 survey is.
 
+A card archives itself the day after its survey date. That is a view, not a
+status change: the job stays booked until somebody marks it completed on the
+Jobs page, because a survey whose date has passed may have been rescheduled
+rather than done, and a calendar should not tell the earnings tiles otherwise.
+An archived card that was never marked done carries a "date passed" chip, and
+moving its date forward from the card brings it straight back onto the board.
+"Today" is London's today, decided by the database, so every browser agrees
+with the server about which board a card is on and nothing archives an hour
+early in summer.
+
+The search box looks across every client on the chosen site, whatever view is
+pressed, because a name is a name whether the survey is next week or last year.
+It matches name, address, postcode, email, phone, survey type, surveyor and the
+card's note, with spaces ignored so `n13gz` finds `N1 3GZ` and `07700900123`
+finds `07700 900123`. Every word typed must match, so `london tom` narrows to
+Tom's London surveys rather than widening to both. The full list is fetched
+once and filtered in the browser: at this volume that is instant, and it means
+a keystroke is never a round trip.
+
 ### Why jobs store their own rates
 
 A job row carries `tax_bp`, `lead_bp`, `lead_earner`, `partner_a`, `partner_b`

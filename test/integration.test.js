@@ -822,19 +822,72 @@ test('editing the job on the Jobs page does not clear the payment boxes', async 
   const { job } = await bookedJob(cookie);
   await call(clientsRoute, { body: { id: job.id, paid: true }, headers: { cookie } });
   await call(jobsRoute, { body: { id: job.id, customerName: 'Priya S', surveyType: 'full-house', surveyor: 'tom', status: 'completed' }, headers: { cookie } });
-  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?status=completed', headers: { cookie } })).json().clients;
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=archive', headers: { cookie } })).json().clients;
   assert.ok(c.money.paidAt, 'still paid');
   assert.equal(c.name, 'Priya S');
 });
 
-test('cancelled jobs are not clients, and the status filter works', async () => {
+test('cancelled jobs are not clients, on any view', async () => {
   const cookie = await signedInCookie();
   const { job } = await bookedJob(cookie);
   await call(jobsRoute, { body: { id: job.id, surveyType: 'full-house', surveyor: 'tom', status: 'cancelled' }, headers: { cookie } });
-  for (const status of ['booked', 'completed', 'all']) {
-    const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?status=' + status, headers: { cookie } });
-    assert.deepEqual(res.json().clients, [], `a cancelled job showed up under ${status}`);
+  for (const view of ['upcoming', 'archive', 'all']) {
+    const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=' + view, headers: { cookie } });
+    assert.deepEqual(res.json().clients, [], `a cancelled job showed up under ${view}`);
   }
+});
+
+/* Two days either side rather than one: the server decides "today" on London
+   time and this test runs on whatever clock the machine has, and during the
+   one hour a day they disagree a one-day margin would flake. */
+const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+
+test('a card archives itself the day after its survey date, without the job changing', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobDate: daysFromNow(-2) });
+  const view = async (v) => (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=' + v, headers: { cookie } })).json().clients;
+
+  assert.deepEqual(await view('upcoming'), [], 'a passed date is off the board');
+  const [archived] = await view('archive');
+  assert.equal(archived.id, job.id);
+  assert.equal(archived.archived, true);
+  assert.equal(archived.status, 'booked', 'archived by the calendar, not marked done: that is a person\'s call');
+  assert.equal((await view('all')).length, 1);
+});
+
+test('a survey coming up is on the board and not archived', async () => {
+  const cookie = await signedInCookie();
+  await bookedJob(cookie, { jobDate: daysFromNow(2) });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=upcoming', headers: { cookie } })).json().clients;
+  assert.equal(c.archived, false);
+  assert.deepEqual((await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=archive', headers: { cookie } })).json().clients, []);
+});
+
+test('a job marked completed is archived whatever its date', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobDate: daysFromNow(2) });
+  await call(jobsRoute, { body: { id: job.id, surveyType: 'full-house', surveyor: 'tom', status: 'completed', jobDate: daysFromNow(2) }, headers: { cookie } });
+  assert.deepEqual((await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=upcoming', headers: { cookie } })).json().clients, []);
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=archive', headers: { cookie } })).json().clients;
+  assert.equal(c.archived, true);
+  assert.equal(c.status, 'completed');
+});
+
+test('moving the survey date forward from the card brings it back onto the board', async () => {
+  // The rescheduling case, and the reason archive is a view and not a status.
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobDate: daysFromNow(-2) });
+  await call(clientsRoute, { body: { id: job.id, jobDate: daysFromNow(5) }, headers: { cookie } });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=upcoming', headers: { cookie } })).json().clients;
+  assert.equal(c.id, job.id);
+  assert.equal(c.archived, false);
+});
+
+test('an unknown view falls back to upcoming rather than erroring', async () => {
+  const cookie = await signedInCookie();
+  const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=nonsense', headers: { cookie } });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.json().view, 'upcoming');
 });
 
 test('a job recorded by hand, with no lead, is still a card', async () => {

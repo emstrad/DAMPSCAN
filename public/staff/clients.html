@@ -57,10 +57,16 @@
     <button class="pill" data-site="ati-london" aria-pressed="false">ATI, London</button>
   </div>
 
-  <div class="ranges" role="group" aria-label="Which clients">
-    <button class="pill" data-status="booked" aria-pressed="true">Booked</button>
-    <button class="pill" data-status="completed" aria-pressed="false">Completed</button>
-    <button class="pill" data-status="all" aria-pressed="false">All</button>
+  <div class="toolbar">
+    <div class="ranges" role="group" aria-label="Which clients">
+      <button class="pill" data-view="upcoming" aria-pressed="true">Upcoming</button>
+      <button class="pill" data-view="archive" aria-pressed="false">Archive</button>
+      <button class="pill" data-view="all" aria-pressed="false">All</button>
+    </div>
+    <div class="search">
+      <label for="search" class="sr-only">Search clients</label>
+      <input id="search" type="search" placeholder="Search name, address, postcode…" autocomplete="off" spellcheck="false" />
+    </div>
   </div>
 
   <div class="state" id="state">Loading…</div>
@@ -69,7 +75,8 @@
     <p class="panel-note" id="summary"></p>
     <div class="cards" id="cards"></div>
     <p class="panel-note">A card appears here the moment a job is saved as booked on the
-      Jobs page. Click one for the full details, the attachments, and the payment boxes.</p>
+      Jobs page, and moves to the archive the day after its survey date. Click one for the
+      full details, the attachments, and the payment boxes.</p>
   </div>
 </main>
 
@@ -145,6 +152,7 @@
 </dialog>
 
 <script src="/staff/ui.js"></script>
+<script src="/staff/client-dialog.js"></script>
 <script src="/staff/clients.js"></script>
 </body>
 </html>
