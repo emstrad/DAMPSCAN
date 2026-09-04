@@ -110,7 +110,9 @@
         return n ? node('span', 'tag tag--accent', n === 1 ? '1 file' : n + ' files') : '';
       } },
     { label: 'Issues', wrap: true, get: function(r){ return (r.issues || []).join(', '); } },
-    { label: 'Role', get: function(r){ return r.role; } },
+    /* Owner or landlord is not in the Role column any more: the form stopped
+       asking in September 2026, so it would be blank on every new lead. The
+       CSV export still carries it, so the leads that have one are not lost. */
     { label: 'Previous survey', get: function(r){
         return r.previousSurvey === null ? 'Not asked' : r.previousSurvey ? 'Yes' : 'No';
       } },

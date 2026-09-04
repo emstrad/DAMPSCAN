@@ -129,7 +129,6 @@
       files: uploaded,
       phone: val('f-phone'),
       issues: Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value),
-      role: document.getElementById('f-role').value || '',
       previousSurvey: document.getElementById('f-prev').checked,
       notes: val('f-notes'),
       sourcePath: location.pathname,
@@ -141,7 +140,7 @@
   }
 
   /* Server field key -> the input it belongs to, so a 400 lands on the right row. */
-  const ERROR_FIELDS = { firstName:'f-name', email:'f-email', postcode:'f-postcode', phone:'f-phone', role:'f-role' };
+  const ERROR_FIELDS = { firstName:'f-name', email:'f-email', postcode:'f-postcode', phone:'f-phone' };
 
   function showServerErrors(errors){
     let firstBad = null;
@@ -196,7 +195,6 @@
         ? uploaded.map(p => location.origin + '/api/admin/attachment?path=' + encodeURIComponent(p)).join('\n')
         : 'None',
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
-      'Owner or landlord': document.getElementById('f-role').value || 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
       Notes: val('f-notes') || 'None',
       'Lead stage': stage,

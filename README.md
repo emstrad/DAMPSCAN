@@ -73,7 +73,7 @@ covered by `npm test`. See "Running the tests".
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
 | `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
-| `ADDRESS_PROVIDER` | no | Which lookup provider the key belongs to. Only `getaddress` is wired up, and that is the default. |
+| `ADDRESS_API_URL` | no | The lookup URL, with `{postcode}` and `{key}` substituted in. Defaults to Ideal Postcodes. Set it to use a different provider. |
 | `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. Set automatically once a Blob store is attached to the project. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
 
 Generate the two secrets with:
@@ -458,23 +458,38 @@ Step 3 asks for the address of the property, not just the postcode, because
 without it every booking needed an email chasing it before a surveyor could be
 sent anywhere.
 
-**There is no free UK address lookup.** Listing the actual delivery points in a
-postcode means Royal Mail's Postcode Address File, which is licensed, so every
-provider that can do it charges for it. `postcodes.io` is free and good but
-returns coordinates and administrative areas, which cannot answer "which flat".
+Pick a **licensed** provider. The complete list of UK delivery points is Royal
+Mail's Postcode Address File, and it is licensed. getAddress.io, which this
+project originally called and which was the cheap option everybody reached for,
+shut down on 4 February 2026 after the High Court found in October 2025 that its
+data infringed the database rights and copyright of Royal Mail and of Ideal
+Postcodes. A provider well under the licensed rate may be under it for the same
+reason, and its customers are the ones left with a dead endpoint.
 
-So the feature is built to work with no provider at all. With no
-`ADDRESS_API_KEY` set, `/api/address` answers `configured: false`, the form says
-"Please type the address below" and puts the cursor in the first field. The full
-address still reaches the lead. Adding a key upgrades typing into picking and
-changes nothing else: the typed fields stay, and the picker only fills them in.
+Free tiers exist and this site's volume may fit inside one. A free *unlimited*
+source does not: `postcodes.io` is free but returns coordinates and
+administrative areas rather than delivery points, so it cannot answer "which
+flat", and the OS Places API is free only for public sector use.
 
-`lib/address.js` holds the provider adapter. getAddress.io is the one wired up
-because its response is the simplest to normalise. Another provider is a second
-function and a line in `PROVIDERS`, not a rewrite. Every failure path, no key,
-no results, a timeout, a wrong key, ends at the same sentence in front of the
-visitor, because to them they are the same thing. A wrong or expired key is
-logged, since it would otherwise be silent.
+The feature works with no provider at all. With no `ADDRESS_API_KEY` set,
+`/api/address` answers `configured: false`, the form says "Please type the
+address below" and puts the cursor in the first field. The full address still
+reaches the lead. Adding a key upgrades typing into picking and changes nothing
+else: the typed fields stay, the picker only fills them in, and once it has,
+they collapse to one line with a Change link.
+
+`lib/address.js` is provider agnostic rather than holding an adapter each.
+Nearly every UK provider returns PAF's own field names, because they are all
+reselling the same file, so there is one tolerant parser: it finds the address
+array under `result`, `addresses`, `results` or a bare array, accepts either
+objects or comma separated strings, and title cases the all caps post town Royal
+Mail hands back (Stoke-on-Trent and King's Lynn, not Stoke-On-Trent and
+King'S Lynn). Point `ADDRESS_API_URL` at whichever provider you buy, with
+`{postcode}` and `{key}` in it, and it should work untouched.
+
+Every failure path, no key, no results, a timeout, a wrong key, ends at the same
+sentence in front of the visitor, because to them they are the same thing. A
+wrong or expired key is logged, since it would otherwise be silent.
 
 The endpoint is rate limited and cached at the edge for a day. Both matter: it
 is unauthenticated and it sits in front of somebody's metered bill.

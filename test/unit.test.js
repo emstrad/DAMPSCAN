@@ -42,16 +42,25 @@ test('issues outside the allowed six are rejected', () => {
   assert.ok(r.errors.issues);
 });
 
-test('role outside the allowed five is rejected', () => {
-  assert.equal(validateLead({ ...base, role: 'Wizard' }).errors.role, 'Please choose one.');
-});
-
-test('partial does not require issues or role, complete does', () => {
+test('partial does not require issues, complete does', () => {
   const partial = validateLead({ stage: 'partial', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
   assert.equal(partial.ok, true, JSON.stringify(partial.errors));
   const complete = validateLead({ stage: 'complete', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
   assert.equal(complete.ok, false);
-  assert.ok(complete.errors.issues && complete.errors.role);
+  assert.ok(complete.errors.issues);
+});
+
+test('a complete lead no longer needs a role, because the form stopped asking', () => {
+  const { role, ...withoutRole } = base;
+  const r = validateLead(withoutRole);
+  assert.equal(r.ok, true, JSON.stringify(r.errors));
+  assert.equal(r.value.role, null);
+});
+
+test('role is still whitelisted for the leads that already have one', () => {
+  // The column stays, so the values that can reach it stay closed.
+  assert.equal(validateLead({ ...base, role: 'Landlord' }).value.role, 'Landlord');
+  assert.ok(validateLead({ ...base, role: '<script>' }).errors.role);
 });
 
 test('phone optional, but must have 9+ digits when given', () => {
