@@ -1,15 +1,15 @@
 /* The booking form, shared by every page on both sites.
 
    This file is over the 300 line limit the rest of the project keeps to, and
-   deliberately so. It is one component: the stepper, its validation, the lead
-   post and the held partial are a single piece of behaviour, and the only seam
-   available runs straight through showServerErrors. Splitting it would add an
-   interface without adding clarity. It is the second documented exception,
-   alongside the home pages themselves.
+   deliberately so. It is one component: the stepper, its validation and the
+   lead post are a single piece of behaviour, and the only seam left runs
+   straight through showServerErrors. The held partial, the address lookup and
+   the attachments each had a real seam and each live in their own file. It is
+   the second documented exception, alongside the home pages themselves.
 
-   Requires visit.js, and window.DS_CONFIG for the per site values. It does
-   nothing at all on a page with no booking form, so it is safe to load
-   everywhere. */
+   Requires visit.js and partial.js before it, and window.DS_CONFIG for the per
+   site values. It does nothing at all on a page with no booking form, so it is
+   safe to load everywhere. */
 /* ---------- Multi-step booking form ---------- */
 (function bookingForm(){
   const card = document.getElementById('book');
@@ -271,74 +271,22 @@
     return { ok: true, errors: {} };
   }
 
-  /* --- PARTIAL LEAD ---------------------------------------------------
-     Step 1 gives us enough to call someone back, but a visitor who carries on
-     and books is not a partial at all. So the partial is armed once they pass
-     step 1 and then held back: it is only sent if they really do leave it
-     there, either by leaving the page or by going quiet for a long time with
-     the form still open. Submitting cancels it, so a booked survey never
-     arrives twice. */
-  const PARTIAL_IDLE_MS = 180000;
-  const PARTIAL_HIDDEN_MS = 45000;
-  let partialArmed = false;
-  let partialDone = false;
-  let idleTimer = 0;
-  let hiddenTimer = 0;
-
-  function armPartial(){
-    if (partialDone) return;
-    partialArmed = true;
-    bumpIdle();
-  }
-
-  function cancelPartial(){
-    partialArmed = false;
-    partialDone = true;
-    clearTimeout(idleTimer);
-    clearTimeout(hiddenTimer);
-  }
-
-  function bumpIdle(){
-    clearTimeout(idleTimer);
-    if (!partialArmed) return;
-    idleTimer = setTimeout(() => flushPartial(false), PARTIAL_IDLE_MS);
-  }
-
-  /* leaving means the page is on its way out, so the request has to be a
-     beacon: an ordinary fetch is routinely killed mid-flight during unload.
-     The lead still reaches the dashboard, it just cannot report back on the
-     notification email the way an idle flush can. */
-  function flushPartial(leaving){
-    if (!partialArmed || partialDone) return;
-    partialArmed = false;
-    partialDone = true;
-    clearTimeout(idleTimer);
-    clearTimeout(hiddenTimer);
-    if (leaving && navigator.sendBeacon) {
-      const body = new Blob([JSON.stringify(leadPayload('partial'))], { type: 'application/json' });
-      navigator.sendBeacon(LEAD_ENDPOINT, body);
-      return;
-    }
-    sendLead('partial');
-  }
-
-  /* pagehide is the last reliable moment before the page goes. A tab switch
-     only counts once they have stayed away a while, so glancing at another tab
-     and coming back to finish does not produce a partial. */
-  window.addEventListener('pagehide', () => flushPartial(true));
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      if (partialArmed) hiddenTimer = setTimeout(() => flushPartial(true), PARTIAL_HIDDEN_MS);
-      return;
-    }
-    clearTimeout(hiddenTimer);
-    bumpIdle();
-  });
+  /* The held partial lives in partial.js. It is handed how to build and send
+     the payload and told three things from here: they passed step 1, they
+     submitted, they are still typing. Absent, the form still books; it just
+     stops reporting abandonments. */
+  const partial = window.DS_HELD_PARTIAL
+    ? window.DS_HELD_PARTIAL({
+        payload: () => leadPayload('partial'),
+        send: () => sendLead('partial'),
+        endpoint: LEAD_ENDPOINT
+      })
+    : { arm(){}, cancel(){}, bump(){}, rearm(){} };
 
   function advance(){
     if (!validate()) return;
     /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
-    if (current === 0) armPartial();
+    if (current === 0) partial.arm();
     show(current + 1, true);
     track('form_step', { step: current + 1 });
   }
@@ -360,12 +308,12 @@
   /* Clear the error as soon as they start fixing it, and keep the partial
      lead on hold for as long as they are still working on the form. */
   form.addEventListener('input', e => {
-    bumpIdle();
+    partial.bump();
     const row = e.target.closest('.form-row');
     if (row) setError(row, false);
   });
   form.addEventListener('change', e => {
-    bumpIdle();
+    partial.bump();
     const row = e.target.closest('.form-row');
     if (row && e.target.type === 'checkbox') row.classList.remove('has-err');
   });
@@ -383,7 +331,7 @@
     if (!validate()) return;
     submitting = true;
     /* They are booking, so the held partial is not a partial. Drop it. */
-    cancelPartial();
+    partial.cancel();
     const btn = form.querySelector('[type="submit"]');
     const btnLabel = btn.innerHTML;
     btn.disabled = true;
@@ -413,8 +361,7 @@
     if (!result.ok) {
       /* Server rejected a field, so nothing was written. Put the partial back
          on hold as a fallback, then point at the problem. */
-      partialDone = false;
-      armPartial();
+      partial.rearm();
       btn.disabled = false;
       btn.style.opacity = '';
       showServerErrors(result.errors);

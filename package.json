@@ -13,6 +13,7 @@
     "set-user": "node db/set-user.js",
     "test": "node --experimental-test-module-mocks --test",
     "set-domain": "node db/set-domain.js",
+    "sweep-blobs": "node db/sweep-blobs.js",
     "build:pages": "node scripts/build-pages.js"
   },
   "dependencies": {

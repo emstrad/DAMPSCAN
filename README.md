@@ -75,6 +75,7 @@ covered by `npm test`. See "Running the tests".
 | `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
 | `ADDRESS_API_URL` | no | The lookup URL, with `{postcode}` and `{key}` substituted in. Defaults to Ideal Postcodes. Set it to use a different provider. |
 | `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. Set automatically once a Blob store is attached to the project. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
+| `CRON_SECRET` | no | Bearer token Vercel sends when it runs the monthly upload sweep. Unset, the sweep route refuses everyone. See "Sweeping orphaned uploads". |
 
 Generate the two secrets with:
 
@@ -424,7 +425,8 @@ Every page on both sites carries the same booking form, driven by the same two
 scripts:
 
     public/assets/visit.js    session, attribution and interaction tracking
-    public/assets/book.js     the form: stepper, validation, lead post, held partial
+    public/assets/partial.js  the held partial: sent only if step 1 is abandoned
+    public/assets/book.js     the form: stepper, validation, lead post
     public/assets/address.js  postcode to address lookup on step 3
     public/assets/upload.js   attaching a previous survey or photos
     public/assets/book.css    its styles
@@ -555,6 +557,23 @@ the whole store.
 With no `BLOB_READ_WRITE_TOKEN` the upload answers `not configured` and the
 booking is unaffected.
 
+### Sweeping orphaned uploads
+
+A file is uploaded before the booking is submitted, so somebody who attaches
+photos and then closes the tab leaves blobs that no lead points at. Once a
+month, `/api/cron/sweep-blobs` removes any blob under `leads/` that no row in
+`leads.files` names and that is older than a day, so an upload in progress is
+never touched. The route only answers to the `CRON_SECRET` bearer Vercel sends,
+and with the secret unset it refuses everyone, so a deletion job is never
+reachable on an open URL.
+
+Two refusals are built into `lib/sweep.js` because the failure mode of a sweep
+is deleting a customer's survey: a database query that fails aborts the run
+before anything is treated as an orphan, and a database that names no
+attachments at all while the store has blobs is taken to mean a wrong
+`DATABASE_URL` rather than a store full of abandonments, and needs `--force`.
+Try it by hand first: `npm run sweep-blobs -- --dry-run`.
+
 The notification email carries `/api/admin/attachment` links rather than the
 files, one field each, because FormSubmit sends it from the browser and cannot
 carry a private blob. Those links open for a signed-in staff member and nobody
@@ -573,7 +592,7 @@ ignored, so a double tap books once. Optional fields with a format, the phone
 number, are checked in the browser as well as on the server, because by the
 time the server answers the photos have already been uploaded.
 
-`book.js` is over 400 lines, over the limit the rest of the project keeps to, and
+`book.js` is just under 400 lines, over the limit the rest of the project keeps to, and
 deliberately. It is one component, and the only seam in it runs straight through
 `showServerErrors`, so splitting it would add an interface without adding
 clarity. It is the second documented exception, alongside the home pages.

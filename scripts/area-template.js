@@ -101,6 +101,7 @@ window.DS_CONFIG = {
 };
 </scr` + `ipt>
 <scr` + `ipt src="/assets/visit.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/partial.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/book.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/address.js" defer></scr` + `ipt>
 <scr` + `ipt src="/assets/upload.js" defer></scr` + `ipt>`;
