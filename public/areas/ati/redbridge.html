@@ -199,6 +199,26 @@
 
           <!-- STEP 3, qualify + optional detail -->
           <div class="fstep" data-step="3">
+            <div class="form-row addr">
+              <label for="f-addr1">Address for the survey</label>
+              <div class="addr-find">
+                <input id="f-addr-pc" name="Lookup postcode" type="text" autocomplete="postal-code"
+                  aria-label="Postcode to look up" placeholder="Postcode" />
+                <button type="button" class="btn addr-btn" id="f-addr-find">Find address</button>
+              </div>
+              <p class="addr-status" id="f-addr-status" role="status"></p>
+              <div class="form-row addr-pick" id="f-addr-pick" hidden>
+                <label for="f-addr-select">Pick your address</label>
+                <select id="f-addr-select"></select>
+              </div>
+              <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
+                placeholder="House number and street" required />
+              <span class="err">Please give the address for the survey.</span>
+              <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
+                placeholder="Flat, building or area (optional)" />
+              <input id="f-town" name="Town" type="text" autocomplete="address-level2"
+                placeholder="Town or city" />
+            </div>
             <div class="form-row">
               <label for="f-role">Are you the owner or the landlord?</label>
               <select id="f-role" name="Owner or landlord" required>
@@ -217,6 +237,15 @@
             <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
+            </div>
+            <div class="form-row">
+              <label for="f-files">Previous surveys or photos <span class="opt">(optional)</span></label>
+              <input id="f-files" name="Files" type="file" multiple
+                accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
+              <p class="file-hint">Up to 5 photos or PDFs. Large photos are shrunk before
+                sending, so a picture straight off your phone is fine. An earlier report or a
+                shot of the affected wall often says more than a paragraph.</p>
+              <ul class="file-list" id="f-file-list"></ul>
             </div>
             <div class="form-row">
               <label for="f-notes">Anything we should know? <span class="opt">(optional)</span></label>
@@ -274,6 +303,8 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js"></script>
 <script src="/assets/book.js"></script>
+<script src="/assets/address.js" defer></script>
+<script src="/assets/upload.js" defer></script>
 <script src="/assets/menu.js" defer></script>
 </body>
 </html>

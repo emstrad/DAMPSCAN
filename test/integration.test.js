@@ -223,6 +223,51 @@ test('resubmitting the same stage updates rather than duplicating', async () => 
   assert.equal(rows[0].n, 1);
 });
 
+test('the full address is stored, which is the whole reason the form asks', async () => {
+  const out = (await call(lead, { body: validLead({
+    addressLine1: 'Flat 6, Trafalgar Point',
+    addressLine2: '137 Downham Road',
+    town: 'London'
+  }) })).json();
+
+  const { rows } = await pool.query(
+    'select address_line1, address_line2, town from leads where id = $1', [out.id]
+  );
+  assert.equal(rows[0].address_line1, 'Flat 6, Trafalgar Point');
+  assert.equal(rows[0].address_line2, '137 Downham Road');
+  assert.equal(rows[0].town, 'London');
+});
+
+test('a later partial cannot blank the address the booking already gave us', async () => {
+  // The order that actually happens: they book, then the held partial flushes
+  // on pagehide from the same session. Without the coalesce in the upsert that
+  // second write would wipe the address off the row we care about.
+  await call(lead, { body: validLead({ addressLine1: '12 Bridge Street', town: 'Maidstone' }) });
+  await call(lead, { body: validLead({ addressLine1: '', addressLine2: '', town: '' }) });
+
+  const { rows } = await pool.query(
+    'select address_line1, town from leads where session_id = $1 and stage = $2', [SID_A, 'complete']
+  );
+  assert.equal(rows[0].address_line1, '12 Bridge Street');
+  assert.equal(rows[0].town, 'Maidstone');
+});
+
+test('attachments are stored as paths, and only ones we could have written', async () => {
+  const mine = 'leads/2026-09-04/report-Kq7z2.pdf';
+  const out = (await call(lead, { body: validLead({
+    files: [mine, 'other/2026-09-04/someone-elses.pdf', '../../etc/passwd']
+  }) })).json();
+
+  const { rows } = await pool.query('select files from leads where id = $1', [out.id]);
+  assert.deepEqual(rows[0].files, [mine], 'a path outside the leads prefix never reaches the column');
+});
+
+test('a lead with no attachments gets an empty array, never null', async () => {
+  const out = (await call(lead, { body: validLead() })).json();
+  const { rows } = await pool.query('select files from leads where id = $1', [out.id]);
+  assert.deepEqual(rows[0].files, []);
+});
+
 test('honeypot returns 200 and writes nothing at all', async () => {
   const res = await call(lead, { body: validLead({ honeypot: 'i-am-a-bot' }) });
   assert.equal(res.statusCode, 200);

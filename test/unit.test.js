@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 process.env.SESSION_SECRET = 'test-secret-that-is-long-enough-abcdef';
 process.env.IP_SALT = 'test-salt';
 
-const { validateLead, normalisePostcode, sanitiseUtm } = await import('../lib/validate.js');
+const { validateLead, normalisePostcode, sanitiseUtm, addressLine, attachmentPaths } =
+  await import('../lib/validate.js');
 const { channelFor, deviceFor, referrerHost } = await import('../lib/attribution.js');
 const { signSession, verifySession, parseCookies } = await import('../lib/session.js');
 const { sanitiseDetail } = await import('../api/event.js');
@@ -61,6 +62,59 @@ test('phone optional, but must have 9+ digits when given', () => {
 
 test('malformed session id is rejected', () => {
   assert.ok(validateLead({ ...base, sessionId: 'abc' }).errors.sessionId);
+});
+
+test('address lines are optional, tidied and capped', () => {
+  const none = validateLead(base).value;
+  assert.equal(none.addressLine1, null);
+  assert.equal(none.town, null);
+
+  const given = validateLead({
+    ...base,
+    addressLine1: '  Flat 6,   Trafalgar   Point ',
+    addressLine2: '137 Downham Road',
+    town: 'London'
+  }).value;
+  assert.equal(given.addressLine1, 'Flat 6, Trafalgar Point');
+  assert.equal(given.addressLine2, '137 Downham Road');
+  assert.equal(given.town, 'London');
+
+  assert.equal(addressLine('x'.repeat(500)).length, 120);
+  assert.equal(addressLine('x'.repeat(500), 80).length, 80);
+  assert.equal(addressLine('   '), null);
+});
+
+test('a missing address never fails the booking', () => {
+  // Deliberate: the address is the point of the field, but a lookup that is
+  // down or a visitor who skips it must not lose us the enquiry.
+  assert.equal(validateLead({ ...base, addressLine1: '' }).ok, true);
+});
+
+test('attachment paths only survive if they match what we ourselves write', () => {
+  const good = 'leads/2026-09-04/survey-Ab3x9.pdf';
+  assert.deepEqual(attachmentPaths([good]), [good]);
+
+  // Anything pointing outside the leads prefix, climbing out of it, or naming
+  // an absolute URL is dropped rather than stored and later linked to.
+  assert.deepEqual(attachmentPaths([
+    'other/2026-09-04/secret.pdf',
+    'leads/2026-09-04/../../etc/passwd',
+    'leads/nope/file.pdf',
+    'https://example.com/leads/2026-09-04/x.pdf',
+    'leads/2026-09-04/',
+    ''
+  ]), []);
+
+  assert.deepEqual(attachmentPaths('not an array'), []);
+  assert.deepEqual(attachmentPaths(undefined), []);
+});
+
+test('attachments are deduplicated and capped at five', () => {
+  const many = Array.from({ length: 9 }, (_, i) => `leads/2026-09-04/photo-${i}.jpg`);
+  assert.equal(attachmentPaths(many).length, 5);
+
+  const dupe = 'leads/2026-09-04/photo-0.jpg';
+  assert.deepEqual(attachmentPaths([dupe, dupe, dupe]), [dupe]);
 });
 
 test('oversized name is truncated, not rejected outright', () => {

@@ -14,6 +14,11 @@ create table if not exists leads (
   first_name      text not null,
   email           text not null,
   postcode        text not null,
+  -- The full address, so a booked survey does not need an email chasing it.
+  -- Nullable because a partial lead is captured before these are asked for.
+  address_line1   text,
+  address_line2   text,
+  town            text,
   phone           text,
   issues          text[] not null default '{}',
   role            text,               -- Homeowner / Landlord / Letting agent / Tenant / Buying
@@ -104,6 +109,22 @@ alter table events add column if not exists site text not null default 'dampscan
 
 create index if not exists leads_site_idx  on leads  (site, created_at desc);
 create index if not exists events_site_idx on events (site, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Survey address and attachments
+--
+-- The postcode alone meant chasing every booking by email for the rest of the
+-- address, so the form now asks for it and stores it here. All nullable: a
+-- step-1 partial is captured before any of this is asked for, and a visitor who
+-- attaches nothing is the normal case.
+--
+-- files holds Blob pathnames, not URLs. The blobs are private, so they are only
+-- readable through /api/admin/attachment, which checks the staff session first.
+-- ---------------------------------------------------------------------------
+alter table leads add column if not exists address_line1 text;
+alter table leads add column if not exists address_line2 text;
+alter table leads add column if not exists town          text;
+alter table leads add column if not exists files         text[] not null default '{}';
 
 -- ---------------------------------------------------------------------------
 -- Job earnings

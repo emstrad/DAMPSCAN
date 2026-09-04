@@ -72,6 +72,9 @@ covered by `npm test`. See "Running the tests".
 | `STAFF_ACCESS_CODE` | yes | The code typed at `/staff`. Under 4 characters and every login is refused, so it cannot be left blank by accident. |
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
+| `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
+| `ADDRESS_PROVIDER` | no | Which lookup provider the key belongs to. Only `getaddress` is wired up, and that is the default. |
+| `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
 
 Generate the two secrets with:
 
@@ -91,6 +94,13 @@ booking. A `partial` is an abandonment: the page holds the step 1 details back a
 only sends them if the visitor leaves without finishing, so a visitor who books
 produces one row, not two. Both stages share a `session_id`, so a partial and any
 later contact still line up.
+
+`address_line1`, `address_line2` and `town` are all nullable: a `partial` never
+reaches step 3, so it has the postcode and nothing else. The upsert coalesces
+them, so a partial flushing after a booking on the same session cannot blank the
+address the booking gave us. `files` is a `text[]` of Blob pathnames, empty
+rather than null, and validated against the exact shape this app writes so the
+column cannot be used to point the dashboard at somebody else's blob.
 
 `issues` is a `text[]` restricted to the six values the form offers. `role` is one
 of the five. `previous_survey` is a nullable boolean: `null` means the visitor
@@ -413,10 +423,12 @@ page links are load bearing rather than decorative.
 Every page on both sites carries the same booking form, driven by the same two
 scripts:
 
-    public/assets/visit.js   session, attribution and interaction tracking
-    public/assets/book.js    the form: stepper, validation, lead post, held partial
-    public/assets/book.css   its styles
-    scripts/book-form.js     the markup, for the generated pages
+    public/assets/visit.js    session, attribution and interaction tracking
+    public/assets/book.js     the form: stepper, validation, lead post, held partial
+    public/assets/address.js  postcode to address lookup on step 3
+    public/assets/upload.js   attaching a previous survey or photos
+    public/assets/book.css    its styles
+    scripts/book-form.js      the markup, for the generated pages
 
 It used to be inline in both home pages, 470 near-identical lines each, differing
 only in the sessionStorage keys, the dataLayer event name and the notification
@@ -440,7 +452,67 @@ ATi one and both sets of generated pages. `area.css` supplies `--card-2`,
 `--card-shadow` and `--warn` per theme, which is what stops the card fading to
 navy on the light pages.
 
-`book.js` is 353 lines, over the limit the rest of the project keeps to, and
+### Address lookup
+
+Step 3 asks for the address of the property, not just the postcode, because
+without it every booking needed an email chasing it before a surveyor could be
+sent anywhere.
+
+**There is no free UK address lookup.** Listing the actual delivery points in a
+postcode means Royal Mail's Postcode Address File, which is licensed, so every
+provider that can do it charges for it. `postcodes.io` is free and good but
+returns coordinates and administrative areas, which cannot answer "which flat".
+
+So the feature is built to work with no provider at all. With no
+`ADDRESS_API_KEY` set, `/api/address` answers `configured: false`, the form says
+"Please type the address below" and puts the cursor in the first field. The full
+address still reaches the lead. Adding a key upgrades typing into picking and
+changes nothing else: the typed fields stay, and the picker only fills them in.
+
+`lib/address.js` holds the provider adapter. getAddress.io is the one wired up
+because its response is the simplest to normalise. Another provider is a second
+function and a line in `PROVIDERS`, not a rewrite. Every failure path, no key,
+no results, a timeout, a wrong key, ends at the same sentence in front of the
+visitor, because to them they are the same thing. A wrong or expired key is
+logged, since it would otherwise be silent.
+
+The endpoint is rate limited and cached at the edge for a day. Both matter: it
+is unauthenticated and it sits in front of somebody's metered bill.
+
+### Attachments
+
+The same step takes previous surveys and photos, up to five files, PDFs and
+images only. It is not gated behind the "I have had a survey before" tick: a
+photo of the affected wall is worth having from anybody.
+
+A Vercel serverless function will not accept a request body over 4.5MB, which a
+photo straight off a modern phone already exceeds. Rather than refuse it, images
+are drawn through a canvas and re-encoded before sending: 2000px on the long
+edge at quality 0.82. A 2.8MB camera JPEG goes out at around 300KB, which uploads
+far quicker on mobile data and is still more detail than anyone inspects a damp
+patch with. PDFs cannot be shrunk, so one over 4MB is refused at selection with
+somewhere else to send it.
+
+Files upload on submit rather than on selection, one request each, with the
+button reporting progress. **Nothing here can cost a booking.** `upload.js` never
+rejects, `/api/upload` answers 200 even when the store is unreachable, and
+anything that failed is reported on the confirmation as "reply to your
+confirmation email with it" rather than as an error to fix. Validation is
+duplicated in the browser and on the server; the browser copy exists to save
+somebody uploading a 40MB photo before it is refused, and is not trusted.
+
+Blobs are stored **private**. A previous damp report carries an address, a
+surveyor's findings and often photographs of somebody's home, and a public blob
+URL is readable by anyone who ever sees it. `leads.files` therefore holds Blob
+pathnames rather than URLs, and the only way to read one is
+`/api/admin/attachment`, which checks the staff session and then checks the path
+actually belongs to a lead. Without that second check one staff login would be
+the whole store.
+
+With no `BLOB_READ_WRITE_TOKEN` the upload answers `not configured` and the
+booking is unaffected.
+
+`book.js` is over 400 lines, over the limit the rest of the project keeps to, and
 deliberately. It is one component, and the only seam in it runs straight through
 `showServerErrors`, so splitting it would add an interface without adding
 clarity. It is the second documented exception, alongside the home pages.
@@ -667,12 +739,17 @@ Three integration points, in increasing order of usefulness:
 
 ## A note on dependencies
 
-Three runtime dependencies:
+Five runtime dependencies, all of them either Vercel's own or unavoidable:
 
 - `@neondatabase/serverless`, the Neon HTTP driver.
 - `@node-rs/argon2` for argon2id password hashing. Chosen over the `argon2` package
   because it ships prebuilt binaries for the Lambda platform Vercel runs on, so a
   deploy cannot fail on a native compile step. Same algorithm, same PHC hash format.
+- `@vercel/edge`, for the middleware that routes the two hostnames.
+- `@vercel/blob`, for booking attachments. The Blob REST API is a single `PUT`
+  and writing it by hand would avoid the dependency, but it carries an API
+  version header that the SDK tracks and a hand-rolled call would not. Pinning a
+  version number that drifts is worse than the 950KB.
 - `dotenv`, used only by the local CLI scripts.
 
 `pg` is a dev dependency, used only by the integration tests.

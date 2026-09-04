@@ -104,6 +104,11 @@
 
   const val = id => (document.getElementById(id).value || '').trim();
 
+  /* Blob pathnames for whatever upload.js managed to store, filled in on
+     submit. Held here rather than re-read from the file input so a rejected
+     submission does not upload the same photos a second time. */
+  let uploaded = [];
+
   /* The JSON shape /api/lead expects. The server re-validates all of it. */
   function leadPayload(stage){
     const hp = form.querySelector('input[name="honeypot"]');
@@ -113,6 +118,10 @@
       firstName: val('f-name'),
       email: val('f-email'),
       postcode: val('f-postcode'),
+      addressLine1: val('f-addr1'),
+      addressLine2: val('f-addr2'),
+      town: val('f-town'),
+      files: uploaded,
       phone: val('f-phone'),
       issues: Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value),
       role: document.getElementById('f-role').value || '',
@@ -170,6 +179,12 @@
       Email: val('f-email'),
       Phone: val('f-phone') || 'Not given',
       Postcode: val('f-postcode'),
+      /* The address is the whole point of asking for it: it needs to be in the
+         email as well as the dashboard, or somebody still chases it. */
+      Address: [val('f-addr1'), val('f-addr2'), val('f-town')].filter(Boolean).join(', ') || 'Not given yet',
+      Attachments: uploaded.length
+        ? uploaded.length + ' attached, in the staff dashboard'
+        : 'None',
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
       'Owner or landlord': document.getElementById('f-role').value || 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
@@ -335,8 +350,25 @@
     /* They are booking, so the held partial is not a partial. Drop it. */
     cancelPartial();
     const btn = form.querySelector('[type="submit"]');
+    const btnLabel = btn.innerHTML;
     btn.disabled = true;
     btn.style.opacity = '.7';
+
+    /* Files go up before the lead, so the lead row can name them, and the
+       button says what is happening because shrinking and sending a phone
+       photo is a wait.
+       Nothing here can fail the booking: upload.js never rejects, and anything
+       that did not store is reported as a note rather than as an error. */
+    let filesFailed = 0;
+    if (window.DS_UPLOAD) {
+      const done = await window.DS_UPLOAD((n, total) => {
+        btn.textContent = `Sending file ${n} of ${total}…`;
+      });
+      uploaded = done.paths;
+      filesFailed = done.failed;
+      btn.innerHTML = btnLabel;
+    }
+
     const result = await sendLead('complete');
     if (!result.ok) {
       /* Server rejected a field, so nothing was written. Put the partial back
@@ -349,6 +381,17 @@
       return;
     }
     track('form_submit');
+    /* Said on the confirmation rather than as a field error, because the form
+       is gone by now. They are booked either way, so the wording is a next
+       step and not an apology for something they need to fix. */
+    if (filesFailed) {
+      const note = document.createElement('p');
+      note.className = 'note';
+      note.textContent = filesFailed === 1
+        ? 'One of your files did not come through. Reply to your confirmation email with it and we will add it to the job.'
+        : `${filesFailed} of your files did not come through. Reply to your confirmation email with them and we will add them to the job.`;
+      card.querySelector('.book-success').appendChild(note);
+    }
     card.classList.add('is-sent');
     card.querySelector('.book-success h3').focus?.();
   });

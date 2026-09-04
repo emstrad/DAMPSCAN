@@ -36,6 +36,7 @@ function sinceExpr(range) {
  */
 const LEADS = `
   select l.id, l.created_at, l.updated_at, l.stage, l.first_name, l.email, l.postcode,
+         l.address_line1, l.address_line2, l.town, l.files,
          l.phone, l.issues, l.role, l.previous_survey, l.notes, l.session_id,
          l.source_path, l.referrer, l.utm, l.notified_at, l.notify_error, l.site,
          a.channel, a.landing_page, a.device,
@@ -124,6 +125,10 @@ export default async function handler(req, res) {
         firstName: row.first_name,
         email: row.email,
         postcode: row.postcode,
+        addressLine1: row.address_line1,
+        addressLine2: row.address_line2,
+        town: row.town,
+        files: row.files || [],
         phone: row.phone,
         issues: row.issues || [],
         role: row.role,
