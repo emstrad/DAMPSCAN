@@ -1,0 +1,57 @@
+name: Mirror to Vertise
+
+# VERTISE-DEV/DAMPSCAN is no longer a GitHub fork of this repository, so it does
+# not track main on its own. It is a standalone mirror, and this is what keeps
+# it in step: every commit that reaches main here and passes CI is pushed there,
+# which is what the Vertise Vercel project deploys from.
+#
+# Deliberately gated on CI rather than on the push itself. Mirroring straight
+# from a push would send a red main to a live deployment; waiting for the suite
+# means Vertise only ever receives code that passed.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  # So a sync can be forced by hand from the Actions tab without a new commit.
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    name: Push main to VERTISE-DEV/DAMPSCAN
+    runs-on: ubuntu-latest
+
+    # Two guards. The repository check matters: this file is itself mirrored, so
+    # without it the copy that lands on VERTISE-DEV would run there and try to
+    # push the repository to itself, failing on every deploy for no reason.
+    if: >-
+      github.repository == 'emstrad/DAMPSCAN' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          # The exact commit CI passed on, not whatever main happens to be by
+          # the time this runs: main can move while the suite is still going.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+      - name: Push
+        env:
+          TOKEN: ${{ secrets.VERTISE_SYNC_TOKEN }}
+        run: |
+          if [ -z "${TOKEN}" ]; then
+            echo "::error::VERTISE_SYNC_TOKEN is not set, so nothing was mirrored."
+            echo "Create a fine-grained personal access token with Contents: Read and write"
+            echo "on VERTISE-DEV/DAMPSCAN, then add it here under Settings, Secrets and"
+            echo "variables, Actions, as VERTISE_SYNC_TOKEN."
+            exit 1
+          fi
+          echo "Mirroring $(git rev-parse --short HEAD) to VERTISE-DEV/DAMPSCAN main"
+          # Force, because the mirror is a copy and not a branch anyone commits
+          # to. Anything pushed directly to VERTISE-DEV/main is overwritten by
+          # design: this repository is the single source.
+          git push --force \
+            "https://x-access-token:${TOKEN}@github.com/VERTISE-DEV/DAMPSCAN.git" \
+            HEAD:main

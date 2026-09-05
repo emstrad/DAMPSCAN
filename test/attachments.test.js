@@ -63,9 +63,9 @@ mock.module('../lib/blob.js', {
 });
 
 const upload = (await import('../api/upload.js')).default;
-const uploadUrl = (await import('../api/upload-url.js')).default;
-const { downloadName } = await import('../api/admin/attachment.js');
-const attachment = (await import('../api/admin/attachment.js')).default;
+const attachmentModule = await import('../lib/routes/admin/attachment.js');
+const attachment = attachmentModule.default;
+const { downloadName } = attachmentModule;
 const { signSession, COOKIE_NAME } = await import('../lib/session.js');
 
 function makeRes() {
@@ -124,12 +124,12 @@ beforeEach(() => {
   process.env.BLOB_READ_WRITE_TOKEN = 'test-token';
 });
 
-/** POST /api/upload-url with a JSON body. */
+/** Ask the merged upload route for a presigned ticket. */
 async function ticket(body, headers){
   const res = makeRes();
-  await uploadUrl({
+  await upload({
     method: 'POST',
-    url: '/api/upload-url',
+    url: '/api/upload?mode=presign',
     headers: { host: 'dampscan.co.uk', 'x-forwarded-for': '203.0.113.9', ...headers },
     body,
     socket: { remoteAddress: '203.0.113.9' }

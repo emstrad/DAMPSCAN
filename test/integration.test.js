@@ -43,14 +43,14 @@ mock.module('../lib/db.js', {
 const lead = (await import('../api/lead.js')).default;
 const event = (await import('../api/event.js')).default;
 const health = (await import('../api/health.js')).default;
-const login = (await import('../api/auth/login.js')).default;
-const logout = (await import('../api/auth/logout.js')).default;
-const summary = (await import('../api/admin/summary.js')).default;
-const leadsRoute = (await import('../api/admin/leads.js')).default;
+const login = (await import('../lib/routes/auth/login.js')).default;
+const logout = (await import('../lib/routes/auth/logout.js')).default;
+const summary = (await import('../lib/routes/admin/summary.js')).default;
+const leadsRoute = (await import('../lib/routes/admin/leads.js')).default;
 const notified = (await import('../api/notified.js')).default;
-const jobsRoute = (await import('../api/admin/jobs.js')).default;
-const ratesRoute = (await import('../api/admin/rates.js')).default;
-const clientsRoute = (await import('../api/admin/clients.js')).default;
+const jobsRoute = (await import('../lib/routes/admin/jobs.js')).default;
+const ratesRoute = (await import('../lib/routes/admin/rates.js')).default;
+const clientsRoute = (await import('../lib/routes/admin/clients.js')).default;
 const { siteFor } = await import('../lib/site.js');
 
 /* ---------- minimal req/res doubles ---------- */
@@ -908,4 +908,53 @@ test('the clients route needs a session, rejects a bad id, and rejects an empty 
   const { job } = await bookedJob(cookie);
   assert.equal((await call(clientsRoute, { body: { id: job.id }, headers: { cookie } })).statusCode, 400);
   assert.equal((await call(clientsRoute, { body: { id: job.id, jobDate: 'next tuesday' }, headers: { cookie } })).statusCode, 400);
+});
+
+/* ------------------------------------------------------- route dispatch ---- */
+const adminRouter = (await import('../api/admin/[action].js')).default;
+const authRouter = (await import('../api/auth/[action].js')).default;
+
+test('the admin dispatcher reaches each route on its own unchanged URL', async () => {
+  // Six files became one function. These are the URLs the staff dashboard
+  // calls, and they have to keep answering exactly as they did.
+  const cookie = await signedInCookie();
+  for (const action of ['summary', 'leads', 'jobs', 'rates', 'clients']) {
+    const res = await call(adminRouter, { method: 'GET', url: `/api/admin/${action}`, headers: { cookie } });
+    assert.equal(res.statusCode, 200, `/api/admin/${action} did not answer`);
+    assert.equal(res.json().ok, true);
+  }
+});
+
+test('the admin dispatcher still requires a session, exactly as each route did', async () => {
+  // The guard lives in the handlers, so this proves dispatch did not bypass it.
+  const res = await call(adminRouter, { method: 'GET', url: '/api/admin/leads' });
+  assert.equal(res.statusCode, 401);
+});
+
+test('an unknown admin action is a 404, not a crash', async () => {
+  const cookie = await signedInCookie();
+  const res = await call(adminRouter, { method: 'GET', url: '/api/admin/nonsense', headers: { cookie } });
+  assert.equal(res.statusCode, 404);
+  assert.equal(res.json().error, 'not_found');
+});
+
+test('the auth dispatcher routes login and logout, and refuses anything else', async () => {
+  const ok = await call(authRouter, { url: '/api/auth/login', body: { code: '1290' } });
+  assert.equal(ok.statusCode, 200);
+  assert.ok(cookieHeader(ok), 'login through the dispatcher still sets the session cookie');
+
+  const out = await call(authRouter, { url: '/api/auth/logout' });
+  assert.equal(out.statusCode, 200);
+
+  const nope = await call(authRouter, { url: '/api/auth/nonsense', body: {} });
+  assert.equal(nope.statusCode, 404);
+});
+
+test('actionFrom reads the last path segment, whatever the URL carries', async () => {
+  const { actionFrom } = await import('../lib/http.js');
+  assert.equal(actionFrom('/api/admin/jobs'), 'jobs');
+  assert.equal(actionFrom('/api/admin/attachment?path=leads%2Fx.pdf'), 'attachment');
+  assert.equal(actionFrom('/api/admin/leads/'), 'leads', 'a trailing slash must not blank it');
+  assert.equal(actionFrom('/api/admin/'), 'admin');
+  assert.equal(actionFrom(undefined), '');
 });
