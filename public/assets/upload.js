@@ -64,7 +64,21 @@
     list.innerHTML = '';
     accepted.forEach((f) => {
       const li = document.createElement('li');
-      li.textContent = `${f.name} (${size(f.size)})`;
+      li.appendChild(document.createTextNode(`${f.name} (${size(f.size)})`));
+      /* Picking now adds rather than replaces, so there has to be a way to
+         take one back out: without this a mistaken pick is stuck. */
+      const drop = document.createElement('button');
+      drop.type = 'button';
+      drop.className = 'file-drop';
+      drop.textContent = 'Remove';
+      drop.setAttribute('aria-label', `Remove ${f.name}`);
+      drop.addEventListener('click', () => {
+        /* By identity, not by index: the list is rebuilt on every change and
+           an index captured here would go stale. */
+        accepted = accepted.filter((x) => x !== f);
+        render([]);
+      });
+      li.appendChild(drop);
       list.appendChild(li);
     });
     rejected.forEach((r) => {
@@ -75,10 +89,23 @@
     });
   }
 
+  /* The same file picked twice, from two separate goes at the picker. There is
+     no id on a File, so this is the usual approximation and it is good enough:
+     two different files agreeing on all three is not a case worth handling. */
+  const same = (a, b) => a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
+
+  /* Adds to what is already picked rather than replacing it.
+   *
+   * A native multiple file input hands back only the most recent selection:
+   * picking one file and then going back for another leaves input.files
+   * holding just the second. Resetting from it therefore threw the first away,
+   * which is the common path on a phone, where people tap Choose Files once
+   * per file rather than multi-selecting in one dialog. The list below the
+   * control is the record now; input.files is only ever the newest batch. */
   input.addEventListener('change', () => {
     const rejected = [];
-    accepted = [];
     Array.from(input.files || []).forEach((f) => {
+      if (accepted.some((have) => same(have, f))) return;
       if (accepted.length >= MAX_FILES) { rejected.push(`${f.name} skipped, ${MAX_FILES} files is the limit`); return; }
       /* HEIC from an iPhone sometimes arrives with an empty type, so the
          extension is the fallback rather than an outright refusal. */
@@ -88,6 +115,10 @@
       if (f.size > MAX_BYTES) { rejected.push(`${f.name} is ${size(f.size)}, over the 25MB limit`); return; }
       accepted.push(f);
     });
+    /* Cleared for two reasons: picking the very same file again still fires
+       change, and the control's own "2 files" text cannot end up contradicting
+       the list, which now holds more than the last batch. */
+    input.value = '';
     render(rejected);
   });
 
