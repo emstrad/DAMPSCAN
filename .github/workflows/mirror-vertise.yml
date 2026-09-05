@@ -36,6 +36,12 @@ jobs:
           # The exact commit CI passed on, not whatever main happens to be by
           # the time this runs: main can move while the suite is still going.
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          # Without this, checkout leaves its own token behind in the clone as
+          # http.https://github.com/.extraheader, and git sends that header in
+          # preference to any credentials in a push URL. The push below then
+          # goes out as github-actions[bot], which has no access to
+          # VERTISE-DEV, and fails 403 while looking like a bad secret.
+          persist-credentials: false
 
       - name: Push
         env:
