@@ -163,6 +163,14 @@
    because it is identical. The generated pages have no other source for them.
    --on-accent lets the light ATi palette use white text where the dark DampScan
    one uses near black. */
+
+/* The home pages reset button chrome for the whole page in their inline CSS;
+   nothing on a generated page did, so Back kept the browser's default border
+   and rendered as a bordered box there and a plain link on the home pages. The
+   same form has to look the same everywhere, so the reset travels with the form.
+   :where() holds it at zero specificity, so every styled rule below still wins
+   regardless of order. */
+:where(.book-card) :where(button){font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:0 26px;
   border-radius:999px;font-weight:600;font-size:15px;transition:background .2s,color .2s,transform .2s,border-color .2s}
 .btn--primary{background:var(--accent);color:var(--on-accent,#06121f);box-shadow:0 6px 22px -8px var(--accent-ring,rgba(79,168,232,.7))}

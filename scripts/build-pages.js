@@ -24,6 +24,7 @@ import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './
 import { render as renderHub } from './hub-template.js';
 import { render as renderPricing } from './pricing-template.js';
 import { assetHashes, stampAssets } from './asset-version.js';
+import { bookForm } from './book-form.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'areas');
@@ -96,6 +97,26 @@ ${urls.map((u) => `  <url>
 const HOME = { dampscan: 'public/index.html', ati: 'public/london.html' };
 const START = '<!-- area-links:start, filled by scripts/build-pages.js -->';
 const END = '<!-- area-links:end -->';
+
+/* The booking form on the two home pages. It lived there as hand written markup
+   and every other page generated its own from scripts/book-form.js, which is two
+   copies of one form and they drifted: the home pages reworded their buttons,
+   the generated pages did not, and a field added to one was missing from the
+   other. Writing it here makes book-form.js the only copy. */
+const BF_START = '<!-- book-form:start, filled by scripts/build-pages.js -->';
+const BF_END = '<!-- book-form:end -->';
+
+async function writeBookForm() {
+  for (const [site, file] of Object.entries(HOME)) {
+    const path = join(ROOT, file);
+    const html = await readFile(path, 'utf8');
+    const from = html.indexOf(BF_START);
+    const to = html.indexOf(BF_END);
+    if (from === -1 || to === -1) throw new Error(`${file}: book form markers missing`);
+    const block = `${BF_START}\n${bookForm(site)}\n    ${BF_END}`;
+    await writeFile(path, html.slice(0, from) + block + html.slice(to + BF_END.length), 'utf8');
+  }
+}
 
 async function writeHomeLinks() {
   for (const [site, file] of Object.entries(HOME)) {
@@ -245,6 +266,7 @@ async function main() {
   }
 
   await writeSitemaps();
+  await writeBookForm();
   await writeHomeLinks();
   await writeReviews();
   const stamps = await stampAllPages();
@@ -257,7 +279,7 @@ async function main() {
   console.log(`${services.length} service pages written to public/service-pages`);
   console.log('4 hub pages written to public/hubs');
   console.log('ATi pricing page written to public/pricing');
-  console.log('sitemaps and home page links rewritten');
+  console.log('sitemaps, home page links and home page booking forms rewritten');
   console.log(`${stamps.files} assets hashed, ${stamps.stamped} pages restamped`);
   for (const site of Object.keys(HOME)) console.log(reviewsSummary(site));
 }

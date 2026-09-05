@@ -13,8 +13,8 @@
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 <link rel="stylesheet" href="/assets/header.css?v=aab08e06" />
-<link rel="stylesheet" href="/assets/area.css?v=78bd1740" />
-<link rel="stylesheet" href="/assets/book.css?v=652910dc" />
+<link rel="stylesheet" href="/assets/area.css?v=c35713b8" />
+<link rel="stylesheet" href="/assets/book.css?v=8b236732" />
 <style>:root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}</style>
 <script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"DampScan","url":"https://dampscan.co.uk/damp-survey/medway","telephone":"+447386225526","email":"tom@atidampsurvey.co.uk","areaServed":{"@type":"Place","name":"Medway"},"description":"Damp, mould and timber surveys across Rochester, Chatham, Gillingham and Strood, ME1 to ME8. Cause diagnosed before a quote, written report in 24 hours."}</script>
@@ -218,10 +218,14 @@
                 <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
                   placeholder="House number and street" required />
                 <span class="err">Please give the address for the survey.</span>
-                <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
-                  placeholder="Flat, building or area (optional)" />
                 <input id="f-town" name="Town" type="text" autocomplete="address-level2"
                   placeholder="Town or city" />
+                <!-- Asked again here, below the town, because this is the postcode of
+                     the property being surveyed and the one on step 1 is whatever they
+                     typed to get started. Prefilled from it, so for almost everybody it
+                     is already right and there is nothing to do. -->
+                <input id="f-addr-postcode" name="Address postcode" type="text"
+                  autocomplete="postal-code" aria-label="Postcode" placeholder="Postcode" />
               </div>
             </div>
             <div class="form-row">
@@ -237,8 +241,7 @@
                 <label for="f-files" class="sr-only">Previous surveys or photos</label>
                 <input id="f-files" name="Files" type="file" multiple
                   accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
-                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. Photos are shrunk
-                  before sending, so one straight off your phone is fine. An earlier report or a
+                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. An earlier report or a
                   shot of the affected wall often says more than a paragraph.</p>
                 <ul class="file-list" id="f-file-list" aria-live="polite"></ul>
               </div>
@@ -304,8 +307,8 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js?v=e03890ef"></script>
 <script src="/assets/partial.js?v=983c20db"></script>
-<script src="/assets/book.js?v=845e6e8a"></script>
-<script src="/assets/address.js?v=b27ab700" defer></script>
+<script src="/assets/book.js?v=c433c112"></script>
+<script src="/assets/address.js?v=bf5b6e92" defer></script>
 <script src="/assets/upload.js?v=cd55909c" defer></script>
 <script src="/assets/menu.js?v=01a8dbcb" defer></script>
 </body>

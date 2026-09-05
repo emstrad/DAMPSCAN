@@ -155,8 +155,26 @@ body{padding-top:92px}
 @media (min-width:1080px){
   .page{grid-template-columns:minmax(0,1fr) 390px}
   /* The padding lines the form up with the breadcrumb rather than sitting
-     tight under the header, and is what sticky then scrolls it out of. */
-  .page-aside{align-self:start;position:sticky;top:24px;padding-top:26px}
+     tight under the header, and is what sticky then scrolls it out of.
+     The header is fixed, so sticking at the top of the viewport would park the
+     form underneath it: --head-h is what menu.js measures it as. */
+  .page-aside{align-self:start;position:sticky;top:calc(var(--head-h,72px) + 24px);
+    padding-top:26px;
+    /* The form outgrew the viewport. Step 3 with the optional sections open is
+       taller than a laptop screen, and a sticky block taller than the space it
+       sticks in has its bottom pinned off screen: Book My Survey could only be
+       reached by scrolling the whole article past the form first. So the column
+       scrolls on its own, independently of the page beside it. */
+    max-height:calc(100vh - var(--head-h,72px) - 48px);
+    overflow-y:auto;
+    /* Reaching the end of the form should not then start scrolling the article
+       underneath. Two scrollers in one view are only tolerable if they stay out
+       of each other's way. */
+    overscroll-behavior:contain;
+    /* The card's shadow reaches a few pixels to the sides and about 35 below,
+       and overflow clips anything outside the box. Widened to make room, then
+       pulled back by the same amount so the column still lines up. */
+    padding-inline:8px;margin-inline:-8px;padding-bottom:36px}
 }
 
 .booking{margin-top:26px}
