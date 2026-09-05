@@ -131,7 +131,11 @@
   background:color-mix(in srgb, currentColor 10%, transparent)}
 .file-hint{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted-2)}
 .file-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.file-list li{display:flex;align-items:baseline;gap:10px}
 .file-list .is-bad{color:var(--warn,#f0a08b)}
+.file-drop{padding:0;font:inherit;font-size:12.5px;font-weight:600;min-height:0;background:none;
+  color:var(--muted-2);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.file-drop:hover{color:var(--text)}
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:520px){.checks{grid-template-columns:1fr}}
 .form-row label.check{font-size:14.5px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:500}

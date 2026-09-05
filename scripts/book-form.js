@@ -121,7 +121,7 @@ export function bookForm(site) {
                 <p class="file-hint">Up to 10 photos or PDFs, 25MB each. Photos are shrunk
                   before sending, so one straight off your phone is fine. An earlier report or a
                   shot of the affected wall often says more than a paragraph.</p>
-                <ul class="file-list" id="f-file-list"></ul>
+                <ul class="file-list" id="f-file-list" aria-live="polite"></ul>
               </div>
             </details>
             <details class="fold">
