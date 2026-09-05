@@ -4,7 +4,7 @@
  * nothing is tidied, and a review with no text is not an entry.
  *
  * Held back, waiting on the full text rather than Google's truncated preview:
- *   Frankie Fry, Polly Cunningham
+ *   Frankie Fry, Polly Cunningham, Sanjay H, Karolina Ciszek
  * Left out because they carry a rating and no words:
  *   Sharon Burns, Kelsie Range
  */
@@ -33,5 +33,20 @@ export default [
     author: 'Lisa Range',
     rating: 5,
     text: 'Professional friendly service. Highly recommended'
+  },
+  {
+    author: 'Morris Seifert',
+    rating: 5,
+    text: 'Excellent, came around on the same day, found the issue and gave advice through the process'
+  },
+  {
+    author: 'Bradley Hollingdale',
+    rating: 5,
+    text: 'We were in the process of buying a house and needed a damp survey fairly quickly. Really easy to arrange, they managed to fit us in without any hassle and the report came through quickly afterwards. Great service from start to finish and we’d definitely recommend.'
+  },
+  {
+    author: 'Nala Nala',
+    rating: 5,
+    text: 'Really happy with the damp survey by ATI. Tom was friendly, professional and took the time to explain everything clearly. We’d been dealing with the issue for over a year, and Tom managed to find the root cause, which was such a relief. Really appreciate his help and would definitely recommend him.'
   }
 ];
