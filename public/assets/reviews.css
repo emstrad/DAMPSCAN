@@ -1,0 +1,124 @@
+/**
+ * Long reviews on the home page carousel.
+ *
+ * Cards in a marquee stretch to the height of the tallest, so a single two or
+ * three paragraph review made every card as tall as it and left the short ones
+ * as mostly empty space. Clamping fixes that, but a clamp on its own is a
+ * customer's words cut off with no way to finish them, so every clipped review
+ * carries a button that opens the whole thing.
+ *
+ * The clamp is presentation only. The full text is in the HTML of every card,
+ * which is what matters for crawlers that do not run JavaScript: they read the
+ * review, the visitor reads eight lines and clicks if they want the rest.
+ *
+ * Loaded by the two home pages only, because they are the only pages with a
+ * carousel on them.
+ */
+
+/* Eight lines is enough to judge a review by. Both home pages set their own
+   line-height on .review p, 1.58 and 1.62, so this splits the difference: a
+   clamp landing a few pixels into the ninth line is invisible under the fade.
+
+   Two classes beats the `.review p` in each home page's inline CSS, which
+   comes later in the document and would otherwise win the tie. */
+.carousel .review p {
+  --review-lines: 8;
+  position: relative;
+  max-height: calc(var(--review-lines) * 1.6em);
+  overflow: hidden;
+}
+
+/* Only on the ones actually cut. On a short review this would fade out the
+   last line of something that was never clipped, so reviews.js measures first
+   and adds the class. Same reason the button is added there rather than built
+   into every card. */
+.carousel .review p.is-clipped::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2.6em;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--navy));
+  pointer-events: none;
+}
+
+/* The track already pauses on hover, which is what makes the button hittable
+   with a mouse. Tabbing to it needs the same, or focus lands on a control that
+   is sliding out from under the pointer. */
+.carousel:focus-within .carousel-track { animation-play-state: paused; }
+
+.review-more {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  /* A touch screen has no hover, so on a phone this is a moving target. The
+     full 44px makes it one worth aiming at. */
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.review-more:hover { color: var(--accent-hi, var(--accent)); }
+.review-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* The marquee behind an open dialog is a distraction, and a card sliding out
+   from under the button that opened it is worse. */
+.reviews-open .carousel-track { animation-play-state: paused; }
+
+.review-dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(80vh, 720px);
+  padding: 0;
+  border: 1px solid var(--line-strong, var(--line));
+  border-radius: var(--radius, 16px);
+  background: var(--navy);
+  color: var(--text);
+}
+.review-dialog::backdrop { background: rgba(0, 0, 0, .6); }
+
+.review-dialog-body { padding: 26px 26px 22px; }
+.review-dialog .stars { color: var(--accent); letter-spacing: 2px; font-size: 15px; }
+
+/* Scrolls on its own when somebody has written a great deal, so the attribution
+   and the close button stay where they are. */
+.review-dialog-text {
+  margin: 14px 0 18px;
+  font-size: 15.5px;
+  line-height: 1.65;
+  max-height: 46vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.review-dialog .review-attr { margin-top: 0; }
+
+.review-close {
+  margin-top: 18px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--line-strong, var(--line));
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+.review-close:hover { border-color: var(--accent); color: var(--accent); }
+.review-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Somebody who has asked for less movement is not helped by a clamp they have
+   to click through, and the marquee is already still for them. */
+@media (prefers-reduced-motion: reduce) {
+  .carousel .review p { max-height: none; }
+  .carousel .review p.is-clipped::after { content: none; }
+  .review-more { display: none; }
+}
