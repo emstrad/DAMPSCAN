@@ -30,7 +30,11 @@ test/            unit and integration tests
    pooler is what keeps connection counts sane.
 3. **Create the schema.** `npm install`, then with `DATABASE_URL` set in `.env`,
    run `npm run migrate`. `schema.sql` is idempotent, so this is also how you roll
-   a later schema change forward.
+   a later schema change forward. **Do that before merging a change that adds a
+   column**, not after: Vercel deploys on the push and CI applies the schema a
+   minute or two later, and in between the new code runs against the old table.
+   For `/api/lead` that means bookings answered with a 500. Adding a column
+   first is safe, because the old code simply does not mention it.
 4. **Import into Vercel.** Connect the GitHub repo. No build command and no
    framework preset are needed: `vercel.json` sets `outputDirectory` to `public`.
    Set every environment variable below for **Production and Preview**, then deploy.
@@ -72,6 +76,10 @@ covered by `npm test`. See "Running the tests".
 | `STAFF_ACCESS_CODE` | yes | The code typed at `/staff`. Under 4 characters and every login is refused, so it cannot be left blank by accident. |
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
+| `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
+| `ADDRESS_API_URL` | no | The lookup URL, with `{postcode}` and `{key}` substituted in. Defaults to Ideal Postcodes. Set it to use a different provider. |
+| `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. Set automatically once a Blob store is attached to the project. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
+| `CRON_SECRET` | no | Bearer token Vercel sends when it runs the monthly upload sweep. Unset, the sweep route refuses everyone. See "Sweeping orphaned uploads". |
 
 Generate the two secrets with:
 
@@ -91,6 +99,13 @@ booking. A `partial` is an abandonment: the page holds the step 1 details back a
 only sends them if the visitor leaves without finishing, so a visitor who books
 produces one row, not two. Both stages share a `session_id`, so a partial and any
 later contact still line up.
+
+`address_line1`, `address_line2` and `town` are all nullable: a `partial` never
+reaches step 3, so it has the postcode and nothing else. The upsert coalesces
+them, so a partial flushing after a booking on the same session cannot blank the
+address the booking gave us. `files` is a `text[]` of Blob pathnames, empty
+rather than null, and validated against the exact shape this app writes so the
+column cannot be used to point the dashboard at somebody else's blob.
 
 `issues` is a `text[]` restricted to the six values the form offers. `role` is one
 of the five. `previous_survey` is a nullable boolean: `null` means the visitor
@@ -211,6 +226,54 @@ fee as well when he does the survey. He does not share the remainder.
 Remedial work is deliberately simpler: tax off, then the lead fee to Scott. The
 balance is reported but not distributed, because Tom and Ben settle materials
 and labour between themselves offline.
+
+### Client cards
+
+A booked job is a client. `/staff/clients.html` shows one card per job that is
+not cancelled, and a card is the job joined to the enquiry it came from, so the
+address, phone, email, what they said was wrong and any attachments are on it
+without anyone typing them twice. Saving a job as booked on the Jobs page is
+what creates the card; there is no clients table and nothing to keep in step.
+A job recorded by hand still gets a card with whatever the form was given.
+
+Clicking a card opens a native `<dialog>` with everything on it, the
+attachments as download links, a Google Maps link for the address, and two
+payment boxes: **deposit paid** and **paid in full**. The deposit is always half
+the survey price. It is derived by `/api/admin/clients` rather than stored, so
+correcting a price on the Jobs page corrects the deposit with it; the odd penny,
+if there is one, sits on the deposit. Both boxes are timestamps on `jobs`,
+`deposit_paid_at` and `paid_at`, not booleans: a tick records when, a re-save
+keeps the original time, an untick clears it, and paid in full implies the
+deposit. The Jobs page never writes those two columns, so editing a job cannot
+unpay it.
+
+That shape is also the point at which payment gets automated later. A Stripe or
+GoCardless webhook that confirms a deposit calls the same route with
+`{id, depositPaid: true}` and writes the same column a tick does. Nothing in the
+dashboard needs to know which of the two happened.
+
+The survey date on the card is the job's `job_date`, one field under two
+labels, so the earnings periods and the card can never disagree about when a
+survey is.
+
+A card archives itself the day after its survey date. That is a view, not a
+status change: the job stays booked until somebody marks it completed on the
+Jobs page, because a survey whose date has passed may have been rescheduled
+rather than done, and a calendar should not tell the earnings tiles otherwise.
+An archived card that was never marked done carries a "date passed" chip, and
+moving its date forward from the card brings it straight back onto the board.
+"Today" is London's today, decided by the database, so every browser agrees
+with the server about which board a card is on and nothing archives an hour
+early in summer.
+
+The search box looks across every client on the chosen site, whatever view is
+pressed, because a name is a name whether the survey is next week or last year.
+It matches name, address, postcode, email, phone, survey type, surveyor and the
+card's note, with spaces ignored so `n13gz` finds `N1 3GZ` and `07700900123`
+finds `07700 900123`. Every word typed must match, so `london tom` narrows to
+Tom's London surveys rather than widening to both. The full list is fetched
+once and filtered in the browser: at this volume that is instant, and it means
+a keystroke is never a round trip.
 
 ### Why jobs store their own rates
 
@@ -413,10 +476,13 @@ page links are load bearing rather than decorative.
 Every page on both sites carries the same booking form, driven by the same two
 scripts:
 
-    public/assets/visit.js   session, attribution and interaction tracking
-    public/assets/book.js    the form: stepper, validation, lead post, held partial
-    public/assets/book.css   its styles
-    scripts/book-form.js     the markup, for the generated pages
+    public/assets/visit.js    session, attribution and interaction tracking
+    public/assets/partial.js  the held partial: sent only if step 1 is abandoned
+    public/assets/book.js     the form: stepper, validation, lead post
+    public/assets/address.js  postcode to address lookup on step 3
+    public/assets/upload.js   attaching a previous survey or photos
+    public/assets/book.css    its styles
+    scripts/book-form.js      the markup, for the generated pages
 
 It used to be inline in both home pages, 470 near-identical lines each, differing
 only in the sessionStorage keys, the dataLayer event name and the notification
@@ -440,7 +506,145 @@ ATi one and both sets of generated pages. `area.css` supplies `--card-2`,
 `--card-shadow` and `--warn` per theme, which is what stops the card fading to
 navy on the light pages.
 
-`book.js` is 353 lines, over the limit the rest of the project keeps to, and
+### Address lookup
+
+Step 3 asks for the address of the property, not just the postcode, because
+without it every booking needed an email chasing it before a surveyor could be
+sent anywhere.
+
+Pick a **licensed** provider. The complete list of UK delivery points is Royal
+Mail's Postcode Address File, and it is licensed. getAddress.io, which this
+project originally called and which was the cheap option everybody reached for,
+shut down on 4 February 2026 after the High Court found in October 2025 that its
+data infringed the database rights and copyright of Royal Mail and of Ideal
+Postcodes. A provider well under the licensed rate may be under it for the same
+reason, and its customers are the ones left with a dead endpoint.
+
+Free tiers exist and this site's volume may fit inside one. A free *unlimited*
+source does not: `postcodes.io` is free but returns coordinates and
+administrative areas rather than delivery points, so it cannot answer "which
+flat", and the OS Places API is free only for public sector use.
+
+The feature works with no provider at all, and the visitor never has to ask for
+it either way. Arriving at step 3 runs the lookup on the postcode from step 1
+by itself. With no `ADDRESS_API_KEY` set, `/api/address` answers
+`configured: false`, the Find address row is removed and what is left is three
+ordinary fields, which is remembered for the session so the row is not shown
+again. With a key, the addresses are already listed when the step appears. The
+typed fields stay either way, the picker only fills them in, and once it has,
+they collapse to one line with a Change link. An automatic lookup never takes
+focus from a field the visitor has moved on to, and Enter in the postcode box
+looks up rather than submitting the form.
+
+`/api/address` has a per-IP limit and a global ceiling, because it spends money
+on our behalf and has no login to fail: a pool of addresses each under its own
+limit is how a per-IP throttle is walked past.
+
+`lib/address.js` is provider agnostic rather than holding an adapter each.
+Nearly every UK provider returns PAF's own field names, because they are all
+reselling the same file, so there is one tolerant parser: it finds the address
+array under `result`, `addresses`, `results` or a bare array, accepts either
+objects or comma separated strings, and title cases the all caps post town Royal
+Mail hands back (Stoke-on-Trent and King's Lynn, not Stoke-On-Trent and
+King'S Lynn). Point `ADDRESS_API_URL` at whichever provider you buy, with
+`{postcode}` and `{key}` in it, and it should work untouched.
+
+Every failure path, no key, no results, a timeout, a wrong key, ends at the same
+sentence in front of the visitor, because to them they are the same thing. A
+wrong or expired key is logged, since it would otherwise be silent.
+
+The endpoint is rate limited and cached at the edge for a day. Both matter: it
+is unauthenticated and it sits in front of somebody's metered bill.
+
+### Attachments
+
+The same step takes previous surveys and photos, up to ten files of 25MB each,
+PDFs and images only. It is not gated behind the "I have had a survey before"
+tick: a photo of the affected wall is worth having from anybody.
+
+**The 25MB is ours. The path there exists because 4.5MB is Vercel's.** A
+serverless function will not accept a request body over 4.5MB, which a previous
+damp survey full of photographs comfortably exceeds, and that limit is
+infrastructure level rather than something `vercel.json` can change. So there
+are two upload paths, tried in order:
+
+1. `/api/upload-url` presigns a PUT and the browser sends the file straight to
+   Blob. It never passes through a function, so the platform limit does not
+   apply. The pathname is generated server side and the token is scoped to that
+   one path, so a presigned URL cannot be aimed at anything else in the store,
+   and the content type and size ceiling are signed into the URL for Vercel to
+   enforce rather than trusted from the browser.
+2. `/api/upload` proxies the bytes. Capped just under 4.5MB. This is the
+   fallback for when presigning is unavailable, so a store that cannot presign
+   degrades to small files rather than breaking.
+
+Photos are still re-encoded through a canvas before either path, at 2000px on
+the long edge and quality 0.82, even though the size limit no longer requires
+it. A 2.8MB camera JPEG goes out at around 300KB, and on a phone on mobile data
+that is the difference between a booking and an abandoned form. PDFs are sent
+untouched, since a survey report is the one thing here worth full quality.
+
+Files upload on submit rather than on selection, one request each, with the
+button reporting progress and a live region saying the same for anyone not
+looking at it. **Nothing here can cost a booking.** `upload.js` never rejects,
+a stalled upload is abandoned after a minute rather than holding the booking
+open, `/api/upload` answers 200 even when the store is unreachable, and
+anything that failed is reported on the confirmation as "reply to your
+confirmation email with it" rather than as an error to fix. A submission the
+server bounces and a second attempt does not upload the same files twice:
+`upload.js` remembers what it has sent, keyed on the File itself. Validation is
+duplicated in the browser and on the server; the browser copy exists to save
+somebody uploading a 40MB photo before it is refused, and is not trusted. Both
+upload routes carry a global ceiling as well as a per-IP limit, since they write
+into a store billed by the gigabyte.
+
+Blobs are stored **private**. A previous damp report carries an address, a
+surveyor's findings and often photographs of somebody's home, and a public blob
+URL is readable by anyone who ever sees it. `leads.files` therefore holds Blob
+pathnames rather than URLs, and the only way to read one is
+`/api/admin/attachment`, which checks the staff session and then checks the path
+actually belongs to a lead. Without that second check one staff login would be
+the whole store.
+
+With no `BLOB_READ_WRITE_TOKEN` the upload answers `not configured` and the
+booking is unaffected.
+
+### Sweeping orphaned uploads
+
+A file is uploaded before the booking is submitted, so somebody who attaches
+photos and then closes the tab leaves blobs that no lead points at. Once a
+month, `/api/cron/sweep-blobs` removes any blob under `leads/` that no row in
+`leads.files` names and that is older than a day, so an upload in progress is
+never touched. The route only answers to the `CRON_SECRET` bearer Vercel sends,
+and with the secret unset it refuses everyone, so a deletion job is never
+reachable on an open URL.
+
+Two refusals are built into `lib/sweep.js` because the failure mode of a sweep
+is deleting a customer's survey: a database query that fails aborts the run
+before anything is treated as an orphan, and a database that names no
+attachments at all while the store has blobs is taken to mean a wrong
+`DATABASE_URL` rather than a store full of abandonments, and needs `--force`.
+Try it by hand first: `npm run sweep-blobs -- --dry-run`.
+
+The notification email carries `/api/admin/attachment` links rather than the
+files, one field each, because FormSubmit sends it from the browser and cannot
+carry a private blob. Those links open for a signed-in staff member and nobody
+else, so a forwarded email does not leak somebody's survey. Opened on a phone
+that has never seen the staff area, the link goes to sign in and then straight
+back to the file; `next` is only honoured for a path on this site, so the login
+page cannot be used as a redirector. The download is named `survey.pdf`, not
+`0b21f0d4-...-survey.pdf`: the uuid stays in the pathname and comes off the
+label.
+
+The only submit button on the form is on the last step, so Enter in a field on
+an earlier step reaches the submit handler as an implicit submission. It is
+treated as "next": the current step is validated and the form advances, which
+is what the visitor meant. A second submit while the first is in flight is
+ignored, so a double tap books once. Optional fields with a format, the phone
+number, are checked in the browser as well as on the server, because by the
+time the server answers the photos have already been uploaded.
+
+`book.js` is just under 400 lines, over the limit the rest of the project keeps to, and
 deliberately. It is one component, and the only seam in it runs straight through
 `showServerErrors`, so splitting it would add an interface without adding
 clarity. It is the second documented exception, alongside the home pages.
@@ -667,12 +871,17 @@ Three integration points, in increasing order of usefulness:
 
 ## A note on dependencies
 
-Three runtime dependencies:
+Five runtime dependencies, all of them either Vercel's own or unavoidable:
 
 - `@neondatabase/serverless`, the Neon HTTP driver.
 - `@node-rs/argon2` for argon2id password hashing. Chosen over the `argon2` package
   because it ships prebuilt binaries for the Lambda platform Vercel runs on, so a
   deploy cannot fail on a native compile step. Same algorithm, same PHC hash format.
+- `@vercel/edge`, for the middleware that routes the two hostnames.
+- `@vercel/blob`, for booking attachments. The Blob REST API is a single `PUT`
+  and writing it by hand would avoid the dependency, but it carries an API
+  version header that the SDK tracks and a hand-rolled call would not. Pinning a
+  version number that drifts is worse than the 950KB.
 - `dotenv`, used only by the local CLI scripts.
 
 `pg` is a dev dependency, used only by the integration tests.

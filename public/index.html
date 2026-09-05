@@ -30,8 +30,8 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Will this actually fix the problem?","acceptedAnswer":{"@type":"Answer","text":"That depends entirely on getting the diagnosis right, which is why we survey before we quote. When the true cause is identified and treated properly, the problem doesn't come back. Most repeat damp problems we're called to are second visits to work that treated a symptom."}},{"@type":"Question","name":"What's the guarantee?","acceptedAnswer":{"@type":"Answer","text":"All remedial work we carry out is covered by an insured workmanship guarantee, with documentation you can hand on to a buyer or your insurer. The exact term depends on the treatment, it's stated clearly on your quote before you commit to anything."}},{"@type":"Question","name":"What happens after I submit the form?","acceptedAnswer":{"@type":"Answer","text":"A surveyor reviews your details and contacts you the same day to arrange a visit. Within 24 hours of that visit you get a written report with photographs, the diagnosed cause and a fixed-price quote. Then you decide, there's no obligation and nobody will chase you."}},{"@type":"Question","name":"How fast can you come out?","acceptedAnswer":{"@type":"Answer","text":"We respond to every enquiry the same day and arrange the visit around you, then your written report follows within 24 hours of that visit. We cover Kent, Surrey, Essex, Sussex, Hertfordshire and Berkshire, and can usually work around evenings and weekends."}},{"@type":"Question","name":"Is the work messy?","acceptedAnswer":{"@type":"Answer","text":"Some treatments involve removing plaster or lifting floor coverings, so there is dust, but we sheet up, protect finishes and clean down at the end of each day. Your report tells you exactly what will be disturbed before any work starts."}},{"@type":"Question","name":"Can we stay in the house while work is carried out?","acceptedAnswer":{"@type":"Answer","text":"In the overwhelming majority of cases, yes. We work room by room so you keep the rest of the property. If a job would genuinely make a room unusable for a period, we'll tell you upfront rather than on the day."}},{"@type":"Question","name":"Do you work with landlords and letting agents?","acceptedAnswer":{"@type":"Answer","text":"Yes, a large share of our work is certified inspections for landlords and managing agents dealing with reported damp and mould, including portfolio surveys across multiple properties. See the landlord section above."}},{"@type":"Question","name":"Which areas do you cover?","acceptedAnswer":{"@type":"Answer","text":"Kent and the wider South East, including Surrey, Essex, East and West Sussex, Hertfordshire, Berkshire and Buckinghamshire. Properties inside London are surveyed by our sister practice, ATi Damp Survey, at atidampsurvey.co.uk. Enter your postcode in the booking form and we'll confirm cover straight away."}},{"@type":"Question","name":"What if I just want a second opinion?","acceptedAnswer":{"@type":"Answer","text":"That's one of the most useful things we do. If you've been quoted for invasive damp-proofing and it doesn't feel right, we'll survey it properly and tell you honestly whether that work is justified."}}]}
 </script>
 
-<link rel="stylesheet" href="/assets/header.css" />
-<link rel="stylesheet" href="/assets/book.css" />
+<link rel="stylesheet" href="/assets/header.css?v=aab08e06" />
+<link rel="stylesheet" href="/assets/book.css?v=348628dd" />
 
 <style>
 :root{--head-bg:rgba(8,19,33,.86);--head-solid:#081321}
@@ -414,17 +414,33 @@ html{scroll-padding-top:88px}
 
           <!-- STEP 3, qualify + optional detail -->
           <div class="fstep" data-step="3">
-            <div class="form-row">
-              <label for="f-role">Are you the owner or the landlord?</label>
-              <select id="f-role" name="Owner or landlord" required>
-                <option value="" disabled selected>Select one…</option>
-                <option>Homeowner</option>
-                <option>Landlord</option>
-                <option>Letting agent / managing agent</option>
-                <option>Tenant</option>
-                <option>Buying the property</option>
-              </select>
-              <span class="err">Please choose one.</span>
+            <div class="form-row addr">
+              <label for="f-addr1">Address for the survey</label>
+              <div class="addr-find">
+                <input id="f-addr-pc" name="Lookup postcode" type="text" autocomplete="postal-code"
+                  aria-label="Postcode to look up" placeholder="Postcode" />
+                <button type="button" class="btn addr-btn" id="f-addr-find">Find address</button>
+              </div>
+              <p class="addr-status" id="f-addr-status" role="status"></p>
+              <div class="form-row addr-pick" id="f-addr-pick" hidden>
+                <label for="f-addr-select">Pick your address</label>
+                <select id="f-addr-select"></select>
+              </div>
+              <!-- Shown instead of the three fields once the picker has filled them,
+                   so a found address is one line rather than three boxes. -->
+              <p class="addr-chosen" id="f-addr-chosen" tabindex="-1" hidden>
+                <span id="f-addr-chosen-text"></span>
+                <button type="button" class="link-btn" id="f-addr-change">Change</button>
+              </p>
+              <div class="addr-fields" id="f-addr-fields">
+                <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
+                  placeholder="House number and street" required />
+                <span class="err">Please give the address for the survey.</span>
+                <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
+                  placeholder="Flat, building or area (optional)" />
+                <input id="f-town" name="Town" type="text" autocomplete="address-level2"
+                  placeholder="Town or city" />
+              </div>
             </div>
             <div class="form-row">
               <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a damp survey on this property before</label>
@@ -433,10 +449,27 @@ html{scroll-padding-top:88px}
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
             </div>
-            <div class="form-row">
-              <label for="f-notes">Anything we should know? <span class="opt">(optional)</span></label>
-              <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
-            </div>
+            <details class="fold">
+              <summary>Add photos or a previous report <span class="opt">(optional)</span></summary>
+              <div class="form-row">
+                <label for="f-files" class="sr-only">Previous surveys or photos</label>
+                <input id="f-files" name="Files" type="file" multiple
+                  accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
+                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. Photos are shrunk
+                  before sending, so one straight off your phone is fine. An earlier report or a
+                  shot of the affected wall often says more than a paragraph.</p>
+                <ul class="file-list" id="f-file-list"></ul>
+              </div>
+            </details>
+            <details class="fold">
+              <summary>Anything else we should know? <span class="opt">(optional)</span></summary>
+              <div class="form-row">
+                <label for="f-notes" class="sr-only">Anything we should know?</label>
+                <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
+              </div>
+            </details>
+            <!-- What the submit button is saying, for anyone not looking at it. -->
+            <p class="sr-only" role="status" id="submit-status"></p>
             <div class="fnav">
               <button type="button" class="back-link" data-back>← Back</button>
               <button type="submit" class="btn btn--primary btn--lg">
@@ -910,8 +943,11 @@ window.DS_CONFIG = {
   dataLayerEvent: 'dampscan'
 };
 </script>
-<script src="/assets/visit.js"></script>
-<script src="/assets/book.js"></script>
+<script src="/assets/visit.js?v=e03890ef"></script>
+<script src="/assets/partial.js?v=983c20db"></script>
+<script src="/assets/book.js?v=845e6e8a"></script>
+<script src="/assets/address.js?v=b27ab700" defer></script>
+<script src="/assets/upload.js?v=01e94c2a" defer></script>
 <script>
 
 /* =========================================================================
@@ -1034,6 +1070,6 @@ window.DS_CONFIG = {
   });
 })();
 </script>
-<script src="/assets/menu.js" defer></script>
+<script src="/assets/menu.js?v=01a8dbcb" defer></script>
 </body>
 </html>

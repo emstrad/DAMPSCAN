@@ -77,17 +77,33 @@ export function bookForm(site) {
 
           <!-- STEP 3, qualify + optional detail -->
           <div class="fstep" data-step="3">
-            <div class="form-row">
-              <label for="f-role">Are you the owner or the landlord?</label>
-              <select id="f-role" name="Owner or landlord" required>
-                <option value="" disabled selected>Select one…</option>
-                <option>Homeowner</option>
-                <option>Landlord</option>
-                <option>Letting agent / managing agent</option>
-                <option>Tenant</option>
-                <option>Buying the property</option>
-              </select>
-              <span class="err">Please choose one.</span>
+            <div class="form-row addr">
+              <label for="f-addr1">Address for the survey</label>
+              <div class="addr-find">
+                <input id="f-addr-pc" name="Lookup postcode" type="text" autocomplete="postal-code"
+                  aria-label="Postcode to look up" placeholder="Postcode" />
+                <button type="button" class="btn addr-btn" id="f-addr-find">Find address</button>
+              </div>
+              <p class="addr-status" id="f-addr-status" role="status"></p>
+              <div class="form-row addr-pick" id="f-addr-pick" hidden>
+                <label for="f-addr-select">Pick your address</label>
+                <select id="f-addr-select"></select>
+              </div>
+              <!-- Shown instead of the three fields once the picker has filled them,
+                   so a found address is one line rather than three boxes. -->
+              <p class="addr-chosen" id="f-addr-chosen" tabindex="-1" hidden>
+                <span id="f-addr-chosen-text"></span>
+                <button type="button" class="link-btn" id="f-addr-change">Change</button>
+              </p>
+              <div class="addr-fields" id="f-addr-fields">
+                <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
+                  placeholder="House number and street" required />
+                <span class="err">Please give the address for the survey.</span>
+                <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
+                  placeholder="Flat, building or area (optional)" />
+                <input id="f-town" name="Town" type="text" autocomplete="address-level2"
+                  placeholder="Town or city" />
+              </div>
             </div>
             <div class="form-row">
               <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a damp survey on this property before</label>
@@ -96,10 +112,27 @@ export function bookForm(site) {
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
             </div>
-            <div class="form-row">
-              <label for="f-notes">Anything we should know? <span class="opt">(optional)</span></label>
-              <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
-            </div>
+            <details class="fold">
+              <summary>Add photos or a previous report <span class="opt">(optional)</span></summary>
+              <div class="form-row">
+                <label for="f-files" class="sr-only">Previous surveys or photos</label>
+                <input id="f-files" name="Files" type="file" multiple
+                  accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
+                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. Photos are shrunk
+                  before sending, so one straight off your phone is fine. An earlier report or a
+                  shot of the affected wall often says more than a paragraph.</p>
+                <ul class="file-list" id="f-file-list"></ul>
+              </div>
+            </details>
+            <details class="fold">
+              <summary>Anything else we should know? <span class="opt">(optional)</span></summary>
+              <div class="form-row">
+                <label for="f-notes" class="sr-only">Anything we should know?</label>
+                <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
+              </div>
+            </details>
+            <!-- What the submit button is saying, for anyone not looking at it. -->
+            <p class="sr-only" role="status" id="submit-status"></p>
             <div class="fnav">
               <button type="button" class="back-link" data-back>← Back</button>
               <button type="submit" class="btn btn--primary btn--lg">

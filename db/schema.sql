@@ -14,6 +14,11 @@ create table if not exists leads (
   first_name      text not null,
   email           text not null,
   postcode        text not null,
+  -- The full address, so a booked survey does not need an email chasing it.
+  -- Nullable because a partial lead is captured before these are asked for.
+  address_line1   text,
+  address_line2   text,
+  town            text,
   phone           text,
   issues          text[] not null default '{}',
   role            text,               -- Homeowner / Landlord / Letting agent / Tenant / Buying
@@ -106,6 +111,22 @@ create index if not exists leads_site_idx  on leads  (site, created_at desc);
 create index if not exists events_site_idx on events (site, created_at desc);
 
 -- ---------------------------------------------------------------------------
+-- Survey address and attachments
+--
+-- The postcode alone meant chasing every booking by email for the rest of the
+-- address, so the form now asks for it and stores it here. All nullable: a
+-- step-1 partial is captured before any of this is asked for, and a visitor who
+-- attaches nothing is the normal case.
+--
+-- files holds Blob pathnames, not URLs. The blobs are private, so they are only
+-- readable through /api/admin/attachment, which checks the staff session first.
+-- ---------------------------------------------------------------------------
+alter table leads add column if not exists address_line1 text;
+alter table leads add column if not exists address_line2 text;
+alter table leads add column if not exists town          text;
+alter table leads add column if not exists files         text[] not null default '{}';
+
+-- ---------------------------------------------------------------------------
 -- Job earnings
 --
 -- The rate card, the two global percentages, and one row per job. Jobs store
@@ -177,3 +198,16 @@ create index if not exists jobs_site_idx on jobs (site, job_date desc);
 create index if not exists jobs_lead_idx on jobs (lead_id);
 -- One job per lead, so clicking "create job" twice cannot double count it.
 create unique index if not exists jobs_lead_unique_idx on jobs (lead_id) where lead_id is not null;
+
+-- ---------------------------------------------------------------------------
+-- Client cards
+--
+-- A booked job is a client, and the card the staff area shows for one is the
+-- job joined to its lead. The only state a card carries that a job did not
+-- already is whether the money has arrived. Timestamps rather than booleans,
+-- so "paid" also says when, and so a payment webhook can set them later with
+-- no schema change: it writes the same column a tick in the dashboard does.
+-- The deposit is always half the survey price and is derived, never stored.
+-- ---------------------------------------------------------------------------
+alter table jobs add column if not exists deposit_paid_at timestamptz;
+alter table jobs add column if not exists paid_at         timestamptz;

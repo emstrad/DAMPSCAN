@@ -14,17 +14,27 @@ export const config = { runtime: 'nodejs' };
 
 const UPSERT = `
   insert into leads (
-    stage, first_name, email, postcode, phone, issues, role, previous_survey,
+    stage, first_name, email, postcode, address_line1, address_line2, town, files,
+    phone, issues, role, previous_survey,
     notes, session_id, source_path, referrer, utm, user_agent, ip_hash, site
   ) values (
-    $1, $2, $3, $4, $5, $6::text[], $7, $8,
-    $9, $10::uuid, $11, $12, $13::jsonb, $14, $15, $16
+    $1, $2, $3, $4, $5, $6, $7, $8::text[],
+    $9, $10::text[], $11, $12,
+    $13, $14::uuid, $15, $16, $17::jsonb, $18, $19, $20
   )
   on conflict (session_id, stage) do update set
     updated_at      = now(),
     first_name      = excluded.first_name,
     email           = excluded.email,
     postcode        = excluded.postcode,
+    -- coalesce, so the complete submission fills these in without a later
+    -- partial from the same session blanking them again.
+    address_line1   = coalesce(excluded.address_line1, leads.address_line1),
+    address_line2   = coalesce(excluded.address_line2, leads.address_line2),
+    town            = coalesce(excluded.town, leads.town),
+    -- Same reason, and an array is never null, so cardinality does the work.
+    files           = case when cardinality(excluded.files) > 0
+                             then excluded.files else leads.files end,
     phone           = coalesce(excluded.phone, leads.phone),
     issues          = case when cardinality(excluded.issues) > 0
                              then excluded.issues else leads.issues end,
@@ -74,6 +84,10 @@ export default async function handler(req, res) {
       value.firstName,
       value.email,
       value.postcode,
+      value.addressLine1,
+      value.addressLine2,
+      value.town,
+      value.files,
       value.phone,
       value.issues,
       value.role,

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Clients | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/staff/staff.css" />
+<script>
+/* Both sites share this staff area, so the hostname decides whose name is on
+   it. This runs in the head, before anything is painted, so neither brand ever
+   flashes the other's. The markup carries both lockups; staff.css hides one. */
+(function brand(){
+  var ati = /(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname);
+  if (!ati) return;
+  document.documentElement.setAttribute('data-brand', 'ati');
+  document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var icon = document.querySelector('link[rel="icon"]');
+  if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
+    <span class="logo-type">
+      <span class="logo-word">ATi <span class="scan">Damp</span></span>
+      <span class="logo-tag">Survey Practice</span>
+    </span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/staff/dashboard.html">Dashboard</a>
+    <a href="/staff/jobs.html">Jobs</a>
+    <a href="/staff/clients.html" aria-current="page">Clients</a>
+  </nav>
+  <div class="top-end">
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="sr-only">Clients</h1>
+  <div class="ranges" role="group" aria-label="Site" style="margin-bottom:10px">
+    <button class="pill" data-site="" aria-pressed="true">Both sites</button>
+    <button class="pill" data-site="dampscan" aria-pressed="false">DampScan, Kent</button>
+    <button class="pill" data-site="ati-london" aria-pressed="false">ATI, London</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="ranges" role="group" aria-label="Which clients">
+      <button class="pill" data-view="upcoming" aria-pressed="true">Upcoming</button>
+      <button class="pill" data-view="archive" aria-pressed="false">Archive</button>
+      <button class="pill" data-view="all" aria-pressed="false">All</button>
+    </div>
+    <div class="search">
+      <label for="search" class="sr-only">Search clients</label>
+      <input id="search" type="search" placeholder="Search name, address, postcode…" autocomplete="off" spellcheck="false" />
+    </div>
+  </div>
+
+  <div class="state" id="state">Loading…</div>
+
+  <div id="content" hidden>
+    <p class="panel-note" id="summary"></p>
+    <div class="cards" id="cards"></div>
+    <p class="panel-note">A card appears here the moment a job is saved as booked on the
+      Jobs page, and moves to the archive the day after its survey date. Click one for the
+      full details, the attachments, and the payment boxes.</p>
+  </div>
+</main>
+
+<!-- The big, simple view of one client. Native dialog: modal, focus trapped,
+     Escape closes, no script needed for any of that. -->
+<dialog class="client" id="client-dialog" aria-labelledby="c-name">
+  <form method="dialog" class="client-head">
+    <div>
+      <h2 id="c-name"></h2>
+      <p class="client-sub" id="c-sub"></p>
+    </div>
+    <button class="btn btn--ghost btn--sm" value="close" aria-label="Close">Close</button>
+  </form>
+
+  <div class="client-grid">
+    <section class="client-block" aria-labelledby="h-contact">
+      <h3 id="h-contact">Contact</h3>
+      <p id="c-contact" class="client-lines"></p>
+    </section>
+
+    <section class="client-block" aria-labelledby="h-address">
+      <h3 id="h-address">Survey address</h3>
+      <p id="c-address" class="client-lines"></p>
+      <a id="c-maps" class="pill" target="_blank" rel="noopener" hidden>Open in Maps</a>
+    </section>
+
+    <section class="client-block" aria-labelledby="h-enquiry">
+      <h3 id="h-enquiry">The enquiry</h3>
+      <p id="c-enquiry" class="client-lines"></p>
+    </section>
+
+    <section class="client-block" aria-labelledby="h-files">
+      <h3 id="h-files">Attachments</h3>
+      <ul id="c-files" class="client-files"></ul>
+    </section>
+  </div>
+
+  <form id="client-form" novalidate>
+    <section class="client-block client-money" aria-labelledby="h-money">
+      <h3 id="h-money">Payment</h3>
+      <label class="tick">
+        <input type="checkbox" id="c-deposit" />
+        <span class="tick-box" aria-hidden="true"></span>
+        <span class="tick-text"><strong>Deposit paid</strong> <span id="c-deposit-amt"></span></span>
+        <span class="tick-when" id="c-deposit-when"></span>
+      </label>
+      <label class="tick">
+        <input type="checkbox" id="c-paid" />
+        <span class="tick-box" aria-hidden="true"></span>
+        <span class="tick-text"><strong>Paid in full</strong> <span id="c-paid-amt"></span></span>
+        <span class="tick-when" id="c-paid-when"></span>
+      </label>
+    </section>
+
+    <div class="jgrid">
+      <div class="form-row">
+        <label for="c-date">Survey date</label>
+        <input id="c-date" type="date" />
+      </div>
+      <div class="form-row jgrid-wide">
+        <label for="c-note">Notes</label>
+        <textarea id="c-note" rows="3"></textarea>
+      </div>
+    </div>
+
+    <span class="err" id="client-error" role="alert"></span>
+    <div class="top-end" style="margin-top:14px">
+      <button type="submit" class="btn btn--primary btn--sm" id="c-save">Save</button>
+      <a class="btn btn--ghost btn--sm" id="c-edit" href="/staff/jobs.html">Edit the job</a>
+      <span class="who" id="c-saved" role="status"></span>
+    </div>
+  </form>
+</dialog>
+
+<script src="/staff/ui.js"></script>
+<script src="/staff/client-dialog.js"></script>
+<script src="/staff/clients.js"></script>
+</body>
+</html>

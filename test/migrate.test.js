@@ -91,6 +91,52 @@ test('the indexes the dashboard queries rely on all exist', async () => {
   ].forEach((idx) => assert.ok(names.includes(idx), `missing index ${idx}`));
 });
 
+/* These arrived after the table did, so they are `alter table add column if not
+   exists` rather than part of `create table`. A database created before that
+   change is the normal case in production, and only the alter reaches it: this
+   test is what catches a column added to the create block alone. */
+test('the address and attachment columns exist and are optional', async () => {
+  const { rows } = await client.query(
+    `select column_name, is_nullable, data_type, column_default
+       from information_schema.columns
+      where table_schema = $1 and table_name = 'leads'`, [SCRATCH]
+  );
+  const columns = new Map(rows.map((r) => [r.column_name, r]));
+
+  for (const name of ['address_line1', 'address_line2', 'town']) {
+    assert.ok(columns.has(name), `missing column ${name}`);
+    assert.equal(columns.get(name).is_nullable, 'YES', `${name} must be optional, a partial has no address`);
+  }
+
+  assert.ok(columns.has('files'), 'missing column files');
+  assert.equal(columns.get('files').data_type, 'ARRAY');
+  assert.equal(columns.get('files').is_nullable, 'NO', 'files is an array, so empty is {} and never null');
+});
+
+test('the payment columns on jobs exist and are optional timestamps', async () => {
+  const { rows } = await client.query(
+    `select column_name, is_nullable, data_type from information_schema.columns
+      where table_schema = $1 and table_name = 'jobs'
+        and column_name in ('deposit_paid_at', 'paid_at')`, [SCRATCH]
+  );
+  assert.equal(rows.length, 2, 'both columns exist');
+  for (const r of rows) {
+    assert.equal(r.is_nullable, 'YES', `${r.column_name}: unpaid is null, not false`);
+    assert.equal(r.data_type, 'timestamp with time zone', `${r.column_name}: when, not whether`);
+  }
+});
+
+test('a lead with no address and no files still inserts', async () => {
+  const sid = '77777777-7777-4777-8777-777777777777';
+  const { rows } = await client.query(
+    `insert into leads (stage, first_name, email, postcode, session_id)
+     values ('partial','A','a@b.co','SE1 2AB',$1)
+     returning address_line1, files`, [sid]
+  );
+  assert.equal(rows[0].address_line1, null);
+  assert.deepEqual(rows[0].files, []);
+});
+
 test('the unique index really does stop a duplicate (session_id, stage)', async () => {
   const sid = '99999999-9999-4999-8999-999999999999';
   const insert = `insert into leads (stage, first_name, email, postcode, session_id)

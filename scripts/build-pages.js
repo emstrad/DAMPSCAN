@@ -23,6 +23,7 @@ import { render as renderService, distinctiveWordCount as serviceWords } from '.
 import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './reviews-block.js';
 import { render as renderHub } from './hub-template.js';
 import { render as renderPricing } from './pricing-template.js';
+import { assetHashes, stampAssets } from './asset-version.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'areas');
@@ -144,6 +145,26 @@ async function writeReviews() {
   }
 }
 
+/* Runs last, over every page the site serves, so that whatever the other
+   passes wrote is what gets stamped. /assets is cached immutable for a year,
+   and this is what makes that safe: see scripts/asset-version.js. */
+async function stampAllPages() {
+  const hashes = await assetHashes(ROOT);
+  let stamped = 0;
+  async function walk(dir) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) { if (entry.name !== 'staff') await walk(path); continue; }
+      if (!entry.name.endsWith('.html')) continue;
+      const html = await readFile(path, 'utf8');
+      const out = stampAssets(html, hashes);
+      if (out !== html) { await writeFile(path, out, 'utf8'); stamped++; }
+    }
+  }
+  await walk(join(ROOT, 'public'));
+  return { files: hashes.size, stamped };
+}
+
 async function writeSitemaps() {
   // One date for the whole build, taken once, so a run cannot straddle midnight
   // and stamp two different days across the two files.
@@ -226,6 +247,7 @@ async function main() {
   await writeSitemaps();
   await writeHomeLinks();
   await writeReviews();
+  const stamps = await stampAllPages();
 
   for (const site of Object.keys(counts).sort()) {
     const built = await readdir(join(OUT, site));
@@ -236,6 +258,7 @@ async function main() {
   console.log('4 hub pages written to public/hubs');
   console.log('ATi pricing page written to public/pricing');
   console.log('sitemaps and home page links rewritten');
+  console.log(`${stamps.files} assets hashed, ${stamps.stamped} pages restamped`);
   for (const site of Object.keys(HOME)) console.log(reviewsSummary(site));
 }
 

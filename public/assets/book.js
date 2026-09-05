@@ -1,15 +1,15 @@
 /* The booking form, shared by every page on both sites.
 
    This file is over the 300 line limit the rest of the project keeps to, and
-   deliberately so. It is one component: the stepper, its validation, the lead
-   post and the held partial are a single piece of behaviour, and the only seam
-   available runs straight through showServerErrors. Splitting it would add an
-   interface without adding clarity. It is the second documented exception,
-   alongside the home pages themselves.
+   deliberately so. It is one component: the stepper, its validation and the
+   lead post are a single piece of behaviour, and the only seam left runs
+   straight through showServerErrors. The held partial, the address lookup and
+   the attachments each had a real seam and each live in their own file. It is
+   the second documented exception, alongside the home pages themselves.
 
-   Requires visit.js, and window.DS_CONFIG for the per site values. It does
-   nothing at all on a page with no booking form, so it is safe to load
-   everywhere. */
+   Requires visit.js and partial.js before it, and window.DS_CONFIG for the per
+   site values. It does nothing at all on a page with no booking form, so it is
+   safe to load everywhere. */
 /* ---------- Multi-step booking form ---------- */
 (function bookingForm(){
   const card = document.getElementById('book');
@@ -28,6 +28,11 @@
   let selfFocus = false;
   function focusField(el){
     if (!el) return;
+    /* Optional sections are folded away, and a field inside a closed <details>
+       cannot be focused. Anything pointing at one has to open it first, or a
+       validation error lands somewhere nobody can see. */
+    let fold = el.closest('details');
+    while (fold) { fold.open = true; fold = fold.parentElement.closest('details'); }
     selfFocus = true;
     el.focus({ preventScroll: true });
     setTimeout(() => { selfFocus = false; }, 0);
@@ -45,12 +50,26 @@
     label.textContent = `Step ${current + 1} of ${steps.length}`;
     dotsWrap.setAttribute('aria-valuenow', String(current + 1));
     if (focus) focusField(steps[current].querySelector('input, select, textarea'));
+    /* address.js and upload.js stand on their own, so this is how they learn a
+       step has changed without reaching into this file. */
+    form.dispatchEvent(new CustomEvent('ds:step', { detail: { step: current + 1 } }));
   }
 
   function setError(row, on){
     row.classList.toggle('has-err', on);
-    const field = row.querySelector('input, select');
+    const field = row.querySelector('[required]') || row.querySelector('input, select');
     if (field) field.setAttribute('aria-invalid', String(on));
+  }
+
+  /* Format checks for a field that may be empty but must be right when it is
+     not. The server does the same, but by the time it answers the files have
+     already been uploaded and the visitor has waited for nothing. */
+  function formatBad(field){
+    const v = field.value.trim();
+    if (!v) return false;
+    if (field.type === 'tel') return v.replace(/\D/g, '').length < 9;
+    if (field.type === 'email') return !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    return false;
   }
 
   /* Validate only the visible step */
@@ -59,13 +78,12 @@
     let ok = true;
 
     step.querySelectorAll('.form-row').forEach(row => {
-      const field = row.querySelector('input[required], select[required]');
+      const field = row.querySelector('input[required], select[required]')
+        || row.querySelector('input[type="tel"], input[type="email"]');
       if (field) {
-        let bad = !field.value.trim();
-        if (!bad && field.type === 'tel') bad = field.value.replace(/\D/g,'').length < 9;
-        if (!bad && field.type === 'email') bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(field.value.trim());
+        const bad = (field.required && !field.value.trim()) || formatBad(field);
         setError(row, bad);
-        if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (ok === false && !step.querySelector('[aria-invalid="true"]:focus')) field.focus(); }
+        if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (!step.querySelector('[aria-invalid="true"]:focus')) focusField(field); }
         return;
       }
       /* Only a row marked data-require-one needs a tick. Every other checkbox
@@ -104,6 +122,11 @@
 
   const val = id => (document.getElementById(id).value || '').trim();
 
+  /* Blob pathnames for whatever upload.js managed to store, filled in on
+     submit. upload.js remembers what it has already sent, so a submission the
+     server bounces and a second attempt does not upload the same photos twice. */
+  let uploaded = [];
+
   /* The JSON shape /api/lead expects. The server re-validates all of it. */
   function leadPayload(stage){
     const hp = form.querySelector('input[name="honeypot"]');
@@ -113,9 +136,12 @@
       firstName: val('f-name'),
       email: val('f-email'),
       postcode: val('f-postcode'),
+      addressLine1: val('f-addr1'),
+      addressLine2: val('f-addr2'),
+      town: val('f-town'),
+      files: uploaded,
       phone: val('f-phone'),
       issues: Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value),
-      role: document.getElementById('f-role').value || '',
       previousSurvey: document.getElementById('f-prev').checked,
       notes: val('f-notes'),
       sourcePath: location.pathname,
@@ -127,7 +153,7 @@
   }
 
   /* Server field key -> the input it belongs to, so a 400 lands on the right row. */
-  const ERROR_FIELDS = { firstName:'f-name', email:'f-email', postcode:'f-postcode', phone:'f-phone', role:'f-role' };
+  const ERROR_FIELDS = { firstName:'f-name', email:'f-email', postcode:'f-postcode', phone:'f-phone' };
 
   function showServerErrors(errors){
     let firstBad = null;
@@ -170,8 +196,21 @@
       Email: val('f-email'),
       Phone: val('f-phone') || 'Not given',
       Postcode: val('f-postcode'),
+      /* The address is the whole point of asking for it: it needs to be in the
+         email as well as the dashboard, or somebody still chases it. */
+      Address: [val('f-addr1'), val('f-addr2'), val('f-town')].filter(Boolean).join(', ') || 'Not given yet',
+      /* Links rather than the files themselves, because the blobs are private
+         and the email is sent from the browser through FormSubmit, which
+         cannot carry them. Each link goes to /api/admin/attachment, so it
+         opens for a signed-in staff member and for nobody else. That is the
+         point: a forwarded email does not leak somebody's survey. */
+      ...(uploaded.length
+        ? Object.fromEntries(uploaded.map((p, i) => [
+            'Attachment ' + (i + 1),
+            location.origin + '/api/admin/attachment?path=' + encodeURIComponent(p)
+          ]))
+        : { Attachments: 'None' }),
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
-      'Owner or landlord': document.getElementById('f-role').value || 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
       Notes: val('f-notes') || 'None',
       'Lead stage': stage,
@@ -232,78 +271,28 @@
     return { ok: true, errors: {} };
   }
 
-  /* --- PARTIAL LEAD ---------------------------------------------------
-     Step 1 gives us enough to call someone back, but a visitor who carries on
-     and books is not a partial at all. So the partial is armed once they pass
-     step 1 and then held back: it is only sent if they really do leave it
-     there, either by leaving the page or by going quiet for a long time with
-     the form still open. Submitting cancels it, so a booked survey never
-     arrives twice. */
-  const PARTIAL_IDLE_MS = 180000;
-  const PARTIAL_HIDDEN_MS = 45000;
-  let partialArmed = false;
-  let partialDone = false;
-  let idleTimer = 0;
-  let hiddenTimer = 0;
+  /* The held partial lives in partial.js. It is handed how to build and send
+     the payload and told three things from here: they passed step 1, they
+     submitted, they are still typing. Absent, the form still books; it just
+     stops reporting abandonments. */
+  const partial = window.DS_HELD_PARTIAL
+    ? window.DS_HELD_PARTIAL({
+        payload: () => leadPayload('partial'),
+        send: () => sendLead('partial'),
+        endpoint: LEAD_ENDPOINT
+      })
+    : { arm(){}, cancel(){}, bump(){}, rearm(){} };
 
-  function armPartial(){
-    if (partialDone) return;
-    partialArmed = true;
-    bumpIdle();
+  function advance(){
+    if (!validate()) return;
+    /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
+    if (current === 0) partial.arm();
+    show(current + 1, true);
+    track('form_step', { step: current + 1 });
   }
-
-  function cancelPartial(){
-    partialArmed = false;
-    partialDone = true;
-    clearTimeout(idleTimer);
-    clearTimeout(hiddenTimer);
-  }
-
-  function bumpIdle(){
-    clearTimeout(idleTimer);
-    if (!partialArmed) return;
-    idleTimer = setTimeout(() => flushPartial(false), PARTIAL_IDLE_MS);
-  }
-
-  /* leaving means the page is on its way out, so the request has to be a
-     beacon: an ordinary fetch is routinely killed mid-flight during unload.
-     The lead still reaches the dashboard, it just cannot report back on the
-     notification email the way an idle flush can. */
-  function flushPartial(leaving){
-    if (!partialArmed || partialDone) return;
-    partialArmed = false;
-    partialDone = true;
-    clearTimeout(idleTimer);
-    clearTimeout(hiddenTimer);
-    if (leaving && navigator.sendBeacon) {
-      const body = new Blob([JSON.stringify(leadPayload('partial'))], { type: 'application/json' });
-      navigator.sendBeacon(LEAD_ENDPOINT, body);
-      return;
-    }
-    sendLead('partial');
-  }
-
-  /* pagehide is the last reliable moment before the page goes. A tab switch
-     only counts once they have stayed away a while, so glancing at another tab
-     and coming back to finish does not produce a partial. */
-  window.addEventListener('pagehide', () => flushPartial(true));
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      if (partialArmed) hiddenTimer = setTimeout(() => flushPartial(true), PARTIAL_HIDDEN_MS);
-      return;
-    }
-    clearTimeout(hiddenTimer);
-    bumpIdle();
-  });
 
   form.addEventListener('click', e => {
-    if (e.target.closest('[data-next]')) {
-      if (!validate()) return;
-      /* Step 1 complete = usable lead, but only worth sending if they abandon it. */
-      if (current === 0) armPartial();
-      show(current + 1, true);
-      track('form_step', { step: current + 1 });
-    }
+    if (e.target.closest('[data-next]')) advance();
     if (e.target.closest('[data-back]')) show(current - 1, true);
   });
 
@@ -319,36 +308,77 @@
   /* Clear the error as soon as they start fixing it, and keep the partial
      lead on hold for as long as they are still working on the form. */
   form.addEventListener('input', e => {
-    bumpIdle();
+    partial.bump();
     const row = e.target.closest('.form-row');
     if (row) setError(row, false);
   });
   form.addEventListener('change', e => {
-    bumpIdle();
+    partial.bump();
     const row = e.target.closest('.form-row');
     if (row && e.target.type === 'checkbox') row.classList.remove('has-err');
   });
 
+  let submitting = false;
+  const progress = document.getElementById('submit-status');
+  const announce = (text) => { if (progress) progress.textContent = text; };
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    /* The only submit button is on the last step, so Enter in a field on an
+       earlier one reaches here as an implicit submission. It means "next". */
+    if (current < steps.length - 1) { advance(); return; }
+    if (submitting) return;
     if (!validate()) return;
+    submitting = true;
     /* They are booking, so the held partial is not a partial. Drop it. */
-    cancelPartial();
+    partial.cancel();
     const btn = form.querySelector('[type="submit"]');
+    const btnLabel = btn.innerHTML;
     btn.disabled = true;
     btn.style.opacity = '.7';
+
+    /* Files go up before the lead, so the lead row can name them, and the
+       button says what is happening because shrinking and sending a phone
+       photo is a wait.
+       Nothing here can fail the booking: upload.js never rejects, and anything
+       that did not store is reported as a note rather than as an error. */
+    let filesFailed = 0;
+    if (window.DS_UPLOAD) {
+      const done = await window.DS_UPLOAD((n, total) => {
+        const text = `Sending file ${n} of ${total}…`;
+        btn.textContent = text;
+        announce(text);
+      });
+      uploaded = done.paths;
+      filesFailed = done.failed;
+      btn.innerHTML = btnLabel;
+    }
+    announce('Sending your booking…');
+
     const result = await sendLead('complete');
+    submitting = false;
+    announce('');
     if (!result.ok) {
       /* Server rejected a field, so nothing was written. Put the partial back
          on hold as a fallback, then point at the problem. */
-      partialDone = false;
-      armPartial();
+      partial.rearm();
       btn.disabled = false;
       btn.style.opacity = '';
       showServerErrors(result.errors);
       return;
     }
     track('form_submit');
+    /* Said on the confirmation rather than as a field error, because the form
+       is gone by now. They are booked either way, so the wording is a next
+       step and not an apology for something they need to fix. */
+    if (filesFailed) {
+      const note = document.createElement('p');
+      note.className = 'note';
+      note.textContent = filesFailed === 1
+        ? 'One of your files did not come through. Reply to your confirmation email with it and we will add it to the job.'
+        : `${filesFailed} of your files did not come through. Reply to your confirmation email with them and we will add them to the job.`;
+      card.querySelector('.book-success').appendChild(note);
+    }
     card.classList.add('is-sent');
     card.querySelector('.book-success h3').focus?.();
   });

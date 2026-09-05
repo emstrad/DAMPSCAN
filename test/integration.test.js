@@ -50,6 +50,7 @@ const leadsRoute = (await import('../api/admin/leads.js')).default;
 const notified = (await import('../api/notified.js')).default;
 const jobsRoute = (await import('../api/admin/jobs.js')).default;
 const ratesRoute = (await import('../api/admin/rates.js')).default;
+const clientsRoute = (await import('../api/admin/clients.js')).default;
 const { siteFor } = await import('../lib/site.js');
 
 /* ---------- minimal req/res doubles ---------- */
@@ -221,6 +222,51 @@ test('resubmitting the same stage updates rather than duplicating', async () => 
 
   const { rows } = await pool.query('select count(*)::int as n from leads');
   assert.equal(rows[0].n, 1);
+});
+
+test('the full address is stored, which is the whole reason the form asks', async () => {
+  const out = (await call(lead, { body: validLead({
+    addressLine1: 'Flat 6, Trafalgar Point',
+    addressLine2: '137 Downham Road',
+    town: 'London'
+  }) })).json();
+
+  const { rows } = await pool.query(
+    'select address_line1, address_line2, town from leads where id = $1', [out.id]
+  );
+  assert.equal(rows[0].address_line1, 'Flat 6, Trafalgar Point');
+  assert.equal(rows[0].address_line2, '137 Downham Road');
+  assert.equal(rows[0].town, 'London');
+});
+
+test('a later partial cannot blank the address the booking already gave us', async () => {
+  // The order that actually happens: they book, then the held partial flushes
+  // on pagehide from the same session. Without the coalesce in the upsert that
+  // second write would wipe the address off the row we care about.
+  await call(lead, { body: validLead({ addressLine1: '12 Bridge Street', town: 'Maidstone' }) });
+  await call(lead, { body: validLead({ addressLine1: '', addressLine2: '', town: '' }) });
+
+  const { rows } = await pool.query(
+    'select address_line1, town from leads where session_id = $1 and stage = $2', [SID_A, 'complete']
+  );
+  assert.equal(rows[0].address_line1, '12 Bridge Street');
+  assert.equal(rows[0].town, 'Maidstone');
+});
+
+test('attachments are stored as paths, and only ones we could have written', async () => {
+  const mine = 'leads/2026-09-04/report-Kq7z2.pdf';
+  const out = (await call(lead, { body: validLead({
+    files: [mine, 'other/2026-09-04/someone-elses.pdf', '../../etc/passwd']
+  }) })).json();
+
+  const { rows } = await pool.query('select files from leads where id = $1', [out.id]);
+  assert.deepEqual(rows[0].files, [mine], 'a path outside the leads prefix never reaches the column');
+});
+
+test('a lead with no attachments gets an empty array, never null', async () => {
+  const out = (await call(lead, { body: validLead() })).json();
+  const { rows } = await pool.query('select files from leads where id = $1', [out.id]);
+  assert.deepEqual(rows[0].files, []);
 });
 
 test('honeypot returns 200 and writes nothing at all', async () => {
@@ -686,4 +732,180 @@ test('a job can be deleted', async () => {
   assert.equal(res.statusCode, 200);
   const { jobs } = (await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie } })).json();
   assert.equal(jobs.length, 0);
+});
+
+/* --------------------------------------------------------------- clients ---- */
+async function bookedJob(cookie, extra = {}) {
+  const leadRes = (await call(lead, { body: validLead({
+    addressLine1: 'Flat 6, Trafalgar Point', addressLine2: '137 Downham Road', town: 'London',
+    files: ['leads/2026-09-04/uuid-report.pdf'], notes: 'Back bedroom, since spring'
+  }) })).json();
+  const job = (await call(jobsRoute, { body: {
+    leadId: leadRes.id, customerName: 'Priya', surveyType: 'full-house', surveyor: 'tom',
+    jobDate: '2026-09-18', status: 'booked', ...extra
+  }, headers: { cookie } })).json();
+  return { leadId: leadRes.id, job: job.job };
+}
+
+test('a booked job is a client card, with the enquiry pulled through', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+
+  const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } });
+  assert.equal(res.statusCode, 200);
+  const [c] = res.json().clients;
+  assert.equal(c.id, job.id);
+  assert.equal(c.name, 'Priya');
+  assert.equal(c.email, 'priya@example.com');
+  assert.deepEqual(c.address, { line1: 'Flat 6, Trafalgar Point', line2: '137 Downham Road', town: 'London', postcode: 'SE1 2AB' });
+  assert.deepEqual(c.files, ['leads/2026-09-04/uuid-report.pdf']);
+  assert.deepEqual(c.issues, ['Damp', 'Mould']);
+  assert.equal(c.leadNotes, 'Back bedroom, since spring');
+  assert.equal(c.surveyDate, '2026-09-18');
+  assert.equal(c.survey.label, 'Full House');
+  assert.equal(c.survey.pricePence, 29500);
+});
+
+test('the deposit is always half the price, derived rather than stored, odd penny on the deposit', async () => {
+  const cookie = await signedInCookie();
+  await bookedJob(cookie, { surveyType: null, surveyPricePence: 29501 });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } })).json().clients;
+  assert.equal(c.money.depositPence, 14751);
+  assert.equal(c.money.balancePence, 14750);
+  assert.equal(c.money.depositPaidAt, null);
+  assert.equal(c.money.paidAt, null);
+});
+
+test('ticking deposit stamps a time, ticking it again keeps it, unticking clears it', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  const post = (body) => call(clientsRoute, { body, headers: { cookie } });
+
+  const first = (await post({ id: job.id, depositPaid: true })).json().client;
+  assert.ok(first.money.depositPaidAt, 'ticked means a timestamp');
+  assert.equal(first.money.paidAt, null, 'the other box is untouched');
+
+  await new Promise((r) => setTimeout(r, 20));
+  const again = (await post({ id: job.id, depositPaid: true, note: 'Rang to confirm' })).json().client;
+  assert.equal(String(again.money.depositPaidAt), String(first.money.depositPaidAt),
+    'saving the notes must not move the date the deposit was paid');
+  assert.equal(again.note, 'Rang to confirm');
+
+  const cleared = (await post({ id: job.id, depositPaid: false })).json().client;
+  assert.equal(cleared.money.depositPaidAt, null);
+});
+
+test('paid in full implies the deposit was paid', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  const c = (await call(clientsRoute, { body: { id: job.id, paid: true }, headers: { cookie } })).json().client;
+  assert.ok(c.money.paidAt);
+  assert.ok(c.money.depositPaidAt, 'you cannot have paid the lot without the half');
+});
+
+test('the survey date and notes are editable from the card, and the job sees the same values', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  const c = (await call(clientsRoute, { body: { id: job.id, jobDate: '2026-09-25', note: 'Key with neighbour' }, headers: { cookie } })).json().client;
+  assert.equal(c.surveyDate, '2026-09-25');
+  assert.equal(c.note, 'Key with neighbour');
+
+  const jobs = (await call(jobsRoute, { method: 'GET', url: '/api/admin/jobs?range=all', headers: { cookie } })).json().jobs;
+  assert.equal(String(jobs[0].jobDate).slice(0, 10), '2026-09-25', 'one date, not two');
+  assert.equal(jobs[0].note, 'Key with neighbour');
+});
+
+test('editing the job on the Jobs page does not clear the payment boxes', async () => {
+  // The jobs route rewrites every column it knows about. It must not know
+  // about these two.
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  await call(clientsRoute, { body: { id: job.id, paid: true }, headers: { cookie } });
+  await call(jobsRoute, { body: { id: job.id, customerName: 'Priya S', surveyType: 'full-house', surveyor: 'tom', status: 'completed' }, headers: { cookie } });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=archive', headers: { cookie } })).json().clients;
+  assert.ok(c.money.paidAt, 'still paid');
+  assert.equal(c.name, 'Priya S');
+});
+
+test('cancelled jobs are not clients, on any view', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie);
+  await call(jobsRoute, { body: { id: job.id, surveyType: 'full-house', surveyor: 'tom', status: 'cancelled' }, headers: { cookie } });
+  for (const view of ['upcoming', 'archive', 'all']) {
+    const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=' + view, headers: { cookie } });
+    assert.deepEqual(res.json().clients, [], `a cancelled job showed up under ${view}`);
+  }
+});
+
+/* Two days either side rather than one: the server decides "today" on London
+   time and this test runs on whatever clock the machine has, and during the
+   one hour a day they disagree a one-day margin would flake. */
+const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+
+test('a card archives itself the day after its survey date, without the job changing', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobDate: daysFromNow(-2) });
+  const view = async (v) => (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=' + v, headers: { cookie } })).json().clients;
+
+  assert.deepEqual(await view('upcoming'), [], 'a passed date is off the board');
+  const [archived] = await view('archive');
+  assert.equal(archived.id, job.id);
+  assert.equal(archived.archived, true);
+  assert.equal(archived.status, 'booked', 'archived by the calendar, not marked done: that is a person\'s call');
+  assert.equal((await view('all')).length, 1);
+});
+
+test('a survey coming up is on the board and not archived', async () => {
+  const cookie = await signedInCookie();
+  await bookedJob(cookie, { jobDate: daysFromNow(2) });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=upcoming', headers: { cookie } })).json().clients;
+  assert.equal(c.archived, false);
+  assert.deepEqual((await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=archive', headers: { cookie } })).json().clients, []);
+});
+
+test('a job marked completed is archived whatever its date', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobDate: daysFromNow(2) });
+  await call(jobsRoute, { body: { id: job.id, surveyType: 'full-house', surveyor: 'tom', status: 'completed', jobDate: daysFromNow(2) }, headers: { cookie } });
+  assert.deepEqual((await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=upcoming', headers: { cookie } })).json().clients, []);
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=archive', headers: { cookie } })).json().clients;
+  assert.equal(c.archived, true);
+  assert.equal(c.status, 'completed');
+});
+
+test('moving the survey date forward from the card brings it back onto the board', async () => {
+  // The rescheduling case, and the reason archive is a view and not a status.
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobDate: daysFromNow(-2) });
+  await call(clientsRoute, { body: { id: job.id, jobDate: daysFromNow(5) }, headers: { cookie } });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=upcoming', headers: { cookie } })).json().clients;
+  assert.equal(c.id, job.id);
+  assert.equal(c.archived, false);
+});
+
+test('an unknown view falls back to upcoming rather than erroring', async () => {
+  const cookie = await signedInCookie();
+  const res = await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=nonsense', headers: { cookie } });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.json().view, 'upcoming');
+});
+
+test('a job recorded by hand, with no lead, is still a card', async () => {
+  const cookie = await signedInCookie();
+  await call(jobsRoute, { body: { customerName: 'Walk-in', customerPostcode: 'ME14 1AA', surveyType: 'localised', surveyor: 'ben' }, headers: { cookie } });
+  const [c] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } })).json().clients;
+  assert.equal(c.name, 'Walk-in');
+  assert.equal(c.leadId, null);
+  assert.equal(c.address.postcode, 'ME14 1AA');
+  assert.deepEqual(c.files, []);
+});
+
+test('the clients route needs a session, rejects a bad id, and rejects an empty update', async () => {
+  assert.equal((await call(clientsRoute, { method: 'GET', url: '/api/admin/clients' })).statusCode, 401);
+  const cookie = await signedInCookie();
+  assert.equal((await call(clientsRoute, { body: { id: 'x', paid: true }, headers: { cookie } })).statusCode, 400);
+  assert.equal((await call(clientsRoute, { body: { id: 999999, paid: true }, headers: { cookie } })).statusCode, 404);
+  const { job } = await bookedJob(cookie);
+  assert.equal((await call(clientsRoute, { body: { id: job.id }, headers: { cookie } })).statusCode, 400);
+  assert.equal((await call(clientsRoute, { body: { id: job.id, jobDate: 'next tuesday' }, headers: { cookie } })).statusCode, 400);
 });

@@ -41,6 +41,7 @@
   <nav class="tabs" aria-label="Sections">
     <a href="/staff/dashboard.html">Dashboard</a>
     <a href="/staff/jobs.html" aria-current="page">Jobs</a>
+    <a href="/staff/clients.html">Clients</a>
   </nav>
   <div class="top-end">
     <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
@@ -49,6 +50,7 @@
 </header>
 
 <main class="wrap">
+  <h1 class="sr-only">Jobs and earnings</h1>
   <div class="ranges" role="group" aria-label="Site" style="margin-bottom:10px">
     <button class="pill" data-site="" aria-pressed="true">Both sites</button>
     <button class="pill" data-site="dampscan" aria-pressed="false">DampScan, Kent</button>
@@ -81,7 +83,7 @@
             <select id="j-lead"><option value="">Phone or manual</option></select>
           </div>
           <div class="form-row">
-            <label for="j-date">Date</label>
+            <label for="j-date">Survey date</label>
             <input id="j-date" type="date" />
           </div>
           <div class="form-row">

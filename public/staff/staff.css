@@ -156,10 +156,20 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 .tag--good{color:var(--good);border-color:rgba(95,207,158,.4);background:rgba(95,207,158,.1)}
 .tag--accent{color:var(--accent);border-color:var(--accent-ring);background:var(--accent-soft)}
 .tag--muted{color:var(--muted-2)}
+.tag--warn{color:var(--warn);border-color:rgba(240,160,139,.4);background:rgba(240,160,139,.1)}
 
 .timeline{background:var(--slate-2);padding:14px 18px}
 .timeline ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted)}
 .timeline time{color:var(--muted-2);font-variant-numeric:tabular-nums}
+
+/* Attachments sit above the timeline in the same expanded row. Each link goes
+   to /api/admin/attachment, which serves the private blob behind the session. */
+.attachments{margin-bottom:14px}
+.attachments h4{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}
+.attachments ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.attachments a{display:inline-block;font-size:12.5px;padding:5px 12px;border-radius:999px;
+  border:1px solid var(--accent-ring);background:var(--accent-soft);color:var(--accent);text-decoration:none}
+.attachments a:hover{border-color:var(--accent);text-decoration:underline}
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 @media (max-width:900px){.grid-2{grid-template-columns:1fr}.frow{grid-template-columns:90px 1fr}.fdrop{grid-column:1/-1;text-align:left}}
@@ -188,3 +198,67 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 .preview-cell.is-key{background:var(--accent-soft);border-color:var(--accent-ring)}
 .preview-cell .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
 .preview-cell .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---------- Client cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:14px}
+.ccard{display:flex;flex-direction:column;gap:8px;text-align:left;padding:18px;border-radius:var(--radius);
+  background:var(--slate);border:1px solid var(--line);color:var(--text);cursor:pointer;
+  transition:border-color .15s,transform .15s,box-shadow .15s}
+.ccard:hover{border-color:var(--accent-ring);transform:translateY(-1px);box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
+.ccard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ccard-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ccard-when{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.ccard-name{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.ccard-addr{font-size:14px;color:var(--muted);line-height:1.45}
+.ccard-survey{font-size:13px;color:var(--muted-2)}
+.ccard-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+
+/* The one client, big and simple. */
+.client{width:min(880px,calc(100vw - 32px));max-height:calc(100vh - 32px);padding:0;border:1px solid var(--line-strong);
+  border-radius:18px;background:var(--navy);color:var(--text);box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
+.client::backdrop{background:rgba(4,10,18,.7);backdrop-filter:blur(6px)}
+.client-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:26px 28px 18px;
+  border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--navy);z-index:1}
+.client-head h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;line-height:1.1;margin:0}
+.client-sub{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
+.client-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:22px 28px 0}
+@media (max-width:640px){.client-grid{grid-template-columns:1fr}}
+.client-block{background:var(--slate);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.client-block h3{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);font-weight:600;margin:0 0 10px}
+.client-lines{margin:0;font-size:15px;line-height:1.6}
+.client-lines a{color:var(--accent);text-decoration:none}
+.client-lines a:hover{text-decoration:underline}
+.client-block .pill{display:inline-block;margin-top:12px;text-decoration:none;font-size:13px}
+.client-files{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.client-files .pill{margin:0;text-decoration:none;font-size:13px}
+#client-form{padding:14px 28px 28px}
+.client-money{margin-bottom:16px;display:flex;flex-direction:column;gap:10px}
+
+/* A payment box is the thing a surveyor is most likely to tap on a phone,
+   so it is a whole row, not a 13px square. */
+.tick{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px 16px;
+  border:1px solid var(--line-strong);border-radius:12px;cursor:pointer;min-height:56px;transition:border-color .15s,background .15s}
+.tick:hover{border-color:var(--accent-ring)}
+.tick input{position:absolute;opacity:0;width:0;height:0}
+.tick-box{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line-strong);display:grid;place-items:center;
+  transition:background .15s,border-color .15s}
+.tick-box::after{content:"";width:7px;height:12px;border-right:2.5px solid #06121f;border-bottom:2.5px solid #06121f;
+  transform:rotate(45deg) translate(-1px,-1px);opacity:0}
+.tick input:checked~.tick-box{background:var(--good);border-color:var(--good)}
+.tick input:checked~.tick-box::after{opacity:1}
+.tick input:focus-visible~.tick-box{outline:2px solid var(--accent);outline-offset:2px}
+.tick:has(input:checked){border-color:rgba(95,207,158,.4);background:rgba(95,207,158,.08)}
+.tick-text{font-size:15px;line-height:1.4}
+.tick-text strong{font-weight:700}
+.tick-when{font-size:12.5px;color:var(--muted-2);white-space:nowrap}
+#client-form textarea{width:100%;background:var(--navy);border:1px solid var(--line-strong);border-radius:10px;color:var(--text);
+  padding:12px 14px;font:inherit;font-size:15px;min-height:86px;resize:vertical}
+#client-form textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Filter pills on the left, search on the right; stacked when narrow. */
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.search{flex:1 1 260px;max-width:380px;margin-left:auto}
+.search input{width:100%;background:var(--slate);border:1px solid var(--line-strong);border-radius:999px;color:var(--text);
+  padding:0 18px;font:inherit;font-size:14.5px;min-height:40px;transition:border-color .16s}
+.search input:focus{outline:none;border-color:var(--accent);background:var(--slate-2)}
+.search input::placeholder{color:var(--muted-2)}

@@ -92,7 +92,13 @@
         body: JSON.stringify({ code: code.value.trim() })
       });
       if (res.ok) {
-        location.replace('/staff/dashboard.html');
+        /* An attachment link opened while signed out lands here with where it
+           was going. Only a path on this site is honoured: a full URL, a
+           protocol relative one or a backslash trick would make this page a
+           redirector for anyone who could get a staff member to click. */
+        var next = new URLSearchParams(location.search).get('next') || '';
+        var safe = /^\/(?![\/\\])/.test(next) && next.indexOf('\\') === -1;
+        location.replace(safe ? next : '/staff/dashboard.html');
         return;
       }
       const body = await res.json().catch(function(){ return null; });

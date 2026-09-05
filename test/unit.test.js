@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 process.env.SESSION_SECRET = 'test-secret-that-is-long-enough-abcdef';
 process.env.IP_SALT = 'test-salt';
 
-const { validateLead, normalisePostcode, sanitiseUtm } = await import('../lib/validate.js');
+const { validateLead, normalisePostcode, sanitiseUtm, addressLine, attachmentPaths } =
+  await import('../lib/validate.js');
 const { channelFor, deviceFor, referrerHost } = await import('../lib/attribution.js');
 const { signSession, verifySession, parseCookies } = await import('../lib/session.js');
 const { sanitiseDetail } = await import('../api/event.js');
@@ -41,16 +42,25 @@ test('issues outside the allowed six are rejected', () => {
   assert.ok(r.errors.issues);
 });
 
-test('role outside the allowed five is rejected', () => {
-  assert.equal(validateLead({ ...base, role: 'Wizard' }).errors.role, 'Please choose one.');
-});
-
-test('partial does not require issues or role, complete does', () => {
+test('partial does not require issues, complete does', () => {
   const partial = validateLead({ stage: 'partial', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
   assert.equal(partial.ok, true, JSON.stringify(partial.errors));
   const complete = validateLead({ stage: 'complete', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
   assert.equal(complete.ok, false);
-  assert.ok(complete.errors.issues && complete.errors.role);
+  assert.ok(complete.errors.issues);
+});
+
+test('a complete lead no longer needs a role, because the form stopped asking', () => {
+  const { role, ...withoutRole } = base;
+  const r = validateLead(withoutRole);
+  assert.equal(r.ok, true, JSON.stringify(r.errors));
+  assert.equal(r.value.role, null);
+});
+
+test('role is still whitelisted for the leads that already have one', () => {
+  // The column stays, so the values that can reach it stay closed.
+  assert.equal(validateLead({ ...base, role: 'Landlord' }).value.role, 'Landlord');
+  assert.ok(validateLead({ ...base, role: '<script>' }).errors.role);
 });
 
 test('phone optional, but must have 9+ digits when given', () => {
@@ -61,6 +71,63 @@ test('phone optional, but must have 9+ digits when given', () => {
 
 test('malformed session id is rejected', () => {
   assert.ok(validateLead({ ...base, sessionId: 'abc' }).errors.sessionId);
+});
+
+test('address lines are optional, tidied and capped', () => {
+  const none = validateLead(base).value;
+  assert.equal(none.addressLine1, null);
+  assert.equal(none.town, null);
+
+  const given = validateLead({
+    ...base,
+    addressLine1: '  Flat 6,   Trafalgar   Point ',
+    addressLine2: '137 Downham Road',
+    town: 'London'
+  }).value;
+  assert.equal(given.addressLine1, 'Flat 6, Trafalgar Point');
+  assert.equal(given.addressLine2, '137 Downham Road');
+  assert.equal(given.town, 'London');
+
+  assert.equal(addressLine('x'.repeat(500)).length, 120);
+  assert.equal(addressLine('x'.repeat(500), 80).length, 80);
+  assert.equal(addressLine('   '), null);
+});
+
+test('a missing address never fails the booking', () => {
+  // Deliberate: the address is the point of the field, but a lookup that is
+  // down or a visitor who skips it must not lose us the enquiry.
+  assert.equal(validateLead({ ...base, addressLine1: '' }).ok, true);
+});
+
+test('attachment paths only survive if they match what we ourselves write', () => {
+  const good = 'leads/2026-09-04/survey-Ab3x9.pdf';
+  assert.deepEqual(attachmentPaths([good]), [good]);
+
+  // The presigned path shape: a uuid prefix keeps two "survey.pdf" apart.
+  const presigned = 'leads/2026-09-04/0b21f0d4-5c9e-4a1b-9f77-2b3c4d5e6f70-survey.pdf';
+  assert.deepEqual(attachmentPaths([presigned]), [presigned]);
+
+  // Anything pointing outside the leads prefix, climbing out of it, or naming
+  // an absolute URL is dropped rather than stored and later linked to.
+  assert.deepEqual(attachmentPaths([
+    'other/2026-09-04/secret.pdf',
+    'leads/2026-09-04/../../etc/passwd',
+    'leads/nope/file.pdf',
+    'https://example.com/leads/2026-09-04/x.pdf',
+    'leads/2026-09-04/',
+    ''
+  ]), []);
+
+  assert.deepEqual(attachmentPaths('not an array'), []);
+  assert.deepEqual(attachmentPaths(undefined), []);
+});
+
+test('attachments are deduplicated and capped at ten', () => {
+  const many = Array.from({ length: 15 }, (_, i) => `leads/2026-09-04/photo-${i}.jpg`);
+  assert.equal(attachmentPaths(many).length, 10);
+
+  const dupe = 'leads/2026-09-04/photo-0.jpg';
+  assert.deepEqual(attachmentPaths([dupe, dupe, dupe]), [dupe]);
 });
 
 test('oversized name is truncated, not rejected outright', () => {

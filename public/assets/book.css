@@ -32,7 +32,10 @@
 .book-card.is-brand .form-row input:focus,
 .book-card.is-brand .form-row select:focus,
 .book-card.is-brand .form-row textarea:focus{background:#ffffff;border-color:#ffffff}
-.book-card.is-brand .form-row select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2311213c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")}
+/* background-repeat and background-position come from .form-row select, but the
+   `background:` shorthand above resets both, so they are restated here. Without
+   this the chevron tiles across the whole control. */
+.book-card.is-brand .form-row select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2311213c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 14px center}
 .book-card.is-brand .form-row input[aria-invalid="true"]{background:#fff3ee;border-color:#ff9c78}
 /* The home page defines .btn--primary in its own inline CSS, so this needs the
    extra specificity to win. A navy button on a navy card is barely a button. */
@@ -50,6 +53,10 @@
 .fstep{display:none;flex-direction:column;gap:14px}
 .fstep.is-active{display:flex}
 .form-row{display:flex;flex-direction:column;gap:6px}
+/* A class rule beats the user agent's [hidden], and several blocks in this form
+   are toggled with it, so one rule settles all of them. Without this the address
+   picker sat on screen with an empty select. */
+.book-card [hidden]{display:none}
 .form-row label{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
 .form-row .opt{text-transform:none;letter-spacing:0;color:var(--muted-2);font-weight:400}
 .form-row input,.form-row select,.form-row textarea{width:100%;background:var(--bg, var(--navy));border:1px solid var(--line-strong);border-radius:10px;color:var(--text);padding:13px 15px;font:inherit;font-size:16px;min-height:50px;transition:border-color .16s,background .16s}
@@ -69,6 +76,62 @@
 .form-row.has-err .err{display:block}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:420px){.two-col{grid-template-columns:1fr}}
+
+/* Address block. Three stacked inputs under one label, so the gap is wider than
+   a normal row's: at 6px they read as one control rather than three. */
+.addr{gap:10px}
+.addr-find{display:grid;grid-template-columns:1fr auto;gap:10px}
+/* Its own class rather than .btn--ghost: both home pages already define that
+   one for their own page background, and on the dark booking card the ATi
+   version came out white on white. */
+.addr-find .addr-btn{min-height:50px;padding:0 18px;font-size:14px;white-space:nowrap;
+  background:transparent;border:1px solid var(--line-strong);color:var(--text)}
+.addr-find .addr-btn:hover{background:var(--accent-soft);border-color:var(--accent-ring);color:var(--text)}
+@media (max-width:400px){.addr-find{grid-template-columns:1fr}}
+/* role="status", so it is empty until there is something worth announcing.
+   Collapsing it when empty keeps the spacing honest. */
+.addr-status{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted-2)}
+.addr-status:empty{display:none}
+.addr-pick{gap:6px}
+.addr-fields{display:flex;flex-direction:column;gap:10px}
+/* The found address, standing in for the three fields once the picker has
+   filled them. Three boxes of text somebody did not type is just noise. */
+.addr-chosen{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;
+  font-size:14.5px;line-height:1.5;color:var(--text)}
+.link-btn{background:none;padding:0;font:inherit;font-size:13px;font-weight:600;
+  color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:0}
+.link-btn:hover{color:var(--accent-hi)}
+
+/* Optional sections, folded away so step 3 is not one long scroll. Native
+   details/summary: it is keyboard operable and announced as expandable without
+   a line of script, which a div with a click handler is not. */
+.fold{border:1px solid var(--line-strong);border-radius:12px;padding:0 15px}
+.fold[open]{padding-bottom:15px}
+.fold>summary{list-style:none;cursor:pointer;padding:14px 0;min-height:50px;
+  display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text)}
+.fold>summary::-webkit-details-marker{display:none}
+/* The chevron is decorative, so it is drawn rather than announced. */
+.fold>summary::after{content:"";margin-left:auto;width:9px;height:9px;flex-shrink:0;
+  border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:rotate(45deg) translate(-2px,-2px);transition:transform .18s}
+.fold[open]>summary::after{transform:rotate(225deg) translate(-1px,-1px)}
+.fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.fold .opt{text-transform:none;letter-spacing:0;color:var(--muted-2);font-weight:400;font-size:13px}
+
+/* File row. The native control is left as a native control: a styled label over
+   a hidden input loses the keyboard behaviour and the "no file chosen" text
+   that tells somebody whether it worked. */
+.form-row input[type="file"]{padding:12px 14px;font-size:14px;line-height:1.7;cursor:pointer}
+.form-row input[type="file"]::file-selector-button{margin-right:12px;padding:7px 14px;border:1px solid currentColor;
+  border-color:color-mix(in srgb, currentColor 40%, transparent);
+  border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+/* currentColor again: the accent tokens are tuned for the card, and the file
+   input is white on ATi, where an accent hover is invisible. */
+.form-row input[type="file"]::file-selector-button:hover{border-color:currentColor;
+  background:color-mix(in srgb, currentColor 10%, transparent)}
+.file-hint{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted-2)}
+.file-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.file-list .is-bad{color:var(--warn,#f0a08b)}
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:520px){.checks{grid-template-columns:1fr}}
 .form-row label.check{font-size:14.5px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:500}
