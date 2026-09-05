@@ -8,7 +8,7 @@
  *
  * Two upload paths, tried in that order:
  *
- *   1. A presigned PUT from /api/upload-url, browser straight to Vercel Blob.
+ *   1. A presigned PUT from /api/upload?mode=presign, browser straight to Blob.
  *      No size limit worth speaking of, because the file never passes through
  *      a serverless function.
  *   2. POST to /api/upload, which proxies it. Vercel will not carry a request
@@ -122,7 +122,7 @@
 
   /** Straight to Blob. Resolves with the stored pathname, or null to fall back. */
   async function direct(file, signal){
-    const res = await fetch('/api/upload-url', {
+    const res = await fetch('/api/upload?mode=presign', {
       method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ name: file.name, type: file.type || '' })

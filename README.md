@@ -568,12 +568,12 @@ damp survey full of photographs comfortably exceeds, and that limit is
 infrastructure level rather than something `vercel.json` can change. So there
 are two upload paths, tried in order:
 
-1. `/api/upload-url` presigns a PUT and the browser sends the file straight to
-   Blob. It never passes through a function, so the platform limit does not
-   apply. The pathname is generated server side and the token is scoped to that
-   one path, so a presigned URL cannot be aimed at anything else in the store,
-   and the content type and size ceiling are signed into the URL for Vercel to
-   enforce rather than trusted from the browser.
+1. `/api/upload?mode=presign` presigns a PUT and the browser sends the file
+   straight to Blob. It never passes through a function, so the platform limit
+   does not apply. The pathname is generated server side and the token is
+   scoped to that one path, so a presigned URL cannot be aimed at anything else
+   in the store, and the content type and size ceiling are signed into the URL
+   for Vercel to enforce rather than trusted from the browser.
 2. `/api/upload` proxies the bytes. Capped just under 4.5MB. This is the
    fallback for when presigning is unavailable, so a store that cannot presign
    degrades to small files rather than breaking.
@@ -868,6 +868,36 @@ Three integration points, in increasing order of usefulness:
    sync, add a bearer token check alongside `requireAuth` in `lib/session.js` rather
    than loosening the cookie rules, and give the CRM its own credential so it can be
    revoked on its own.
+
+## One function per file, and why some files hold several routes
+
+Vercel counts one serverless function per file under `api/`, and a deployment
+on the Hobby plan takes twelve. Seventeen separate files put a deployment over
+that ceiling on its own, which fails at the deploy step rather than in the
+build: the build log ends cleanly at `Deploying outputs...` and the refusal is
+only shown on the deployment page, so it is easy to misread as a build problem.
+
+Three files hold more than one route to stay under it:
+
+    api/admin/[action].js   attachment, clients, jobs, leads, rates, summary
+    api/auth/[action].js    login, logout
+    api/upload.js           the presign ticket and the proxied bytes
+
+A bracketed filename is a dynamic segment on Vercel, in a plain `api/` folder
+with no framework, so **no URL changed**: `/api/admin/jobs` and
+`/api/auth/login` answer exactly as they did and nothing in the staff area was
+touched. The handlers moved to `lib/routes/`, unedited, purely so Vercel stops
+counting them; each is still a plain `(req, res)` function and each is still
+imported directly by its tests. The dispatchers are a lookup and a 404, and are
+covered separately in `test/integration.test.js`.
+
+The upload merge is different in kind: those two were always two halves of one
+question, sharing an origin check, a throttle and a type check, so they read
+better as one file than they did as two.
+
+Ten functions now, with two to spare. Adding an eleventh and twelfth is fine;
+past that, the next group of related routes wants collecting behind a dynamic
+segment the same way.
 
 ## A note on dependencies
 
