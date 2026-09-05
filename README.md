@@ -899,6 +899,37 @@ Ten functions now, with two to spare. Adding an eleventh and twelfth is fine;
 past that, the next group of related routes wants collecting behind a dynamic
 segment the same way.
 
+## The Vertise mirror
+
+`VERTISE-DEV/DAMPSCAN` is a standalone copy, not a GitHub fork, so it does not
+track `main` here on its own. `.github/workflows/mirror-vertise.yml` keeps it in
+step: every commit that reaches `main` and passes CI is force pushed there, and
+the Vertise Vercel project deploys from that.
+
+Three things worth knowing about it:
+
+- **It is gated on CI, not on the push.** Mirroring straight from a push would
+  send a red `main` to a live deployment. Vertise only ever receives code the
+  suite passed on, and it receives the exact commit CI ran against rather than
+  whatever `main` moved to meanwhile.
+- **It force pushes.** The mirror is a copy, not a branch anyone commits to.
+  Anything pushed directly to `VERTISE-DEV/main` is overwritten. This repository
+  is the single source.
+- **The workflow mirrors itself**, so a copy of it lands on Vertise too. The job
+  is guarded on `github.repository`, without which that copy would run there and
+  try to push the repository to itself, failing on every deploy for no reason.
+
+It needs `VERTISE_SYNC_TOKEN` in this repository's Actions secrets: a
+fine-grained personal access token with **Contents: Read and write** on
+`VERTISE-DEV/DAMPSCAN` only. Without it the job fails loudly rather than
+silently skipping, because a mirror that quietly stops mirroring is worse than
+one that goes red.
+
+Note that CI's `migrate` job runs on Vertise as well once mirrored, and will
+fail there until `VERTISE-DEV/DAMPSCAN` has its own `DATABASE_URL` secret
+pointing at a Vertise-owned Neon database. That failure is accurate: it means
+the schema has not been applied to that deployment's database.
+
 ## A note on dependencies
 
 Five runtime dependencies, all of them either Vercel's own or unavoidable:
