@@ -7,7 +7,10 @@
  *   - The text is exactly as they wrote it. Typos, missing spaces and run on
  *     sentences stay. Tidying a customer's words makes them our words.
  *   - The author name is as Google shows it.
- *   - A review with no text is not an entry. There is nothing to render.
+ *   - A rating with no text is still an entry, with text set to ''. The stars
+ *     are real and they count. Two of those share one card rather than each
+ *     getting a card with nothing on it: see cardsFor in
+ *     scripts/reviews-block.js.
  *
  * The em dash below is escaped rather than typed, because the repository bans
  * the character in our own prose and this is not our prose.

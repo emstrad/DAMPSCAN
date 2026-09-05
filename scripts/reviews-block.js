@@ -31,17 +31,53 @@ const esc = (value) =>
 const body = (text) =>
   esc(text).split('\n').join('<br />').replace(/\u2014/g, '&mdash;');
 
+const words = (list) => list.filter((r) => String(r.text || '').trim());
+const wordless = (list) => list.filter((r) => !String(r.text || '').trim());
+
+/**
+ * One card. `review.authors` carries more than one name for a paired card of
+ * ratings with no words; a single review is just the one name.
+ */
 function card(review) {
   const rating = Math.max(1, Math.min(5, Number(review.rating) || 5));
-  return `<article class="review"><div class="stars" aria-label="${rating}` +
-    ` out of 5 stars">${'&#9733;'.repeat(rating)}</div><p>${body(review.text)}` +
-    `</p><div class="review-attr"><span>${esc(review.author)}</span>` +
+  const text = String(review.text || '').trim();
+  const names = review.authors || [review.author];
+  const said = text ? `<p>${body(text)}</p>` : '';
+  const bare = text ? '' : ' review--stars-only';
+  /* "A and B", or "A, B and C" if a third ever turns up. */
+  const attr = names.length > 1
+    ? names.slice(0, -1).map(esc).join(', ') + ' and ' + esc(names[names.length - 1])
+    : esc(names[0]);
+  return `<article class="review${bare}"><div class="stars" aria-label="${rating}` +
+    ` out of 5 stars">${'&#9733;'.repeat(rating)}</div>${said}` +
+    `<div class="review-attr"><span>${attr}</span>` +
     `<span class="src">Google review</span></div></article>`;
+}
+
+/**
+ * The cards one copy of the track carries, which is not one per review.
+ *
+ * Some people leave stars and write nothing. Those ratings are real and belong
+ * on the wall, but a card holding only a name reads as a card whose text failed
+ * to load, and two of them in a row reads as a bug. So they are paired: one
+ * card, two names, the stars they both gave. An odd one out stands alone.
+ *
+ * Exported because the count is now derived rather than obvious, and the test
+ * that checks the shipped HTML should not have to reimplement this.
+ */
+export function cardsFor(list) {
+  const out = words(list).map((r) => card(r));
+  const bare = wordless(list);
+  for (let i = 0; i < bare.length; i += 2) {
+    const pair = bare.slice(i, i + 2);
+    out.push(card({ rating: pair[0].rating, text: '', authors: pair.map((r) => r.author) }));
+  }
+  return out;
 }
 
 /* The marquee translates one track by half its width, so it needs two copies of
    the cards to loop without a gap. The second copy is decoration. */
-const track = (list) => list.map(card).join('') + list.map(card).join('');
+const track = (list) => { const c = cardsFor(list).join(''); return c + c; };
 
 /**
  * @param {string} site key into SITES
