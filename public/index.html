@@ -182,6 +182,9 @@ section{padding-block:clamp(64px,8vw,116px)}
 .review{flex:0 0 330px;background:var(--navy);border:1px solid var(--line);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:11px;min-height:180px}
 .review .stars{color:var(--accent);letter-spacing:2px;font-size:14px}
 .review p{font-size:14.5px;line-height:1.58}
+    /* Five stars and no words. Both margins are auto, so the stars centre in
+       the space the missing paragraph left rather than sitting above a gap. */
+    .review--stars-only .stars{margin-top:auto;font-size:19px;letter-spacing:4px}
 .review-attr{font-size:13px;color:var(--muted-2);margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
 .src{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-ring);border-radius:999px;padding:3px 9px;white-space:nowrap}
 

@@ -16,6 +16,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { reviews } from '../content/reviews/index.js';
 import { MIN_REVIEWS } from '../lib/google-reviews.js';
+import { cardsFor } from '../scripts/reviews-block.js';
 
 /** The same transformation the builder applies, so quotes compare like for like. */
 const escapeAsRendered = (text) =>
@@ -107,16 +108,55 @@ test('no invented testimonial survives on any page', () => {
   }
 });
 
+/* Reviews are transcribed from the Business Profile in batches, and the same
+   one arriving in two batches is the easy mistake: the carousel would show it
+   twice and the count would overstate what the business has. Names repeat
+   legitimately in the world, so this catches the words rather than the author,
+   and reports the author because that is what you would go and look at. */
+test('no review is transcribed twice', () => {
+  for (const [site, list] of Object.entries(reviews)) {
+    const seen = new Map();
+    for (const review of list) {
+      const key = String(review.text || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      // Ratings with no words have nothing to compare, and there are legitimately
+      // several of them. They are caught by the author check below instead.
+      if (!key) continue;
+      const first = seen.get(key);
+      assert.ok(!first, `${site}: ${review.author} repeats the review already held for ${first}`);
+      seen.set(key, review.author);
+    }
+
+    /* And the same person twice, which is how a wordless rating would slip in
+       again, having no text to catch it. */
+    const authors = list.map((r) => r.author);
+    assert.equal(new Set(authors).size, authors.length,
+      `${site}: an author appears twice in ${authors.join(', ')}`);
+  }
+});
+
 /* The strong guarantee, and the reason the placeholder quotes cannot come back
    in another form: every card on a shipped page must be traceable to a review
    sitting in content/reviews, matched on the reviewer's own words. */
 test('every review card on a home page comes from content/reviews', () => {
   for (const { name, site, markup } of HOMES) {
     const held = reviews[site];
-    const cards = markup.match(/<article class="review">[\s\S]*?<\/article>/g) || [];
+    const cards = markup.match(/<article class="review[^"]*">[\s\S]*?<\/article>/g) || [];
     for (const card of cards) {
-      const quoted = card.match(/<p>([\s\S]*?)<\/p>/)[1];
-      const match = held.find((r) => quoted.startsWith(escapeAsRendered(r.text).slice(0, 60)));
+      const said = card.match(/<p>([\s\S]*?)<\/p>/);
+      if (!said) {
+        /* A stars only card. There are no words to trace, so the names are
+           traced instead, and every one of them must be somebody who really
+           did leave a rating without writing anything. */
+        const attr = card.match(/<div class="review-attr"><span>([\s\S]*?)<\/span>/)[1];
+        for (const who of attr.split(/,\s*|\s+and\s+/)) {
+          const person = held.find((r) => r.author === who);
+          assert.ok(person, `${name}: a stars only card names ${who}, who is not a held review`);
+          assert.equal(person.text, '', `${name}: ${who} wrote something, so their words belong on the card`);
+        }
+        continue;
+      }
+      const quoted = said[1];
+      const match = held.find((r) => r.text && quoted.startsWith(escapeAsRendered(r.text).slice(0, 60)));
       assert.ok(match, `${name}: a card quotes words no held review contains: ${quoted.slice(0, 70)}`);
       assert.ok(card.includes(`<span>${match.author}</span>`), `${name}: ${match.author} is misattributed`);
     }
@@ -133,9 +173,12 @@ test('a carousel is visible only where the site is at or above the floor', () =>
     for (const tag of carousels) {
       assert.equal(/\shidden\b/.test(tag), !enough, `${name}: wrong visibility for ${reviews[site].length} reviews`);
     }
-    const cards = (markup.match(/<article class="review">/g) || []).length;
-    // Each track carries the list twice, because the marquee loops on two copies.
-    assert.equal(cards, enough ? reviews[site].length * 4 : 0, `${name}: unexpected card count`);
+    const cards = (markup.match(/<article class="review[^"]*">/g) || []).length;
+    /* Not one card per review any more: ratings with no words are paired. Two
+       tracks, and each carries the list twice because the marquee loops on two
+       copies. */
+    const perCopy = cardsFor(reviews[site]).length;
+    assert.equal(cards, enough ? perCopy * 4 : 0, `${name}: unexpected card count`);
   }
 });
 
