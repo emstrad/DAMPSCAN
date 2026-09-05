@@ -55,9 +55,13 @@
     form.dispatchEvent(new CustomEvent('ds:step', { detail: { step: current + 1 } }));
   }
 
-  function setError(row, on){
+  /* `only` names the field to mark when the row holds more than one and the
+     required one is not the one at fault: the address row is line 1, town and
+     postcode together, and a rejected postcode must not put aria-invalid on
+     line 1. */
+  function setError(row, on, only){
     row.classList.toggle('has-err', on);
-    const field = row.querySelector('[required]') || row.querySelector('input, select');
+    const field = only || row.querySelector('[required]') || row.querySelector('input, select');
     if (field) field.setAttribute('aria-invalid', String(on));
   }
 
@@ -120,7 +124,16 @@
     /* e.g. fetch('https://your-crm.example/webhook', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({stage, ...payload})}); */
   }
 
-  const val = id => (document.getElementById(id).value || '').trim();
+  const val = id => {
+    const el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
+  };
+
+  /* The postcode of the property being surveyed. Step 1 asks for one to get the
+     conversation started and to have something on a partial lead; step 3 asks
+     again as part of the address, prefilled from step 1. The later answer is
+     the one about the actual property, so it wins when it is there. */
+  const surveyPostcode = () => val('f-addr-postcode') || val('f-postcode');
 
   /* Blob pathnames for whatever upload.js managed to store, filled in on
      submit. upload.js remembers what it has already sent, so a submission the
@@ -135,9 +148,8 @@
       sessionId: DS.id,
       firstName: val('f-name'),
       email: val('f-email'),
-      postcode: val('f-postcode'),
+      postcode: surveyPostcode(),
       addressLine1: val('f-addr1'),
-      addressLine2: val('f-addr2'),
       town: val('f-town'),
       files: uploaded,
       phone: val('f-phone'),
@@ -152,8 +164,17 @@
     };
   }
 
-  /* Server field key -> the input it belongs to, so a 400 lands on the right row. */
-  const ERROR_FIELDS = { firstName:'f-name', email:'f-email', postcode:'f-postcode', phone:'f-phone' };
+  /* Server field key -> the input it belongs to, so a 400 lands on the right row.
+     Postcode is a function because two fields can be the source of one: send
+     them to the address box when that is what they filled in, or step 1 back to
+     step 1. Landing on the wrong one reads as the form rejecting a field that
+     looks perfectly fine. */
+  const ERROR_FIELDS = {
+    firstName: 'f-name',
+    email: 'f-email',
+    postcode: () => (val('f-addr-postcode') ? 'f-addr-postcode' : 'f-postcode'),
+    phone: 'f-phone'
+  };
 
   function showServerErrors(errors){
     let firstBad = null;
@@ -163,10 +184,11 @@
         if (issueRow) { issueRow.classList.add('has-err'); if (!firstBad) firstBad = issueRow; }
         return;
       }
-      const field = document.getElementById(ERROR_FIELDS[key] || '');
+      const where = ERROR_FIELDS[key];
+      const field = document.getElementById((typeof where === 'function' ? where() : where) || '');
       const row = field && field.closest('.form-row');
       if (!row) return;
-      setError(row, true);
+      setError(row, true, field);
       const err = row.querySelector('.err');
       if (err && errors[key]) err.textContent = errors[key];
       if (!firstBad) firstBad = field;
@@ -186,7 +208,7 @@
   function emailNotification(stage, id){
     const issues = Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value);
     const who = val('f-name') || 'unknown';
-    const where = val('f-postcode') || 'no postcode';
+    const where = surveyPostcode() || 'no postcode';
     const payload = {
       _subject: (DS_CFG.subjectPrefix || '')
         + (stage === 'complete' ? 'NEW survey booking, ' : 'PARTIAL lead (step 1), ') + who + ', ' + where,
@@ -195,10 +217,11 @@
       'First name': val('f-name'),
       Email: val('f-email'),
       Phone: val('f-phone') || 'Not given',
-      Postcode: val('f-postcode'),
+      Postcode: surveyPostcode(),
       /* The address is the whole point of asking for it: it needs to be in the
-         email as well as the dashboard, or somebody still chases it. */
-      Address: [val('f-addr1'), val('f-addr2'), val('f-town')].filter(Boolean).join(', ') || 'Not given yet',
+         email as well as the dashboard, or somebody still chases it. Postcode
+         included, so the line can be pasted straight into a maps search. */
+      Address: [val('f-addr1'), val('f-town'), surveyPostcode()].filter(Boolean).join(', ') || 'Not given yet',
       /* Links rather than the files themselves, because the blobs are private
          and the email is sent from the browser through FormSubmit, which
          cannot carry them. Each link goes to /api/admin/attachment, so it

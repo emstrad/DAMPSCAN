@@ -13,8 +13,8 @@
 <meta property="og:locale" content="en_GB" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 <link rel="stylesheet" href="/assets/header.css?v=aab08e06" />
-<link rel="stylesheet" href="/assets/area.css?v=78bd1740" />
-<link rel="stylesheet" href="/assets/book.css?v=652910dc" />
+<link rel="stylesheet" href="/assets/area.css?v=c35713b8" />
+<link rel="stylesheet" href="/assets/book.css?v=8b236732" />
 <style>:root{--head-bg:rgba(245,245,243,.9);--head-solid:#f5f5f3}</style>
 <script>document.documentElement.classList.remove('no-js')</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Independent Damp Surveys","serviceType":"Independent Damp Surveys","description":"Independent damp surveys across London for buyers, owners, landlords and solicitors. We do no remedial work, so the report has nothing to sell.","url":"https://atidampsurvey.co.uk/services/damp-surveys","provider":{"@type":"ProfessionalService","name":"ATi Damp Survey","url":"https://atidampsurvey.co.uk/","telephone":"+442033554944"},"areaServed":{"@type":"Place","name":"London"}}</script>
@@ -117,8 +117,7 @@
           <div class="book-card is-brand" id="book">
       <div class="book-body">
       <div class="book-head">
-          <h2>Book your survey</h2>
-          <p>Takes about 30 seconds.</p>
+          <h2>Request your survey</h2>
         </div>
         <div class="dots" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" id="dots">
           <span class="is-done"></span><span></span><span></span>
@@ -152,7 +151,7 @@
             </div>
             <div class="fnav">
               <button type="button" class="btn btn--primary btn--lg" data-next>
-                Get My Survey Booked
+                Get My Report Started
                 <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
@@ -205,14 +204,18 @@
                 <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
                   placeholder="House number and street" required />
                 <span class="err">Please give the address for the survey.</span>
-                <input id="f-addr2" name="Address line 2" type="text" autocomplete="address-line2"
-                  placeholder="Flat, building or area (optional)" />
                 <input id="f-town" name="Town" type="text" autocomplete="address-level2"
                   placeholder="Town or city" />
+                <!-- Asked again here, below the town, because this is the postcode of
+                     the property being surveyed and the one on step 1 is whatever they
+                     typed to get started. Prefilled from it, so for almost everybody it
+                     is already right and there is nothing to do. -->
+                <input id="f-addr-postcode" name="Address postcode" type="text"
+                  autocomplete="postal-code" aria-label="Postcode" placeholder="Postcode" />
               </div>
             </div>
             <div class="form-row">
-              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a damp survey on this property before</label>
+              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a damp survey or report on this property before</label>
             </div>
             <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
@@ -224,8 +227,7 @@
                 <label for="f-files" class="sr-only">Previous surveys or photos</label>
                 <input id="f-files" name="Files" type="file" multiple
                   accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
-                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. Photos are shrunk
-                  before sending, so one straight off your phone is fine. An earlier report or a
+                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. An earlier report or a
                   shot of the affected wall often says more than a paragraph.</p>
                 <ul class="file-list" id="f-file-list" aria-live="polite"></ul>
               </div>
@@ -242,21 +244,21 @@
             <div class="fnav">
               <button type="button" class="back-link" data-back>← Back</button>
               <button type="submit" class="btn btn--primary btn--lg">
-                Book My Survey
+                Request My Survey
                 <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
           </div>
         </form>
-        <p class="form-foot">We only use your details to arrange your survey. No marketing lists, no third parties.</p>
+        <p class="form-foot">Your details arrange your survey and nothing else. No marketing lists, no contractor referrals.</p>
       </div>
 
       <div class="book-success" role="status">
         <div class="check-ring" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h3>Got it, you're booked in.</h3>
-        <p>One of our surveyors will contact you today to confirm a time. Nothing else to do for now.</p>
+        <h3>Received. We're on it.</h3>
+        <p>A surveyor will reply today to arrange the inspection. Your written report follows within 24 hours of that visit.</p>
       </div>
     </div>
       <a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/ati-damp-survey"
@@ -291,8 +293,8 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js?v=e03890ef"></script>
 <script src="/assets/partial.js?v=983c20db"></script>
-<script src="/assets/book.js?v=845e6e8a"></script>
-<script src="/assets/address.js?v=b27ab700" defer></script>
+<script src="/assets/book.js?v=c433c112"></script>
+<script src="/assets/address.js?v=bf5b6e92" defer></script>
 <script src="/assets/upload.js?v=cd55909c" defer></script>
 <script src="/assets/menu.js?v=01a8dbcb" defer></script>
 </body>

@@ -28,6 +28,9 @@
   const form = find.closest('form');
 
   let last = '';
+  /* The provider's own spelling of the postcode it matched, which is the one
+     worth keeping: normalised casing and spacing, whatever they typed. */
+  let found = '';
 
   /* Remembered across the session, so a visitor who reaches step 3 twice does
      not see a Find address button that has already been shown to do nothing.
@@ -70,25 +73,34 @@
 
   if (change) change.addEventListener('click', () => expand(true));
 
-  /* Whatever they gave at step 1 is almost always the same postcode, so it
-     is copied across rather than asked for twice. */
+  /* Whatever they gave at step 1 is almost always the same postcode, so it is
+     copied across rather than asked for twice. Two boxes want it: the one the
+     lookup searches on, and the postcode that forms part of the address. */
   const step1 = document.getElementById('f-postcode');
-  let copied = '';
-  function syncFromStep1(){
-    if (!step1) return;
-    const theirs = pcField.value.trim();
+  const addrPc = document.getElementById('f-addr-postcode');
+  const copied = new Map();
+  function copyInto(field){
+    if (!step1 || !field) return;
+    const theirs = field.value.trim();
     /* Overwrite when the box is empty or still holds what we put there. A
        postcode they typed into this box themselves is left alone. */
-    if (!theirs || theirs === copied) { copied = step1.value.trim(); pcField.value = copied; }
+    if (theirs && theirs !== copied.get(field)) return;
+    const from = step1.value.trim();
+    copied.set(field, from);
+    field.value = from;
   }
+  function syncFromStep1(){ copyInto(pcField); copyInto(addrPc); }
   if (step1) step1.addEventListener('change', syncFromStep1);
 
   function say(text){ status.textContent = text || ''; }
 
   function fill(a){
-    document.getElementById('f-addr1').value = a.line1 || '';
-    document.getElementById('f-addr2').value = a.line2 || '';
+    /* One street field now, so the sub-building part joins line 1 rather than
+       being dropped: "Flat 2" in front of the street is the difference between
+       a surveyor finding the door and knocking on the wrong one. */
+    document.getElementById('f-addr1').value = [a.line1, a.line2].filter(Boolean).join(', ');
     document.getElementById('f-town').value = a.town || '';
+    if (addrPc && found) { addrPc.value = found; copied.set(addrPc, found); }
     /* Clearing the row here rather than calling into book.js, because this
        file has to stand on its own. */
     const row = document.getElementById('f-addr1').closest('.form-row');
@@ -104,7 +116,7 @@
     fill(a);
     pick.hidden = true;
     say('');
-    collapse(a.label);
+    collapse([a.label, found].filter(Boolean).join(', '));
   });
 
   /**
@@ -131,6 +143,7 @@
       .then(res => (res.ok ? res.json() : null))
       .then(data => {
         if (data && data.configured === false) { switchOff(); return; }
+        found = (data && data.postcode) || pc;
         const list = data && Array.isArray(data.addresses) ? data.addresses : [];
         if (!list.length) {
           /* No results, or a provider having a bad day. To the visitor they
@@ -176,8 +189,12 @@
      wants their address listed, so it is listed without being asked. */
   if (form) {
     form.addEventListener('ds:step', (e) => {
-      if (e.detail.step !== 3 || recalled()) return;
+      if (e.detail.step !== 3) return;
+      /* Ahead of the recalled() check on purpose: with no provider there is no
+         lookup to run, but the address postcode still wants filling in, and
+         that is the case where it matters most. */
       syncFromStep1();
+      if (recalled()) return;
       lookup(false);
     });
   }
