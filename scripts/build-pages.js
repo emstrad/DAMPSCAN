@@ -18,8 +18,11 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { areas } from '../content/areas/index.js';
 import { services } from '../content/services/index.js';
-import { render, distinctiveWordCount, SITES } from './area-template.js';
-import { render as renderService, distinctiveWordCount as serviceWords } from './service-template.js';
+import { guides } from '../content/guides/index.js';
+import { render, SITES } from './area-template.js';
+import { render as renderService } from './service-template.js';
+import { render as renderGuide } from './guide-template.js';
+import { check, checkService, checkGuide } from './content-checks.js';
 import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './reviews-block.js';
 import { render as renderHub } from './hub-template.js';
 import { render as renderPricing } from './pricing-template.js';
@@ -31,36 +34,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'areas');
 const SERVICES_OUT = join(ROOT, 'public', 'service-pages');
 const HUBS_OUT = join(ROOT, 'public', 'hubs');
-
-/* A page whose only local content is its name is a doorway page. Google demotes
-   those, and it would take the rest of the site down with it, so the build
-   fails rather than shipping one. */
-const MIN_WORDS = 250;
-
-function check(area, seen) {
-  const problems = [];
-  const required = ['slug', 'site', 'name', 'title', 'h1', 'intro', 'coverage'];
-  for (const field of required) {
-    if (!area[field]) problems.push(`missing ${field}`);
-  }
-  for (const field of ['stock', 'common', 'places', 'districts', 'faq']) {
-    if (!Array.isArray(area[field]) || !area[field].length) problems.push(`${field} is empty`);
-  }
-  if (!SITES[area.site]) problems.push(`unknown site "${area.site}"`);
-  if (area.slug && !/^[a-z0-9-]+$/.test(area.slug)) problems.push('slug must be lower case and hyphenated');
-
-  const key = `${area.site}/${area.slug}`;
-  if (seen.has(key)) problems.push('duplicate slug for this site');
-  seen.add(key);
-
-  if (!problems.length) {
-    const count = distinctiveWordCount(area);
-    if (count < MIN_WORDS) {
-      problems.push(`only ${count} words of content specific to this area, needs ${MIN_WORDS}`);
-    }
-  }
-  return problems;
-}
+const GUIDES_OUT = join(ROOT, 'public', 'guide-pages');
 
 /* The sitemaps are generated here too, so adding an area cannot leave a page
    that nothing links to and nothing lists. */
@@ -71,6 +45,10 @@ export function sitemapFor(site, today) {
     { loc: `${origin}/services`, priority: '0.9', changefreq: 'monthly' },
     { loc: `${origin}/damp-survey`, priority: '0.9', changefreq: 'monthly' },
     { loc: `${origin}/pricing`, priority: '0.9', changefreq: 'monthly' },
+    { loc: `${origin}/guides`, priority: '0.8', changefreq: 'monthly' },
+    ...guides
+      .filter((g) => g.site === site)
+      .map((g) => ({ loc: `${origin}/guides/${g.slug}`, priority: '0.8', changefreq: 'monthly' })),
     ...services
       .filter((s) => s.site === site)
       .map((s) => ({ loc: `${origin}/services/${s.slug}`, priority: '0.9', changefreq: 'monthly' })),
@@ -158,6 +136,11 @@ async function writeHomeLinks() {
       .map((s) => `        <li><a href="/services/${s.slug}">${s.name}</a></li>`)
       .join('\n');
 
+    const guideLinks = guides
+      .filter((g) => g.site === site)
+      .map((g) => `        <li><a href="/guides/${g.slug}">${g.name}</a></li>`)
+      .join('\n');
+
     const block = `${START}
     <div class="area-links">
       <h3>Area guides</h3>
@@ -167,6 +150,10 @@ ${areaLinks}
       <h3 style="margin-top:22px">Guides by problem</h3>
       <ul>
 ${serviceLinks}
+      </ul>
+      <h3 style="margin-top:22px">Before you pay for treatment</h3>
+      <ul>
+${guideLinks}
       </ul>
     </div>
     ${END}`;
@@ -216,26 +203,6 @@ async function writeSitemaps() {
   await writeFile(join(ROOT, 'public', 'sitemap-london.xml'), sitemapFor('ati', today), 'utf8');
 }
 
-function checkService(service, seen) {
-  const problems = [];
-  for (const field of ['slug', 'site', 'name', 'title', 'h1', 'intro', 'signsHeading', 'ctaHeading', 'ctaBody']) {
-    if (!service[field]) problems.push(`missing ${field}`);
-  }
-  for (const field of ['signs', 'sections', 'faq']) {
-    if (!Array.isArray(service[field]) || !service[field].length) problems.push(`${field} is empty`);
-  }
-  if (!SITES[service.site]) problems.push(`unknown site "${service.site}"`);
-
-  const key = `${service.site}/${service.slug}`;
-  if (seen.has(key)) problems.push('duplicate slug for this site');
-  seen.add(key);
-
-  if (!problems.length && serviceWords(service) < MIN_WORDS) {
-    problems.push(`only ${serviceWords(service)} words written for this service, needs ${MIN_WORDS}`);
-  }
-  return problems;
-}
-
 async function main() {
   const seen = new Set();
   const failures = [];
@@ -248,6 +215,11 @@ async function main() {
   for (const service of services) {
     const problems = checkService(service, seenServices);
     if (problems.length) failures.push(`service ${service.slug || '(no slug)'}: ${problems.join(', ')}`);
+  }
+  const seenGuides = new Set();
+  for (const guide of guides) {
+    const problems = checkGuide(guide, seenGuides);
+    if (problems.length) failures.push(`guide ${guide.slug || '(no slug)'}: ${problems.join(', ')}`);
   }
   if (failures.length) {
     console.error('Page content is not ready to build:\n  ' + failures.join('\n  '));
@@ -273,6 +245,14 @@ async function main() {
     const ars = areas.filter((a) => a.site === site);
     await writeFile(join(dir, 'services.html'), renderHub('services', site, svc), 'utf8');
     await writeFile(join(dir, 'areas.html'), renderHub('areas', site, ars), 'utf8');
+    await writeFile(join(dir, 'guides.html'), renderHub('guides', site, guides.filter((g) => g.site === site)), 'utf8');
+  }
+
+  await rm(GUIDES_OUT, { recursive: true, force: true });
+  for (const guide of guides) {
+    const dir = join(GUIDES_OUT, guide.site);
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, `${guide.slug}.html`), renderGuide(guide, guides, services), 'utf8');
   }
 
   // Both sites now. They publish for opposite reasons, which content/pricing.js
@@ -303,7 +283,8 @@ async function main() {
   }
   console.log(`${areas.length} area pages written to public/areas`);
   console.log(`${services.length} service pages written to public/service-pages`);
-  console.log('4 hub pages written to public/hubs');
+  console.log(`${guides.length} guide pages written to public/guide-pages`);
+  console.log('6 hub pages written to public/hubs');
   console.log(`${Object.keys(SITES).length} pricing pages written to public/pricing`);
   console.log('sitemaps, home page links and home page booking forms rewritten');
   console.log(`${stamps.files} assets hashed, ${stamps.stamped} pages restamped`);

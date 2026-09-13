@@ -48,6 +48,8 @@ disrepair cases where the report needs to have nothing to sell.
 - [DampScan](https://dampscan.co.uk/): services, areas, reviews and FAQs
 - [Services](https://dampscan.co.uk/services): every damp, mould and timber service, one page each
 - [Areas we cover](https://dampscan.co.uk/damp-survey): every district, with the local housing stock and how it fails
+- [Guides](https://dampscan.co.uk/guides): what treatment costs, and when it is not needed
+- [Prices](https://dampscan.co.uk/pricing): the four fixed survey fees and what each includes
 - [Book a survey](https://dampscan.co.uk/#book): booking form
 - [FAQs](https://dampscan.co.uk/#faq): answers to the common questions
 
