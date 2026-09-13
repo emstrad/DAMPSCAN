@@ -139,8 +139,22 @@ test('each host resolves /pricing to its own fees and never the other firm\'s', 
   }
 });
 
+test('a guide resolves to the right site directory, and the hub to its own file', () => {
+  assert.equal(rewrittenTo(call(KENT, '/guides')), '/hubs/dampscan/guides.html');
+  assert.equal(rewrittenTo(call(LONDON, '/guides')), '/hubs/ati/guides.html');
+  assert.equal(
+    rewrittenTo(call(KENT, '/guides/woodworm-and-rot-treatment-cost')),
+    '/guide-pages/dampscan/woodworm-and-rot-treatment-cost.html'
+  );
+  assert.equal(
+    rewrittenTo(call(`www.${LONDON}`, '/guides/woodworm-and-rot-treatment-cost')),
+    '/guide-pages/ati/woodworm-and-rot-treatment-cost.html'
+  );
+  assert.equal(rewrittenTo(call(KENT, '/guides/UPPER')), null, 'not a plain slug');
+});
+
 test('the trailing slash form redirects onto the bare path, so there is one URL', () => {
-  for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey']]) {
+  for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey'], ['/guides/', '/guides']]) {
     const res = call(KENT, from);
     assert.equal(res.status, 301, from);
     assert.equal(new URL(res.headers.get('location')).pathname, to, from);

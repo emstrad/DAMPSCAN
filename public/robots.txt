@@ -17,5 +17,7 @@ Disallow: /staff/
 Disallow: /areas/
 # Same for the service pages, which are served at /services/<name>.
 Disallow: /service-pages/
+# And the guides, served at /guides/<name>.
+Disallow: /guide-pages/
 
 Sitemap: https://dampscan.co.uk/sitemap.xml

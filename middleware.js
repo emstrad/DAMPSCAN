@@ -14,10 +14,10 @@
  *      every file is reachable on both hosts. Without these redirects the ATi
  *      page also answers on dampscan.co.uk/london.html, which is a duplicate
  *      of the ATi home page on the wrong brand's domain.
- *   3. Serve the hub, area and service pages. /damp-survey/ and /services/
- *      resolve to a hub, and /damp-survey/<slug> and /services/<slug> to a
- *      detail page, all to a different file on each host, so both sites can use
- *      the same tidy URL shape.
+ *   3. Serve the hub, area, service and guide pages. /damp-survey, /services
+ *      and /guides resolve to a hub, and /damp-survey/<slug>, /services/<slug>
+ *      and /guides/<slug> to a detail page, all to a different file on each
+ *      host, so both sites can use the same tidy URL shape.
  *
  * Everything else, /api, /staff, /assets, is shared by both domains and is not
  * matched here at all.
@@ -30,6 +30,7 @@ export const config = {
     '/robots.txt', '/sitemap.xml', '/llms.txt',
     '/damp-survey', '/damp-survey/', '/damp-survey/:slug',
     '/services', '/services/', '/services/:slug',
+    '/guides', '/guides/', '/guides/:slug',
     '/pricing', '/pricing/'
   ]
 };
@@ -83,14 +84,19 @@ export default function middleware(request) {
 
   if (path === '/damp-survey/') return Response.redirect(new URL('/damp-survey', url), 301);
   if (path === '/services/') return Response.redirect(new URL('/services', url), 301);
+  if (path === '/guides/') return Response.redirect(new URL('/guides', url), 301);
   if (path === '/damp-survey') return rewrite(new URL(`/hubs/${dir}/areas.html`, request.url));
   if (path === '/services') return rewrite(new URL(`/hubs/${dir}/services.html`, request.url));
+  if (path === '/guides') return rewrite(new URL(`/hubs/${dir}/guides.html`, request.url));
 
   const area = path.match(/^\/damp-survey\/([a-z0-9-]+)$/);
   if (area) return rewrite(new URL(`/areas/${dir}/${area[1]}.html`, request.url));
 
   const service = path.match(/^\/services\/([a-z0-9-]+)$/);
   if (service) return rewrite(new URL(`/service-pages/${dir}/${service[1]}.html`, request.url));
+
+  const guide = path.match(/^\/guides\/([a-z0-9-]+)$/);
+  if (guide) return rewrite(new URL(`/guide-pages/${dir}/${guide[1]}.html`, request.url));
 
   if (london) {
     const file = LONDON_FILES[path];

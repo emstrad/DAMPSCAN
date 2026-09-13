@@ -32,6 +32,18 @@ export const hubs = {
         'Each page below is about that district rather than about us: what was built there and when, what that construction does when it gets wet, and the failures we are called out to most often within it.',
         'Properties inside Greater London are surveyed by our sister practice, ATi Damp Survey, which carries out no remedial work at all. If your postcode falls inside London we will say so and pass you across rather than travel to it.'
       ]
+    },
+    guides: {
+      title: 'Damp, Rot & Woodworm Guides | DampScan',
+      metaDescription:
+        'Plain answers to the questions people ask before booking a damp survey: what treatment costs, when it is not needed, and how to read a quote.',
+      h1: 'Read this before you pay for treatment',
+      intro:
+        'Most of the money wasted on damp and timber in this region is spent before anyone has established what is wrong. These guides are written for the point before that, when you are holding a quote or a valuation comment and want to know what it should mean.',
+      body: [
+        'We carry out the remedial work, which is exactly why these pages say when it is not needed. A firm that treats a historic woodworm infestation or sprays a whole house for one soft joist end has earned an invoice and nothing else, and we would rather write the report that says so.',
+        'Each guide gives the figures quotes tend to fall in, the questions that separate a fair scope from a padded one, and the cases where the right answer is a repair, a repair to the water, or nothing at all.'
+      ]
     }
   },
   ati: {
@@ -57,6 +69,18 @@ export const hubs = {
       body: [
         'Each page below is about the borough itself: the eras it was built in, the details that fail in those eras, the postcode districts we work across, and the ground conditions underneath.',
         'We attend every borough in Greater London including the City. Outside the M25 our sister practice DampScan covers Kent and the wider South East.'
+      ]
+    },
+    guides: {
+      title: 'Guides to Damp & Timber Quotes | ATi Damp Survey',
+      metaDescription:
+        'How to read a damp, rot or woodworm quote in London: what it must establish, what the work typically costs, and when the right answer is to refuse it.',
+      h1: 'What a quote has to establish before the figure means anything',
+      intro:
+        'People come to us holding a quote, a valuation comment or a lender\'s retention letter, and the question is rarely whether the timber or the wall is affected. It is whether the work proposed matches what is actually there, and the quote itself cannot tell you that.',
+      body: [
+        'These guides set out, subject by subject, what a competent scope has to state, the ranges warranted work tends to cost across London, and the specific cases where the correct response is no. They are written by a practice that treats nothing and tenders for nothing, so nothing in them is an argument for work we would be paid to do.',
+        'Where a guide leaves you unsure which case you are in, that is what the survey is for, and it costs a small fraction of the quote you are checking.'
       ]
     }
   }

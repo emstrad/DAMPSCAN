@@ -61,5 +61,6 @@ export default {
         'It confirms activity, which is worth knowing, and it is not a reason to panic. Adults emerge to breed between roughly May and August, which is why infestations are noticed then. What matters is how much timber is affected, whether it has lost structural section, and above all why the timber is wet. Dealing with the moisture is what stops the cycle; the beetles are the symptom.'
     },
   ],
-  related: ['wet-and-dry-rot', 'rising-damp', 'damp-surveys']
+  related: ['wet-and-dry-rot', 'rising-damp', 'damp-surveys'],
+  reading: ['woodworm-and-rot-treatment-cost']
 };

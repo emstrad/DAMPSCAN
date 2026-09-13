@@ -32,14 +32,16 @@ const SITES = {
       { label: 'How It Works', href: '/#how' },
       { label: 'Services', href: '/services' },
       { label: 'Prices', href: '/pricing' },
+      { label: 'Guides', href: '/guides' },
       { label: 'What you get', href: '/#reviews' },
       { label: 'Landlords', href: '/#landlords' },
       { label: 'Areas', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
-    // Set to the Business Profile share link to credit Google where the
-    // reviews came from. Empty means the credit shows without a link.
-    profileUrl: '',
+    // The Business Profile share link: credits Google where the reviews came
+    // from, and goes into sameAs so search can tie the site to the profile.
+    profileUrl: 'https://share.google/kC2SRRJEFz5DqKXC9',
+    og: '/assets/dampscan-og.png',
     book: {
       sessionKey: 'dampscan-session',
       attrKey: 'dampscan-attr',
@@ -68,12 +70,14 @@ const SITES = {
       { label: 'How It Works', href: '/#how' },
       { label: 'Services', href: '/services' },
       { label: 'Prices', href: '/pricing' },
+      { label: 'Guides', href: '/guides' },
       { label: 'The report', href: '/#reviews' },
       { label: 'Landlords', href: '/#landlords' },
       { label: 'London Coverage', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
-    profileUrl: '',
+    profileUrl: 'https://share.google/UR3GLPt8y1SyLr5FV',
+    og: '/assets/ati-og.png',
     book: {
       sessionKey: 'ati-damp-session',
       attrKey: 'ati-damp-attr',
@@ -131,7 +135,11 @@ const words = (text) => String(text).replace(/<[^>]+>/g, ' ').split(/\s+/).filte
 
 /** Everything on the page that is true only of this area. */
 export function distinctiveWordCount(area) {
-  return words([area.intro, ...area.stock, ...area.common, ...area.faq.map((f) => f.q + ' ' + f.a)].join(' '));
+  return words([
+    area.intro, ...area.stock, ...area.common,
+    ...(area.towns || []).map((t) => t.name + ' ' + t.text),
+    ...area.faq.map((f) => f.q + ' ' + f.a)
+  ].join(' '));
 }
 
 function faqSchema(area) {
@@ -202,6 +210,13 @@ export function render(area, allAreas) {
     </ul>
   </section>
 
+${area.towns && area.towns.length ? `
+  <section class="sec">
+    <h2>By town</h2>
+    ${area.towns.map((t) => `<h3>${esc(t.name)}</h3>
+    <p>${t.text}</p>`).join('\n    ')}
+  </section>
+` : ''}
   <section class="sec">
     <h2>Where we cover</h2>
     <p>${esc(area.coverage)}</p>

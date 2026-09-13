@@ -20,7 +20,14 @@ const esc = (value) =>
 /** Where each hub lives, and what the pages under it are called. */
 export const HUBS = {
   services: { path: '/services', label: 'Services', child: '/services/' },
-  areas: { path: '/damp-survey', label: 'Areas', child: '/damp-survey/' }
+  areas: { path: '/damp-survey', label: 'Areas', child: '/damp-survey/' },
+  guides: { path: '/guides', label: 'Guides', child: '/guides/' }
+};
+
+const LIST_HEADING = {
+  services: 'Every service, in detail',
+  areas: 'Every area, in detail',
+  guides: 'Every guide'
 };
 
 function itemSchema(entries, site, kind) {
@@ -48,7 +55,7 @@ function crumbSchema(site, kind, url) {
 }
 
 /**
- * @param {'services'|'areas'} kind
+ * @param {'services'|'areas'|'guides'} kind
  * @param {string} siteKey
  * @param {Array<{slug:string,name:string,metaDescription:string}>} entries
  */
@@ -77,7 +84,7 @@ export function render(kind, siteKey, entries) {
   </section>
 
   <section class="sec">
-    <h2>${kind === 'services' ? 'Every service, in detail' : 'Every area, in detail'}</h2>
+    <h2>${LIST_HEADING[kind]}</h2>
     <ul class="hub-list">
 ${list}
     </ul>
