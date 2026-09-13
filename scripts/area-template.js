@@ -37,9 +37,10 @@ const SITES = {
       { label: 'Areas', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
-    // Set to the Business Profile share link to credit Google where the
-    // reviews came from. Empty means the credit shows without a link.
-    profileUrl: '',
+    // The Business Profile share link: credits Google where the reviews came
+    // from, and goes into sameAs so search can tie the site to the profile.
+    profileUrl: 'https://share.google/kC2SRRJEFz5DqKXC9',
+    og: '/assets/dampscan-og.png',
     book: {
       sessionKey: 'dampscan-session',
       attrKey: 'dampscan-attr',
@@ -73,7 +74,8 @@ const SITES = {
       { label: 'London Coverage', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
-    profileUrl: '',
+    profileUrl: 'https://share.google/UR3GLPt8y1SyLr5FV',
+    og: '/assets/ati-og.png',
     book: {
       sessionKey: 'ati-damp-session',
       attrKey: 'ati-damp-attr',
