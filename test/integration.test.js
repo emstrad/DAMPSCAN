@@ -735,6 +735,17 @@ test('a job can be deleted', async () => {
 });
 
 /* --------------------------------------------------------------- clients ---- */
+/* Two days either side rather than one: the server decides "today" on London
+   time and this test runs on whatever clock the machine has, and during the
+   one hour a day they disagree a one-day margin would flake. */
+const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+
+/* Ahead of today, because the client list opens on the upcoming view and a job
+   dated in the past is not in it. This was a fixed date, which passed every run
+   until the day it went by and then failed every run after, on a commit that
+   touched nothing. Any default here has to be relative to now. */
+const DEFAULT_JOB_DATE = daysFromNow(3);
+
 async function bookedJob(cookie, extra = {}) {
   const leadRes = (await call(lead, { body: validLead({
     addressLine1: 'Flat 6, Trafalgar Point', addressLine2: '137 Downham Road', town: 'London',
@@ -742,7 +753,7 @@ async function bookedJob(cookie, extra = {}) {
   }) })).json();
   const job = (await call(jobsRoute, { body: {
     leadId: leadRes.id, customerName: 'Priya', surveyType: 'full-house', surveyor: 'tom',
-    jobDate: '2026-09-18', status: 'booked', ...extra
+    jobDate: DEFAULT_JOB_DATE, status: 'booked', ...extra
   }, headers: { cookie } })).json();
   return { leadId: leadRes.id, job: job.job };
 }
@@ -761,7 +772,7 @@ test('a booked job is a client card, with the enquiry pulled through', async () 
   assert.deepEqual(c.files, ['leads/2026-09-04/uuid-report.pdf']);
   assert.deepEqual(c.issues, ['Damp', 'Mould']);
   assert.equal(c.leadNotes, 'Back bedroom, since spring');
-  assert.equal(c.surveyDate, '2026-09-18');
+  assert.equal(c.surveyDate, DEFAULT_JOB_DATE);
   assert.equal(c.survey.label, 'Full House');
   assert.equal(c.survey.pricePence, 29500);
 });
@@ -854,11 +865,6 @@ test('cancelled jobs are not clients, on any view', async () => {
     assert.deepEqual(res.json().clients, [], `a cancelled job showed up under ${view}`);
   }
 });
-
-/* Two days either side rather than one: the server decides "today" on London
-   time and this test runs on whatever clock the machine has, and during the
-   one hour a day they disagree a one-day margin would flake. */
-const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
 test('a card archives itself the day after its survey date, without the job changing', async () => {
   const cookie = await signedInCookie();
