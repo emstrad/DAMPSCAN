@@ -14,6 +14,7 @@
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
 import { shell } from './page-shell.js';
 import { bookForm } from './book-form.js';
+import { guides } from '../content/guides/index.js';
 
 
 const esc = (value) =>
@@ -44,6 +45,11 @@ export function render(service, allServices) {
 
   const related = (service.related || [])
     .map((slug) => allServices.find((s) => s.slug === slug && s.site === service.site))
+    .filter(Boolean);
+  /* Guides this service points at. Looked up here rather than passed in, so a
+     caller with just the services list, the tests included, gets the same page. */
+  const reading = (service.reading || [])
+    .map((slug) => guides.find((g) => g.slug === slug && g.site === service.site))
     .filter(Boolean);
 
   const serviceSchema = schema('Service', {
@@ -96,11 +102,12 @@ export function render(service, allServices) {
     <h2>Questions</h2>
     ${service.faq.map((f) => `<details class="qa"><summary>${esc(f.q)}</summary><p>${f.a}</p></details>`).join('\n    ')}
   </section>
-${related.length ? `
+${related.length || reading.length ? `
   <section class="sec">
     <h2>Related</h2>
     <ul class="chips">
       ${related.map((r) => `<li><a href="/services/${r.slug}">${esc(r.name)}</a></li>`).join('\n      ')}
+      ${reading.map((g) => `<li><a href="/guides/${g.slug}">${esc(g.name)}</a></li>`).join('\n      ')}
     </ul>
   </section>
 ` : ''}`;

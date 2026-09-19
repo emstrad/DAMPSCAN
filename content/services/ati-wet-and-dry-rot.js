@@ -61,5 +61,6 @@ export default {
         'No, and this is the single most important thing to get right. Fungal decay requires moisture; remove the moisture and the fungus becomes dormant and eventually dies. Apply a treatment to timber that is still being wetted and you have bought a certificate rather than a solution. Any report or quote that does not identify and address the water source is incomplete regardless of what it specifies for the timber.'
     },
   ],
-  related: ['timber-decay-and-woodworm', 'penetrating-damp', 'damp-surveys']
+  related: ['timber-decay-and-woodworm', 'penetrating-damp', 'damp-surveys'],
+  reading: ['woodworm-and-rot-treatment-cost']
 };

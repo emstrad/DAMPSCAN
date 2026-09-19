@@ -4,10 +4,10 @@ export default {
   slug: 'bromley',
   site: 'ati',
   name: 'Bromley',
-  title: 'Damp Surveys in Bromley | ATi Damp Survey',
+  title: 'Damp Surveys Bromley, Orpington & Beckenham | ATi Damp Survey',
   metaDescription:
-    'Independent damp and timber surveys across Bromley, BR1 to BR7. Evidence-based written reports with no remedial work to sell.',
-  h1: 'Independent damp surveys in Bromley',
+    'Independent damp and timber surveys across Bromley, Orpington, Beckenham and Chislehurst, BR1 to BR7. Evidence-based written reports with no remedial work to sell.',
+  h1: 'Independent damp surveys in Bromley, Orpington and Beckenham',
   intro:
     'Bromley has larger houses on larger plots than most of London, which changes what goes wrong. Long roof runs, more rainwater goods, mature trees close to the building, and gardens that have been landscaped several times over. Very little of the damp we survey here starts at the wall it appears on.',
   stock: [
@@ -22,6 +22,20 @@ export default {
     'Bay roofs with too shallow a fall, ponding and letting water in at the junction with the main wall',
     'Displaced or root damaged drains under solid ground floors producing persistent localised damp',
     'Timber decay in roof voids and bay roofs where a slow leak has run for years without showing inside',
+  ],
+  towns: [
+    {
+      name: 'Orpington',
+      text: 'Orpington is largely 1930s ribbon development and the estates that filled in behind it, on chalk, with a bay fronted semi as the standard house. The damp we see here mostly begins at the back: kitchen and bathroom extensions built across the original airbricks, so a suspended floor that was ventilated for sixty years suddenly is not, and a patio laid up to the rear wall a course or two higher than the drive at the front. The front elevation reads dry, the back reads wet, and the house has not changed. Its surroundings have.'
+    },
+    {
+      name: 'Beckenham',
+      text: 'Beckenham has the larger late Victorian and Edwardian houses, a good share of them divided into flats, and that division is the recurring problem. A leaking valley gutter or a failed hopper on a converted house wets a flat two floors down, and the first question is who is responsible for the roof rather than what is wrong with it. Solid walls that have been cement rendered in the last fifty years are the other constant, and the low ground along the Beck towards Kelsey Park sits wetter than the ridge above it.'
+    },
+    {
+      name: 'Chislehurst',
+      text: 'Chislehurst is Edwardian and interwar houses on large, heavily wooded plots along the ridge. The trees are the point. A north elevation under a mature canopy never dries between showers, moss builds on the tiles and gutters block with leaf litter every autumn, and the damp that results is penetrating rather than rising, however low on the wall it shows. Where the garden falls towards the house, gullies fill with leaves and surface water reaches the wall before it reaches the drain.'
+    },
   ],
   coverage:
     'We survey across the borough and out to the Kent boundary.',

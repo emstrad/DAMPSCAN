@@ -52,6 +52,9 @@ ${adsTag(site.key)}
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(metaDescription)}" />
 <meta property="og:locale" content="en_GB" />
+<meta property="og:image" content="${site.origin}${site.og}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 <link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
@@ -102,7 +105,7 @@ ${nav(ownFaq, site)}
 <footer class="afoot">
   <div class="wrap">
     <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="/pricing">Prices</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
+    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="/guides">Guides</a> &middot; <a href="/pricing">Prices</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
 ${scripts}

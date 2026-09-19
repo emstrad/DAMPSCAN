@@ -314,6 +314,28 @@ who fills each role. Both are editable in the dashboard, so fees can change
 without a deploy. `/api/admin/rates` refuses a percentage outside 0 to 100 and
 an unknown person rather than storing it.
 
+## Guides
+
+`/guides/<slug>` is an article: the answer to the question people search before
+"book a survey", which the Search Console data shows is mostly what does
+treatment cost and do I need it. `content/guides/` is the list, one file per
+site per subject, built by `npm run build:pages` into `public/guide-pages/<site>/`
+and served by `middleware.js` on each host, with a hub at `/guides` so the
+breadcrumb has a real middle rung. Guides carry `Article` structured data with a
+publication date, which the area and service pages do not, because a guide is
+an article and a service page is not.
+
+The rule that keeps the service pages honest applies here too: a subject both
+sites cover is two documents written from the two firms' positions, never one
+shared between the domains, and `test/guides.test.js` fails on a shared
+sentence. Service pages point at the guides that answer for them through an
+optional `reading` list, rendered among the related links.
+
+Area pages can carry an optional `towns` list. The three outer London boroughs
+that get searched by town name rather than borough name (Romford, not
+Havering) have one, rendered as a "By town" section with a heading per town,
+and their titles name the towns.
+
 ## Bank reconciliation
 
 `/staff/bank.html` takes a Revolut statement and settles it against the jobs.

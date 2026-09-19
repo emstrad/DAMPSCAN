@@ -4,10 +4,10 @@ export default {
   slug: 'bexley',
   site: 'ati',
   name: 'Bexley',
-  title: 'Damp Surveys in Bexley | ATi Damp Survey',
+  title: 'Damp Surveys Bexleyheath, Sidcup & Welling | ATi Damp Survey',
   metaDescription:
-    'Independent damp and timber surveys across Bexley, DA1, DA5 to DA8 and DA14 to DA16. Written reports for owners, buyers and landlords.',
-  h1: 'Independent damp surveys in Bexley',
+    'Independent damp and timber surveys across Bexleyheath, Sidcup, Welling and the rest of Bexley, DA1 to DA16. Written reports for owners, buyers and landlords.',
+  h1: 'Independent damp surveys in Bexleyheath, Sidcup and Welling',
   intro:
     'Bexley is chalk and gravel on the higher ground and river marsh at Erith and Crayford, with interwar and post-war suburb covering nearly all of it. The geology is the useful thing to know here: chalk drains fast, so damp arrives quickly during rainfall and goes again, which gives it a distinctly episodic character.',
   stock: [
@@ -22,6 +22,20 @@ export default {
     'High water table affecting solid floors and below ground space at the marsh edge',
     'Older riverside housing with solid walls and no effective damp proof course',
     'Slumped or bridging retrofit cavity insulation on exposed elevations',
+  ],
+  towns: [
+    {
+      name: 'Bexleyheath',
+      text: 'Bexleyheath is 1930s semi detached housing almost without exception, and its front gardens have mostly become parking. Each layer of drive laid over the last raises the ground a little, and after three or four of them the damp proof course is buried and the front room reads wet at skirting level. It is the single most common finding here, it is cheap to establish, and it is the finding most often diagnosed as rising damp and quoted for injection.'
+    },
+    {
+      name: 'Sidcup',
+      text: 'Sidcup has older Edwardian stock around the village and station and interwar housing beyond it, with the River Cray and the meadows at Foots Cray on the low ground to the east. Houses down the slope towards the river sit on a higher water table than those on the ridge, and a solid floor or a cellar there behaves differently from the same house on the high street. Flat roofed 1930s rear additions are the other recurring source: felt that has reached the end of its life, wetting the wall below from above.'
+    },
+    {
+      name: 'Welling',
+      text: 'Welling was built almost entirely between the wars, densely, on small plots, and the decorative half timbering on the gables is the detail that fails. The render behind the applied timbers cracks, water gets in behind it and cannot get out, and a first floor bedroom develops a damp patch below a gable with nothing wrong in the room at all. Because plots are narrow, a neighbour\'s paving or extension frequently meets the party wall, and the damp shows on the wrong side of the boundary from its cause.'
+    },
   ],
   coverage:
     'We survey across the borough, from Bexleyheath and Sidcup out through Crayford to Erith and the riverside.',
