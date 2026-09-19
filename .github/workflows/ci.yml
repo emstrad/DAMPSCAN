@@ -45,6 +45,13 @@ jobs:
 
       - run: npm ci
 
+      # The generated HTML is committed and served as it sits, so content that
+      # was edited without running the build ships nothing and a page edited by
+      # hand is silently undone the next time somebody does run it. Neither
+      # leaves a trace anywhere else. Needs no database, so it goes first.
+      - name: Pages match what the build produces
+        run: npm run build:check
+
       - name: Apply schema.sql
         run: psql -h 127.0.0.1 -U dampscan -d dampscan -v ON_ERROR_STOP=1 -f db/schema.sql
 
