@@ -1,3 +1,4 @@
+import { orCall } from './page-shell.js';
 /**
  * The ATi pricing page.
  *
@@ -28,7 +29,7 @@ function offerSchema(site, url, pricing) {
     name: 'Independent damp survey',
     serviceType: 'Damp survey',
     url,
-    provider: { '@type': site.schemaType, name: site.brand, url: `${site.origin}/`, telephone: site.phone },
+    provider: { '@type': site.schemaType, name: site.brand, url: `${site.origin}/`, telephone: site.phone || undefined },
     areaServed: { '@type': 'Place', name: site.served },
     offers: pricing.bands.map((b) => {
       const amount = b.price.replace(/[^0-9]/g, '');
@@ -130,7 +131,7 @@ ${pricing.bands.map((b) => band(pricing, b)).join('\n')}
     <div class="booking">
       <h2>Book a survey</h2>
       <p>Same day response to every enquiry, and your written report within 24
-        hours of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+        hours of the visit.${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

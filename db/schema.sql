@@ -212,6 +212,14 @@ create unique index if not exists jobs_lead_unique_idx on jobs (lead_id) where l
 alter table jobs add column if not exists deposit_paid_at timestamptz;
 alter table jobs add column if not exists paid_at         timestamptz;
 
+-- The default was current_date, which is the server's day. The servers run UTC
+-- and the staff area decides every other date boundary on London time, so for
+-- the hour before midnight through British Summer Time a job saved with no
+-- date was stamped with a day London had already left. Its card was filed as
+-- yesterday's and never appeared on the upcoming board, so a walk-in recorded
+-- late on a summer evening was quietly lost. See lib/today.js.
+alter table jobs alter column job_date set default (now() at time zone 'Europe/London')::date;
+
 -- ---------------------------------------------------------------------------
 -- Bank reconciliation
 --

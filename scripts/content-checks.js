@@ -42,12 +42,18 @@ export function check(area, seen) {
 
 export function checkService(service, seen) {
   const problems = [];
-  for (const field of ['slug', 'site', 'name', 'title', 'h1', 'intro', 'signsHeading', 'ctaHeading', 'ctaBody']) {
+  for (const field of ['slug', 'site', 'name', 'title', 'h1', 'intro', 'ctaHeading', 'ctaBody']) {
     if (!service[field]) problems.push(`missing ${field}`);
   }
-  for (const field of ['signs', 'sections', 'faq']) {
+  for (const field of ['sections', 'faq']) {
     if (!Array.isArray(service[field]) || !service[field].length) problems.push(`${field} is empty`);
   }
+  /* The signs list is optional, because it is a damp page pattern rather than
+     something every trade has. The heading and the list only mean anything
+     together though, so one without the other is a mistake and not a choice. */
+  const hasSigns = Array.isArray(service.signs) && service.signs.length > 0;
+  if (hasSigns && !service.signsHeading) problems.push('signs list with no signsHeading');
+  if (service.signsHeading && !hasSigns) problems.push('signsHeading with no signs list');
   if (!SITES[service.site]) problems.push(`unknown site "${service.site}"`);
 
   const key = `${service.site}/${service.slug}`;

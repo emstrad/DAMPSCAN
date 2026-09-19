@@ -12,7 +12,7 @@
  * area and service pages stay visually identical without a second copy of it.
  */
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
-import { shell } from './page-shell.js';
+import { shell, orCall } from './page-shell.js';
 import { bookForm } from './book-form.js';
 import { guides } from '../content/guides/index.js';
 
@@ -29,9 +29,34 @@ export function distinctiveWordCount(service) {
   return words([
     service.intro,
     ...service.sections.flatMap((s) => [s.h2, ...s.paras]),
-    ...service.signs,
+    ...(service.signs || []),
     ...service.faq.map((f) => f.q + ' ' + f.a)
   ].join(' '));
+}
+
+/**
+ * The "signs you have this" list, or nothing at all.
+ *
+ * It is a damp page pattern rather than a universal one: "signs of rising
+ * damp" is a thing people search and "signs of a re-roof" is not. A trade that
+ * has no such list gets no heading with nothing under it, rather than an empty
+ * section, so the template carries a fourth and fifth brand without being
+ * edited again.
+ *
+ * The indentation is inside the returned string, including the blank line that
+ * follows it, so that a page with signs comes out byte for byte as it did when
+ * this was written inline.
+ */
+function signsBlock(service) {
+  if (!Array.isArray(service.signs) || !service.signs.length) return '';
+  return `  <section class="sec">
+    <h2>${esc(service.signsHeading)}</h2>
+    <ul class="ticks">
+      ${service.signs.map((s) => `<li>${s}</li>`).join('\n      ')}
+    </ul>
+  </section>
+
+`;
 }
 
 function schema(type, extra) {
@@ -57,7 +82,7 @@ export function render(service, allServices) {
     serviceType: service.name,
     description: service.metaDescription,
     url,
-    provider: { '@type': site.schemaType, name: site.brand, url: `${site.origin}/`, telephone: site.phone },
+    provider: { '@type': site.schemaType, name: site.brand, url: `${site.origin}/`, telephone: site.phone || undefined },
     areaServed: { '@type': 'Place', name: site.served }
   });
 
@@ -86,14 +111,7 @@ export function render(service, allServices) {
     <p class="lede">${service.intro}</p>
   </div>
 
-  <section class="sec">
-    <h2>${esc(service.signsHeading)}</h2>
-    <ul class="ticks">
-      ${service.signs.map((s) => `<li>${s}</li>`).join('\n      ')}
-    </ul>
-  </section>
-
-  ${service.sections.map((s) => `<section class="sec">
+${signsBlock(service)}  ${service.sections.map((s) => `<section class="sec">
     <h2>${esc(s.h2)}</h2>
     ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}
   </section>`).join('\n\n  ')}
@@ -115,7 +133,7 @@ ${related.length || reading.length ? `
   const aside = `
     <div class="booking">
       <h2>${esc(service.ctaHeading)}</h2>
-      <p>${service.ctaBody} Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+      <p>${service.ctaBody}${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

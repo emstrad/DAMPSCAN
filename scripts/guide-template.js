@@ -12,7 +12,7 @@
  * template is shared; the words are not.
  */
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
-import { shell } from './page-shell.js';
+import { shell, orCall } from './page-shell.js';
 import { bookForm } from './book-form.js';
 
 const esc = (value) =>
@@ -108,7 +108,7 @@ ${related.length || more.length ? `
   const aside = `
     <div class="booking">
       <h2>${esc(guide.ctaHeading || 'Get the answer before you spend')}</h2>
-      <p>${guide.ctaBody || 'A survey establishes what is there and what, if anything, needs doing, with a written report within 24 hours of the visit.'} Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+      <p>${guide.ctaBody || 'A survey establishes what is there and what, if anything, needs doing, with a written report within 24 hours of the visit.'}${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

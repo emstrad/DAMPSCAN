@@ -1,3 +1,4 @@
+import { orCall } from './page-shell.js';
 /**
  * The services and areas hub pages.
  *
@@ -94,7 +95,7 @@ ${list}
     <div class="booking">
       <h2>${kind === 'services' ? 'Book a survey' : 'Book a survey'}</h2>
       <p>Same day response to every enquiry, and your written report within 24
-        hours of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+        hours of the visit.${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

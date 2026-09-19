@@ -8,7 +8,7 @@
  * generator refuses to build a page whose distinctive copy is too short.
  */
 import { bookForm } from './book-form.js';
-import { shell } from './page-shell.js';
+import { shell, orCall } from './page-shell.js';
 
 const SITES = {
   dampscan: {
@@ -160,7 +160,7 @@ function businessSchema(area, site, url) {
     '@type': site.schemaType,
     name: site.brand,
     url,
-    telephone: site.phone,
+    telephone: site.phone || undefined,
     email: site.email,
     areaServed: { '@type': 'Place', name: area.name },
     description: area.metaDescription
@@ -246,7 +246,7 @@ ${nearby.length ? `
     <div class="booking">
       <h2>Book a survey in ${esc(area.name)}</h2>
       <p>Same day response to every enquiry, and your written report within 24
-        hours of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+        hours of the visit.${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;
