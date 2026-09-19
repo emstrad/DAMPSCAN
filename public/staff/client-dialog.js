@@ -82,6 +82,7 @@
     el('c-paid-when').textContent = c.money.paidAt ? 'on ' + U.when(c.money.paidAt) : '';
 
     el('c-date').value = c.surveyDate || '';
+    el('c-time').value = c.surveyTime || '';
     el('c-note').value = c.note || '';
     el('c-edit').href = '/staff/jobs.html#job-' + c.id;
     el('client-error').classList.remove('is-shown');

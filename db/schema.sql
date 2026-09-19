@@ -295,3 +295,12 @@ create table if not exists bank_rules (
                check (split <@ array['scott','tom','ben','tax']::text[]),
   updated_at timestamptz not null default now()
 );
+
+-- A survey is at an hour, not just on a day. Nullable, because every job
+-- recorded before this column existed has no time and none can be invented for
+-- it, and because a day is often agreed before the hour is.
+--
+-- The boards still archive on the day and not the hour. A nine o'clock survey
+-- belongs on today's list all day rather than dropping off it at ten, so the
+-- time orders the list and does not decide which list it is on.
+alter table jobs add column if not exists job_time time;

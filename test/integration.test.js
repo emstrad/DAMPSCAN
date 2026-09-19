@@ -982,3 +982,40 @@ test('actionFrom reads the last path segment, whatever the URL carries', async (
   assert.equal(actionFrom('/api/admin/'), 'admin');
   assert.equal(actionFrom(undefined), '');
 });
+
+test('a survey has an hour as well as a day, and the hour can be cleared again', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobTime: '09:30' });
+
+  const [listed] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } })).json().clients;
+  assert.equal(listed.surveyTime, '09:30', 'the seconds the database keeps are not shown');
+
+  const moved = (await call(clientsRoute, { body: { id: job.id, jobTime: '14:00' }, headers: { cookie } })).json().client;
+  assert.equal(moved.surveyTime, '14:00');
+
+  /* Empty is a real instruction: the day stands and the hour is off again. */
+  const cleared = (await call(clientsRoute, { body: { id: job.id, jobTime: '' }, headers: { cookie } })).json().client;
+  assert.equal(cleared.surveyTime, null);
+  assert.equal(cleared.surveyDate, moved.surveyDate, 'clearing the hour must not move the day');
+
+  const bad = await call(clientsRoute, { body: { id: job.id, jobTime: '25:00' }, headers: { cookie } });
+  assert.equal(bad.statusCode, 400, 'a 24 hour clock has no 25');
+});
+
+test('the upcoming board runs in time order within a day, unscheduled last', async () => {
+  const cookie = await signedInCookie();
+  const day = DEFAULT_JOB_DATE;
+  /* Recorded by hand with no lead, because one lead can only become one job and
+     these three are about the ordering rather than about where they came from. */
+  const at = (jobTime) => call(jobsRoute, { body: {
+    customerName: 'Ordering', surveyType: 'localised', surveyor: 'ben',
+    status: 'booked', jobDate: day, jobTime
+  }, headers: { cookie } });
+  await at('15:00');
+  await at('08:00');
+  await at(null);
+
+  const times = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } }))
+    .json().clients.map((c) => c.surveyTime);
+  assert.deepEqual(times, ['08:00', '15:00', null], 'a job with no hour yet does not jump the queue');
+});
