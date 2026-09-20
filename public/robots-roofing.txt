@@ -1,0 +1,29 @@
+# vergeroofing.com
+#
+# One group only, deliberately. Adding a named group for a crawler makes that
+# crawler ignore this one entirely, so the disallows below would stop applying
+# to it. The AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended and
+# the rest) are allowed on purpose: being readable by them is the point.
+#
+# Served at /robots.txt on the roofing host, via middleware.js.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /staff
+Disallow: /staff/
+# The service pages are served at /services/<name>. /service-pages/ is where
+# the files happen to sit, and indexing both would be the same page twice.
+Disallow: /service-pages/
+# Same for the guides, served at /guides/<name>.
+Disallow: /guide-pages/
+# And the hubs, served at /services and /guides.
+Disallow: /hubs/
+# The damp brands' pages share this deployment and must never be indexed on
+# this domain. They are reachable here only by their file path, which is
+# exactly what this stops.
+Disallow: /areas/
+Disallow: /pricing/
+Disallow: /london.html
+
+Sitemap: https://vergeroofing.com/sitemap-roofing.xml

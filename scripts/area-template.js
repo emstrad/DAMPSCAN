@@ -23,6 +23,8 @@ const SITES = {
     served: 'Kent and the South East of England',
     strap: 'Damp, mould and timber surveys across Kent and the South East',
     surveyMateSlug: 'dampscan',
+    areasPath: '/damp-survey',
+    sitemapFile: 'sitemap.xml',
     ctaLabel: 'Book a Survey',
     headBg: 'rgba(8,19,33,.86)',
     headSolid: '#081321',
@@ -68,6 +70,8 @@ const SITES = {
     served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work',
     surveyMateSlug: 'ati-damp-survey',
+    areasPath: '/damp-survey',
+    sitemapFile: 'sitemap-london.xml',
     ctaLabel: 'Request a Survey',
     headBg: 'rgba(245,245,243,.9)',
     headSolid: '#f5f5f3',
@@ -117,6 +121,10 @@ const SITES = {
     served: 'London, Kent, Surrey, Essex, Hertfordshire, Sussex and Berkshire',
     strap: 'Roofing across London and the South East',
     surveyMateSlug: null,
+    /* Null until the regional pages are carried across. A sitemap that lists a
+       path nothing serves is worse than a short sitemap. */
+    areasPath: null,
+    sitemapFile: 'sitemap-roofing.xml',
     ctaLabel: 'Get a Quote',
     headBg: 'rgba(23,26,31,.88)',
     headSolid: '#171a1f',
@@ -178,8 +186,12 @@ window.DS_CONFIG = {
    firm's current status rather than a copy that would keep saying verified if
    the listing ever lapsed. Fixed dimensions and lazy loading keep it off the
    critical path and stop it shifting the layout when it arrives. */
+/* SurveyMate lists damp surveyors, so a brand in another trade has no entry
+   and gets no badge. Rendered unconditionally it linked every roofing page to
+   /find-a-surveyor/null and pulled a broken image from the same. */
 function verifiedBadge(site) {
   const slug = site.surveyMateSlug;
+  if (!slug) return '';
   return `<a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/${slug}"
       rel="noopener" target="_blank">
       <img src="https://survey-mate.co.uk/api/verified-badge/${slug}"

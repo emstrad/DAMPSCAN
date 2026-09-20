@@ -202,3 +202,13 @@ test('roofing has no pricing page and no area pages, so nothing routes to them',
   assert.equal(rewrittenTo(await call(ROOFING, '/pricing')), null);
   assert.equal(rewrittenTo(await call(ROOFING, '/roofing-in')), null);
 });
+
+test('each brand is served its own robots, sitemap and llms at the shared paths', async () => {
+  assert.equal(rewrittenTo(await call(ROOFING, '/robots.txt')), '/robots-roofing.txt');
+  assert.equal(rewrittenTo(await call(ROOFING, '/sitemap.xml')), '/sitemap-roofing.xml');
+  assert.equal(rewrittenTo(await call(ROOFING, '/llms.txt')), '/llms-roofing.txt');
+  assert.equal(rewrittenTo(await call(LONDON, '/robots.txt')), '/robots-london.txt');
+  /* DampScan is the project default and owns the unprefixed files, so nothing
+     rewrites and the file answers directly. */
+  assert.equal(rewrittenTo(await call(KENT, '/robots.txt')), null);
+});

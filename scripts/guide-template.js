@@ -59,7 +59,9 @@ export function render(guide, allGuides, allServices) {
     mainEntityOfPage: url,
     author: { '@type': 'Organization', name: site.brand, url: `${site.origin}/` },
     publisher: { '@type': 'Organization', name: site.brand, url: `${site.origin}/` },
-    image: `${site.origin}${site.og}`
+    /* Dropped rather than concatenated onto nothing: a brand with no share
+       image was publishing image: "https://brand.comnull" to Google. */
+    image: site.og ? `${site.origin}${site.og}` : undefined
   });
 
   const faqSchema = schema('FAQPage', {

@@ -71,7 +71,15 @@ const SITES = {
      rather than documentation: public/index.html exists and is DampScan's, so
      without this a roofing visitor would be served a damp home page under a
      roofing domain. Refusing is the only honest answer until the page exists. */
-  roofing: { areas: null, files: {}, home: false }
+  roofing: {
+    areas: null,
+    files: {
+      '/robots.txt': '/robots-roofing.txt',
+      '/sitemap.xml': '/sitemap-roofing.xml',
+      '/llms.txt': '/llms-roofing.txt'
+    },
+    home: false
+  }
 };
 
 const HOSTS = [
