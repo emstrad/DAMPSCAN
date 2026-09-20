@@ -27,6 +27,8 @@ import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './
 import { render as renderHub } from './hub-template.js';
 import { render as renderPricing } from './pricing-template.js';
 import { hubs } from '../content/hubs.js';
+import { homes } from '../content/home/index.js';
+import { render as renderHome } from './home-template.js';
 import { pricing } from '../content/pricing.js';
 import { assetHashes, stampAssets } from './asset-version.js';
 import { bookForm } from './book-form.js';
@@ -283,6 +285,13 @@ async function main() {
     pricingCount += 1;
   }
 
+  /* Home pages for the brands that have one written. DampScan and ATi are not
+     here: index.html and london.html are hand written and this must not touch
+     them. */
+  for (const home of homes) {
+    await writeFile(join(ROOT, 'public', `${home.site}.html`), renderHome(home, services), 'utf8');
+  }
+
   await rm(SERVICES_OUT, { recursive: true, force: true });
   for (const service of services) {
     const dir = join(SERVICES_OUT, service.site);
@@ -306,6 +315,7 @@ async function main() {
   console.log(`${guides.length} guide pages written to public/guide-pages`);
   console.log(`${hubCount} hub pages written to public/hubs`);
   console.log(`${pricingCount} pricing pages written to public/pricing`);
+  console.log(`${homes.length} home page(s) generated: ${homes.map((h) => h.site).join(', ')}`);
   console.log('sitemaps, home page links and home page booking forms rewritten');
   console.log(`${stamps.files} assets hashed, ${stamps.stamped} pages restamped`);
   for (const site of Object.keys(HOME)) console.log(reviewsSummary(site));

@@ -76,9 +76,10 @@ const SITES = {
     files: {
       '/robots.txt': '/robots-roofing.txt',
       '/sitemap.xml': '/sitemap-roofing.xml',
-      '/llms.txt': '/llms-roofing.txt'
+      '/llms.txt': '/llms-roofing.txt',
+      '/': '/roofing.html'
     },
-    home: false
+    home: true
   }
 };
 

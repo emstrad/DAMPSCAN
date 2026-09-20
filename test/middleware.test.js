@@ -192,9 +192,11 @@ test('the roofing host is served roofing pages, never the damp ones', async () =
     '/guide-pages/roofing/repair-or-replace-a-roof.html');
 });
 
-test('a brand with no home page of its own is refused, not given another brand\'s', async () => {
-  const res = await call(ROOFING, '/');
-  assert.equal(res.status, 404, 'public/index.html is DampScan and must not answer here');
+test('each brand is served its own home page, never another brand\'s', async () => {
+  assert.equal(rewrittenTo(await call(ROOFING, '/')), '/roofing.html');
+  assert.equal(rewrittenTo(await call(LONDON, '/')), '/london.html');
+  /* DampScan is the project default and owns index.html, so nothing rewrites. */
+  assert.equal(rewrittenTo(await call(KENT, '/')), null);
 });
 
 test('roofing has no pricing page and no area pages, so nothing routes to them', async () => {
