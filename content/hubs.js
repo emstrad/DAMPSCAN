@@ -8,6 +8,34 @@
  * introduces rather than announcing that a list follows.
  */
 export const hubs = {
+  /* CoolRight. No areas hub: the business covers a region rather than writing
+     a page per district, and a hub over nothing is worse than no hub. */
+  ac: {
+    services: {
+      title: 'Air Conditioning, Heating & Ventilation | CoolRight',
+      metaDescription:
+        'Installation, repairs, servicing, multi-split, heat pumps, commercial systems and ventilation across London and the South East. What each job involves and what moves its price.',
+      h1: 'What we install, and what we tell you not to',
+      intro:
+        'Almost every callout we attend on somebody else\'s system traces back to the installation rather than the equipment. A unit sized from a room\'s floor area instead of its heat load, condensate routed with too little fall, a pipe run nobody pressure tested. None of it shows on the day it is handed over.',
+      body: [
+        'Each page below covers one job on its own terms: what usually goes wrong, what we do instead, what it is most often confused with, and what moves the figure. The ventilation page exists largely to say that cooling does not fix condensation, which is the most common reason we are asked to quote for the wrong thing.',
+        'Every job is quoted after a visit. A price given blind over the phone is a guess that gets corrected upwards later, and we would rather look first.'
+      ]
+    },
+    guides: {
+      title: 'Air Conditioning Guides | CoolRight',
+      metaDescription:
+        'What air conditioning costs and why, how to compare two quotes, and which problems cooling does not solve.',
+      h1: 'Read this before you accept a quote',
+      intro:
+        'The questions people ask before spending money on cooling are mostly about price, and they are hard to answer well because every install is a building rather than a product.',
+      body: [
+        'These guides answer them as honestly as a quoted trade can: what actually moves the figure, which lines should appear in a quote, and what their absence means.',
+        'One of them is about a problem cooling does not solve. Condensation, stale air and overheating are three faults with three different answers, and only one of them is air conditioning.'
+      ]
+    }
+  },
   /* Verge Roofing. No areas hub yet: the regional pages have not been carried
      across, so the nav points at /roofing-in only once they exist. */
   roofing: {

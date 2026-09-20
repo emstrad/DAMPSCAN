@@ -214,3 +214,24 @@ test('each brand is served its own robots, sitemap and llms at the shared paths'
      rewrites and the file answers directly. */
   assert.equal(rewrittenTo(await call(KENT, '/robots.txt')), null);
 });
+
+const AC = 'coolright.co.uk';
+
+test('the CoolRight host is served its own pages and its own root files', async () => {
+  assert.equal(rewrittenTo(await call(AC, '/')), '/ac.html');
+  assert.equal(rewrittenTo(await call(AC, '/services')), '/hubs/ac/services.html');
+  assert.equal(rewrittenTo(await call(AC, '/services/multi-split-systems')),
+    '/service-pages/ac/multi-split-systems.html');
+  assert.equal(rewrittenTo(await call(AC, '/guides/air-conditioning-installation-cost')),
+    '/guide-pages/ac/air-conditioning-installation-cost.html');
+  assert.equal(rewrittenTo(await call(AC, '/robots.txt')), '/robots-ac.txt');
+  assert.equal(rewrittenTo(await call(AC, '/sitemap.xml')), '/sitemap-ac.xml');
+});
+
+test('no brand can reach another brand\'s pages through the shared paths', async () => {
+  /* The whole hazard of four brands on one deployment, asserted directly. */
+  for (const [host, dir] of [[KENT, 'dampscan'], [LONDON, 'ati'], [ROOFING, 'roofing'], [AC, 'ac']]) {
+    const target = rewrittenTo(await call(host, '/services'));
+    assert.equal(target, `/hubs/${dir}/services.html`, `${host} must get its own services hub`);
+  }
+});

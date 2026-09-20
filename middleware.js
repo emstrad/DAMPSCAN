@@ -80,13 +80,24 @@ const SITES = {
       '/': '/roofing.html'
     },
     home: true
+  },
+  ac: {
+    areas: null,
+    files: {
+      '/robots.txt': '/robots-ac.txt',
+      '/sitemap.xml': '/sitemap-ac.xml',
+      '/llms.txt': '/llms-ac.txt',
+      '/': '/ac.html'
+    },
+    home: true
   }
 };
 
 const HOSTS = [
   [LONDON_HOST, 'ati'],
   [KENT_HOST, 'dampscan'],
-  [/^(www\.)?vergeroofing\.com$/i, 'roofing']
+  [/^(www\.)?vergeroofing\.com$/i, 'roofing'],
+  [/^(www\.)?coolright\.co\.uk$/i, 'ac']
 ];
 
 /* Previews and the vercel.app hostnames have no brand of their own, so they

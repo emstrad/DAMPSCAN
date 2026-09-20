@@ -155,6 +155,47 @@ const SITES = {
       subjectPrefix: 'Verge Roofing, ',
       dataLayerEvent: 'verge-roofing'
     }
+  },
+  /* CoolRight. Air conditioning, heating and ventilation, and the fourth brand
+     in this project. Like roofing it quotes every job, so it has no pricing
+     page, and its number is not issued yet so no call link ships. */
+  ac: {
+    key: 'ac',
+    brand: 'CoolRight',
+    origin: 'https://coolright.co.uk',
+    logo: null,
+    phone: null,
+    phoneLabel: null,
+    email: 'team@coolright.co.uk',
+    schemaType: 'HVACBusiness',
+    served: 'London and the whole of the South East',
+    strap: 'Air conditioning, heating and ventilation across London and the South East',
+    surveyMateSlug: null,
+    areasPath: null,
+    sitemapFile: 'sitemap-ac.xml',
+    ctaLabel: 'Get a Quote',
+    headBg: 'rgba(12,32,46,.88)',
+    headSolid: '#0c202e',
+    lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Cool<span class="scan">Right</span></span><span class="logo-tag">Climate control. Done right.</span></span></span>',
+    nav: [
+      { label: 'How It Works', href: '/#how' },
+      { label: 'Services', href: '/services' },
+      { label: 'Guides', href: '/guides' },
+      { label: 'FAQs', href: 'FAQ' }
+    ],
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/guides', label: 'Guides' }
+    ],
+    profileUrl: '',
+    og: null,
+    book: {
+      sessionKey: 'coolright-session',
+      attrKey: 'coolright-attr',
+      notify: 'https://formsubmit.co/ajax/team@coolright.co.uk',
+      subjectPrefix: 'CoolRight, ',
+      dataLayerEvent: 'coolright'
+    }
   }
 };
 
