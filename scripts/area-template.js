@@ -146,7 +146,7 @@ const SITES = {
       { href: '/services', label: 'Services' },
       { href: '/guides', label: 'Guides' }
     ],
-    profileUrl: '',
+    profileUrl: 'https://share.google/p2JjORGy8UdZUpQnV',
     og: null,
     book: {
       sessionKey: 'verge-session',
@@ -187,7 +187,7 @@ const SITES = {
       { href: '/services', label: 'Services' },
       { href: '/guides', label: 'Guides' }
     ],
-    profileUrl: '',
+    profileUrl: 'https://share.google/MFCiCldTnpS3VMcVW',
     og: null,
     book: {
       sessionKey: 'coolright-session',
