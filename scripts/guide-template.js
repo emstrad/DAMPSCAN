@@ -13,6 +13,7 @@
  */
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
 import { shell, orCall } from './page-shell.js';
+import { sectionList } from './service-template.js';
 import { bookForm } from './book-form.js';
 
 const esc = (value) =>
@@ -26,7 +27,7 @@ const words = (text) => String(text).replace(/<[^>]+>/g, ' ').split(/\s+/).filte
 export function distinctiveWordCount(guide) {
   return words([
     guide.intro,
-    ...guide.sections.flatMap((s) => [s.h2, ...s.paras]),
+    ...guide.sections.flatMap((s) => [s.h2, ...s.paras, ...(s.list || [])]),
     ...guide.faq.map((f) => f.q + ' ' + f.a)
   ].join(' '));
 }
@@ -88,7 +89,7 @@ export function render(guide, allGuides, allServices) {
 
   ${guide.sections.map((s) => `<section class="sec">
     <h2>${esc(s.h2)}</h2>
-    ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}
+    ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}${sectionList(s)}
   </section>`).join('\n\n  ')}
 
   <section class="sec" id="faq">

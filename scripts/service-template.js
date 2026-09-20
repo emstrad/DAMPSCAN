@@ -41,7 +41,7 @@ export function distinctiveWordCount(service) {
  * trade, and prose that tries to be a list reads like an evasion. Damp has
  * none today, so this renders nothing for every existing page.
  */
-function sectionList(section) {
+export function sectionList(section) {
   if (!Array.isArray(section.list) || !section.list.length) return '';
   return `
     <ul class="ticks">

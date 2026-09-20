@@ -121,14 +121,14 @@ const SITES = {
     headBg: 'rgba(23,26,31,.88)',
     headSolid: '#171a1f',
     lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Verge<span class="scan">Roofing</span></span><span class="logo-tag">Higher standards</span></span></span>',
-    /* No Prices entry: every roof is quoted, so the guides carry the basis
-       instead and a pricing page would be a page that cannot be written. */
+    /* No Prices entry, because every roof is quoted and the guides carry the
+       basis instead. No Areas entry either, until the regional pages are
+       carried across: a nav item is a promise that a page answers. */
     nav: [
       { label: 'How It Works', href: '/#how' },
       { label: 'Services', href: '/services' },
       { label: 'Guides', href: '/guides' },
       { label: 'Our work', href: '/#reviews' },
-      { label: 'Areas', href: '/roofing-in' },
       { label: 'FAQs', href: 'FAQ' }
     ],
     /* No Areas and no Prices: the regional pages are not carried across yet and

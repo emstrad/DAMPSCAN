@@ -177,3 +177,28 @@ test('a service path that is not a plain slug is left alone', () => {
     assert.equal(rewrittenTo(call(KENT, path)), null, path);
   }
 });
+
+/* Verge Roofing. Before this host existed the directory was chosen by a
+   boolean, so anything that was not London was served DampScan: a third domain
+   pointed at this project would have answered every URL with damp content under
+   a roofing canonical. These assert the brand actually gets its own pages. */
+const ROOFING = 'vergeroofing.com';
+
+test('the roofing host is served roofing pages, never the damp ones', async () => {
+  assert.equal(rewrittenTo(await call(ROOFING, '/services')), '/hubs/roofing/services.html');
+  assert.equal(rewrittenTo(await call(ROOFING, '/guides')), '/hubs/roofing/guides.html');
+  assert.equal(rewrittenTo(await call(ROOFING, '/services/re-roofs')), '/service-pages/roofing/re-roofs.html');
+  assert.equal(rewrittenTo(await call(ROOFING, '/guides/repair-or-replace-a-roof')),
+    '/guide-pages/roofing/repair-or-replace-a-roof.html');
+});
+
+test('a brand with no home page of its own is refused, not given another brand\'s', async () => {
+  const res = await call(ROOFING, '/');
+  assert.equal(res.status, 404, 'public/index.html is DampScan and must not answer here');
+});
+
+test('roofing has no pricing page and no area pages, so nothing routes to them', async () => {
+  /* next() leaves the request to the filesystem, where neither exists. */
+  assert.equal(rewrittenTo(await call(ROOFING, '/pricing')), null);
+  assert.equal(rewrittenTo(await call(ROOFING, '/roofing-in')), null);
+});
