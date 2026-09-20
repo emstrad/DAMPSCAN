@@ -735,6 +735,13 @@ test('a job can be deleted', async () => {
 });
 
 /* --------------------------------------------------------------- clients ---- */
+
+/* A card archives itself the day after its survey, and the default view is
+   what is still upcoming, so a booking these tests expect to find has to be
+   dated ahead of today. A fixed date passes until the day it quietly goes by,
+   which is how this went red a fortnight after it was written. */
+const UPCOMING = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+
 async function bookedJob(cookie, extra = {}) {
   const leadRes = (await call(lead, { body: validLead({
     addressLine1: 'Flat 6, Trafalgar Point', addressLine2: '137 Downham Road', town: 'London',
@@ -742,7 +749,7 @@ async function bookedJob(cookie, extra = {}) {
   }) })).json();
   const job = (await call(jobsRoute, { body: {
     leadId: leadRes.id, customerName: 'Priya', surveyType: 'full-house', surveyor: 'tom',
-    jobDate: '2026-09-18', status: 'booked', ...extra
+    jobDate: UPCOMING, status: 'booked', ...extra
   }, headers: { cookie } })).json();
   return { leadId: leadRes.id, job: job.job };
 }
@@ -761,7 +768,7 @@ test('a booked job is a client card, with the enquiry pulled through', async () 
   assert.deepEqual(c.files, ['leads/2026-09-04/uuid-report.pdf']);
   assert.deepEqual(c.issues, ['Damp', 'Mould']);
   assert.equal(c.leadNotes, 'Back bedroom, since spring');
-  assert.equal(c.surveyDate, '2026-09-18');
+  assert.equal(c.surveyDate, UPCOMING);
   assert.equal(c.survey.label, 'Full House');
   assert.equal(c.survey.pricePence, 29500);
 });
