@@ -51,8 +51,8 @@
       var tr = document.createElement('tr');
       tr.className = 'is-why';
       var who = (j.customerName || 'Job ' + j.id) + ', ' + (j.jobDate || '');
-      var td = U.node('td', null, who + ' — ' + U.money(j.receivedPence) + ' matched against '
-        + U.money(j.countedValuePence) + ': ' + j.reason);
+      var td = U.node('td', null, who + ': ' + U.money(j.receivedPence) + ' matched against '
+        + U.money(j.countedValuePence) + ', ' + j.reason);
       tr.appendChild(td);
       tr.appendChild(U.node('td', 'num', U.money(j.deltaPence)));
       return tr;
