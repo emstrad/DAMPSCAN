@@ -18,6 +18,7 @@
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
 import { shell } from './page-shell.js';
 import { bookForm } from './book-form.js';
+import { reviewsBlock } from './reviews-block.js';
 
 const esc = (value) =>
   String(value == null ? '' : value)
@@ -108,6 +109,18 @@ function coverage(home) {
 `;
 }
 
+/* The reviews carousel, which ships hidden until the brand has five. The
+   section and its id exist either way, because the nav points at #reviews and
+   an anchor that resolves to nothing is a link that does nothing. */
+function reviewsSection(home) {
+  return `
+  <section class="sec" id="reviews">
+    <h2>${esc(home.reviewsHeading || 'What customers say')}</h2>
+    ${reviewsBlock(home.site)}
+  </section>
+`;
+}
+
 function faqBlock(home) {
   if (!home.faq || !home.faq.length) return '';
   return `
@@ -147,7 +160,7 @@ export function render(home, services) {
     <h1>${esc(home.h1)}</h1>
     <p class="lede">${home.lede}</p>
   </div>
-${highlights(home)}${process(home)}${serviceGrid(home, services)}${coverage(home)}${faqBlock(home)}`;
+${highlights(home)}${process(home)}${serviceGrid(home, services)}${coverage(home)}${reviewsSection(home)}${faqBlock(home)}`;
 
   const aside = `
     <div class="booking">
