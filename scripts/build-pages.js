@@ -26,6 +26,8 @@ import { check, checkService, checkGuide } from './content-checks.js';
 import { reviewsBlock, reviewsSummary, START as R_START, END as R_END } from './reviews-block.js';
 import { render as renderHub } from './hub-template.js';
 import { render as renderPricing } from './pricing-template.js';
+import { hubs } from '../content/hubs.js';
+import { pricing } from '../content/pricing.js';
 import { assetHashes, stampAssets } from './asset-version.js';
 import { bookForm } from './book-form.js';
 import { adsTag } from './ads-tag.js';
@@ -237,15 +239,24 @@ async function main() {
     counts[area.site] = (counts[area.site] || 0) + 1;
   }
 
+  /* A hub is written because somebody wrote its copy, not because the loop
+     came round. A brand with no area pages should have no areas hub and no nav
+     item pointing at one, rather than an empty page saying nothing follows. */
   await rm(HUBS_OUT, { recursive: true, force: true });
+  const HUB_KINDS = {
+    services: (site) => services.filter((s) => s.site === site),
+    areas: (site) => areas.filter((a) => a.site === site),
+    guides: (site) => guides.filter((g) => g.site === site)
+  };
+  let hubCount = 0;
   for (const site of Object.keys(SITES)) {
     const dir = join(HUBS_OUT, site);
     await mkdir(dir, { recursive: true });
-    const svc = services.filter((s) => s.site === site);
-    const ars = areas.filter((a) => a.site === site);
-    await writeFile(join(dir, 'services.html'), renderHub('services', site, svc), 'utf8');
-    await writeFile(join(dir, 'areas.html'), renderHub('areas', site, ars), 'utf8');
-    await writeFile(join(dir, 'guides.html'), renderHub('guides', site, guides.filter((g) => g.site === site)), 'utf8');
+    for (const [kind, pick] of Object.entries(HUB_KINDS)) {
+      if (!hubs[site] || !hubs[site][kind]) continue;
+      await writeFile(join(dir, `${kind}.html`), renderHub(kind, site, pick(site)), 'utf8');
+      hubCount += 1;
+    }
   }
 
   await rm(GUIDES_OUT, { recursive: true, force: true });
@@ -255,12 +266,17 @@ async function main() {
     await writeFile(join(dir, `${guide.slug}.html`), renderGuide(guide, guides, services), 'utf8');
   }
 
-  // Both sites now. They publish for opposite reasons, which content/pricing.js
+  // Both damp sites publish prices, for opposite reasons that content/pricing.js
   // explains: ATi because the survey is the whole transaction, DampScan because
   // paying for the survey separately is what keeps it independent of the works.
+  // A brand that quotes every job has no entry there and gets no page, rather
+  // than a price list it cannot honour.
   await mkdir(join(ROOT, 'public', 'pricing'), { recursive: true });
+  let pricingCount = 0;
   for (const site of Object.keys(SITES)) {
+    if (!pricing[site]) continue;
     await writeFile(join(ROOT, 'public', 'pricing', `${site}.html`), renderPricing(site), 'utf8');
+    pricingCount += 1;
   }
 
   await rm(SERVICES_OUT, { recursive: true, force: true });
@@ -284,8 +300,8 @@ async function main() {
   console.log(`${areas.length} area pages written to public/areas`);
   console.log(`${services.length} service pages written to public/service-pages`);
   console.log(`${guides.length} guide pages written to public/guide-pages`);
-  console.log('6 hub pages written to public/hubs');
-  console.log(`${Object.keys(SITES).length} pricing pages written to public/pricing`);
+  console.log(`${hubCount} hub pages written to public/hubs`);
+  console.log(`${pricingCount} pricing pages written to public/pricing`);
   console.log('sitemaps, home page links and home page booking forms rewritten');
   console.log(`${stamps.files} assets hashed, ${stamps.stamped} pages restamped`);
   for (const site of Object.keys(HOME)) console.log(reviewsSummary(site));

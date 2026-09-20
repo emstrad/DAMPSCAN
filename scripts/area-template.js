@@ -40,6 +40,12 @@ const SITES = {
     ],
     // The Business Profile share link: credits Google where the reviews came
     // from, and goes into sameAs so search can tie the site to the profile.
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/damp-survey', label: 'Areas' },
+      { href: '/guides', label: 'Guides' },
+      { href: '/pricing', label: 'Prices' }
+    ],
     profileUrl: 'https://share.google/kC2SRRJEFz5DqKXC9',
     og: '/assets/dampscan-og.png',
     book: {
@@ -76,6 +82,12 @@ const SITES = {
       { label: 'London Coverage', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/damp-survey', label: 'Areas' },
+      { href: '/guides', label: 'Guides' },
+      { href: '/pricing', label: 'Prices' }
+    ],
     profileUrl: 'https://share.google/UR3GLPt8y1SyLr5FV',
     og: '/assets/ati-og.png',
     book: {
@@ -84,6 +96,56 @@ const SITES = {
       notify: 'https://formsubmit.co/ajax/team@atidampsurvey.co.uk',
       subjectPrefix: 'ATI London, ',
       dataLayerEvent: 'ati-damp'
+    }
+  },
+  /* Verge Roofing. A different business from the two damp brands, sharing this
+     repo for the generators and nothing else: its own domain, its own Business
+     Profile, its own Ads account, and no link to or from either damp site.
+
+     phone is null on purpose. The number is not issued yet, and the templates
+     leave every call link out until it is rather than shipping tel:null on
+     thirty pages. Set phone and phoneLabel together and they all come back. */
+  roofing: {
+    key: 'roofing',
+    brand: 'Verge Roofing',
+    origin: 'https://vergeroofing.com',
+    logo: null,
+    phone: null,
+    phoneLabel: null,
+    email: 'team@vergeroofing.com',
+    schemaType: 'RoofingContractor',
+    served: 'London, Kent, Surrey, Essex, Hertfordshire, Sussex and Berkshire',
+    strap: 'Roofing across London and the South East',
+    surveyMateSlug: null,
+    ctaLabel: 'Get a Quote',
+    headBg: 'rgba(23,26,31,.88)',
+    headSolid: '#171a1f',
+    lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Verge<span class="scan">Roofing</span></span><span class="logo-tag">Higher standards</span></span></span>',
+    /* No Prices entry: every roof is quoted, so the guides carry the basis
+       instead and a pricing page would be a page that cannot be written. */
+    nav: [
+      { label: 'How It Works', href: '/#how' },
+      { label: 'Services', href: '/services' },
+      { label: 'Guides', href: '/guides' },
+      { label: 'Our work', href: '/#reviews' },
+      { label: 'Areas', href: '/roofing-in' },
+      { label: 'FAQs', href: 'FAQ' }
+    ],
+    /* No Areas and no Prices: the regional pages are not carried across yet and
+       every roof is quoted. A footer that lists pages a brand does not have is
+       two dead links on every page of it. */
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/guides', label: 'Guides' }
+    ],
+    profileUrl: '',
+    og: null,
+    book: {
+      sessionKey: 'verge-session',
+      attrKey: 'verge-attr',
+      notify: 'https://formsubmit.co/ajax/team@vergeroofing.com',
+      subjectPrefix: 'Verge Roofing, ',
+      dataLayerEvent: 'verge-roofing'
     }
   }
 };

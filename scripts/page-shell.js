@@ -143,7 +143,7 @@ ${barCall(site)}  <a href="#book" class="btn btn--primary">Book a survey</a>
 <footer class="afoot">
   <div class="wrap">
     <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="/guides">Guides</a> &middot; <a href="/pricing">Prices</a>${footCall(site)} &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
+    <span><a href="/">Home</a>${(site.footerLinks || []).map((l) => ` &middot; <a href="${l.href}">${esc(l.label)}</a>`).join('')}${footCall(site)} &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
 ${scripts}

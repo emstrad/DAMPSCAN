@@ -8,6 +8,34 @@
  * introduces rather than announcing that a list follows.
  */
 export const hubs = {
+  /* Verge Roofing. No areas hub yet: the regional pages have not been carried
+     across, so the nav points at /roofing-in only once they exist. */
+  roofing: {
+    services: {
+      title: 'Roofing Services | Verge Roofing',
+      metaDescription:
+        'Re-roofs, repairs, flat roofing, leadwork, chimneys and guttering across London and the South East. What each job involves and what moves its price.',
+      h1: 'What we do, and when we tell you not to',
+      intro:
+        'Roofing is sold on fear more than any other trade. A roof is the one part of a house nobody can see, the quote arrives after somebody has been up a ladder alone, and the person who found the fault is the person selling the cure. That arrangement pays for a lot of roofs that did not need replacing.',
+      body: [
+        'Each page below covers one job on its own terms: what it actually involves, what it is most often confused with, and what moves the figure up or down. Several of them spend their length explaining how to tell when you do not need the work at all.',
+        'We quote every job rather than publishing a rate card, because a roof is a building and not a product. What we will do is tell you what is included, what is not, and what would be discussed if we open up and find something neither of us could see.'
+      ]
+    },
+    guides: {
+      title: 'Roofing Guides | Verge Roofing',
+      metaDescription:
+        'What roofing work costs and why, how to read a roofing quote, and how to tell a roof that needs replacing from one that needs a repair.',
+      h1: 'Read this before you accept a roofing quote',
+      intro:
+        'Almost every expensive mistake in roofing is made in the week before the work starts, while somebody is holding two quotes that do not describe the same job and has no way to compare them.',
+      body: [
+        'These guides are about that week. What the figures usually fall between and why they move, which lines should be in a quote and what their absence means, and how to tell nail fatigue from a slipped tile.',
+        'Two of them argue against buying work. That is deliberate: we would rather write the page that says your roof has ten years left in it and do the job when it does not.'
+      ]
+    }
+  },
   dampscan: {
     services: {
       title: 'Damp, Mould & Timber Services | DampScan',

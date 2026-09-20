@@ -28,10 +28,25 @@ const words = (text) => String(text).replace(/<[^>]+>/g, ' ').split(/\s+/).filte
 export function distinctiveWordCount(service) {
   return words([
     service.intro,
-    ...service.sections.flatMap((s) => [s.h2, ...s.paras]),
+    ...service.sections.flatMap((s) => [s.h2, ...s.paras, ...(s.list || [])]),
     ...(service.signs || []),
     ...service.faq.map((f) => f.q + ' ' + f.a)
   ].join(' '));
+}
+
+/**
+ * A bulleted list inside a section, or nothing.
+ *
+ * Not a brand thing: "what is always in the quoted figure" is a list in any
+ * trade, and prose that tries to be a list reads like an evasion. Damp has
+ * none today, so this renders nothing for every existing page.
+ */
+function sectionList(section) {
+  if (!Array.isArray(section.list) || !section.list.length) return '';
+  return `
+    <ul class="ticks">
+      ${section.list.map((item) => `<li>${item}</li>`).join('\n      ')}
+    </ul>`;
 }
 
 /**
@@ -113,7 +128,7 @@ export function render(service, allServices) {
 
 ${signsBlock(service)}  ${service.sections.map((s) => `<section class="sec">
     <h2>${esc(s.h2)}</h2>
-    ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}
+    ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}${sectionList(s)}
   </section>`).join('\n\n  ')}
 
   <section class="sec" id="faq">
