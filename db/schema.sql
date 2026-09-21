@@ -375,3 +375,101 @@ create table if not exists audit (
 
 create index if not exists audit_entity_idx on audit (entity, entity_id, at desc);
 create index if not exists audit_at_idx on audit (at desc);
+
+-- ---------------------------------------------------------------------------
+-- Quoted work: cost lines, owner days, and the payout as a ledger
+--
+-- The damp businesses sell a fixed price survey and their jobs carry its
+-- fields. Roofing and air conditioning quote every job, so a job there is an
+-- invoice, a list of what it cost, and for roofing the days each owner
+-- worked. The payout is computed from those by lib/payout/ and written here
+-- when it freezes, so a paid job's figure never moves when a cost is added
+-- late or a rate changes next month.
+--
+-- Everything is additive. The damp columns stay and the damp code never reads
+-- the new ones.
+-- ---------------------------------------------------------------------------
+
+-- The rates a new quoted job takes, per business. A job stores the ones it was
+-- created under, so changing these rewrites nothing that has already happened.
+alter table businesses add column if not exists fee_bp          integer not null default 500;
+alter table businesses add column if not exists fee_floor_pence bigint  not null default 5000;
+alter table businesses add column if not exists split_bp        integer not null default 5000;
+
+alter table jobs add column if not exists invoice_net_pence bigint;
+alter table jobs add column if not exists reserve_bp        integer check (reserve_bp between 0 and 10000);
+alter table jobs add column if not exists fee_bp            integer check (fee_bp between 0 and 10000);
+alter table jobs add column if not exists fee_floor_pence   bigint;
+alter table jobs add column if not exists split_bp          integer check (split_bp between 0 and 10000);
+-- Who brought the job in. The finder's fee goes to this person, and a quoted
+-- job with no finder pays no fee and flags for review rather than guessing.
+alter table jobs add column if not exists finder_person_id  bigint references people (id) on delete set null;
+-- Set when the customer's money has cleared. From then the stored payout is
+-- the figure, and a later cost line shows what it would now be rather than
+-- changing what was paid.
+alter table jobs add column if not exists payout_frozen_at  timestamptz;
+alter table jobs add column if not exists payout_frozen_by  bigint references people (id) on delete set null;
+
+-- Every direct cost on a job, one row each, entered by hand: materials,
+-- scaffolding, skip, plant, parking, whatever the job actually cost. Who
+-- entered it and when is the audit that matters, because on roofing every
+-- line reduces the finder's fee and the people entering them are the people
+-- whose retained profit rises when it falls.
+create table if not exists job_costs (
+  id           bigserial primary key,
+  job_id       bigint not null references jobs (id) on delete cascade,
+  label        text   not null,
+  amount_pence bigint not null,
+  added_by     bigint references people (id) on delete set null,
+  added_at     timestamptz not null default now(),
+  receipt_url  text
+);
+create index if not exists job_costs_job_idx on job_costs (job_id, added_at);
+
+-- Roofing only. Days each owner physically worked, at the rate agreed for that
+-- job, stored per row so a rate change never rewrites history.
+create table if not exists job_owner_days (
+  id             bigserial primary key,
+  job_id         bigint not null references jobs (id) on delete cascade,
+  person_id      bigint not null references people (id),
+  days           numeric(5,2) not null check (days >= 0),
+  day_rate_pence bigint not null check (day_rate_pence >= 0),
+  unique (job_id, person_id)
+);
+
+-- The payout ledger. Written when a job freezes, one row per person paid, and
+-- overwritten only by an admin override that says why. Reading the current
+-- figure for an unfrozen job means running the engine, not this table.
+create table if not exists payouts (
+  id              bigserial primary key,
+  job_id          bigint not null references jobs (id) on delete cascade,
+  person_id       bigint references people (id) on delete set null,
+  person_key      text   not null,          -- 'scott', 'tom', ... the engine's name for them
+  amount_pence    bigint not null,
+  computed_at     timestamptz not null default now(),
+  override_reason text,
+  unique (job_id, person_key)
+);
+
+-- Three statuses were enough for a booked survey. A quoted job is quoted first,
+-- can be declined, and is paid when the money clears, which is when the payout
+-- freezes. Refunded exists so a clawback is a state and not a deleted row.
+-- Dropped and re-added rather than altered, which is how a check constraint is
+-- widened; the pair is idempotent as a unit.
+alter table jobs drop constraint if exists jobs_status_check;
+alter table jobs add constraint jobs_status_check
+  check (status in ('quoted','booked','completed','declined','cancelled','paid','refunded'));
+
+-- surveyor named one of three damp people and could not be null. A roofing or
+-- air conditioning job has no surveyor. The damp route still refuses anything
+-- outside its three, in code, so nothing damp changes; the column simply stops
+-- forbidding what the other trades never set.
+alter table jobs drop constraint if exists jobs_surveyor_check;
+alter table jobs alter column surveyor drop not null;
+
+-- One job per lead is right for a survey and wrong for roofing, where one
+-- enquiry can become a re-roof now and a gutter clear later. The damp brands
+-- keep the rule; the quoted trades do not have it.
+drop index if exists jobs_lead_unique_idx;
+create unique index if not exists jobs_lead_unique_idx
+  on jobs (lead_id) where lead_id is not null and site in ('dampscan','ati-london');
