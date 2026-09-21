@@ -137,7 +137,7 @@ ${headerCall(site)}        <a href="#book" class="btn btn--primary">${esc(site.c
 </main>
 
 <nav class="action-bar" aria-label="Quick actions">
-${barCall(site)}  <a href="#book" class="btn btn--primary">Book a survey</a>
+${barCall(site)}  <a href="#book" class="btn btn--primary">${esc(site.barLabel)}</a>
 </nav>
 
 <footer class="afoot">

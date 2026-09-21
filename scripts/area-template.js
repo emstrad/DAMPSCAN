@@ -23,6 +23,8 @@ const SITES = {
     served: 'Kent and the South East of England',
     strap: 'Damp, mould and timber surveys across Kent and the South East',
     surveyMateSlug: 'dampscan',
+    /* The mobile action bar. Kept as the literal it always was. */
+    barLabel: 'Book a survey',
     areasPath: '/damp-survey',
     sitemapFile: 'sitemap.xml',
     ctaLabel: 'Book a Survey',
@@ -70,6 +72,8 @@ const SITES = {
     served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work',
     surveyMateSlug: 'ati-damp-survey',
+    /* The mobile action bar. Kept as the literal it always was. */
+    barLabel: 'Book a survey',
     areasPath: '/damp-survey',
     sitemapFile: 'sitemap-london.xml',
     ctaLabel: 'Request a Survey',
@@ -126,6 +130,7 @@ const SITES = {
     areasPath: null,
     sitemapFile: 'sitemap-roofing.xml',
     ctaLabel: 'Get a Quote',
+    barLabel: 'Get a quote',
     headBg: 'rgba(23,26,31,.88)',
     headSolid: '#171a1f',
     lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Verge<span class="scan">Roofing</span></span><span class="logo-tag">Higher standards</span></span></span>',
@@ -153,6 +158,8 @@ const SITES = {
       attrKey: 'verge-attr',
       notify: 'https://formsubmit.co/ajax/team@vergeroofing.com',
       subjectPrefix: 'Verge Roofing, ',
+      subjectComplete: 'NEW quote request, ',
+      subjectPartial: 'PARTIAL enquiry (step 1), ',
       dataLayerEvent: 'verge-roofing'
     }
   },
@@ -174,6 +181,7 @@ const SITES = {
     areasPath: null,
     sitemapFile: 'sitemap-ac.xml',
     ctaLabel: 'Get a Quote',
+    barLabel: 'Get a quote',
     headBg: 'rgba(12,32,46,.88)',
     headSolid: '#0c202e',
     lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Cool<span class="scan">Right</span></span><span class="logo-tag">Climate control. Done right.</span></span></span>',
@@ -194,6 +202,8 @@ const SITES = {
       attrKey: 'coolright-attr',
       notify: 'https://formsubmit.co/ajax/team@coolright.co.uk',
       subjectPrefix: 'CoolRight, ',
+      subjectComplete: 'NEW quote request, ',
+      subjectPartial: 'PARTIAL enquiry (step 1), ',
       dataLayerEvent: 'coolright'
     }
   }
@@ -212,7 +222,7 @@ window.DS_CONFIG = {
   sessionKey: '${b.sessionKey}',
   attrKey: '${b.attrKey}',
   notify: '${b.notify}',
-  subjectPrefix: '${b.subjectPrefix}',
+  subjectPrefix: '${b.subjectPrefix}',${b.subjectComplete ? `\n  subjectComplete: '${b.subjectComplete}',` : ''}${b.subjectPartial ? `\n  subjectPartial: '${b.subjectPartial}',` : ''}
   dataLayerEvent: '${b.dataLayerEvent}'
 };
 </scr` + `ipt>

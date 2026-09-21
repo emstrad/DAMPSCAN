@@ -10,7 +10,7 @@
   var U = global.DSUI;
   var el = function (id) { return document.getElementById(id); };
 
-  var SITE = { 'ati-london': 'London', dampscan: 'Kent' };
+  var SITE = { 'ati-london': 'London', dampscan: 'Kent', roofing: 'Roofing', ac: 'CoolRight' };
 
   function addressLines(c) {
     return [c.address.line1, c.address.line2, c.address.town, c.address.postcode].filter(Boolean);

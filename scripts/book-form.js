@@ -11,6 +11,8 @@
  * implementation, four dozen pages.
  */
 
+import { enquiryFor } from '../lib/enquiry.js';
+
 /* The wording is the only thing that differs between the sites, because the
    businesses differ. DampScan books a survey and then does the remedial work;
    ATi is survey only and issues a report, so it requests rather than books. */
@@ -23,7 +25,14 @@ const COPY = {
     submit: 'Book My Survey',
     foot: 'We only use your details to arrange your survey. No marketing lists, no third parties.',
     doneTitle: "Got it, you're booked in.",
-    doneBody: 'One of our surveyors will contact you today to confirm a time. Nothing else to do for now.'
+    doneBody: 'One of our surveyors will contact you today to confirm a time. Nothing else to do for now.',
+    issueLabel: 'What are you dealing with? Tick anything that applies.',
+    addressLabel: 'Address for the survey',
+    addressErr: 'Please give the address for the survey.',
+    filesSummary: 'Add photos or a previous report',
+    filesLabel: 'Previous surveys or photos',
+    filesHint: `Up to 10 photos or PDFs, 25MB each. An earlier report or a
+                  shot of the affected wall often says more than a paragraph.`
   },
   ati: {
     heading: 'Request your survey',
@@ -33,13 +42,69 @@ const COPY = {
     submit: 'Request My Survey',
     foot: 'Your details arrange your survey and nothing else. No marketing lists, no contractor referrals.',
     doneTitle: "Received. We're on it.",
-    doneBody: 'A surveyor will reply today to arrange the inspection. Your written report follows within 24 hours of that visit.'
+    doneBody: 'A surveyor will reply today to arrange the inspection. Your written report follows within 24 hours of that visit.',
+    issueLabel: 'What are you dealing with? Tick anything that applies.',
+    addressLabel: 'Address for the survey',
+    addressErr: 'Please give the address for the survey.',
+    filesSummary: 'Add photos or a previous report',
+    filesLabel: 'Previous surveys or photos',
+    filesHint: `Up to 10 photos or PDFs, 25MB each. An earlier report or a
+                  shot of the affected wall often says more than a paragraph.`
+  },
+  /* Quoted trades. Nothing is booked on the form, because nothing can be
+     priced until somebody has looked, so the promise is the visit and the
+     written quote rather than a survey. */
+  roofing: {
+    heading: 'Get your free quote',
+    sub: 'Three short steps. We reply the same day.',
+    start: 'Start My Quote',
+    previous: "I've had a quote for this work before",
+    submit: 'Send My Enquiry',
+    foot: 'Your details price your job and nothing else. No marketing lists, no lead brokers.',
+    doneTitle: "Received. We're on it.",
+    doneBody: 'We will reply today, come out and look for nothing, and put a fixed price in writing within 48 hours of the visit.',
+    issueLabel: 'What is the roof doing? Tick anything that applies.',
+    addressLabel: 'Address of the property',
+    addressErr: 'Please give the address of the property.',
+    filesSummary: 'Add photos or a previous quote',
+    filesLabel: 'Photos or a previous quote',
+    filesHint: `Up to 10 photos or PDFs, 25MB each. A photo of the roof often means
+                  we can price it over the phone, and it always makes us quicker when we come out.`
+  },
+  ac: {
+    heading: 'Get a free quote visit',
+    sub: 'Three short steps. We reply the same day.',
+    start: 'Start My Quote',
+    previous: "I've had a quote for this work before",
+    submit: 'Send My Enquiry',
+    foot: 'Your details price your job and nothing else. No marketing lists, no lead brokers.',
+    doneTitle: "Received. We're on it.",
+    doneBody: 'We will reply today and arrange a free visit. The written quote that follows is fixed.',
+    issueLabel: 'What are you trying to solve? Tick anything that applies.',
+    addressLabel: 'Address of the property',
+    addressErr: 'Please give the address of the property.',
+    filesSummary: 'Add photos or a previous quote',
+    filesLabel: 'Photos or a previous quote',
+    filesHint: `Up to 10 photos or PDFs, 25MB each. A photo of the room and of where an
+                  outdoor unit could go often lets us quote without a second visit.`
   }
 };
 
+const TICK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+/* One checkbox per issue the brand's validator accepts, from the same list, so
+   the form can never offer something the server refuses. Whitespace matches
+   what was hand written here, so the damp pages do not move. */
+function issueBoxes(site) {
+  return enquiryFor(site).issues
+    .map((issue) => `<label class="check"><input type="checkbox" name="Issue" value="${issue}" /><span class="box">${TICK}</span>${issue}</label>`)
+    .join('\n                ');
+}
+
 export function bookForm(site) {
   const brand = site === 'ati' ? ' is-brand' : '';
-  const t = COPY[site] || COPY.dampscan;
+  const t = COPY[site];
+  if (!t) throw new Error(`book form: no wording for site "${site}"`);
   return `    <div class="book-card${brand}" id="book">
       <div class="book-body">
       <div class="book-head">
@@ -87,14 +152,9 @@ export function bookForm(site) {
           <!-- STEP 2, issue type -->
           <div class="fstep" data-step="2">
             <div class="form-row" data-require-one>
-              <label id="issue-label">What are you dealing with? Tick anything that applies.</label>
+              <label id="issue-label">${t.issueLabel}</label>
               <div class="checks" role="group" aria-labelledby="issue-label">
-                <label class="check"><input type="checkbox" name="Issue" value="Damp" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Damp</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Mould" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mould</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Timber / Woodworm" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Timber / Woodworm</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Leak / Water damage" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Leak / Water damage</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Cold / condensation" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Cold / condensation</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Not sure" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Not sure</label>
+                ${issueBoxes(site)}
               </div>
               <span class="err">Pick at least one, "Not sure" is fine.</span>
             </div>
@@ -110,7 +170,7 @@ export function bookForm(site) {
           <!-- STEP 3, qualify + optional detail -->
           <div class="fstep" data-step="3">
             <div class="form-row addr">
-              <label for="f-addr1">Address for the survey</label>
+              <label for="f-addr1">${t.addressLabel}</label>
               <div class="addr-find">
                 <input id="f-addr-pc" name="Lookup postcode" type="text" autocomplete="postal-code"
                   aria-label="Postcode to look up" placeholder="Postcode" />
@@ -130,7 +190,7 @@ export function bookForm(site) {
               <div class="addr-fields" id="f-addr-fields">
                 <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
                   placeholder="House number and street" required />
-                <span class="err">Please give the address for the survey.</span>
+                <span class="err">${t.addressErr}</span>
                 <input id="f-town" name="Town" type="text" autocomplete="address-level2"
                   placeholder="Town or city" />
                 <!-- Asked again here, below the town, because this is the postcode of
@@ -149,13 +209,12 @@ export function bookForm(site) {
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
             </div>
             <details class="fold">
-              <summary>Add photos or a previous report <span class="opt">(optional)</span></summary>
+              <summary>${t.filesSummary} <span class="opt">(optional)</span></summary>
               <div class="form-row">
-                <label for="f-files" class="sr-only">Previous surveys or photos</label>
+                <label for="f-files" class="sr-only">${t.filesLabel}</label>
                 <input id="f-files" name="Files" type="file" multiple
                   accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
-                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. An earlier report or a
-                  shot of the affected wall often says more than a paragraph.</p>
+                <p class="file-hint">${t.filesHint}</p>
                 <ul class="file-list" id="f-file-list" aria-live="polite"></ul>
               </div>
             </details>

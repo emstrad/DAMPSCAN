@@ -235,3 +235,18 @@ test('no brand can reach another brand\'s pages through the shared paths', async
     assert.equal(target, `/hubs/${dir}/services.html`, `${host} must get its own services hub`);
   }
 });
+
+
+test('a brand\'s home file requested on another brand\'s host is sent to its own domain', async () => {
+  /* Every home page is a file in public/, so it is reachable by filename on
+     every host. Left alone, dampscan.co.uk/roofing.html served a roofing home
+     page under a damp domain and a roofing visitor could be handed ATi's. */
+  assert.equal(redirect(await call(KENT, '/roofing.html')).to, 'https://vergeroofing.com/');
+  assert.equal(redirect(await call(KENT, '/ac.html')).to, 'https://coolright.co.uk/');
+  assert.equal(redirect(await call(ROOFING, '/london.html')).to, 'https://atidampsurvey.co.uk/');
+  assert.equal(redirect(await call(ROOFING, '/ac.html')).to, 'https://coolright.co.uk/');
+  assert.equal(redirect(await call(AC, '/roofing.html')).to, 'https://vergeroofing.com/');
+  /* On its own host the file is simply "/". */
+  assert.equal(redirect(await call(ROOFING, '/roofing.html')).to, 'https://vergeroofing.com/');
+  assert.equal(redirect(await call(AC, '/ac.html')).to, 'https://coolright.co.uk/');
+});

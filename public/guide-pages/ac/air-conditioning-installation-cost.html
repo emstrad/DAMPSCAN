@@ -119,8 +119,8 @@
           <div class="book-card" id="book">
       <div class="book-body">
       <div class="book-head">
-          <h2>Book your survey</h2>
-          <p>Takes about 30 seconds.</p>
+          <h2>Get a free quote visit</h2>
+          <p>Three short steps. We reply the same day.</p>
         </div>
         <div class="dots" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" id="dots">
           <span class="is-done"></span><span></span><span></span>
@@ -154,7 +154,7 @@
             </div>
             <div class="fnav">
               <button type="button" class="btn btn--primary btn--lg" data-next>
-                Get My Survey Booked
+                Start My Quote
                 <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
@@ -163,13 +163,15 @@
           <!-- STEP 2, issue type -->
           <div class="fstep" data-step="2">
             <div class="form-row" data-require-one>
-              <label id="issue-label">What are you dealing with? Tick anything that applies.</label>
+              <label id="issue-label">What are you trying to solve? Tick anything that applies.</label>
               <div class="checks" role="group" aria-labelledby="issue-label">
-                <label class="check"><input type="checkbox" name="Issue" value="Damp" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Damp</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Mould" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mould</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Timber / Woodworm" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Timber / Woodworm</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Leak / Water damage" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Leak / Water damage</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Cold / condensation" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Cold / condensation</label>
+                <label class="check"><input type="checkbox" name="Issue" value="New air conditioning" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>New air conditioning</label>
+                <label class="check"><input type="checkbox" name="Issue" value="Repair or regas" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Repair or regas</label>
+                <label class="check"><input type="checkbox" name="Issue" value="Servicing" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Servicing</label>
+                <label class="check"><input type="checkbox" name="Issue" value="Several rooms" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Several rooms</label>
+                <label class="check"><input type="checkbox" name="Issue" value="Heating" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Heating</label>
+                <label class="check"><input type="checkbox" name="Issue" value="Ventilation or condensation" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Ventilation or condensation</label>
+                <label class="check"><input type="checkbox" name="Issue" value="Commercial" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Commercial</label>
                 <label class="check"><input type="checkbox" name="Issue" value="Not sure" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Not sure</label>
               </div>
               <span class="err">Pick at least one, "Not sure" is fine.</span>
@@ -186,7 +188,7 @@
           <!-- STEP 3, qualify + optional detail -->
           <div class="fstep" data-step="3">
             <div class="form-row addr">
-              <label for="f-addr1">Address for the survey</label>
+              <label for="f-addr1">Address of the property</label>
               <div class="addr-find">
                 <input id="f-addr-pc" name="Lookup postcode" type="text" autocomplete="postal-code"
                   aria-label="Postcode to look up" placeholder="Postcode" />
@@ -206,7 +208,7 @@
               <div class="addr-fields" id="f-addr-fields">
                 <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
                   placeholder="House number and street" required />
-                <span class="err">Please give the address for the survey.</span>
+                <span class="err">Please give the address of the property.</span>
                 <input id="f-town" name="Town" type="text" autocomplete="address-level2"
                   placeholder="Town or city" />
                 <!-- Asked again here, below the town, because this is the postcode of
@@ -218,20 +220,20 @@
               </div>
             </div>
             <div class="form-row">
-              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a damp survey on this property before</label>
+              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a quote for this work before</label>
             </div>
             <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
             </div>
             <details class="fold">
-              <summary>Add photos or a previous report <span class="opt">(optional)</span></summary>
+              <summary>Add photos or a previous quote <span class="opt">(optional)</span></summary>
               <div class="form-row">
-                <label for="f-files" class="sr-only">Previous surveys or photos</label>
+                <label for="f-files" class="sr-only">Photos or a previous quote</label>
                 <input id="f-files" name="Files" type="file" multiple
                   accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
-                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. An earlier report or a
-                  shot of the affected wall often says more than a paragraph.</p>
+                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. A photo of the room and of where an
+                  outdoor unit could go often lets us quote without a second visit.</p>
                 <ul class="file-list" id="f-file-list" aria-live="polite"></ul>
               </div>
             </details>
@@ -247,21 +249,21 @@
             <div class="fnav">
               <button type="button" class="back-link" data-back>← Back</button>
               <button type="submit" class="btn btn--primary btn--lg">
-                Book My Survey
+                Send My Enquiry
                 <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
           </div>
         </form>
-        <p class="form-foot">We only use your details to arrange your survey. No marketing lists, no third parties.</p>
+        <p class="form-foot">Your details price your job and nothing else. No marketing lists, no lead brokers.</p>
       </div>
 
       <div class="book-success" role="status">
         <div class="check-ring" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h3>Got it, you're booked in.</h3>
-        <p>One of our surveyors will contact you today to confirm a time. Nothing else to do for now.</p>
+        <h3>Received. We're on it.</h3>
+        <p>We will reply today and arrange a free visit. The written quote that follows is fixed.</p>
       </div>
     </div>
       
@@ -270,7 +272,7 @@
 </main>
 
 <nav class="action-bar" aria-label="Quick actions">
-  <a href="#book" class="btn btn--primary">Book a survey</a>
+  <a href="#book" class="btn btn--primary">Get a quote</a>
 </nav>
 
 <footer class="afoot">
@@ -286,12 +288,14 @@ window.DS_CONFIG = {
   attrKey: 'coolright-attr',
   notify: 'https://formsubmit.co/ajax/team@coolright.co.uk',
   subjectPrefix: 'CoolRight, ',
+  subjectComplete: 'NEW quote request, ',
+  subjectPartial: 'PARTIAL enquiry (step 1), ',
   dataLayerEvent: 'coolright'
 };
 </script>
 <script src="/assets/visit.js?v=e03890ef"></script>
 <script src="/assets/partial.js?v=983c20db"></script>
-<script src="/assets/book.js?v=8eee7863"></script>
+<script src="/assets/book.js?v=bcbcbe67"></script>
 <script src="/assets/address.js?v=bf5b6e92" defer></script>
 <script src="/assets/upload.js?v=cd55909c" defer></script>
 <script src="/assets/menu.js?v=01a8dbcb" defer></script>

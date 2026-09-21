@@ -172,6 +172,12 @@ test('the site is derived from the Host header, never trusted from the body', ()
   assert.equal(at(undefined), 'dampscan', 'a missing host falls back rather than throwing');
   assert.equal(siteFor({ headers: { 'x-forwarded-host': 'atidampsurvey.co.uk', host: 'x.vercel.app' } }),
     'ati-london', 'the forwarded host wins');
+  /* The two brands added in 2026. Before they were listed here an enquiry
+     from either was stored as a DampScan lead. */
+  assert.equal(at('vergeroofing.com'), 'roofing');
+  assert.equal(at('www.vergeroofing.com'), 'roofing');
+  assert.equal(at('coolright.co.uk'), 'ac');
+  assert.equal(at('www.coolright.co.uk'), 'ac');
 });
 
 test('leads and events are tagged with the site that produced them', async () => {

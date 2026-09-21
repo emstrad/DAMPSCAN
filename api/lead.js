@@ -71,7 +71,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { ok, errors, value } = validateLead(body);
+  const site = siteFor(req);
+  const { ok, errors, value } = validateLead(body, site);
   if (!ok) {
     json(res, 400, { ok: false, errors });
     return;
@@ -99,7 +100,7 @@ export default async function handler(req, res) {
       JSON.stringify(value.utm || {}),
       str(req.headers['user-agent'], 500),
       hash,
-      siteFor(req)
+      site
     ]);
   } catch (err) {
     console.error('lead write failed:', err.message);

@@ -26,7 +26,7 @@ import { rewrite, next } from '@vercel/edge';
 
 export const config = {
   matcher: [
-    '/', '/index.html', '/london.html',
+    '/', '/index.html', '/london.html', '/roofing.html', '/ac.html',
     '/robots.txt', '/sitemap.xml', '/llms.txt',
     '/damp-survey', '/damp-survey/', '/damp-survey/:slug',
     '/roofing-in', '/roofing-in/', '/roofing-in/:slug',
@@ -57,8 +57,9 @@ const KENT_HOST = /^(www\.)?dampscan\.co\.uk$/i;
  * and so owns the unprefixed ones; every other brand names its own.
  */
 const SITES = {
-  dampscan: { areas: '/damp-survey', files: {} },
+  dampscan: { origin: 'https://dampscan.co.uk', areas: '/damp-survey', files: {} },
   ati: {
+    origin: 'https://atidampsurvey.co.uk',
     areas: '/damp-survey',
     files: {
       '/': '/london.html',
@@ -72,6 +73,7 @@ const SITES = {
      without this a roofing visitor would be served a damp home page under a
      roofing domain. Refusing is the only honest answer until the page exists. */
   roofing: {
+    origin: 'https://vergeroofing.com',
     areas: null,
     files: {
       '/robots.txt': '/robots-roofing.txt',
@@ -82,6 +84,7 @@ const SITES = {
     home: true
   },
   ac: {
+    origin: 'https://coolright.co.uk',
     areas: null,
     files: {
       '/robots.txt': '/robots-ac.txt',
@@ -99,6 +102,21 @@ const HOSTS = [
   [/^(www\.)?vergeroofing\.com$/i, 'roofing'],
   [/^(www\.)?coolright\.co\.uk$/i, 'ac']
 ];
+
+/* Every brand's home page is a real file in public/, which means it is
+   reachable by that filename on every host. london.html was already redirected
+   off the Kent domain for that reason; the same has to hold for every pair,
+   or dampscan.co.uk/roofing.html serves a roofing home page under a damp
+   domain and a roofing visitor can be handed the ATi one. */
+const HOME_FILES = {
+  '/london.html': 'ati',
+  '/roofing.html': 'roofing',
+  '/ac.html': 'ac'
+};
+
+function knownHost(host) {
+  return HOSTS.some(([pattern]) => pattern.test(host));
+}
 
 /* Previews and the vercel.app hostnames have no brand of their own, so they
    fall back to the project's default rather than guessing from the URL. */
@@ -125,11 +143,14 @@ export default function middleware(request) {
     return Response.redirect(new URL(london ? 'https://dampscan.co.uk/' : '/', url), 301);
   }
 
-  // The ATi page belongs on the ATi domain. On a preview deployment there is no
-  // separate host to send it to, so it is left alone and served as a file.
-  if (path === '/london.html') {
-    if (london) return Response.redirect(new URL('/', url), 301);
-    if (KENT_HOST.test(host)) return Response.redirect('https://atidampsurvey.co.uk/', 301);
+  // A brand's home file belongs on that brand's domain. On its own host it is
+  // "/", on another brand's host it is sent to its own origin, and on a
+  // preview deployment there is no separate host to send it to, so it is left
+  // alone and served as a file.
+  const owner = HOME_FILES[path];
+  if (owner) {
+    if (key === owner) return Response.redirect(new URL('/', url), 301);
+    if (knownHost(host)) return Response.redirect(`${SITES[owner].origin}/`, 301);
     return next();
   }
 
