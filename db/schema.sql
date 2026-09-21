@@ -503,3 +503,44 @@ create unique index if not exists job_payments_bank_idx on job_payments (bank_tx
 -- offers, not a rule: the rate on each row is what was agreed for that job.
 alter table businesses add column if not exists day_rate_pence bigint not null default 0;
 update businesses set day_rate_pence = 25000 where slug = 'roofing' and day_rate_pence = 0;
+
+-- ---------------------------------------------------------------------------
+-- Bank books per business
+--
+-- The bank was one set of books, which was right when the two damp brands
+-- shared one account and one set of partners. Four businesses have four
+-- accounts and different owners, and a loan between two of them must not read
+-- as income in one set of books and a cost in the other. Every statement,
+-- line and learned rule now belongs to a set of books: 'damp' for the two damp
+-- brands together, exactly as before, and the business slug for each of the
+-- others. Everything already here is damp's, which is what the default says.
+-- ---------------------------------------------------------------------------
+alter table bank_statements   add column if not exists books text not null default 'damp';
+alter table bank_transactions add column if not exists books text not null default 'damp';
+alter table bank_rules        add column if not exists books text not null default 'damp';
+
+-- The same line can legitimately sit in two businesses' books (a transfer
+-- between their accounts, seen from both sides), so a fingerprint is unique
+-- per books rather than across all of them.
+alter table bank_transactions drop constraint if exists bank_transactions_fingerprint_key;
+create unique index if not exists bank_tx_books_fingerprint_idx on bank_transactions (books, fingerprint);
+create index if not exists bank_tx_books_posted_idx on bank_transactions (books, posted_on desc, id desc);
+
+-- A rule is what one business learned about a description. The same garage
+-- can be Tom's fuel in damp's books and a plain cost in roofing's.
+alter table bank_rules drop constraint if exists bank_rules_pkey;
+create unique index if not exists bank_rules_books_key_idx on bank_rules (books, key);
+
+-- Who a line can be split between is per business: the three partners and the
+-- tax pot in damp's books, the people who hold each other business in theirs.
+-- The check that named four people is dropped and the route validates against
+-- the business's own targets. The four share columns stay, and stay written,
+-- for damp's books, which is what damp's reconciliation reads. Every set of
+-- books also carries its shares as a map keyed by target, which is what the
+-- other businesses' reconciliation reads.
+alter table bank_transactions drop constraint if exists bank_transactions_split_check;
+alter table bank_rules        drop constraint if exists bank_rules_split_check;
+alter table bank_transactions add column if not exists shares jsonb not null default '{}'::jsonb;
+update bank_transactions
+   set shares = jsonb_build_object('scott', share_scott_pence, 'tom', share_tom_pence, 'ben', share_ben_pence, 'tax', share_tax_pence)
+ where shares = '{}'::jsonb and cardinality(split) > 0;

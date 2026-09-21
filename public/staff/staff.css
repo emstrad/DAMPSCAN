@@ -180,7 +180,10 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 .empty{color:var(--muted-2);font-size:13.5px;padding:18px 0}
 
 /* ---------- Section tabs ---------- */
-.tabs{display:flex;gap:4px;margin-left:auto;margin-right:14px}
+.tabs{display:flex;gap:4px;margin-left:auto;margin-right:14px;flex-wrap:wrap}
+/* Five tabs no longer fit beside the logo on a phone, so they take a row of
+   their own under it rather than pushing the page wider than the screen. */
+@media (max-width:640px){.tabs{order:3;width:100%;margin:0}}
 .tabs a{padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);
   border:1px solid transparent;transition:color .18s,background .18s,border-color .18s}
 .tabs a:hover{color:var(--text)}
