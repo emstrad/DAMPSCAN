@@ -544,10 +544,29 @@ anything.
    passcode is an additional path in the same route. `npm run create-person`
    creates a person with their grants. Steve, roofing only, is the test case,
    and it goes through the real routes with a real cookie.
-3. **Roofing and AC in the CRM.** Jobs, cost lines, owner days, payments, both
-   payout engines with full tests, the working screen, bank per business. Strip
-   the staff area out of the sites repo and point its lead and event endpoints
-   at the CRM.
+3. **Roofing and AC in the CRM.** Done. Jobs carry an invoice, cost lines
+   with who entered them, owner days at the rate agreed for the job, and a
+   payments list; paid in full is computed, never ticked. Both payout engines
+   are tested against the agreement's worked examples. The Quotes tab is the
+   working screen: the figure first, as tiles that follow the agreement step
+   by step, then the inputs that move it. Freezing needs the money in and
+   manage on the business; reopening is admin only and asks why; a late cost
+   reports drift and never moves the stored figure. The freeze writes the
+   company's rows too (costs, reserve, kept), so a paid job's ledger adds back
+   to its invoice, which is what the bank reconciles against.
+
+   Bank per business is books per business: damp's books hold everything
+   already there and read exactly as before; roofing and CoolRight each have
+   their own uploads, learned rules, split targets (the people who hold the
+   business, keyed by id, plus a tax pot) and a limited company's
+   reconciliation that balances to the penny. Matched money in writes the
+   job's payments list. The tax reserve is the ledger's reserve rows against
+   the bank's tax pot, so no separate table was needed. Not built: statement
+   profiles beyond Revolut, and linking a transfer between two companies'
+   accounts as a pair; today each side is categorised as a transfer and left
+   out, which is right for the figures and does not yet say which line on the
+   other side it is. Stripping the staff area out was made void by keeping
+   the CRM in this repo.
 4. **Run it.** Both businesses live on the CRM, real jobs, real money. This is
    the proving period and it costs nothing if something is wrong.
 5. **Damp joins, only when Scott says.** Nothing is imported and nothing moves:
