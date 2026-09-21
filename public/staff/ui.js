@@ -50,7 +50,11 @@
     var thead = document.createElement('thead');
     var hr = document.createElement('tr');
     columns.forEach(function (col) {
-      hr.appendChild(node('th', col.numeric ? 'num' : null, col.label));
+      /* A column of buttons has a heading for a screen reader and none on
+         screen, rather than an empty cell that reads as nothing. */
+      var th = node('th', col.numeric ? 'num' : null, col.sr ? null : col.label);
+      if (col.sr) th.appendChild(node('span', 'sr-only', col.label));
+      hr.appendChild(th);
     });
     thead.appendChild(hr);
     t.appendChild(thead);

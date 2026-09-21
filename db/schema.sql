@@ -497,3 +497,9 @@ create table if not exists job_payments (
 );
 create index if not exists job_payments_job_idx on job_payments (job_id, paid_on);
 create unique index if not exists job_payments_bank_idx on job_payments (bank_txn_id) where bank_txn_id is not null;
+
+-- The day rate a new owner-days row starts from, per business. Roofing's is
+-- the 250 pounds a day in the agreement. It is a starting value the screen
+-- offers, not a rule: the rate on each row is what was agreed for that job.
+alter table businesses add column if not exists day_rate_pence bigint not null default 0;
+update businesses set day_rate_pence = 25000 where slug = 'roofing' and day_rate_pence = 0;

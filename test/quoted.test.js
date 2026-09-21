@@ -29,6 +29,7 @@ mock.module('../lib/db.js', {
 
 const login = (await import('../lib/routes/auth/login.js')).default;
 const quoted = (await import('../lib/routes/admin/quoted.js')).default;
+const people = (await import('../lib/routes/admin/people.js')).default;
 
 const P = (pounds) => Math.round(pounds * 100);
 function makeReq({ method = 'POST', url = '/api/admin/quoted', body, headers = {} } = {}) {
@@ -159,4 +160,36 @@ test('a damp business is not this route\'s to touch, and a job cannot change bus
   assert.equal((await post(steve, { op: 'save', id, site: 'ac', customerName: 'x', invoiceNetPence: P(100) })).statusCode, 403);
   const acJob = (await post(cookie, { op: 'save', site: 'ac', customerName: 'y', invoiceNetPence: P(100) })).json().job.id;
   assert.equal((await post(steve, { op: 'cost', id: acJob, label: 'x', amountPence: 1 })).statusCode, 404, 'a job outside scope does not exist');
+});
+
+test('an owner\'s days take the business\'s day rate when none is typed, and keep it afterwards', async () => {
+  const scott = await person('Scott', 'scott-code', ['roofing'], true);
+  const tom = await person('Tom', 'tom-code', ['roofing']);
+  const cookie = await signIn('scott-code');
+  const id = (await post(cookie, { op: 'save', site: 'roofing', customerName: 'Chimney', invoiceNetPence: P(1200), finderPersonId: scott })).json().job.id;
+  const job = (await post(cookie, { op: 'days', id, personId: tom, days: 2 })).json().job;
+  assert.deepEqual(job.ownerDays.map((d) => [d.name, d.days, d.dayRatePence]), [['Tom', 2, P(250)]], 'the agreement\'s 250 a day');
+  await pool.query(`update businesses set day_rate_pence = 30000 where slug = 'roofing'`);
+  const again = (await post(cookie, { op: 'days', id, personId: tom, days: 3 })).json().job;
+  assert.equal(again.ownerDays[0].dayRatePence, P(300), 'a fresh entry takes the new starting rate');
+  const typed = (await post(cookie, { op: 'days', id, personId: tom, days: 3, dayRatePence: P(275) })).json().job;
+  assert.equal(typed.ownerDays[0].dayRatePence, P(275), 'and a typed rate is what is kept');
+  await pool.query(`update businesses set day_rate_pence = 25000 where slug = 'roofing'`);
+});
+
+test('the people list is the grants a viewer may see, and never a business outside their scope', async () => {
+  await person('Scott', 'scott-code', ['dampscan', 'roofing', 'ac'], true);
+  await person('Tom', 'tom-code', ['roofing', 'ac']);
+  await person('Steve', 'steve-code', ['roofing']);
+  await person('Gone', 'gone-code', ['roofing']);
+  await pool.query(`update people set active = false where name = 'Gone'`);
+  const scott = await signIn('scott-code');
+  const steve = await signIn('steve-code');
+  const roofing = (await call(people, { method: 'GET', url: '/api/admin/people?site=roofing', headers: { cookie: scott } })).json().people;
+  assert.deepEqual(roofing.map((p) => p.name), ['Scott', 'Steve', 'Tom'], 'active roofing people, by name, without the deactivated one');
+  const everyone = (await call(people, { method: 'GET', url: '/api/admin/people', headers: { cookie: steve } })).json().people;
+  assert.deepEqual(everyone.map((p) => [p.name, p.businesses.map((b) => b.slug)]), [['Scott', ['roofing']], ['Steve', ['roofing']], ['Tom', ['roofing']]],
+    'Steve sees who is on roofing and nothing about their other businesses');
+  const ac = (await call(people, { method: 'GET', url: '/api/admin/people?site=ac', headers: { cookie: steve } })).json().people;
+  assert.deepEqual(ac, [], 'a business outside his scope has nobody in it, as far as he can tell');
 });

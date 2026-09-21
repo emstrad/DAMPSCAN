@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Quoted work | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/staff/staff.css" />
+<link rel="stylesheet" href="/staff/quoted.css" />
+<script>
+/* Both sites share this staff area, so the hostname decides whose name is on
+   it. This runs in the head, before anything is painted, so neither brand ever
+   flashes the other's. The markup carries both lockups; staff.css hides one. */
+(function brand(){
+  var ati = /(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname);
+  if (!ati) return;
+  document.documentElement.setAttribute('data-brand', 'ati');
+  document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var icon = document.querySelector('link[rel="icon"]');
+  if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
+    <span class="logo-type">
+      <span class="logo-word">ATi <span class="scan">Damp</span></span>
+      <span class="logo-tag">Survey Practice</span>
+    </span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/staff/dashboard.html">Dashboard</a>
+    <a href="/staff/jobs.html">Jobs</a>
+    <a href="/staff/quoted.html" aria-current="page">Quotes</a>
+    <a href="/staff/clients.html">Clients</a>
+    <a href="/staff/bank.html">Bank</a>
+  </nav>
+  <div class="top-end">
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="sr-only">Quoted work</h1>
+  <div class="ranges" role="group" aria-label="Business" style="margin-bottom:10px">
+    <button class="pill" data-site="" aria-pressed="true">All quoted work</button>
+    <button class="pill" data-site="roofing" aria-pressed="false">Verge Roofing</button>
+    <button class="pill" data-site="ac" aria-pressed="false">CoolRight</button>
+  </div>
+
+  <div class="ranges" role="group" aria-label="Date range">
+    <button class="pill" data-range="today" aria-pressed="false">Today</button>
+    <button class="pill" data-range="30d" aria-pressed="true">30 days</button>
+    <button class="pill" data-range="90d" aria-pressed="false">90 days</button>
+    <button class="pill" data-range="all" aria-pressed="false">All time</button>
+  </div>
+
+  <div class="state" id="state">Loading…</div>
+
+  <div id="content" hidden>
+    <section class="panel" aria-labelledby="h-money">
+      <h2 id="h-money">Money</h2>
+      <div class="tiles" id="tiles"></div>
+      <p class="panel-note" id="basis"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-new">
+      <h2 id="h-new">New job</h2>
+      <form id="q-form" novalidate>
+        <div class="jgrid">
+          <div class="form-row">
+            <label for="q-site">Business</label>
+            <select id="q-site"></select>
+          </div>
+          <div class="form-row">
+            <label for="q-name">Customer</label>
+            <input id="q-name" type="text" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="q-postcode">Postcode</label>
+            <input id="q-postcode" type="text" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="q-invoice">Invoice net of VAT &pound;</label>
+            <input id="q-invoice" type="text" inputmode="decimal" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="q-date">Job date</label>
+            <input id="q-date" type="date" />
+          </div>
+          <div class="form-row">
+            <label for="q-time">Time</label>
+            <input id="q-time" type="time" step="300" />
+          </div>
+          <div class="form-row">
+            <label for="q-status">Status</label>
+            <select id="q-status">
+              <option value="quoted">Quoted</option>
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+              <option value="declined">Declined</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="q-finder">Brought in by</label>
+            <select id="q-finder"><option value="">Not recorded</option></select>
+          </div>
+          <div class="form-row jgrid-wide">
+            <label for="q-note">Note</label>
+            <input id="q-note" type="text" autocomplete="off" />
+          </div>
+        </div>
+        <span class="err" id="q-error" role="alert"></span>
+        <div class="top-end" style="margin-top:14px">
+          <button type="submit" class="btn btn--primary btn--sm" id="q-save">Save job</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="q-reset">Clear</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="h-jobs">
+      <h2 id="h-jobs">Jobs</h2>
+      <div class="top-end" style="margin-bottom:14px">
+        <button class="btn btn--ghost btn--sm" id="csv">Export CSV</button>
+      </div>
+      <div id="jobs"></div>
+      <p class="panel-note">Open a job to enter what it cost, who worked on it and what has been
+        paid. The figure on it is worked out from those, live, until the money clears and it is
+        frozen. Nothing on this page touches the survey jobs.</p>
+    </section>
+  </div>
+</main>
+
+<!-- The working screen for one job. Native dialog: modal, focus trapped,
+     Escape closes. Every input beside the result it changes. -->
+<dialog class="client work" id="job-dialog" aria-labelledby="w-name">
+  <form method="dialog" class="client-head">
+    <div>
+      <h2 id="w-name"></h2>
+      <p class="client-sub" id="w-sub"></p>
+    </div>
+    <button class="btn btn--ghost btn--sm" value="close" aria-label="Close">Close</button>
+  </form>
+
+  <section class="work-figure" aria-labelledby="h-figure">
+    <h3 id="h-figure" class="sr-only">The figure</h3>
+    <div class="tiles" id="w-tiles"></div>
+    <div id="w-owed" class="work-owed"></div>
+    <p class="panel-note" id="w-basis"></p>
+    <p class="work-frozen" id="w-frozen" hidden></p>
+  </section>
+
+  <div class="client-grid">
+    <section class="client-block" aria-labelledby="h-costs">
+      <h3 id="h-costs">What it cost</h3>
+      <div id="w-costs" class="lines"></div>
+      <form id="w-cost-form" class="work-add" novalidate>
+        <div class="form-row"><label for="w-cost-label">Cost</label><input id="w-cost-label" type="text" autocomplete="off" placeholder="Materials, scaffold, skip…" /></div>
+        <div class="form-row"><label for="w-cost-amount">&pound;</label><input id="w-cost-amount" type="text" inputmode="decimal" autocomplete="off" /></div>
+        <button type="submit" class="btn btn--ghost btn--sm">Add</button>
+      </form>
+      <span class="err" id="w-cost-error" role="alert"></span>
+    </section>
+
+    <section class="client-block" aria-labelledby="h-days" id="w-days-block">
+      <h3 id="h-days">Owners' days on the job</h3>
+      <div id="w-days" class="lines"></div>
+      <p class="panel-note">Days each owner physically worked, at the rate agreed for this job.
+        Set days to nought to take somebody off it.</p>
+      <span class="err" id="w-days-error" role="alert"></span>
+    </section>
+
+    <section class="client-block" aria-labelledby="h-payments">
+      <h3 id="h-payments">Paid so far</h3>
+      <div id="w-payments" class="lines"></div>
+      <p class="work-money" id="w-money"></p>
+      <form id="w-pay-form" class="work-add" novalidate>
+        <div class="form-row"><label for="w-pay-amount">&pound;</label><input id="w-pay-amount" type="text" inputmode="decimal" autocomplete="off" /></div>
+        <div class="form-row"><label for="w-pay-label">As</label>
+          <select id="w-pay-label">
+            <option value="deposit">Deposit</option>
+            <option value="stage">Stage payment</option>
+            <option value="balance">Balance</option>
+            <option value="retention">Retention</option>
+            <option value="refund">Refund</option>
+            <option value="payment" selected>Payment</option>
+          </select></div>
+        <div class="form-row"><label for="w-pay-date">On</label><input id="w-pay-date" type="date" /></div>
+        <button type="submit" class="btn btn--ghost btn--sm">Add</button>
+      </form>
+      <span class="err" id="w-pay-error" role="alert"></span>
+    </section>
+
+    <section class="client-block" aria-labelledby="h-details">
+      <h3 id="h-details">The job</h3>
+      <form id="w-details" novalidate>
+        <div class="jgrid work-grid">
+          <div class="form-row"><label for="w-customer">Customer</label><input id="w-customer" type="text" autocomplete="off" /></div>
+          <div class="form-row"><label for="w-postcode">Postcode</label><input id="w-postcode" type="text" autocomplete="off" /></div>
+          <div class="form-row"><label for="w-invoice">Invoice net &pound;</label><input id="w-invoice" type="text" inputmode="decimal" autocomplete="off" /></div>
+          <div class="form-row"><label for="w-date">Job date</label><input id="w-date" type="date" /></div>
+          <div class="form-row"><label for="w-time">Time</label><input id="w-time" type="time" step="300" /></div>
+          <div class="form-row"><label for="w-status">Status</label>
+            <select id="w-status">
+              <option value="quoted">Quoted</option>
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+              <option value="declined">Declined</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="paid">Paid</option>
+              <option value="refunded">Refunded</option>
+            </select></div>
+          <div class="form-row"><label for="w-finder">Brought in by</label><select id="w-finder"><option value="">Not recorded</option></select></div>
+          <div class="form-row jgrid-wide"><label for="w-note">Note</label><input id="w-note" type="text" autocomplete="off" /></div>
+        </div>
+        <span class="err" id="w-details-error" role="alert"></span>
+        <div class="top-end" style="margin-top:12px">
+          <button type="submit" class="btn btn--ghost btn--sm">Save details</button>
+          <span class="who" id="w-saved" role="status"></span>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="work-foot">
+    <p class="panel-note" id="w-freeze-note"></p>
+    <form id="w-freeze-form" class="work-add" novalidate>
+      <div class="form-row" id="w-reason-row" hidden><label for="w-reason">Why reopen it</label><input id="w-reason" type="text" autocomplete="off" /></div>
+      <button type="submit" class="btn btn--primary btn--sm" id="w-freeze">Freeze the payout</button>
+    </form>
+    <span class="err" id="w-freeze-error" role="alert"></span>
+  </div>
+</dialog>
+
+<script src="/staff/ui.js"></script>
+<script src="/staff/quoted.js"></script>
+<script src="/staff/quoted-job.js"></script>
+<script src="/staff/quoted-lines.js"></script>
+</body>
+</html>
