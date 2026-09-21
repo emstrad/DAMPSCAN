@@ -13,7 +13,7 @@ says what the alternative cost.
 | --- | --- | --- | --- |
 | DampScan | dampscan.co.uk | Scott, Tom, Ben | owner |
 | ATi Damp Survey | atidampsurvey.co.uk | Scott, Tom, Ben | owner |
-| Verge Roofing | vergeroofing.co.uk | Tom, Steve, Ben | lead side only, not an owner |
+| Verge Roofing | vergeroofing.com | Tom, Steve, Ben | lead side only, not an owner |
 | CoolRight | coolright.co.uk | Scott and Tom, 50/50 | owner |
 
 Scott runs the lead side of all four. He is not a shareholder in the roofing
@@ -23,11 +23,21 @@ company and draws no day rate and no retained profit from it.
 
 ```
 emstrad/sites    dampscan.co.uk, atidampsurvey.co.uk,
-                 vergeroofing.co.uk, coolright.co.uk     (renamed DAMPSCAN)
-emstrad/crm      the back office for all four            (new)
+                 vergeroofing.com, coolright.co.uk,
+                 and the staff area for all four         (renamed DAMPSCAN)
 ```
 
-Two repos, four brands. Each brand keeps its own content, tone, domain,
+One repo, four brands. **This reverses what this document first said.** The
+plan was a separate `crm` repository. The plan also required the CRM to share
+the damp database, keep the damp staff area running, and reuse its session,
+throttling, argon2 and database layers. A separate repository would have
+copied all four into a second place, which is the three implementations
+problem phase 1 spent its whole length removing, and the admin dispatcher
+already means new routes add no serverless functions. So the staff area grows
+business aware in place, and retiring the old screens is continuous rather
+than a cutover. It is one database either way.
+
+Each brand keeps its own content, tone, domain,
 Business Profile and Ads account, and is brought up to the same level of
 maturity on its own terms. The CRM holds every staff area, one database, one
 login, four businesses as rows.
@@ -522,14 +532,18 @@ staff area keeps running until the CRM has proved itself. Roofing and AC are not
 live, so the CRM gets built and proved against two businesses that cannot lose
 anything.
 
-1. **Merge the sites, then finish the two new brands.** Port Verge and CoolRight
-   onto the damp implementation as two more entries in `SITES`, proving the damp
-   pages come out byte identical. Then bring both up to the damp level in their
-   own right: area pages, guides, reviews, and the details as they arrive.
-   CoolRight's cost guide ranges are a business decision, not an admin task, and
-   the build will not publish the page without them.
-2. **CRM foundations.** Businesses, people, grants, passcodes, audit, session.
-   Nothing sits behind access control until access control is tested.
+1. **Merge the sites, then finish the two new brands.** Done. Both brands are
+   in `SITES`, every damp page came out byte identical throughout, the lead
+   path is brand aware end to end, and CoolRight's cost guide publishes the
+   basis rather than numbers. Still with the owner: phone numbers, five
+   reviews each, a share image each, and pointing the two domains at the
+   project.
+2. **CRM foundations.** Done. Businesses, people, grants, passcodes, audit,
+   session, and every list route scoped in SQL. The shared code remains the
+   owners' login and is an admin over every active business; a person's
+   passcode is an additional path in the same route. `npm run create-person`
+   creates a person with their grants. Steve, roofing only, is the test case,
+   and it goes through the real routes with a real cookie.
 3. **Roofing and AC in the CRM.** Jobs, cost lines, owner days, payments, both
    payout engines with full tests, the working screen, bank per business. Strip
    the staff area out of the sites repo and point its lead and event endpoints
