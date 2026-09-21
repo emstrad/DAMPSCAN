@@ -131,10 +131,14 @@ phantom session and dilute the conversion rates.
 
 ### `staff_users`
 
-Not used by the current login route, which takes a single access code instead. The
-table and the `create-user` / `set-user` scripts are kept so per-user accounts can
-be restored without rebuilding them. `password_hash` is argon2id. There is no
-seeded account and no default password anywhere in this repo.
+Dormant, and superseded. Per-person sign in now lives in `people` and `grants`:
+one argon2id passcode per person, which is the identity, and a row per person
+per business saying what they may see. `npm run create-person` makes one. The
+shared access code still works and is the owners' login, an admin over every
+active business. This table and the `create-user` / `set-user` scripts stay
+only because dropping a table is not something the migration does; nothing
+reads them. There is no seeded account and no default passcode anywhere in this
+repo.
 
 ### `rate_hits`
 
@@ -172,10 +176,11 @@ Two honest limitations of this design:
 2. There is one code, so there is no per-person audit trail. Every entry in the
    log says "someone who knew the code", not who.
 
-If the dashboard ever needs more than one person, or a record of who saw what,
-move back to per-user accounts. The `staff_users` table and the
-`create-user` / `set-user` scripts are still present and working for exactly that
-reason, they are simply not consulted by the current login route.
+The dashboard now does need more than one person and a record of who changed
+what. That is `people`, `grants` and `audit`: a person signs in with their own
+passcode and every list route filters to the businesses they are granted, in
+SQL, so a person granted roofing only cannot reach a damp row by editing a URL.
+Writes to money and client records land in `audit` with before and after.
 
 ### One staff area, two brands
 
