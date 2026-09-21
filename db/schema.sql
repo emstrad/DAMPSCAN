@@ -473,3 +473,27 @@ alter table jobs alter column surveyor drop not null;
 drop index if exists jobs_lead_unique_idx;
 create unique index if not exists jobs_lead_unique_idx
   on jobs (lead_id) where lead_id is not null and site in ('dampscan','ati-london');
+
+-- Payments on quoted work are a list, not two tick boxes. A roofing job takes
+-- a deposit, sometimes a stage payment, then a balance, and the amounts are
+-- whatever was agreed rather than half the price. Paid in full is therefore a
+-- computed fact, received >= invoice, not a flag somebody remembers to set.
+-- The damp brands keep their deposit_paid_at and paid_at ticks and their
+-- derived half deposit, unchanged: that rule is right for a fixed price survey
+-- and this table is for the trades it is wrong for.
+create table if not exists job_payments (
+  id           bigserial primary key,
+  job_id       bigint not null references jobs (id) on delete cascade,
+  amount_pence bigint not null,
+  paid_on      date   not null default (now() at time zone 'Europe/London')::date,
+  label        text   not null default 'payment'
+                 check (label in ('deposit','stage','balance','retention','refund','payment')),
+  note         text,
+  -- Set when the row came from a matched bank line, so unmatching can remove
+  -- exactly what matching created and nothing a person typed.
+  bank_txn_id  bigint,
+  added_by     bigint references people (id) on delete set null,
+  created_at   timestamptz not null default now()
+);
+create index if not exists job_payments_job_idx on job_payments (job_id, paid_on);
+create unique index if not exists job_payments_bank_idx on job_payments (bank_txn_id) where bank_txn_id is not null;
