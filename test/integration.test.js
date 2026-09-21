@@ -1025,3 +1025,34 @@ test('the upcoming board runs in time order within a day, unscheduled last', asy
     .json().clients.map((c) => c.surveyTime);
   assert.deepEqual(times, ['08:00', '15:00', null], 'a job with no hour yet does not jump the queue');
 });
+
+test('an enquiry from a new brand is stored as that brand and filterable as it, end to end', async () => {
+  /* The review found lib/site.js falling back to DampScan for any host it did
+     not know, so a roofing enquiry was stored, counted and shown as damp. This
+     walks the whole path rather than the pieces: real host, real form values
+     for that brand, real storage, real staff filter. */
+  const roofing = await call(lead, {
+    headers: { host: 'vergeroofing.com' },
+    body: validLead({ sessionId: SID_B, issues: ['Slipped or missing tiles', 'Not sure'] })
+  });
+  assert.equal(roofing.statusCode, 200, JSON.stringify(roofing.json()));
+
+  /* The same values on the damp host are refused: they are not damp issues. */
+  const wrongHost = await call(lead, {
+    headers: { host: 'dampscan.co.uk' },
+    body: validLead({ sessionId: SID_A, issues: ['Slipped or missing tiles'] })
+  });
+  assert.equal(wrongHost.statusCode, 400, 'a roofing issue list is not valid on the damp host');
+
+  const { rows } = await pool.query('select site, issues from leads where session_id = $1', [SID_B]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].site, 'roofing', 'stored under its own brand, not the default');
+  assert.deepEqual(rows[0].issues, ['Slipped or missing tiles', 'Not sure']);
+
+  const cookie = await signedInCookie();
+  const mine = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?site=roofing', headers: { cookie } })).json();
+  assert.equal(mine.leads.length, 1, 'visible under its own filter');
+  assert.equal(mine.leads[0].site, 'roofing');
+  const damp = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?site=dampscan', headers: { cookie } })).json();
+  assert.equal(damp.leads.length, 0, 'and absent from the damp board');
+});
