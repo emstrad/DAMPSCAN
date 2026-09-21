@@ -304,3 +304,74 @@ create table if not exists bank_rules (
 -- belongs on today's list all day rather than dropping off it at ten, so the
 -- time orders the list and does not decide which list it is on.
 alter table jobs add column if not exists job_time time;
+
+-- ---------------------------------------------------------------------------
+-- The businesses, the people, and who may see what
+--
+-- One deployment now serves four businesses and one staff area will run them
+-- all. Nothing here renames or drops: `site` on leads, events and jobs stays
+-- exactly as it is and is the key into businesses, so the existing staff area
+-- keeps working on the same rows while the new one grows around it.
+--
+-- A person is not a business. Scott sees all four, Ben sees damp and roofing,
+-- Steve sees roofing only, and none of that is a column on the person: it is a
+-- row per (person, business) in grants, so a fifth business is a row and not a
+-- migration.
+-- ---------------------------------------------------------------------------
+create table if not exists businesses (
+  slug              text primary key,   -- the value the site column carries
+  name              text not null,
+  active            boolean not null default true,
+  -- Which payout engine applies. Three trades, three deliberately different
+  -- formulas, never unified.
+  payout_model      text not null check (payout_model in ('damp','roofing','ac')),
+  -- Basis points, so 19 percent is 1900 with nothing to round.
+  tax_reserve_bp    integer not null default 2000 check (tax_reserve_bp between 0 and 10000),
+  vat_registered    boolean not null default false,
+  vat_registered_from date,
+  created_at        timestamptz not null default now()
+);
+
+insert into businesses (slug, name, payout_model, tax_reserve_bp) values
+  ('dampscan',   'DampScan',        'damp',    2000),
+  ('ati-london', 'ATi Damp Survey', 'damp',    2000),
+  ('roofing',    'Verge Roofing',   'roofing', 1900),
+  ('ac',         'CoolRight',       'ac',      2000)
+on conflict (slug) do nothing;
+
+-- One passcode per person and the passcode is the identity: there is no
+-- username. Passcodes are unique across people, enforced when one is set, so
+-- two people can never be the same login.
+create table if not exists people (
+  id            bigserial primary key,
+  name          text not null,
+  passcode_hash text not null,        -- argon2id, via @node-rs/argon2
+  is_admin      boolean not null default false,
+  active        boolean not null default true,
+  created_at    timestamptz not null default now(),
+  last_login_at timestamptz
+);
+
+create table if not exists grants (
+  person_id     bigint not null references people (id) on delete cascade,
+  business_slug text   not null references businesses (slug),
+  level         text   not null default 'work' check (level in ('view','work','manage')),
+  primary key (person_id, business_slug)
+);
+
+-- Appended on every write to money or a client record. The before and after
+-- are what make a changed payout explainable a year later.
+create table if not exists audit (
+  id            bigserial primary key,
+  at            timestamptz not null default now(),
+  person_id     bigint references people (id) on delete set null,
+  business_slug text,
+  entity        text not null,
+  entity_id     bigint,
+  action        text not null,
+  before_json   jsonb,
+  after_json    jsonb
+);
+
+create index if not exists audit_entity_idx on audit (entity, entity_id, at desc);
+create index if not exists audit_at_idx on audit (at desc);

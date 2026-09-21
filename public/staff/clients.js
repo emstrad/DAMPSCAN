@@ -211,6 +211,7 @@
   }
   pills('[data-site]', 'site');
   pills('[data-view]', 'view');
+  U.scopePills('[data-site]');
 
   /* Typing searches every client on the chosen site, whatever view is
      pressed: a name is a name whether the survey is next week or last year.

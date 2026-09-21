@@ -20,12 +20,13 @@ import bank from '../../lib/routes/admin/bank.js';
 import clients from '../../lib/routes/admin/clients.js';
 import jobs from '../../lib/routes/admin/jobs.js';
 import leads from '../../lib/routes/admin/leads.js';
+import me from '../../lib/routes/admin/me.js';
 import rates from '../../lib/routes/admin/rates.js';
 import summary from '../../lib/routes/admin/summary.js';
 
 export const config = { runtime: 'nodejs' };
 
-const ROUTES = { attachment, bank, clients, jobs, leads, rates, summary };
+const ROUTES = { attachment, bank, clients, jobs, leads, me, rates, summary };
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST', 'DELETE'])) return;

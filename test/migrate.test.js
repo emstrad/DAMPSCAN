@@ -67,8 +67,8 @@ test('every statement applies individually, as the Neon driver sends them', asyn
     [SCRATCH]
   );
   assert.deepEqual(rows.map((r) => r.table_name), [
-    'bank_rules', 'bank_statements', 'bank_transactions',
-    'events', 'job_rates', 'job_settings', 'jobs', 'leads', 'rate_hits', 'staff_users'
+    'audit', 'bank_rules', 'bank_statements', 'bank_transactions', 'businesses',
+    'events', 'grants', 'job_rates', 'job_settings', 'jobs', 'leads', 'people', 'rate_hits', 'staff_users'
   ]);
 });
 
