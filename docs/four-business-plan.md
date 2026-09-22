@@ -573,8 +573,25 @@ anything.
    the CRM already reads the same database. Both staff areas run side by side on
    the same rows for as long as it takes, and retiring the old one is deleting
    `public/staff/` from the sites repo.
-6. Due tab, ntfy, daily digest, AC service contracts.
-7. Quote builder, mobile cost entry, monthly statements, Pay by Bank.
+6. **Due tab, ntfy, daily digest, AC service contracts.** Done. Due is the
+   first tab: enquiries with no job, visits this week, quotes out with no
+   answer, services falling due, money owed, payouts ready to freeze and
+   frozen figures that have moved, each row linking to where it gets done,
+   money sections for manage or admin only. A job saved, changing state,
+   paid or frozen on a quoted business pushes through ntfy, with the rule
+   tested on every push that nothing about a customer reaches a phone; the
+   row is the record and the push is best effort. A morning digest per
+   business goes out only when there is something to say. Service contracts
+   hang off the installing job, roll forward from the day of the service,
+   and surface on Due and in the digest. Set `NTFY_TOPIC` to turn the pushes
+   on. Also done since: both phone numbers on the new sites, and the bank
+   importer now takes a view on every line (a payment matches on amount
+   alone when nothing else is close, damp's business costs split to the
+   partners) since every line is reviewed anyway.
+7. Quote builder, mobile cost entry, monthly statements, Pay by Bank,
+   accountant export, pairing a transfer between two companies' accounts.
+   Then damp's move onto the Quotes-style working screen, only when Scott
+   says.
 
 ## Payments
 
