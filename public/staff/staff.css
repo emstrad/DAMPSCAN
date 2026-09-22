@@ -266,6 +266,8 @@ tbody tr.is-stale td:first-child{color:var(--warn);font-weight:600}
 .recon table{min-width:0}
 .recon td:first-child{white-space:normal;color:var(--muted)}
 .recon tr.is-total td{font-weight:700;color:var(--text)}
+.recon tr.is-why td{padding-left:28px;font-size:13px;color:var(--muted);opacity:.85}
+.recon tr.is-why td:first-child::before{content:'↳ ';opacity:.6}
 .recon tr.is-total:last-child td{border-top:1px solid var(--line-strong)}
 .from-row{flex:0 0 200px}
 .from-row input{min-height:40px;padding:8px 12px;font-size:14px}

@@ -278,6 +278,41 @@ test('removing an upload takes its lines and their paid ticks with it', async ()
   assert.equal((await del({ statementId: 424242 })).statusCode, 404);
 });
 
+test('the difference names the jobs behind it, and they add back to it', async () => {
+  const job = await createJob();
+  await upload(businessCsv(AUGUST));
+  const clean = (await get()).json().totals;
+  assert.equal(clean.differencePence, 0);
+  assert.deepEqual(clean.differenceJobs, [], 'nothing to chase when the books are square');
+
+  // A third payment matched to a job that was already square: 215 recorded,
+  // 265 in the bank.
+  await upload(businessCsv([
+    { date: '2026-08-25', id: 'in-3', type: 'TRANSFER', description: 'Payment from PRIYA AGAIN', amount: 50 }
+  ]), 'extra.csv');
+  const extra = (await get('?view=in')).json().transactions.find((t) => t.description === 'Payment from PRIYA AGAIN');
+  const t = (await post({ id: extra.id, jobId: job.id })).json().totals;
+
+  assert.equal(t.differencePence, 5000);
+  assert.equal(t.differenceJobs.length, 1);
+  const [only] = t.differenceJobs;
+  assert.equal(only.id, job.id);
+  assert.equal(only.receivedPence, 26500);
+  assert.equal(only.countedValuePence, 21500);
+  assert.equal(only.deltaPence, 5000);
+  assert.equal(only.lines, 3);
+  assert.equal(only.reason, 'more money matched than the job is worth');
+  assert.equal(t.differenceJobs.reduce((sum, j) => sum + j.deltaPence, 0), t.differencePence,
+    'the list is the whole of the difference');
+  assertBalances(t);
+
+  // A job paid before the window is the other everyday cause: its money is out
+  // of scope but the price would otherwise be counted in full.
+  const later = (await get('?from=2026-08-30')).json().totals;
+  assert.equal(later.differencePence, 0, 'out of scope on both sides');
+  assert.deepEqual(later.differenceJobs, []);
+});
+
 test('the reconciliation can start later than the first line', async () => {
   await createJob();
   await upload(businessCsv(AUGUST));

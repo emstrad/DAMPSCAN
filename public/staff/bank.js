@@ -93,9 +93,25 @@
       ['Deposits on jobs not yet paid in full', t.partPaidPence],
       ['Money in not yet matched to a job or split', t.unmatchedInPence],
       ['Spend not yet split', t.unsplitOutPence],
-      ['Difference: bank money on paid jobs against what those jobs are recorded as worth', t.differencePence],
+      ['Difference: bank money on paid jobs against what those jobs are recorded as worth',
+        t.differencePence, null, whyRows(t.differenceJobs)],
       ['Adds up to', t.explainedPence, 'is-total']
     ];
+  }
+
+  /* The jobs behind the difference, named underneath it. A bare number nobody
+     can chase is the one line on this page that would stay a mystery, and the
+     deltas here are the whole of it, so the list ends the hunt. */
+  function whyRows(jobs) {
+    return (jobs || []).map(function (j) {
+      var tr = document.createElement('tr');
+      tr.className = 'is-why';
+      var who = (j.customerName || 'Job ' + j.id) + ', ' + (j.jobDate || '');
+      tr.appendChild(U.node('td', null, who + ': ' + U.money(j.receivedPence) + ' matched against '
+        + U.money(j.countedValuePence) + ', ' + j.reason));
+      tr.appendChild(U.node('td', 'num', U.money(j.deltaPence)));
+      return tr;
+    });
   }
 
   function renderRecon(t) {
@@ -108,6 +124,7 @@
       tr.appendChild(U.node('td', null, r[0]));
       tr.appendChild(U.node('td', 'num', U.money(r[1])));
       body.appendChild(tr);
+      if (r[3]) r[3].forEach(function (child) { body.appendChild(child); });
     });
     var last = body.lastChild.firstChild;
     last.appendChild(document.createTextNode(' '));
