@@ -43,6 +43,22 @@
   /* Both sides of the identity, so a person can see where a pound went. The
      bottom line agrees with the top one whenever the books balance, and the
      tag says which it is. */
+  /* The jobs behind the difference, named underneath it. A bare number nobody
+     can chase is the one line on this page that would stay a mystery, and the
+     deltas here are the whole of it, so the list ends the hunt. */
+  function whyRows(jobs) {
+    return (jobs || []).map(function (j) {
+      var tr = document.createElement('tr');
+      tr.className = 'is-why';
+      var who = (j.customerName || 'Job ' + j.id) + ', ' + (j.jobDate || '');
+      var td = U.node('td', null, who + ': ' + U.money(j.receivedPence) + ' matched against '
+        + U.money(j.countedValuePence) + ', ' + j.reason);
+      tr.appendChild(td);
+      tr.appendChild(U.node('td', 'num', U.money(j.deltaPence)));
+      return tr;
+    });
+  }
+
   function renderRecon(t) {
     var balanced = t.explainedPence === t.bank.netPence;
     var rows = [
@@ -52,7 +68,8 @@
       ['Deposits on jobs not yet paid in full', t.partPaidPence],
       ['Money in not yet matched to a job or split', t.unmatchedInPence],
       ['Spend not yet split', t.unsplitOutPence],
-      ['Difference: bank money on paid jobs against what those jobs are recorded as worth', t.differencePence],
+      ['Difference: bank money on paid jobs against what those jobs are recorded as worth',
+        t.differencePence, null, whyRows(t.differenceJobs)],
       ['Adds up to', t.explainedPence, 'is-total']
     ];
     var table = document.createElement('table');
@@ -63,6 +80,7 @@
       tr.appendChild(U.node('td', null, r[0]));
       tr.appendChild(U.node('td', 'num', U.money(r[1])));
       body.appendChild(tr);
+      if (r[3]) r[3].forEach(function (child) { body.appendChild(child); });
     });
     var last = body.lastChild.firstChild;
     last.appendChild(document.createTextNode(' '));
