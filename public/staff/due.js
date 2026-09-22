@@ -46,7 +46,8 @@
     var tiles = [
       ['Enquiries waiting', U.num(d.enquiries.length), d.enquiries.length > 0],
       ['Visits this week', U.num(d.visits.length), false],
-      ['Quotes out', U.num(d.quotes.length), false]
+      ['Quotes out', U.num(d.quotes.length), false],
+      ['Services due', U.num(d.services.length), d.services.some(function (r) { return r.daysUntilDue < 0; })]
     ];
     if (d.money) tiles.push(['Owed by customers', U.money(owed), false], ['Ready to freeze', U.num(d.ready.length), d.ready.length > 0], ['Drifted', U.num(d.drifted.length), d.drifted.length > 0]);
     tiles.forEach(function (t) {
@@ -85,6 +86,16 @@
       { label: 'Quoted', numeric: true, get: function (r) { return U.money(r.invoicePence); } },
       { label: 'Open', sr: true, get: open }
     ], d.quotes, { empty: 'No quotes waiting on an answer.', onRow: function (tr, r) { if (r.ageDays >= 7) tr.className = 'is-stale'; } });
+
+    U.table(el('services'), [
+      { label: 'Due', get: function (r) { return r.daysUntilDue < 0 ? Math.abs(r.daysUntilDue) + ' days overdue' : r.daysUntilDue === 0 ? 'Today' : 'In ' + r.daysUntilDue + (r.daysUntilDue === 1 ? ' day' : ' days'); } },
+      { label: 'Brand', get: brand },
+      { label: 'Customer', get: function (r) { return r.customerName || 'Not given'; } },
+      { label: 'Postcode', get: function (r) { return r.postcode || ''; } },
+      { label: 'Units', numeric: true, get: function (r) { return U.num(r.unitCount); } },
+      { label: 'Reminded', get: function (r) { return r.lastContactedOn || 'Not yet'; } },
+      { label: 'Open', sr: true, get: function (r) { return r.jobId ? link('/staff/quoted.html#job-' + r.jobId, 'Open') : ''; } }
+    ], d.services, { empty: 'No services falling due in the next month.', onRow: function (tr, r) { if (r.daysUntilDue < 0) tr.className = 'is-stale'; } });
 
     var money = ['p-owed', 'p-ready', 'p-drifted'];
     money.forEach(function (id) { el(id).hidden = !d.money; });

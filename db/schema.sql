@@ -566,3 +566,33 @@ create table if not exists notifications (
   digest_sent_at timestamptz
 );
 create index if not exists notifications_pending_idx on notifications (business_slug, created_at) where digest_sent_at is null;
+
+-- ---------------------------------------------------------------------------
+-- Service contracts
+--
+-- An air conditioning install is the start of a relationship, not the end of
+-- a job: the units want servicing on an interval, and a customer who is
+-- reminded stays a customer. One row per installed system, hung off the job
+-- that installed it, with when it is next due and when it was last chased.
+-- Servicing it rolls the due date forward by the interval. Any business can
+-- hold one; CoolRight is the one that needs them.
+-- ---------------------------------------------------------------------------
+create table if not exists service_contracts (
+  id                 bigserial primary key,
+  business_slug      text not null references businesses (slug),
+  job_id             bigint references jobs (id) on delete set null,
+  customer_name      text,
+  customer_postcode  text,
+  installed_on       date,
+  interval_months    integer not null default 12 check (interval_months between 1 and 60),
+  next_due_on        date not null,
+  unit_count         integer not null default 1 check (unit_count >= 1),
+  refrigerant_kg     numeric(6,2),
+  status             text not null default 'active' check (status in ('active', 'lapsed', 'ended')),
+  last_contacted_on  date,
+  last_serviced_on   date,
+  note               text,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now()
+);
+create index if not exists service_contracts_due_idx on service_contracts (business_slug, next_due_on) where status = 'active';

@@ -205,6 +205,24 @@
       <span class="err" id="w-pay-error" role="alert"></span>
     </section>
 
+    <section class="client-block" aria-labelledby="h-contract" id="w-contract-block" hidden>
+      <h3 id="h-contract">Service contract <span class="tag" id="w-contract-status" hidden></span></h3>
+      <p class="work-money" id="w-contract-summary" hidden></p>
+      <form id="w-contract-form" class="work-add" novalidate>
+        <div class="form-row"><label for="w-contract-interval">Every, months</label><input id="w-contract-interval" type="text" inputmode="numeric" autocomplete="off" /></div>
+        <div class="form-row"><label for="w-contract-units">Units</label><input id="w-contract-units" type="text" inputmode="numeric" autocomplete="off" /></div>
+        <div class="form-row"><label for="w-contract-kg">Refrigerant kg</label><input id="w-contract-kg" type="text" inputmode="decimal" autocomplete="off" /></div>
+        <div class="form-row"><label for="w-contract-due">Next due</label><input id="w-contract-due" type="date" /></div>
+        <button type="submit" class="btn btn--ghost btn--sm" id="w-contract-save">Start a contract</button>
+      </form>
+      <div class="top-end" id="w-contract-actions" hidden style="margin-top:10px">
+        <button type="button" class="btn btn--ghost btn--sm" id="w-contract-contacted">Reminded today</button>
+        <button type="button" class="btn btn--ghost btn--sm" id="w-contract-serviced">Serviced today</button>
+        <span class="who" id="w-contract-saved" role="status"></span>
+      </div>
+      <span class="err" id="w-contract-error" role="alert"></span>
+    </section>
+
     <section class="client-block" aria-labelledby="h-details">
       <h3 id="h-details">The job</h3>
       <form id="w-details" novalidate>
@@ -249,6 +267,7 @@
 <script src="/staff/ui.js"></script>
 <script src="/staff/quoted.js"></script>
 <script src="/staff/quoted-job.js"></script>
+<script src="/staff/quoted-contract.js"></script>
 <script src="/staff/quoted-lines.js"></script>
 </body>
 </html>
