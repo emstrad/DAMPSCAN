@@ -110,16 +110,16 @@ const SITES = {
      repo for the generators and nothing else: its own domain, its own Business
      Profile, its own Ads account, and no link to or from either damp site.
 
-     phone is null on purpose. The number is not issued yet, and the templates
-     leave every call link out until it is rather than shipping tel:null on
-     thirty pages. Set phone and phoneLabel together and they all come back. */
+     phone and phoneLabel are set together: the templates leave every call
+     link out while either is null rather than shipping tel:null on thirty
+     pages, which is how the pages were built before the number was issued. */
   roofing: {
     key: 'roofing',
     brand: 'Verge Roofing',
     origin: 'https://vergeroofing.com',
     logo: null,
-    phone: null,
-    phoneLabel: null,
+    phone: '+442034324561',
+    phoneLabel: '020 3432 4561',
     email: 'team@vergeroofing.com',
     schemaType: 'RoofingContractor',
     served: 'London, Kent, Surrey, Essex, Hertfordshire, Sussex and Berkshire',
@@ -171,8 +171,8 @@ const SITES = {
     brand: 'CoolRight',
     origin: 'https://coolright.co.uk',
     logo: null,
-    phone: null,
-    phoneLabel: null,
+    phone: '+442034324559',
+    phoneLabel: '020 3432 4559',
     email: 'team@coolright.co.uk',
     schemaType: 'HVACBusiness',
     served: 'London and the whole of the South East',
