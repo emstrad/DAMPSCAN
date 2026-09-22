@@ -106,6 +106,10 @@
     {
       "path": "/api/cron/sweep-blobs",
       "schedule": "0 4 1 * *"
+    },
+    {
+      "path": "/api/cron/digest",
+      "schedule": "30 6 * * *"
     }
   ]
 }

@@ -544,3 +544,25 @@ alter table bank_transactions add column if not exists shares jsonb not null def
 update bank_transactions
    set shares = jsonb_build_object('scott', share_scott_pence, 'tom', share_tom_pence, 'ben', share_ben_pence, 'tax', share_tax_pence)
  where shares = '{}'::jsonb and cardinality(split) > 0;
+
+-- ---------------------------------------------------------------------------
+-- Notifications
+--
+-- One row per thing worth telling the owner about: a job saved, a payment
+-- recorded, a payout frozen. The row is the record; the push is best effort
+-- and says when it went. A morning digest picks up whatever it has not yet
+-- summarised and marks it. Nothing here ever holds a customer's name, number
+-- or address: a push goes to a phone lock screen.
+-- ---------------------------------------------------------------------------
+create table if not exists notifications (
+  id             bigserial primary key,
+  business_slug  text references businesses (slug),
+  kind           text not null,
+  ref            bigint,
+  title          text not null,
+  message        text not null,
+  created_at     timestamptz not null default now(),
+  push_sent_at   timestamptz,
+  digest_sent_at timestamptz
+);
+create index if not exists notifications_pending_idx on notifications (business_slug, created_at) where digest_sent_at is null;

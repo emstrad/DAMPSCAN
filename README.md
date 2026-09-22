@@ -76,6 +76,7 @@ covered by `npm test`. See "Running the tests".
 | `STAFF_ACCESS_CODE` | yes | The code typed at `/staff`. Under 4 characters and every login is refused, so it cannot be left blank by accident. |
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
+| `NTFY_TOPIC` | no | An ntfy topic. With it set, a job saved, a payment recorded or a payout frozen on a quoted business pushes to every phone subscribed to the topic, and `/api/cron/digest` sends a morning summary per business. Nothing pushed carries a customer's details. `NTFY_URL` points at a self-hosted server and `NTFY_TOKEN` authorises a protected topic; both are optional. |
 | `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
 | `ADDRESS_API_URL` | no | The lookup URL, with `{postcode}` and `{key}` substituted in. Defaults to Ideal Postcodes. Set it to use a different provider. |
 | `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. Set automatically once a Blob store is attached to the project. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |

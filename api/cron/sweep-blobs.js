@@ -10,31 +10,14 @@
  * to try it with --dry-run before trusting it to a schedule.
  */
 import { json, requireMethod } from '../../lib/http.js';
+import { requireCron } from '../../lib/cron-guard.js';
 import { sweepOrphans } from '../../lib/sweep.js';
-import { timingSafeEqual } from 'node:crypto';
 
 export const config = { runtime: 'nodejs' };
 
-function authorised(req) {
-  const secret = (process.env.CRON_SECRET || '').trim();
-  if (secret.length < 16) return false;
-  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  const a = Buffer.from(given);
-  const b = Buffer.from(secret);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'GET')) return;
-
-  if (!(process.env.CRON_SECRET || '').trim()) {
-    json(res, 503, { ok: false, error: 'cron_secret_not_set' });
-    return;
-  }
-  if (!authorised(req)) {
-    json(res, 401, { ok: false, error: 'unauthorised' });
-    return;
-  }
+  if (!requireCron(req, res)) return;
 
   const result = await sweepOrphans();
   if (!result.ok) console.warn('blob sweep did not run:', result.reason);
