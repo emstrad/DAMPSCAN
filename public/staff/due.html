@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Due | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/staff/staff.css" />
+<script>
+/* Both sites share this staff area, so the hostname decides whose name is on
+   it. This runs in the head, before anything is painted, so neither brand ever
+   flashes the other's. The markup carries both lockups; staff.css hides one. */
+(function brand(){
+  var ati = /(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname);
+  if (!ati) return;
+  document.documentElement.setAttribute('data-brand', 'ati');
+  document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var icon = document.querySelector('link[rel="icon"]');
+  if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
+    <span class="logo-type">
+      <span class="logo-word">ATi <span class="scan">Damp</span></span>
+      <span class="logo-tag">Survey Practice</span>
+    </span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/staff/due.html" aria-current="page">Due</a>
+    <a href="/staff/dashboard.html">Dashboard</a>
+    <a href="/staff/jobs.html">Jobs</a>
+    <a href="/staff/quoted.html">Quotes</a>
+    <a href="/staff/clients.html">Clients</a>
+    <a href="/staff/bank.html">Bank</a>
+  </nav>
+  <div class="top-end">
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="sr-only">What needs doing</h1>
+  <div class="ranges" role="group" aria-label="Business" style="margin-bottom:10px">
+    <button class="pill" data-site="" aria-pressed="true">All brands</button>
+    <button class="pill" data-site="dampscan" aria-pressed="false">DampScan, Kent</button>
+    <button class="pill" data-site="ati-london" aria-pressed="false">ATI, London</button>
+    <button class="pill" data-site="roofing" aria-pressed="false">Verge Roofing</button>
+    <button class="pill" data-site="ac" aria-pressed="false">CoolRight</button>
+  </div>
+
+  <div class="state" id="state">Loading…</div>
+
+  <div id="content" hidden>
+    <div class="tiles" id="tiles" style="margin-top:12px"></div>
+
+    <section class="panel" aria-labelledby="h-enquiries">
+      <h2 id="h-enquiries">Enquiries with no job yet</h2>
+      <div id="enquiries"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-visits">
+      <h2 id="h-visits">Today and this week</h2>
+      <div id="visits"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-quotes" id="p-quotes">
+      <h2 id="h-quotes">Quotes out with no answer</h2>
+      <div id="quotes"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-services" id="p-services">
+      <h2 id="h-services">Services due this month</h2>
+      <div id="services"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-owed" id="p-owed">
+      <h2 id="h-owed">Money owed</h2>
+      <div id="owed"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-ready" id="p-ready">
+      <h2 id="h-ready">Paid in full, ready to freeze</h2>
+      <div id="ready"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-drifted" id="p-drifted">
+      <h2 id="h-drifted">Frozen figures that have moved</h2>
+      <div id="drifted"></div>
+      <p class="panel-note">A cost entered after the freeze does not change what was stored. These are
+        the jobs where it would have, for an admin to reopen or leave.</p>
+    </section>
+  </div>
+</main>
+
+<script src="/staff/ui.js"></script>
+<script src="/staff/due.js"></script>
+</body>
+</html>

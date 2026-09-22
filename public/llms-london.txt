@@ -56,6 +56,8 @@ out remedial work.
 - [Prices](https://atidampsurvey.co.uk/pricing): four fixed bands from 215 pounds, what each includes and what is never added
 - [Services](https://atidampsurvey.co.uk/services): every defect we inspect and report on, one page each
 - [London coverage](https://atidampsurvey.co.uk/damp-survey): every borough, with its building stock and failure patterns
+- [Guides](https://atidampsurvey.co.uk/guides): how to read a damp or timber quote, and when to refuse it
+- [Prices](https://atidampsurvey.co.uk/pricing): the four fixed survey fees and what each includes
 - [Book a survey](https://atidampsurvey.co.uk/#book): booking form
 - [FAQs](https://atidampsurvey.co.uk/#faq): answers to the common questions
 

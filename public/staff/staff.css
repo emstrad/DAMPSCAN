@@ -131,6 +131,8 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .tile .v{font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
 .tile .s{font-size:12px;color:var(--muted-2)}
 .tile.is-key{border-color:var(--accent-ring);background:var(--accent-soft)}
+/* The tinted tile lifts its label a step, so it still reads at AA on the tint. */
+.tile.is-key .k,.tile.is-key .s{color:var(--muted)}
 
 /* ---------- Funnel ---------- */
 .funnel{display:flex;flex-direction:column;gap:10px}
@@ -157,6 +159,7 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 .tag--accent{color:var(--accent);border-color:var(--accent-ring);background:var(--accent-soft)}
 .tag--muted{color:var(--muted-2)}
 .tag--warn{color:var(--warn);border-color:rgba(240,160,139,.4);background:rgba(240,160,139,.1)}
+tbody tr.is-stale td:first-child{color:var(--warn);font-weight:600}
 
 .timeline{background:var(--slate-2);padding:14px 18px}
 .timeline ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted)}
@@ -178,7 +181,10 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 .empty{color:var(--muted-2);font-size:13.5px;padding:18px 0}
 
 /* ---------- Section tabs ---------- */
-.tabs{display:flex;gap:4px;margin-left:auto;margin-right:14px}
+.tabs{display:flex;gap:4px;margin-left:auto;margin-right:14px;flex-wrap:wrap}
+/* Five tabs no longer fit beside the logo on a phone, so they take a row of
+   their own under it rather than pushing the page wider than the screen. */
+@media (max-width:640px){.tabs{order:3;width:100%;margin:0}}
 .tabs a{padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);
   border:1px solid transparent;transition:color .18s,background .18s,border-color .18s}
 .tabs a:hover{color:var(--text)}

@@ -1,0 +1,36 @@
+# CoolRight
+
+> Air conditioning, heating and ventilation across London and the whole of the
+> South East. Installation, repairs and regas, servicing, multi-split systems,
+> air to air heat pumps, commercial systems and MVHR. F-Gas registered. Every
+> job is quoted after a free visit rather than priced from a rate card.
+
+CoolRight works for homeowners, landlords, managing agents and commercial
+occupiers. The recurring theme across the site is that nearly every fault
+attended on somebody else's system was built in on the day of installation:
+a unit sized from a room's floor area rather than its heat load, condensate
+routed with too little fall, a circuit that was never properly evacuated.
+
+## Services
+
+- [Air conditioning installation](https://coolright.co.uk/services/air-conditioning-installation)
+- [Repairs and regas](https://coolright.co.uk/services/air-conditioning-repairs)
+- [Servicing](https://coolright.co.uk/services/air-conditioning-servicing)
+- [Multi-split systems](https://coolright.co.uk/services/multi-split-systems)
+- [Air to air heat pumps](https://coolright.co.uk/services/air-to-air-heat-pumps)
+- [Commercial air conditioning](https://coolright.co.uk/services/commercial-air-conditioning)
+- [Ventilation and MVHR](https://coolright.co.uk/services/ventilation-and-mvhr)
+
+## Guides
+
+- [What air conditioning installation costs, and what moves it](https://coolright.co.uk/guides/air-conditioning-installation-cost)
+
+## Notes
+
+There is no price list. Every system is quoted after a visit, and the cost
+guide publishes the basis instead: what moves the figure, what a quote should
+name, and why one quote is cheaper than another.
+
+Cooling does not fix condensation. That is a moisture and ventilation problem
+and cooling a surface can make it worse, which the ventilation page and the
+cost guide both say directly.

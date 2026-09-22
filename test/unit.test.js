@@ -42,6 +42,20 @@ test('issues outside the allowed six are rejected', () => {
   assert.ok(r.errors.issues);
 });
 
+test('each brand is checked against its own issue list, never DampScan\'s', () => {
+  /* Before lib/enquiry.js the validator only knew the damp list, so a roofing
+     visitor could not submit without claiming to have damp. */
+  const roof = validateLead({ ...base, issues: ['Slipped or missing tiles'] }, 'roofing');
+  assert.equal(roof.ok, true, JSON.stringify(roof.errors));
+  const roofWithDamp = validateLead({ ...base, issues: ['Damp'] }, 'roofing');
+  assert.equal(roofWithDamp.ok, false, 'a damp issue is not a roofing issue');
+  const air = validateLead({ ...base, issues: ['Repair or regas'] }, 'ac');
+  assert.equal(air.ok, true, JSON.stringify(air.errors));
+  const damp = validateLead({ ...base, issues: ['Slipped or missing tiles'] }, 'dampscan');
+  assert.equal(damp.ok, false, 'a roofing issue is not a damp issue');
+  assert.throws(() => validateLead(base, 'nonsense'), /no enquiry definition/, 'unknown brands throw rather than fall back');
+});
+
 test('partial does not require issues, complete does', () => {
   const partial = validateLead({ stage: 'partial', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
   assert.equal(partial.ok, true, JSON.stringify(partial.errors));

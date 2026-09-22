@@ -16,7 +16,7 @@ import { json, requireMethod } from '../lib/http.js';
 
 export const config = { runtime: 'nodejs' };
 
-const EXPECTED_TABLES = ['events', 'leads', 'rate_hits', 'staff_users'];
+const EXPECTED_TABLES = ['businesses', 'events', 'grants', 'leads', 'people', 'rate_hits', 'staff_users'];
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'GET')) return;

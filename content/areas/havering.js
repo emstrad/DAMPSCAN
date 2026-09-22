@@ -4,10 +4,10 @@ export default {
   slug: 'havering',
   site: 'ati',
   name: 'Havering',
-  title: 'Damp Surveys in Havering | ATi Damp Survey',
+  title: 'Damp Surveys Romford, Hornchurch, Upminster | ATi Damp Survey',
   metaDescription:
-    'Independent damp and timber surveys across Havering, RM1 to RM14. Written, evidence-based reports for owners, buyers and landlords.',
-  h1: 'Independent damp surveys in Havering',
+    'Independent damp and timber surveys across Romford, Hornchurch, Upminster and the rest of Havering, RM1 to RM14. Written, evidence-based reports for owners, buyers and landlords.',
+  h1: 'Independent damp surveys in Romford, Hornchurch and Upminster',
   intro:
     'Havering is outer London in character and largely interwar and post-war in construction, with a rural fringe that most of the capital does not have. Romford and Hornchurch are suburb; out towards Upminster and the Essex boundary there are older cottages, weatherboarding and buildings that predate anything else in the borough by two centuries.',
   stock: [
@@ -22,6 +22,20 @@ export default {
     'Weatherboarding that has cupped, split or been over painted until it holds water',
     'Windows replaced without trickle vents, with condensation following',
     'Extract fans discharging into roof voids rather than to outside air',
+  ],
+  towns: [
+    {
+      name: 'Romford',
+      text: 'Romford around the market and the station is Victorian and Edwardian terrace, solid walled, much of it rendered in cement since, with the borough\'s interwar suburb starting a few streets out. In the terraces the findings are the solid wall ones: render that traps moisture, plaster and skirting bridging what damp proof course there is, and chimney breasts wet from a capped stack above. Flats above shops in the centre bring parapet gutters and shared roofs, where the leak and the damage are two floors and two owners apart.'
+    },
+    {
+      name: 'Hornchurch',
+      text: 'Hornchurch is interwar suburb with Emerson Park at one end of it: large detached houses on big plots, roofs with several valleys and a great deal of lead, and most of them extended at least once. On a house like that the roof junctions and the flashings are the first place to look, because a lifted flashing over a valley wets an internal wall a long way from anywhere obvious. The ordinary semis of Hornchurch have the ordinary findings: raised drives, blocked airbricks and rear additions covering the ventilation the floor depended on.'
+    },
+    {
+      name: 'Upminster',
+      text: 'Upminster is the garden suburb of the 1900s, roughcast render and tile hanging on Arts and Crafts houses, then interwar and post-war suburb, then a rural edge at Cranham and North Ockendon that is older than any of it. Roughcast that has been overpainted until it cannot breathe, and tile hanging with failed battens behind it, are the garden suburb findings. On the edge it is lime built cottages and weatherboarding, and the same rule as everywhere old: whatever is done to them has to let the wall dry.'
+    },
   ],
   coverage:
     'We survey across the borough, from Romford and Hornchurch out through Upminster and Rainham to the Essex boundary.',

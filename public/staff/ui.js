@@ -50,7 +50,11 @@
     var thead = document.createElement('thead');
     var hr = document.createElement('tr');
     columns.forEach(function (col) {
-      hr.appendChild(node('th', col.numeric ? 'num' : null, col.label));
+      /* A column of buttons has a heading for a screen reader and none on
+         screen, rather than an empty cell that reads as nothing. */
+      var th = node('th', col.numeric ? 'num' : null, col.sr ? null : col.label);
+      if (col.sr) th.appendChild(node('span', 'sr-only', col.label));
+      hr.appendChild(th);
     });
     thead.appendChild(hr);
     t.appendChild(thead);
@@ -136,8 +140,33 @@
     URL.revokeObjectURL(url);
   }
 
+  /* Builds the business pills from what the signed in person may see. A
+     business nobody granted you is removed from the page, not greyed out: the
+     server filters regardless, this only stops the page offering a pill that
+     would always show nothing. The "all" pill has no data-site and stays. */
+  async function scopePills(selector) {
+    var me;
+    try { me = await get('/api/admin/me'); } catch (e) { return; }
+    if (!me || !me.businesses) return;
+    var allowed = {};
+    me.businesses.forEach(function (b) { allowed[b.slug] = true; });
+    document.querySelectorAll(selector || '[data-site]').forEach(function (pill) {
+      var slug = pill.getAttribute('data-site');
+      if (slug && !allowed[slug]) pill.remove();
+    });
+    /* One business means the pills are noise: the "all" pill alone is left,
+       which is the same choice with fewer buttons. */
+    if (me.businesses.length === 1) {
+      document.querySelectorAll(selector || '[data-site]').forEach(function (pill) {
+        if (pill.getAttribute('data-site')) pill.remove();
+      });
+    }
+    return me;
+  }
+
   global.DSUI = {
     node: node, num: num, pct: pct, when: when, get: get, send: send,
+    scopePills: scopePills,
     money: money, toPence: toPence,
     table: table, csvCell: csvCell, downloadCsv: downloadCsv
   };

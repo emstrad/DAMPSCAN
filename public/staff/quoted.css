@@ -1,0 +1,47 @@
+/* The Quotes page: the working screen for one quoted job. Loaded after
+   staff.css and only on that page, so the shared sheet stays small. The
+   figure is a row of tiles and the lines are tables, which is why the dialog
+   is wider than the client card it borrows its shell from. */
+.client.work{width:min(1100px,calc(100vw - 32px))}
+/* A grid item's minimum is its content's, and a table of nowrap cells would
+   push a block past the dialog on a phone. Let the block shrink and the
+   table scroll inside it. */
+.client.work .client-block{min-width:0}
+.work-figure{padding:22px 28px 0}
+.work-figure .tiles{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.work-figure .tile .v{font-size:clamp(18px,2.2vw,24px)}
+.work-owed{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.work-owed-row{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:10px;
+  background:var(--accent-soft);border:1px solid var(--accent-ring);min-width:150px}
+.work-owed-row .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.work-owed-row .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.work-frozen{margin-top:12px;font-size:13px;color:var(--good);padding:10px 14px;border-radius:10px;
+  border:1px solid rgba(95,207,158,.4);background:rgba(95,207,158,.08)}
+.work-frozen.is-drift{color:var(--warn);border-color:rgba(240,160,139,.4);background:rgba(240,160,139,.1)}
+.work .lines table{min-width:0}
+.work .lines .tw{margin-bottom:12px}
+.work .lines th,.work .lines td{padding:8px 10px}
+.work-add{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:8px}
+.work-add .form-row{flex:1 1 120px}
+.work-add .form-row input,.work-add .form-row select{min-height:40px;padding:8px 12px;font-size:14px}
+.work-add .btn{flex:0 0 auto}
+.work-money{font-size:14px;color:var(--muted);margin-top:4px}
+.work-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.work-grid .form-row input,.work-grid .form-row select{min-height:40px;padding:8px 12px;font-size:14px}
+.work-day{display:grid;grid-template-columns:1fr 80px 100px auto auto;gap:8px;align-items:center;padding:8px 0;
+  border-bottom:1px solid var(--line)}
+.work-day:last-child{border-bottom:0}
+.work-day input{width:100%;background:var(--navy);border:1px solid var(--line-strong);border-radius:8px;color:var(--text);
+  padding:7px 10px;font:inherit;font-size:14px;min-height:38px}
+.work-day input:focus{outline:none;border-color:var(--accent)}
+.work-day-name{font-size:14.5px;font-weight:600}
+.work-day-wage{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:64px;text-align:right}
+.work-day .pill{padding:5px 12px;min-height:32px;font-size:12.5px}
+@media (max-width:640px){.work-day{grid-template-columns:1fr 1fr;row-gap:6px}.work-day-name,.work-day-wage{grid-column:1/-1}.work-day-wage{text-align:left}}
+.work-foot{padding:16px 28px 26px;border-top:1px solid var(--line);margin-top:22px;display:flex;flex-direction:column;gap:10px}
+.work-foot .work-add{margin-top:0}
+.work-foot .form-row{flex:1 1 260px}
+
+.work .lines small{display:block;color:var(--muted-2);font-size:12px;margin-top:2px;white-space:normal}
+.work .lines td.wrap-cell{min-width:140px;color:var(--text)}
+.nowrap{white-space:nowrap}

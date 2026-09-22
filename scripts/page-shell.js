@@ -37,6 +37,46 @@ function nav(ownFaq, site) {
  * @param {string} page.aside the sticky right hand column
  * @param {boolean} [page.ownFaq] whether this page has its own #faq section
  */
+
+/**
+ * The three places a phone number appears in the shell, and nothing at all
+ * when a brand has not been given one yet.
+ *
+ * A new business often has a domain and a site before it has a number, and
+ * "tel:null" in the header is worse than no call button: it is a dead link on
+ * every page, and it tells schema.org the telephone is the string "null".
+ * Leaving the number out until it exists is the same rule the enquiry form
+ * already follows, and it means a fifth brand is a SITES entry rather than a
+ * template change.
+ *
+ * Each helper carries its own surrounding whitespace, so a brand with a number
+ * renders byte for byte as it did when these were written inline.
+ */
+const CALL_SVG = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>`;
+
+function headerCall(site) {
+  if (!site.phone) return '';
+  return `        <a href="tel:${site.phone}" class="call-link">${CALL_SVG(15)}${esc(site.phoneLabel)}</a>\n`;
+}
+
+function barCall(site) {
+  if (!site.phone) return '';
+  return `  <a href="tel:${site.phone}" class="btn btn--ghost">${CALL_SVG(16)} Call</a>\n`;
+}
+
+/** The trailing "Or call ..." on a call to action, or nothing when there is
+    no number yet. The leading space is inside the string, so the sentence
+    before it is unchanged either way. */
+export function orCall(site) {
+  if (!site.phone) return '';
+  return ` Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.`;
+}
+
+function footCall(site) {
+  if (!site.phone) return '';
+  return ` &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>`;
+}
+
 export function shell({ site, url, title, metaDescription, schemas = [], body, aside, scripts, ownFaq = true }) {
   return `<!DOCTYPE html>
 <html lang="en-GB" class="no-js" data-site="${site.key}">
@@ -52,6 +92,9 @@ ${adsTag(site.key)}
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(metaDescription)}" />
 <meta property="og:locale" content="en_GB" />
+${site.og ? `<meta property="og:image" content="${site.origin}${site.og}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />` : ''}
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
 <link rel="stylesheet" href="/assets/header.css" />
 <link rel="stylesheet" href="/assets/area.css" />
@@ -79,8 +122,7 @@ ${nav(ownFaq, site)}
         </ul>
       </nav>
       <div class="nav-cta">
-        <a href="tel:${site.phone}" class="call-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>${esc(site.phoneLabel)}</a>
-        <a href="#book" class="btn btn--primary">${esc(site.ctaLabel)}</a>
+${headerCall(site)}        <a href="#book" class="btn btn--primary">${esc(site.ctaLabel)}</a>
       </div>
     </div>
   </div>
@@ -95,14 +137,13 @@ ${nav(ownFaq, site)}
 </main>
 
 <nav class="action-bar" aria-label="Quick actions">
-  <a href="tel:${site.phone}" class="btn btn--ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg> Call</a>
-  <a href="#book" class="btn btn--primary">Book a survey</a>
+${barCall(site)}  <a href="#book" class="btn btn--primary">${esc(site.barLabel)}</a>
 </nav>
 
 <footer class="afoot">
   <div class="wrap">
     <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a> &middot; <a href="/services">Services</a> &middot; <a href="/damp-survey">Areas</a> &middot; <a href="/pricing">Prices</a> &middot; <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a> &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
+    <span><a href="/">Home</a>${(site.footerLinks || []).map((l) => ` &middot; <a href="${l.href}">${esc(l.label)}</a>`).join('')}${footCall(site)} &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
   </div>
 </footer>
 ${scripts}

@@ -154,6 +154,7 @@
 
   group('[data-range]', function(btn){ state.range = btn.dataset.range; });
   group('[data-site]', function(btn){ state.site = btn.dataset.site; });
+  (global.DSUI || {}).scopePills && global.DSUI.scopePills('[data-site]');
   group('[data-stage]', function(btn){ state.stage = btn.dataset.stage; });
 
   el('prev').addEventListener('click', function(){

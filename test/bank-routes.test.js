@@ -130,17 +130,19 @@ test('importing a statement stores its lines, matches the payments and guesses t
   assert.equal(transactions.length, 6);
   const by = Object.fromEntries(transactions.map((t) => [t.description, t]));
   assert.equal(by['BP MAIDSTONE 1234'].category, 'fuel');
-  assert.deepEqual(by['BP MAIDSTONE 1234'].split, [], 'fuel waits to be split by hand');
+  assert.deepEqual(by['BP MAIDSTONE 1234'].split, ['scott', 'tom', 'ben'], 'a business cost is everyone\'s until somebody says otherwise');
+  assert.deepEqual(by['BP MAIDSTONE 1234'].shares, { scott: -2070, tom: -2070, ben: -2070, tax: 0 });
   assert.deepEqual(by['To HMRC'].split, ['tax']);
   assert.equal(by['To HMRC'].shares.tax, -200000);
   assert.deepEqual(by['To Tom Smith'].split, ['tom']);
   assert.equal(by['Payment from PRIYA SHARMA'].jobId, job.id);
   assert.equal(by['Payment from PRIYA SHARMA'].matchKind, 'auto');
 
-  assert.equal(totals.waiting, 2, 'the two fuel lines');
-  assert.equal(totals.unsplitOutPence, -10210);
-  // Localised by Tom: scott 2580, tom 12310, ben 2310, tax 4300.
-  assert.deepEqual(totals.balances, { scott: 2580, tom: 12310 - 50000, ben: 2310, tax: 4300 - 200000 });
+  assert.equal(totals.waiting, 0, 'nothing waits: the importer took a view on every line');
+  assert.equal(totals.unsplitOutPence, 0);
+  // Localised by Tom: scott 2580, tom 12310, ben 2310, tax 4300. The two fuel
+  // lines, 6210 and 4000, split three ways with the odd penny to Scott.
+  assert.deepEqual(totals.balances, { scott: 2580 - 3404, tom: 12310 - 50000 - 3403, ben: 2310 - 3403, tax: 4300 - 200000 });
   assert.equal(totals.jobs.paid, 1);
   assert.equal(totals.differencePence, 0, '215 arrived for a 215 job');
   assertBalances(totals);
@@ -224,9 +226,10 @@ test('matching a line to a job clears any split, so money is never counted twice
   const job = await createJob();
   await upload(businessCsv([{ date: '2026-08-12', id: 'in-x', type: 'TRANSFER', description: 'Payment from SOMEONE', amount: 215 }]));
   const line = (await get('?view=in')).json().transactions[0];
-  assert.equal(line.jobId, null, 'amount alone is not a match');
-  assert.deepEqual(line.suggested, [job.id], 'but it is suggested');
+  assert.equal(line.jobId, job.id, 'the amount and the week are enough when nothing else is close');
+  assert.equal(line.matchKind, 'auto');
 
+  await post({ id: line.id, jobId: null });
   await post({ id: line.id, split: ['scott'] });
   const matched = (await post({ id: line.id, jobId: job.id })).json().transactions[0];
   assert.deepEqual(matched.split, []);
@@ -255,8 +258,8 @@ test('a transfer between own accounts is left out of every figure', async () => 
   const { transactions, totals } = (await get('?view=all')).json();
   assert.equal(transactions.find((t) => t.description === 'To Savings Vault').category, 'transfer');
   assert.equal(totals.bank.outPence, 2000);
-  assert.equal(totals.waiting, 1);
-  assert.equal((await get('?view=attention')).json().transactions.length, 1);
+  assert.equal(totals.waiting, 0, 'the vault is left out and the tools are everyone\'s');
+  assert.equal((await get('?view=attention')).json().transactions.length, 0);
   assertBalances(totals);
 });
 

@@ -34,7 +34,7 @@
 
     try {
       var text = await file.text();
-      var res = await fetch('/api/admin/bank?op=import&name=' + encodeURIComponent(file.name) + ctx.fromQs('&'), {
+      var res = await fetch('/api/admin/bank?op=import&name=' + encodeURIComponent(file.name) + ctx.qs('&'), {
         method: 'POST',
         headers: { 'Content-Type': 'text/csv', Accept: 'application/json' },
         body: text
@@ -64,7 +64,7 @@
     var what = statement.lines === 1 ? 'its 1 line' : 'its ' + U.num(statement.lines) + ' lines';
     if (!global.confirm('Remove ' + (statement.filename || 'this upload') + ' and ' + what
       + '? Any job paid only by those lines is unticked again.')) return;
-    var res = await U.send('/api/admin/bank' + ctx.fromQs('?'), { statementId: statement.id }, 'DELETE');
+    var res = await U.send('/api/admin/bank' + ctx.qs('?'), { statementId: statement.id }, 'DELETE');
     el('import-result').textContent = res.ok ? 'Removed.' : 'That upload could not be removed.';
     await ctx.refresh();
   }

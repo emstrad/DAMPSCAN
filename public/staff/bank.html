@@ -39,8 +39,10 @@
     </span>
   </a>
   <nav class="tabs" aria-label="Sections">
+    <a href="/staff/due.html">Due</a>
     <a href="/staff/dashboard.html">Dashboard</a>
     <a href="/staff/jobs.html">Jobs</a>
+    <a href="/staff/quoted.html">Quotes</a>
     <a href="/staff/clients.html">Clients</a>
     <a href="/staff/bank.html" aria-current="page">Bank</a>
   </nav>
@@ -52,6 +54,7 @@
 
 <main class="wrap">
   <h1 class="sr-only">Bank reconciliation</h1>
+  <div class="ranges" role="group" aria-label="Whose books" id="books" style="margin-bottom:10px" hidden></div>
   <div class="state" id="state">Loading…</div>
 
   <div id="content" hidden>
@@ -70,8 +73,9 @@
 
     <section class="panel" aria-labelledby="h-upload">
       <h2 id="h-upload">Upload a statement</h2>
-      <p class="panel-note" style="margin-top:0">In Revolut: Transactions, Export, CSV. Overlapping months are
-        fine, a line already here is skipped rather than doubled. Pending lines are left out until they complete.</p>
+      <p class="panel-note" style="margin-top:0">In Revolut: Transactions, Export, CSV. It goes into the books
+        chosen above. Overlapping months are fine, a line already in those books is skipped rather than doubled.
+        Pending lines are left out until they complete.</p>
       <form id="upload-form" class="upload" novalidate>
         <label class="btn btn--ghost btn--sm file-btn">
           <input type="file" id="file" accept=".csv,text/csv" />

@@ -104,6 +104,7 @@
     el('j-id').value = job ? job.id : '';
     el('j-lead').value = job && job.leadId ? String(job.leadId) : '';
     el('j-date').value = job ? String(job.jobDate).slice(0, 10) : new Date().toISOString().slice(0, 10);
+    el('j-time').value = job && job.jobTime ? job.jobTime : '';
     el('j-name').value = job ? (job.customerName || '') : '';
     el('j-postcode').value = job ? (job.customerPostcode || '') : '';
     el('j-site').value = job ? job.site : (J.state.site || 'dampscan');
@@ -148,6 +149,7 @@
       leadId: el('j-lead').value || undefined,
       site: el('j-site').value,
       jobDate: el('j-date').value || undefined,
+      jobTime: el('j-time').value || null,
       customerName: el('j-name').value,
       customerPostcode: el('j-postcode').value,
       note: el('j-note').value,

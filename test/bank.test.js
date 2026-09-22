@@ -181,7 +181,8 @@ test('a payment scores on amount, name, postcode and date', () => {
 test('the importer matches only a clear winner', () => {
   const jobs = [job({ id: 1 }), job({ id: 2, customerName: 'Sam Patel', firstName: 'Sam', postcode: 'CT1 1AA' })];
   assert.equal(autoMatch(pay(), jobs), 1, 'name plus amount is enough');
-  assert.equal(autoMatch(pay({ counterparty: 'SOMEONE', description: '' }), jobs), null, 'amount alone is a suggestion, not a match');
+  assert.equal(autoMatch(pay({ counterparty: 'SOMEONE', description: '' }), jobs), null, 'two jobs at that price is a tie, and a tie waits');
+  assert.equal(autoMatch(pay({ counterparty: 'SOMEONE', description: '' }), [job({ id: 1 })]), 1, 'one job at that price this fortnight is enough');
   assert.deepEqual(suggest(pay({ counterparty: 'SOMEONE', description: '' }), jobs).map((s) => s.jobId), [1, 2]);
 
   const twins = [job({ id: 1 }), job({ id: 2 })];

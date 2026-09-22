@@ -12,8 +12,9 @@
  * area and service pages stay visually identical without a second copy of it.
  */
 import { SITES, bookScripts, verifiedBadge } from './area-template.js';
-import { shell } from './page-shell.js';
+import { shell, orCall } from './page-shell.js';
 import { bookForm } from './book-form.js';
+import { guides } from '../content/guides/index.js';
 
 
 const esc = (value) =>
@@ -27,10 +28,50 @@ const words = (text) => String(text).replace(/<[^>]+>/g, ' ').split(/\s+/).filte
 export function distinctiveWordCount(service) {
   return words([
     service.intro,
-    ...service.sections.flatMap((s) => [s.h2, ...s.paras]),
-    ...service.signs,
+    ...service.sections.flatMap((s) => [s.h2, ...s.paras, ...(s.list || [])]),
+    ...(service.signs || []),
     ...service.faq.map((f) => f.q + ' ' + f.a)
   ].join(' '));
+}
+
+/**
+ * A bulleted list inside a section, or nothing.
+ *
+ * Not a brand thing: "what is always in the quoted figure" is a list in any
+ * trade, and prose that tries to be a list reads like an evasion. Damp has
+ * none today, so this renders nothing for every existing page.
+ */
+export function sectionList(section) {
+  if (!Array.isArray(section.list) || !section.list.length) return '';
+  return `
+    <ul class="ticks">
+      ${section.list.map((item) => `<li>${item}</li>`).join('\n      ')}
+    </ul>`;
+}
+
+/**
+ * The "signs you have this" list, or nothing at all.
+ *
+ * It is a damp page pattern rather than a universal one: "signs of rising
+ * damp" is a thing people search and "signs of a re-roof" is not. A trade that
+ * has no such list gets no heading with nothing under it, rather than an empty
+ * section, so the template carries a fourth and fifth brand without being
+ * edited again.
+ *
+ * The indentation is inside the returned string, including the blank line that
+ * follows it, so that a page with signs comes out byte for byte as it did when
+ * this was written inline.
+ */
+function signsBlock(service) {
+  if (!Array.isArray(service.signs) || !service.signs.length) return '';
+  return `  <section class="sec">
+    <h2>${esc(service.signsHeading)}</h2>
+    <ul class="ticks">
+      ${service.signs.map((s) => `<li>${s}</li>`).join('\n      ')}
+    </ul>
+  </section>
+
+`;
 }
 
 function schema(type, extra) {
@@ -45,13 +86,18 @@ export function render(service, allServices) {
   const related = (service.related || [])
     .map((slug) => allServices.find((s) => s.slug === slug && s.site === service.site))
     .filter(Boolean);
+  /* Guides this service points at. Looked up here rather than passed in, so a
+     caller with just the services list, the tests included, gets the same page. */
+  const reading = (service.reading || [])
+    .map((slug) => guides.find((g) => g.slug === slug && g.site === service.site))
+    .filter(Boolean);
 
   const serviceSchema = schema('Service', {
     name: service.name,
     serviceType: service.name,
     description: service.metaDescription,
     url,
-    provider: { '@type': site.schemaType, name: site.brand, url: `${site.origin}/`, telephone: site.phone },
+    provider: { '@type': site.schemaType, name: site.brand, url: `${site.origin}/`, telephone: site.phone || undefined },
     areaServed: { '@type': 'Place', name: site.served }
   });
 
@@ -80,27 +126,21 @@ export function render(service, allServices) {
     <p class="lede">${service.intro}</p>
   </div>
 
-  <section class="sec">
-    <h2>${esc(service.signsHeading)}</h2>
-    <ul class="ticks">
-      ${service.signs.map((s) => `<li>${s}</li>`).join('\n      ')}
-    </ul>
-  </section>
-
-  ${service.sections.map((s) => `<section class="sec">
+${signsBlock(service)}  ${service.sections.map((s) => `<section class="sec">
     <h2>${esc(s.h2)}</h2>
-    ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}
+    ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}${sectionList(s)}
   </section>`).join('\n\n  ')}
 
   <section class="sec" id="faq">
     <h2>Questions</h2>
     ${service.faq.map((f) => `<details class="qa"><summary>${esc(f.q)}</summary><p>${f.a}</p></details>`).join('\n    ')}
   </section>
-${related.length ? `
+${related.length || reading.length ? `
   <section class="sec">
     <h2>Related</h2>
     <ul class="chips">
       ${related.map((r) => `<li><a href="/services/${r.slug}">${esc(r.name)}</a></li>`).join('\n      ')}
+      ${reading.map((g) => `<li><a href="/guides/${g.slug}">${esc(g.name)}</a></li>`).join('\n      ')}
     </ul>
   </section>
 ` : ''}`;
@@ -108,7 +148,7 @@ ${related.length ? `
   const aside = `
     <div class="booking">
       <h2>${esc(service.ctaHeading)}</h2>
-      <p>${service.ctaBody} Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+      <p>${service.ctaBody}${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

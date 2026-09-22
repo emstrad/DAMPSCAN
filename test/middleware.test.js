@@ -139,8 +139,22 @@ test('each host resolves /pricing to its own fees and never the other firm\'s', 
   }
 });
 
+test('a guide resolves to the right site directory, and the hub to its own file', () => {
+  assert.equal(rewrittenTo(call(KENT, '/guides')), '/hubs/dampscan/guides.html');
+  assert.equal(rewrittenTo(call(LONDON, '/guides')), '/hubs/ati/guides.html');
+  assert.equal(
+    rewrittenTo(call(KENT, '/guides/woodworm-and-rot-treatment-cost')),
+    '/guide-pages/dampscan/woodworm-and-rot-treatment-cost.html'
+  );
+  assert.equal(
+    rewrittenTo(call(`www.${LONDON}`, '/guides/woodworm-and-rot-treatment-cost')),
+    '/guide-pages/ati/woodworm-and-rot-treatment-cost.html'
+  );
+  assert.equal(rewrittenTo(call(KENT, '/guides/UPPER')), null, 'not a plain slug');
+});
+
 test('the trailing slash form redirects onto the bare path, so there is one URL', () => {
-  for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey']]) {
+  for (const [from, to] of [['/services/', '/services'], ['/damp-survey/', '/damp-survey'], ['/guides/', '/guides']]) {
     const res = call(KENT, from);
     assert.equal(res.status, 301, from);
     assert.equal(new URL(res.headers.get('location')).pathname, to, from);
@@ -162,4 +176,77 @@ test('a service path that is not a plain slug is left alone', () => {
   for (const path of ['/services/a/b', '/services/UPPER']) {
     assert.equal(rewrittenTo(call(KENT, path)), null, path);
   }
+});
+
+/* Verge Roofing. Before this host existed the directory was chosen by a
+   boolean, so anything that was not London was served DampScan: a third domain
+   pointed at this project would have answered every URL with damp content under
+   a roofing canonical. These assert the brand actually gets its own pages. */
+const ROOFING = 'vergeroofing.com';
+
+test('the roofing host is served roofing pages, never the damp ones', async () => {
+  assert.equal(rewrittenTo(await call(ROOFING, '/services')), '/hubs/roofing/services.html');
+  assert.equal(rewrittenTo(await call(ROOFING, '/guides')), '/hubs/roofing/guides.html');
+  assert.equal(rewrittenTo(await call(ROOFING, '/services/re-roofs')), '/service-pages/roofing/re-roofs.html');
+  assert.equal(rewrittenTo(await call(ROOFING, '/guides/repair-or-replace-a-roof')),
+    '/guide-pages/roofing/repair-or-replace-a-roof.html');
+});
+
+test('each brand is served its own home page, never another brand\'s', async () => {
+  assert.equal(rewrittenTo(await call(ROOFING, '/')), '/roofing.html');
+  assert.equal(rewrittenTo(await call(LONDON, '/')), '/london.html');
+  /* DampScan is the project default and owns index.html, so nothing rewrites. */
+  assert.equal(rewrittenTo(await call(KENT, '/')), null);
+});
+
+test('roofing has no pricing page and no area pages, so nothing routes to them', async () => {
+  /* next() leaves the request to the filesystem, where neither exists. */
+  assert.equal(rewrittenTo(await call(ROOFING, '/pricing')), null);
+  assert.equal(rewrittenTo(await call(ROOFING, '/roofing-in')), null);
+});
+
+test('each brand is served its own robots, sitemap and llms at the shared paths', async () => {
+  assert.equal(rewrittenTo(await call(ROOFING, '/robots.txt')), '/robots-roofing.txt');
+  assert.equal(rewrittenTo(await call(ROOFING, '/sitemap.xml')), '/sitemap-roofing.xml');
+  assert.equal(rewrittenTo(await call(ROOFING, '/llms.txt')), '/llms-roofing.txt');
+  assert.equal(rewrittenTo(await call(LONDON, '/robots.txt')), '/robots-london.txt');
+  /* DampScan is the project default and owns the unprefixed files, so nothing
+     rewrites and the file answers directly. */
+  assert.equal(rewrittenTo(await call(KENT, '/robots.txt')), null);
+});
+
+const AC = 'coolright.co.uk';
+
+test('the CoolRight host is served its own pages and its own root files', async () => {
+  assert.equal(rewrittenTo(await call(AC, '/')), '/ac.html');
+  assert.equal(rewrittenTo(await call(AC, '/services')), '/hubs/ac/services.html');
+  assert.equal(rewrittenTo(await call(AC, '/services/multi-split-systems')),
+    '/service-pages/ac/multi-split-systems.html');
+  assert.equal(rewrittenTo(await call(AC, '/guides/air-conditioning-installation-cost')),
+    '/guide-pages/ac/air-conditioning-installation-cost.html');
+  assert.equal(rewrittenTo(await call(AC, '/robots.txt')), '/robots-ac.txt');
+  assert.equal(rewrittenTo(await call(AC, '/sitemap.xml')), '/sitemap-ac.xml');
+});
+
+test('no brand can reach another brand\'s pages through the shared paths', async () => {
+  /* The whole hazard of four brands on one deployment, asserted directly. */
+  for (const [host, dir] of [[KENT, 'dampscan'], [LONDON, 'ati'], [ROOFING, 'roofing'], [AC, 'ac']]) {
+    const target = rewrittenTo(await call(host, '/services'));
+    assert.equal(target, `/hubs/${dir}/services.html`, `${host} must get its own services hub`);
+  }
+});
+
+
+test('a brand\'s home file requested on another brand\'s host is sent to its own domain', async () => {
+  /* Every home page is a file in public/, so it is reachable by filename on
+     every host. Left alone, dampscan.co.uk/roofing.html served a roofing home
+     page under a damp domain and a roofing visitor could be handed ATi's. */
+  assert.equal(redirect(await call(KENT, '/roofing.html')).to, 'https://vergeroofing.com/');
+  assert.equal(redirect(await call(KENT, '/ac.html')).to, 'https://coolright.co.uk/');
+  assert.equal(redirect(await call(ROOFING, '/london.html')).to, 'https://atidampsurvey.co.uk/');
+  assert.equal(redirect(await call(ROOFING, '/ac.html')).to, 'https://coolright.co.uk/');
+  assert.equal(redirect(await call(AC, '/roofing.html')).to, 'https://vergeroofing.com/');
+  /* On its own host the file is simply "/". */
+  assert.equal(redirect(await call(ROOFING, '/roofing.html')).to, 'https://vergeroofing.com/');
+  assert.equal(redirect(await call(AC, '/ac.html')).to, 'https://coolright.co.uk/');
 });

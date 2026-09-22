@@ -18,14 +18,19 @@ import { json, requireMethod, actionFrom } from '../../lib/http.js';
 import attachment from '../../lib/routes/admin/attachment.js';
 import bank from '../../lib/routes/admin/bank.js';
 import clients from '../../lib/routes/admin/clients.js';
+import contracts from '../../lib/routes/admin/contracts.js';
+import due from '../../lib/routes/admin/due.js';
 import jobs from '../../lib/routes/admin/jobs.js';
 import leads from '../../lib/routes/admin/leads.js';
+import me from '../../lib/routes/admin/me.js';
+import people from '../../lib/routes/admin/people.js';
+import quoted from '../../lib/routes/admin/quoted.js';
 import rates from '../../lib/routes/admin/rates.js';
 import summary from '../../lib/routes/admin/summary.js';
 
 export const config = { runtime: 'nodejs' };
 
-const ROUTES = { attachment, bank, clients, jobs, leads, rates, summary };
+const ROUTES = { attachment, bank, clients, contracts, due, jobs, leads, me, people, quoted, rates, summary };
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST', 'DELETE'])) return;

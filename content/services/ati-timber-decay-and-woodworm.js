@@ -61,5 +61,6 @@ export default {
         'Yes, and the most common example in London stock is decay at joist ends built into a solid external wall that has been dry lined. The wall stays damp because it can no longer dry inwards, the buried joist end sits in it, and nothing shows in the room until the floor starts to move. Where the construction and the damp history suggest it, it is worth looking for deliberately rather than waiting for a symptom.'
     },
   ],
-  related: ['wet-and-dry-rot', 'rising-damp', 'damp-surveys']
+  related: ['wet-and-dry-rot', 'rising-damp', 'damp-surveys'],
+  reading: ['woodworm-and-rot-treatment-cost']
 };

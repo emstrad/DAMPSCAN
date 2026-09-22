@@ -8,7 +8,7 @@
  * generator refuses to build a page whose distinctive copy is too short.
  */
 import { bookForm } from './book-form.js';
-import { shell } from './page-shell.js';
+import { shell, orCall } from './page-shell.js';
 
 const SITES = {
   dampscan: {
@@ -23,6 +23,10 @@ const SITES = {
     served: 'Kent and the South East of England',
     strap: 'Damp, mould and timber surveys across Kent and the South East',
     surveyMateSlug: 'dampscan',
+    /* The mobile action bar. Kept as the literal it always was. */
+    barLabel: 'Book a survey',
+    areasPath: '/damp-survey',
+    sitemapFile: 'sitemap.xml',
     ctaLabel: 'Book a Survey',
     headBg: 'rgba(8,19,33,.86)',
     headSolid: '#081321',
@@ -32,14 +36,22 @@ const SITES = {
       { label: 'How It Works', href: '/#how' },
       { label: 'Services', href: '/services' },
       { label: 'Prices', href: '/pricing' },
+      { label: 'Guides', href: '/guides' },
       { label: 'What you get', href: '/#reviews' },
       { label: 'Landlords', href: '/#landlords' },
       { label: 'Areas', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
-    // Set to the Business Profile share link to credit Google where the
-    // reviews came from. Empty means the credit shows without a link.
-    profileUrl: '',
+    // The Business Profile share link: credits Google where the reviews came
+    // from, and goes into sameAs so search can tie the site to the profile.
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/damp-survey', label: 'Areas' },
+      { href: '/guides', label: 'Guides' },
+      { href: '/pricing', label: 'Prices' }
+    ],
+    profileUrl: 'https://share.google/kC2SRRJEFz5DqKXC9',
+    og: '/assets/dampscan-og.png',
     book: {
       sessionKey: 'dampscan-session',
       attrKey: 'dampscan-attr',
@@ -60,6 +72,10 @@ const SITES = {
     served: 'London',
     strap: 'Independent damp and timber surveys, no remedial work',
     surveyMateSlug: 'ati-damp-survey',
+    /* The mobile action bar. Kept as the literal it always was. */
+    barLabel: 'Book a survey',
+    areasPath: '/damp-survey',
+    sitemapFile: 'sitemap-london.xml',
     ctaLabel: 'Request a Survey',
     headBg: 'rgba(245,245,243,.9)',
     headSolid: '#f5f5f3',
@@ -68,18 +84,127 @@ const SITES = {
       { label: 'How It Works', href: '/#how' },
       { label: 'Services', href: '/services' },
       { label: 'Prices', href: '/pricing' },
+      { label: 'Guides', href: '/guides' },
       { label: 'The report', href: '/#reviews' },
       { label: 'Landlords', href: '/#landlords' },
       { label: 'London Coverage', href: '/damp-survey' },
       { label: 'FAQs', href: 'FAQ' }
     ],
-    profileUrl: '',
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/damp-survey', label: 'Areas' },
+      { href: '/guides', label: 'Guides' },
+      { href: '/pricing', label: 'Prices' }
+    ],
+    profileUrl: 'https://share.google/UR3GLPt8y1SyLr5FV',
+    og: '/assets/ati-og.png',
     book: {
       sessionKey: 'ati-damp-session',
       attrKey: 'ati-damp-attr',
       notify: 'https://formsubmit.co/ajax/team@atidampsurvey.co.uk',
       subjectPrefix: 'ATI London, ',
       dataLayerEvent: 'ati-damp'
+    }
+  },
+  /* Verge Roofing. A different business from the two damp brands, sharing this
+     repo for the generators and nothing else: its own domain, its own Business
+     Profile, its own Ads account, and no link to or from either damp site.
+
+     phone and phoneLabel are set together: the templates leave every call
+     link out while either is null rather than shipping tel:null on thirty
+     pages, which is how the pages were built before the number was issued. */
+  roofing: {
+    key: 'roofing',
+    brand: 'Verge Roofing',
+    origin: 'https://vergeroofing.com',
+    logo: null,
+    phone: '+442034324561',
+    phoneLabel: '020 3432 4561',
+    email: 'team@vergeroofing.com',
+    schemaType: 'RoofingContractor',
+    served: 'London, Kent, Surrey, Essex, Hertfordshire, Sussex and Berkshire',
+    strap: 'Roofing across London and the South East',
+    surveyMateSlug: null,
+    /* Null until the regional pages are carried across. A sitemap that lists a
+       path nothing serves is worse than a short sitemap. */
+    areasPath: null,
+    sitemapFile: 'sitemap-roofing.xml',
+    ctaLabel: 'Get a Quote',
+    barLabel: 'Get a quote',
+    headBg: 'rgba(23,26,31,.88)',
+    headSolid: '#171a1f',
+    lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Verge<span class="scan">Roofing</span></span><span class="logo-tag">Higher standards</span></span></span>',
+    /* No Prices entry, because every roof is quoted and the guides carry the
+       basis instead. No Areas entry either, until the regional pages are
+       carried across: a nav item is a promise that a page answers. */
+    nav: [
+      { label: 'How It Works', href: '/#how' },
+      { label: 'Services', href: '/services' },
+      { label: 'Guides', href: '/guides' },
+      { label: 'Our work', href: '/#reviews' },
+      { label: 'FAQs', href: 'FAQ' }
+    ],
+    /* No Areas and no Prices: the regional pages are not carried across yet and
+       every roof is quoted. A footer that lists pages a brand does not have is
+       two dead links on every page of it. */
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/guides', label: 'Guides' }
+    ],
+    profileUrl: 'https://share.google/p2JjORGy8UdZUpQnV',
+    og: null,
+    book: {
+      sessionKey: 'verge-session',
+      attrKey: 'verge-attr',
+      notify: 'https://formsubmit.co/ajax/team@vergeroofing.com',
+      subjectPrefix: 'Verge Roofing, ',
+      subjectComplete: 'NEW quote request, ',
+      subjectPartial: 'PARTIAL enquiry (step 1), ',
+      dataLayerEvent: 'verge-roofing'
+    }
+  },
+  /* CoolRight. Air conditioning, heating and ventilation, and the fourth brand
+     in this project. Like roofing it quotes every job, so it has no pricing
+     page, and its number is not issued yet so no call link ships. */
+  ac: {
+    key: 'ac',
+    brand: 'CoolRight',
+    origin: 'https://coolright.co.uk',
+    logo: null,
+    phone: '+442034324559',
+    phoneLabel: '020 3432 4559',
+    email: 'team@coolright.co.uk',
+    schemaType: 'HVACBusiness',
+    served: 'London and the whole of the South East',
+    strap: 'Air conditioning, heating and ventilation across London and the South East',
+    surveyMateSlug: null,
+    areasPath: null,
+    sitemapFile: 'sitemap-ac.xml',
+    ctaLabel: 'Get a Quote',
+    barLabel: 'Get a quote',
+    headBg: 'rgba(12,32,46,.88)',
+    headSolid: '#0c202e',
+    lockup: '<span class="logo"><span class="logo-type"><span class="logo-word">Cool<span class="scan">Right</span></span><span class="logo-tag">Climate control. Done right.</span></span></span>',
+    nav: [
+      { label: 'How It Works', href: '/#how' },
+      { label: 'Services', href: '/services' },
+      { label: 'Guides', href: '/guides' },
+      { label: 'FAQs', href: 'FAQ' }
+    ],
+    footerLinks: [
+      { href: '/services', label: 'Services' },
+      { href: '/guides', label: 'Guides' }
+    ],
+    profileUrl: 'https://share.google/MFCiCldTnpS3VMcVW',
+    og: null,
+    book: {
+      sessionKey: 'coolright-session',
+      attrKey: 'coolright-attr',
+      notify: 'https://formsubmit.co/ajax/team@coolright.co.uk',
+      subjectPrefix: 'CoolRight, ',
+      subjectComplete: 'NEW quote request, ',
+      subjectPartial: 'PARTIAL enquiry (step 1), ',
+      dataLayerEvent: 'coolright'
     }
   }
 };
@@ -97,7 +222,7 @@ window.DS_CONFIG = {
   sessionKey: '${b.sessionKey}',
   attrKey: '${b.attrKey}',
   notify: '${b.notify}',
-  subjectPrefix: '${b.subjectPrefix}',
+  subjectPrefix: '${b.subjectPrefix}',${b.subjectComplete ? `\n  subjectComplete: '${b.subjectComplete}',` : ''}${b.subjectPartial ? `\n  subjectPartial: '${b.subjectPartial}',` : ''}
   dataLayerEvent: '${b.dataLayerEvent}'
 };
 </scr` + `ipt>
@@ -112,8 +237,12 @@ window.DS_CONFIG = {
    firm's current status rather than a copy that would keep saying verified if
    the listing ever lapsed. Fixed dimensions and lazy loading keep it off the
    critical path and stop it shifting the layout when it arrives. */
+/* SurveyMate lists damp surveyors, so a brand in another trade has no entry
+   and gets no badge. Rendered unconditionally it linked every roofing page to
+   /find-a-surveyor/null and pulled a broken image from the same. */
 function verifiedBadge(site) {
   const slug = site.surveyMateSlug;
+  if (!slug) return '';
   return `<a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/${slug}"
       rel="noopener" target="_blank">
       <img src="https://survey-mate.co.uk/api/verified-badge/${slug}"
@@ -131,7 +260,11 @@ const words = (text) => String(text).replace(/<[^>]+>/g, ' ').split(/\s+/).filte
 
 /** Everything on the page that is true only of this area. */
 export function distinctiveWordCount(area) {
-  return words([area.intro, ...area.stock, ...area.common, ...area.faq.map((f) => f.q + ' ' + f.a)].join(' '));
+  return words([
+    area.intro, ...area.stock, ...area.common,
+    ...(area.towns || []).map((t) => t.name + ' ' + t.text),
+    ...area.faq.map((f) => f.q + ' ' + f.a)
+  ].join(' '));
 }
 
 function faqSchema(area) {
@@ -152,7 +285,7 @@ function businessSchema(area, site, url) {
     '@type': site.schemaType,
     name: site.brand,
     url,
-    telephone: site.phone,
+    telephone: site.phone || undefined,
     email: site.email,
     areaServed: { '@type': 'Place', name: area.name },
     description: area.metaDescription
@@ -202,6 +335,13 @@ export function render(area, allAreas) {
     </ul>
   </section>
 
+${area.towns && area.towns.length ? `
+  <section class="sec">
+    <h2>By town</h2>
+    ${area.towns.map((t) => `<h3>${esc(t.name)}</h3>
+    <p>${t.text}</p>`).join('\n    ')}
+  </section>
+` : ''}
   <section class="sec">
     <h2>Where we cover</h2>
     <p>${esc(area.coverage)}</p>
@@ -231,7 +371,7 @@ ${nearby.length ? `
     <div class="booking">
       <h2>Book a survey in ${esc(area.name)}</h2>
       <p>Same day response to every enquiry, and your written report within 24
-        hours of the visit. Or call <a href="tel:${site.phone}">${esc(site.phoneLabel)}</a>.</p>
+        hours of the visit.${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

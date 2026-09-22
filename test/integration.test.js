@@ -172,6 +172,12 @@ test('the site is derived from the Host header, never trusted from the body', ()
   assert.equal(at(undefined), 'dampscan', 'a missing host falls back rather than throwing');
   assert.equal(siteFor({ headers: { 'x-forwarded-host': 'atidampsurvey.co.uk', host: 'x.vercel.app' } }),
     'ati-london', 'the forwarded host wins');
+  /* The two brands added in 2026. Before they were listed here an enquiry
+     from either was stored as a DampScan lead. */
+  assert.equal(at('vergeroofing.com'), 'roofing');
+  assert.equal(at('www.vergeroofing.com'), 'roofing');
+  assert.equal(at('coolright.co.uk'), 'ac');
+  assert.equal(at('www.coolright.co.uk'), 'ac');
 });
 
 test('leads and events are tagged with the site that produced them', async () => {
@@ -735,12 +741,16 @@ test('a job can be deleted', async () => {
 });
 
 /* --------------------------------------------------------------- clients ---- */
+/* Two days either side rather than one: the server decides "today" on London
+   time and this test runs on whatever clock the machine has, and during the
+   one hour a day they disagree a one-day margin would flake. */
+const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
-/* A card archives itself the day after its survey, and the default view is
-   what is still upcoming, so a booking these tests expect to find has to be
-   dated ahead of today. A fixed date passes until the day it quietly goes by,
-   which is how this went red a fortnight after it was written. */
-const UPCOMING = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+/* Ahead of today, because the client list opens on the upcoming view and a job
+   dated in the past is not in it. This was a fixed date, which passed every run
+   until the day it went by and then failed every run after, on a commit that
+   touched nothing. Any default here has to be relative to now. */
+const DEFAULT_JOB_DATE = daysFromNow(3);
 
 async function bookedJob(cookie, extra = {}) {
   const leadRes = (await call(lead, { body: validLead({
@@ -749,7 +759,7 @@ async function bookedJob(cookie, extra = {}) {
   }) })).json();
   const job = (await call(jobsRoute, { body: {
     leadId: leadRes.id, customerName: 'Priya', surveyType: 'full-house', surveyor: 'tom',
-    jobDate: UPCOMING, status: 'booked', ...extra
+    jobDate: DEFAULT_JOB_DATE, status: 'booked', ...extra
   }, headers: { cookie } })).json();
   return { leadId: leadRes.id, job: job.job };
 }
@@ -768,7 +778,7 @@ test('a booked job is a client card, with the enquiry pulled through', async () 
   assert.deepEqual(c.files, ['leads/2026-09-04/uuid-report.pdf']);
   assert.deepEqual(c.issues, ['Damp', 'Mould']);
   assert.equal(c.leadNotes, 'Back bedroom, since spring');
-  assert.equal(c.surveyDate, UPCOMING);
+  assert.equal(c.surveyDate, DEFAULT_JOB_DATE);
   assert.equal(c.survey.label, 'Full House');
   assert.equal(c.survey.pricePence, 29500);
 });
@@ -861,11 +871,6 @@ test('cancelled jobs are not clients, on any view', async () => {
     assert.deepEqual(res.json().clients, [], `a cancelled job showed up under ${view}`);
   }
 });
-
-/* Two days either side rather than one: the server decides "today" on London
-   time and this test runs on whatever clock the machine has, and during the
-   one hour a day they disagree a one-day margin would flake. */
-const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
 test('a card archives itself the day after its survey date, without the job changing', async () => {
   const cookie = await signedInCookie();
@@ -982,4 +987,72 @@ test('actionFrom reads the last path segment, whatever the URL carries', async (
   assert.equal(actionFrom('/api/admin/leads/'), 'leads', 'a trailing slash must not blank it');
   assert.equal(actionFrom('/api/admin/'), 'admin');
   assert.equal(actionFrom(undefined), '');
+});
+
+test('a survey has an hour as well as a day, and the hour can be cleared again', async () => {
+  const cookie = await signedInCookie();
+  const { job } = await bookedJob(cookie, { jobTime: '09:30' });
+
+  const [listed] = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } })).json().clients;
+  assert.equal(listed.surveyTime, '09:30', 'the seconds the database keeps are not shown');
+
+  const moved = (await call(clientsRoute, { body: { id: job.id, jobTime: '14:00' }, headers: { cookie } })).json().client;
+  assert.equal(moved.surveyTime, '14:00');
+
+  /* Empty is a real instruction: the day stands and the hour is off again. */
+  const cleared = (await call(clientsRoute, { body: { id: job.id, jobTime: '' }, headers: { cookie } })).json().client;
+  assert.equal(cleared.surveyTime, null);
+  assert.equal(cleared.surveyDate, moved.surveyDate, 'clearing the hour must not move the day');
+
+  const bad = await call(clientsRoute, { body: { id: job.id, jobTime: '25:00' }, headers: { cookie } });
+  assert.equal(bad.statusCode, 400, 'a 24 hour clock has no 25');
+});
+
+test('the upcoming board runs in time order within a day, unscheduled last', async () => {
+  const cookie = await signedInCookie();
+  const day = DEFAULT_JOB_DATE;
+  /* Recorded by hand with no lead, because one lead can only become one job and
+     these three are about the ordering rather than about where they came from. */
+  const at = (jobTime) => call(jobsRoute, { body: {
+    customerName: 'Ordering', surveyType: 'localised', surveyor: 'ben',
+    status: 'booked', jobDate: day, jobTime
+  }, headers: { cookie } });
+  await at('15:00');
+  await at('08:00');
+  await at(null);
+
+  const times = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients', headers: { cookie } }))
+    .json().clients.map((c) => c.surveyTime);
+  assert.deepEqual(times, ['08:00', '15:00', null], 'a job with no hour yet does not jump the queue');
+});
+
+test('an enquiry from a new brand is stored as that brand and filterable as it, end to end', async () => {
+  /* The review found lib/site.js falling back to DampScan for any host it did
+     not know, so a roofing enquiry was stored, counted and shown as damp. This
+     walks the whole path rather than the pieces: real host, real form values
+     for that brand, real storage, real staff filter. */
+  const roofing = await call(lead, {
+    headers: { host: 'vergeroofing.com' },
+    body: validLead({ sessionId: SID_B, issues: ['Slipped or missing tiles', 'Not sure'] })
+  });
+  assert.equal(roofing.statusCode, 200, JSON.stringify(roofing.json()));
+
+  /* The same values on the damp host are refused: they are not damp issues. */
+  const wrongHost = await call(lead, {
+    headers: { host: 'dampscan.co.uk' },
+    body: validLead({ sessionId: SID_A, issues: ['Slipped or missing tiles'] })
+  });
+  assert.equal(wrongHost.statusCode, 400, 'a roofing issue list is not valid on the damp host');
+
+  const { rows } = await pool.query('select site, issues from leads where session_id = $1', [SID_B]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].site, 'roofing', 'stored under its own brand, not the default');
+  assert.deepEqual(rows[0].issues, ['Slipped or missing tiles', 'Not sure']);
+
+  const cookie = await signedInCookie();
+  const mine = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?site=roofing', headers: { cookie } })).json();
+  assert.equal(mine.leads.length, 1, 'visible under its own filter');
+  assert.equal(mine.leads[0].site, 'roofing');
+  const damp = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?site=dampscan', headers: { cookie } })).json();
+  assert.equal(damp.leads.length, 0, 'and absent from the damp board');
 });

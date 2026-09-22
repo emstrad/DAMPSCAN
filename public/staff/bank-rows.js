@@ -8,7 +8,6 @@
   'use strict';
 
   var U = global.DSUI;
-  var TARGETS = [['scott', 'Scott'], ['tom', 'Tom'], ['ben', 'Ben'], ['tax', 'Tax']];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   var rows = {};   // id -> tr, so a saved line is swapped in place
@@ -21,10 +20,17 @@
 
   function cap(s) { return String(s || '').replace(/^./, function (m) { return m.toUpperCase(); }); }
 
-  function splitLabel(split) {
+  /* Names from the books' own targets: the partners in damp's, the people
+     who hold the business in the others. */
+  function splitLabel(split, ctx) {
     if (!split.length) return '';
-    if (split.length === 3 && split.indexOf('tax') === -1) return 'Everyone';
-    return split.map(function (t) { return t === 'tax' ? 'Tax' : cap(t); }).join(' + ');
+    var people = ctx.targets.filter(function (t) { return t.key !== 'tax'; });
+    var everyone = people.length > 1 && people.every(function (t) { return split.indexOf(t.key) !== -1; }) && split.indexOf('tax') === -1;
+    if (everyone) return 'Everyone';
+    return split.map(function (key) {
+      var t = ctx.targets.filter(function (x) { return x.key === key; })[0];
+      return t ? (key === 'tax' ? 'Tax' : t.name) : cap(key);
+    }).join(' + ');
   }
 
   function jobLabel(j) {
@@ -34,8 +40,9 @@
   }
 
   /* ---------- the controls ---------- */
-  function select(options, value, onChange) {
+  function select(options, value, onChange, label) {
     var s = document.createElement('select');
+    s.setAttribute('aria-label', label);
     options.forEach(function (o) { s.appendChild(new Option(o[1], o[0])); });
     s.value = value;
     s.addEventListener('change', function () { onChange(s.value); });
@@ -47,7 +54,7 @@
     var options = ctx.categories
       .filter(function (c) { return c.flow === 'any' || c.flow === flow || c.key === tx.category; })
       .map(function (c) { return [c.key, c.label]; });
-    return select(options, tx.category, function (v) { commit(tx, ctx, { category: v }); });
+    return select(options, tx.category, function (v) { commit(tx, ctx, { category: v }); }, 'Category of ' + (tx.description || 'this line'));
   }
 
   function jobSelect(tx, ctx) {
@@ -63,18 +70,19 @@
     }
     return select(options, tx.jobId ? String(tx.jobId) : '', function (v) {
       commit(tx, ctx, { jobId: v ? Number(v) : null });
-    });
+    }, 'Job paid by ' + (tx.description || 'this line'));
   }
 
   function splitToggles(tx, ctx) {
     var wrap = U.node('div', 'split');
-    TARGETS.forEach(function (t) {
-      var b = U.node('button', 'pill', t[1]);
+    ctx.targets.forEach(function (t) {
+      var label = t.key === 'tax' ? 'Tax' : t.name.split(' ')[0];
+      var b = U.node('button', 'pill', label);
       b.type = 'button';
-      b.setAttribute('aria-pressed', String(tx.split.indexOf(t[0]) !== -1));
-      b.title = 'Share this line with ' + t[1];
+      b.setAttribute('aria-pressed', String(tx.split.indexOf(t.key) !== -1));
+      b.title = 'Share this line with ' + t.name;
       b.addEventListener('click', function () {
-        var next = tx.split.indexOf(t[0]) === -1 ? tx.split.concat([t[0]]) : tx.split.filter(function (x) { return x !== t[0]; });
+        var next = tx.split.indexOf(t.key) === -1 ? tx.split.concat([t.key]) : tx.split.filter(function (x) { return x !== t.key; });
         commit(tx, ctx, { split: next });
       });
       wrap.appendChild(b);
@@ -82,11 +90,23 @@
     return wrap;
   }
 
-  function status(tx) {
+  /* Paid in full once the job says so, or once what the bank has matched to
+     it covers the price; part paid until then. */
+  function paidLabel(tx, ctx) {
+    if (tx.job && tx.job.paidAt) return 'Paid in full';
+    var j = ctx.jobs.filter(function (x) { return x.id === tx.jobId; })[0];
+    return j && j.surveyPricePence > 0 && j.receivedPence >= j.surveyPricePence ? 'Paid in full' : 'Part paid';
+  }
+
+  function status(tx, ctx) {
     var wrap = U.node('div', 'status');
-    if (tx.jobId) wrap.appendChild(U.node('span', 'tag tag--good', tx.job && tx.job.paidAt ? 'Paid in full' : 'Part paid'));
-    else if (tx.split.length) wrap.appendChild(U.node('span', 'tag tag--good', splitLabel(tx.split)));
+    /* In a company's books spend is the company's unless it went to a person,
+       so a categorised cost is settled, not waiting. */
+    var companyCost = ctx.model !== 'damp' && tx.amountPence < 0 && tx.category !== 'other' && tx.category !== 'transfer';
+    if (tx.jobId) wrap.appendChild(U.node('span', 'tag tag--good', paidLabel(tx, ctx)));
+    else if (tx.split.length) wrap.appendChild(U.node('span', 'tag tag--good', splitLabel(tx.split, ctx)));
     else if (tx.category === 'transfer') wrap.appendChild(U.node('span', 'tag tag--muted', 'Left out'));
+    else if (companyCost) wrap.appendChild(U.node('span', 'tag tag--muted', 'Company cost'));
     else wrap.appendChild(U.node('span', 'tag tag--warn', 'Needs attention'));
     var how = tx.jobId ? tx.matchKind : tx.split.length ? tx.splitKind : null;
     if (how) wrap.appendChild(U.node('span', 'tag tag--muted', how === 'manual' ? 'by hand' : 'auto'));
@@ -120,7 +140,7 @@
     tr.appendChild(who);
 
     var st = document.createElement('td');
-    st.appendChild(status(tx));
+    st.appendChild(status(tx, ctx));
     var note = U.node('small', 'row-note');
     note.hidden = true;
     st.appendChild(note);
@@ -160,8 +180,10 @@
     var table = document.createElement('table');
     var thead = document.createElement('thead');
     var hr = document.createElement('tr');
-    [['Date'], ['Details'], ['In', 'num'], ['Out', 'num'], ['Category'], ['Job or split'], ['']].forEach(function (h) {
-      hr.appendChild(U.node('th', h[1] || null, h[0]));
+    [['Date'], ['Details'], ['In', 'num'], ['Out', 'num'], ['Category'], ['Job or split'], ['Status', null, true]].forEach(function (h) {
+      var th = U.node('th', h[1] || null, h[2] ? null : h[0]);
+      if (h[2]) th.appendChild(U.node('span', 'sr-only', h[0]));
+      hr.appendChild(th);
     });
     thead.appendChild(hr);
     table.appendChild(thead);

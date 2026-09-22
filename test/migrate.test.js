@@ -67,8 +67,9 @@ test('every statement applies individually, as the Neon driver sends them', asyn
     [SCRATCH]
   );
   assert.deepEqual(rows.map((r) => r.table_name), [
-    'bank_rules', 'bank_statements', 'bank_transactions',
-    'events', 'job_rates', 'job_settings', 'jobs', 'leads', 'rate_hits', 'staff_users'
+    'audit', 'bank_rules', 'bank_statements', 'bank_transactions', 'businesses',
+    'events', 'grants', 'job_costs', 'job_owner_days', 'job_payments', 'job_rates', 'job_settings', 'jobs',
+    'leads', 'notifications', 'payouts', 'people', 'rate_hits', 'service_contracts', 'staff_users'
   ]);
 });
 
@@ -176,5 +177,22 @@ test('check constraints reject values the app would never send', async () => {
     ),
     /violates check constraint/,
     'role is limited to staff and admin'
+  );
+});
+
+/* This one is deterministic all day, which the bug it guards was not. A job
+   saved with no date only lands on the wrong day for the hour before midnight
+   in British Summer Time, so a test that inserted a row and compared dates
+   would pass twenty-three hours out of twenty-four and quietly stop meaning
+   anything. Reading the column default instead holds whatever the clock says. */
+test('a job with no date takes the day it is in London, not on the server', async () => {
+  const { rows } = await client.query(
+    `select column_default from information_schema.columns
+      where table_name = 'jobs' and column_name = 'job_date'`
+  );
+  assert.match(
+    rows[0].column_default,
+    /Europe\/London/,
+    'current_date is the server day, which London has already left late on a summer evening'
   );
 });

@@ -120,6 +120,7 @@
   }
 
   pills('[data-site]', 'site');
+  U.scopePills('[data-site]');
   pills('[data-range]', 'range');
 
   el('refresh').addEventListener('click', refresh);

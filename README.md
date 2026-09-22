@@ -76,6 +76,7 @@ covered by `npm test`. See "Running the tests".
 | `STAFF_ACCESS_CODE` | yes | The code typed at `/staff`. Under 4 characters and every login is refused, so it cannot be left blank by accident. |
 | `SESSION_SECRET` | yes | Signs the staff session cookie. Long random string. Changing it invalidates every active session, which is the fastest way to sign everyone out. |
 | `IP_SALT` | yes | Salt for hashing visitor IPs. Raw addresses are never stored. Changing it resets the throttle counters. |
+| `NTFY_TOPIC` | no | An ntfy topic. With it set, a job saved, a payment recorded or a payout frozen on a quoted business pushes to every phone subscribed to the topic, and `/api/cron/digest` sends a morning summary per business. Nothing pushed carries a customer's details. `NTFY_URL` points at a self-hosted server and `NTFY_TOKEN` authorises a protected topic; both are optional. |
 | `ADDRESS_API_KEY` | no | Turns the typed address fields on step 3 into a postcode picker. With no key the form asks people to type it, which still captures the full address. See "Address lookup". |
 | `ADDRESS_API_URL` | no | The lookup URL, with `{postcode}` and `{key}` substituted in. Defaults to Ideal Postcodes. Set it to use a different provider. |
 | `BLOB_READ_WRITE_TOKEN` | no | Vercel Blob store for booking attachments. Set automatically once a Blob store is attached to the project. With no store the upload field takes nothing and the booking is unaffected. See "Attachments". |
@@ -131,10 +132,14 @@ phantom session and dilute the conversion rates.
 
 ### `staff_users`
 
-Not used by the current login route, which takes a single access code instead. The
-table and the `create-user` / `set-user` scripts are kept so per-user accounts can
-be restored without rebuilding them. `password_hash` is argon2id. There is no
-seeded account and no default password anywhere in this repo.
+Dormant, and superseded. Per-person sign in now lives in `people` and `grants`:
+one argon2id passcode per person, which is the identity, and a row per person
+per business saying what they may see. `npm run create-person` makes one. The
+shared access code still works and is the owners' login, an admin over every
+active business. This table and the `create-user` / `set-user` scripts stay
+only because dropping a table is not something the migration does; nothing
+reads them. There is no seeded account and no default passcode anywhere in this
+repo.
 
 ### `rate_hits`
 
@@ -172,10 +177,11 @@ Two honest limitations of this design:
 2. There is one code, so there is no per-person audit trail. Every entry in the
    log says "someone who knew the code", not who.
 
-If the dashboard ever needs more than one person, or a record of who saw what,
-move back to per-user accounts. The `staff_users` table and the
-`create-user` / `set-user` scripts are still present and working for exactly that
-reason, they are simply not consulted by the current login route.
+The dashboard now does need more than one person and a record of who changed
+what. That is `people`, `grants` and `audit`: a person signs in with their own
+passcode and every list route filters to the businesses they are granted, in
+SQL, so a person granted roofing only cannot reach a damp row by editing a URL.
+Writes to money and client records land in `audit` with before and after.
 
 ### One staff area, two brands
 
@@ -313,6 +319,28 @@ the two cannot drift into disagreeing about what was paid.
 who fills each role. Both are editable in the dashboard, so fees can change
 without a deploy. `/api/admin/rates` refuses a percentage outside 0 to 100 and
 an unknown person rather than storing it.
+
+## Guides
+
+`/guides/<slug>` is an article: the answer to the question people search before
+"book a survey", which the Search Console data shows is mostly what does
+treatment cost and do I need it. `content/guides/` is the list, one file per
+site per subject, built by `npm run build:pages` into `public/guide-pages/<site>/`
+and served by `middleware.js` on each host, with a hub at `/guides` so the
+breadcrumb has a real middle rung. Guides carry `Article` structured data with a
+publication date, which the area and service pages do not, because a guide is
+an article and a service page is not.
+
+The rule that keeps the service pages honest applies here too: a subject both
+sites cover is two documents written from the two firms' positions, never one
+shared between the domains, and `test/guides.test.js` fails on a shared
+sentence. Service pages point at the guides that answer for them through an
+optional `reading` list, rendered among the related links.
+
+Area pages can carry an optional `towns` list. The three outer London boroughs
+that get searched by town name rather than borough name (Romford, not
+Havering) have one, rendered as a "By town" section with a heading per town,
+and their titles name the towns.
 
 ## Bank reconciliation
 

@@ -228,9 +228,11 @@ test('both home pages link to their own service pages, and the sitemaps list the
   }
 });
 
-test('each page carries its own SurveyMate slug and never the other site\'s', async () => {
-  // The two firms have separate listings. A DampScan badge on a London page
-  // would send an ATi visitor to the wrong firm's verification.
+test('each page carries its own SurveyMate slug, one brand\'s badge never another\'s', async () => {
+  // The firms have separate listings, so a DampScan badge on a London page
+  // would send an ATi visitor to the wrong firm's verification. A brand in
+  // another trade has no listing at all and must show no badge rather than a
+  // link to /find-a-surveyor/null, which is what it did before.
   const { areas } = await import('../content/areas/index.js');
   const { services } = await import('../content/services/index.js');
   const { SITES } = await import('../scripts/area-template.js');
@@ -243,10 +245,20 @@ test('each page carries its own SurveyMate slug and never the other site\'s', as
   for (const [site, path] of pages) {
     const html = await readFile(new URL(path, import.meta.url), 'utf8');
     const mine = SITES[site].surveyMateSlug;
-    const theirs = SITES[site === 'ati' ? 'dampscan' : 'ati'].surveyMateSlug;
-    assert.ok(html.includes(`find-a-surveyor/${mine}`), `${path} links to its own listing`);
-    assert.equal(html.includes(`find-a-surveyor/${theirs}`), false, `${path} must not link to the other firm`);
-    assert.ok(html.includes(`verified-badge/${mine}`), `${path} shows its own badge`);
+
+    if (mine) {
+      assert.ok(html.includes(`find-a-surveyor/${mine}`), `${path} links to its own listing`);
+      assert.ok(html.includes(`verified-badge/${mine}`), `${path} shows its own badge`);
+    } else {
+      assert.equal(html.includes('survey-mate.co.uk'), false,
+        `${path} has no listing, so it must carry no badge at all`);
+    }
+
+    for (const [other, brand] of Object.entries(SITES)) {
+      if (other === site || !brand.surveyMateSlug) continue;
+      assert.equal(html.includes(`find-a-surveyor/${brand.surveyMateSlug}`), false,
+        `${path} must not link to ${other}'s listing`);
+    }
   }
 });
 

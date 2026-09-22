@@ -211,7 +211,11 @@
     const where = surveyPostcode() || 'no postcode';
     const payload = {
       _subject: (DS_CFG.subjectPrefix || '')
-        + (stage === 'complete' ? 'NEW survey booking, ' : 'PARTIAL lead (step 1), ') + who + ', ' + where,
+        /* A quoted trade books nothing, so its subject says "quote request".
+           The damp default is unchanged. */
+        + (stage === 'complete'
+          ? (DS_CFG.subjectComplete || 'NEW survey booking, ')
+          : (DS_CFG.subjectPartial || 'PARTIAL lead (step 1), ')) + who + ', ' + where,
       _captcha: 'false',
       _template: 'table',
       'First name': val('f-name'),
