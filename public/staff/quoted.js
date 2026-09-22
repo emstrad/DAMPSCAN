@@ -142,6 +142,24 @@
     ], state.jobs, { empty: 'No quoted jobs in this period.' });
   }
 
+  /* A link from the Due page names a job in the hash. Opened once, then the
+     hash is cleared so a refresh does not reopen it. Jobs outside the range
+     pills' window are fetched by id. */
+  async function openFromHash() {
+    var m = /^#job-(\d+)$/.exec(location.hash);
+    if (!m) return;
+    history.replaceState(null, '', location.pathname);
+    var id = Number(m[1]);
+    var job = state.jobs.filter(function (j) { return j.id === id; })[0];
+    if (!job) {
+      try { job = ((await U.get('/api/admin/quoted?range=all')).jobs || []).filter(function (j) { return j.id === id; })[0]; } catch (e) { return; }
+      if (!job) return;
+      state.jobs.unshift(job);
+      renderJobs();
+    }
+    openJob(job, document.querySelector('#jobs button[data-id="' + id + '"]'));
+  }
+
   function openJob(job, opener) {
     state.open = job;
     state.opener = opener || null;
@@ -221,6 +239,7 @@
       if (!el('q-site').options.length) resetForm();
       el('state').hidden = true;
       el('content').hidden = false;
+      openFromHash();
     } catch (e) {
       el('state').textContent = e.message || 'Could not load quoted work.';
       el('state').hidden = false;
