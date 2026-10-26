@@ -16,6 +16,9 @@ enforces the mechanical ones in CI.
   never merge pipelines.
 - Never touch, merge with or send to Surveymate. Resend is Surveymate's;
   nothing here sends email through it unless the owner says otherwise.
+- Enquiry emails go from the owners' own Microsoft 365 mailbox to their own
+  inbox (`lib/m365-email.js`, M365_USER and M365_APP_PASSWORD), with
+  FormSubmit as the fallback.
 - Nothing is ever sent to a customer automatically: messages are words with
   tap-to-send links, emails are drafts the person checks and sends.
 

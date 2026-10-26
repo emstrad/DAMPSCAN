@@ -93,7 +93,7 @@ test('a card moves through the owners\' order, and Undo puts it back exactly', a
   assert.equal(paid.survey.stage, 'paid');
   assert.equal(paid.survey.deposit, true, 'paid in full covers the deposit');
   assert.equal(paid.survey.reportDays, 0, 'owed from the payment, which was today');
-  await pool.query(`update jobs set paid_at = now() - interval '3 days' where id = $1`, [id]);
+  await pool.query(`update jobs set paid_at = (((now() at time zone 'Europe/London')::date - 3) + time '12:00') at time zone 'Europe/London' where id = $1`, [id]);
   const late = (await boardOf(boss)).surveys[0];
   assert.deepEqual([late.reportDays, late.reportLate], [3, true], 'red after two days');
   const sent = (await op(boss, { op: 'move', id, to: 'sent' })).json();

@@ -67,7 +67,7 @@ async function world() {
   await j({ op: 'save', site: 'roofing', customerName: 'Tomorrow', invoiceNetPence: P(1000), status: 'booked', jobDate: dates.tomorrow });
   await j({ op: 'save', site: 'ac', customerName: 'AC tomorrow', invoiceNetPence: P(900), status: 'booked', jobDate: dates.tomorrow });
   const stale = await j({ op: 'save', site: 'roofing', customerName: 'Old quote', invoiceNetPence: P(2000), status: 'quoted' });
-  await pool.query(`update jobs set created_at = now() - interval '10 days' where id = $1`, [stale.id]);
+  await pool.query(`update jobs set created_at = (((now() at time zone 'Europe/London')::date - 10) + time '12:00') at time zone 'Europe/London' where id = $1`, [stale.id]);
   const unpaid = await j({ op: 'save', site: 'roofing', customerName: 'Unpaid', invoiceNetPence: P(800), status: 'completed', jobDate: dates.past });
   await post(boss, { op: 'payment', id: unpaid.id, amountPence: P(300) });
   const ready = await j({ op: 'save', site: 'roofing', customerName: 'Ready', invoiceNetPence: P(500), status: 'completed', jobDate: dates.past, finderPersonId: scott });

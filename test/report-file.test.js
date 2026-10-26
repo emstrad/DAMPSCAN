@@ -23,3 +23,22 @@ test('only an upload address issued for a report is accepted', async () => {
   const roof = await reportBody({ isAdmin: true }, { id: 1, site: 'roofing' }, { reportPath: 'x' });
   assert.equal(roof.status, 400);
 });
+
+test('the lead email goes from Microsoft 365 first, and falls back to FormSubmit when that fails', async () => {
+  const { sendLeadEmail } = await import('../lib/lead-email.js');
+  const value = { firstName: 'Sofia', email: 'sofia@example.com', postcode: 'ME14 2SZ', issues: ['Damp'], files: [] };
+  const sent = [];
+  const ok = await sendLeadEmail({ site: 'dampscan', stage: 'complete', value, id: 1, transport: { sendMail: async (m) => { sent.push(m); } }, fetchImpl: async () => { throw new Error('should not be called'); } });
+  assert.equal(ok.ok, true);
+  assert.equal(sent[0].to, 'tom@atidampsurvey.co.uk');
+  assert.equal(sent[0].replyTo, 'sofia@example.com');
+  assert.match(sent[0].subject, /NEW survey booking, Sofia, ME14 2SZ/);
+  const fallback = await sendLeadEmail({ site: 'dampscan', stage: 'complete', value, id: 1,
+    transport: { sendMail: async () => { throw new Error('535 Authentication unsuccessful'); } },
+    fetchImpl: async () => ({ status: 200, text: async () => '{"success":"true"}' }) });
+  assert.equal(fallback.ok, true, 'FormSubmit took over');
+  const both = await sendLeadEmail({ site: 'dampscan', stage: 'complete', value, id: 1,
+    transport: { sendMail: async () => { throw new Error('535 Authentication unsuccessful'); } },
+    fetchImpl: async () => ({ status: 403, text: async () => '<html>challenge</html>' }) });
+  assert.match(both.error, /^Microsoft 365: 535.*then FormSubmit answered HTTP 403/);
+});
