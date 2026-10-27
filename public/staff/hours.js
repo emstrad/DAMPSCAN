@@ -13,7 +13,7 @@
   var TIMES = [];
   for (var m = 7 * 60; m <= 21 * 60; m += 30) TIMES.push((m < 600 ? '0' : '') + Math.floor(m / 60) + ':' + (m % 60 ? '30' : '00'));
   var WEEKS = 6;
-  var who = null, data = null, picked = {};
+  var who = new URLSearchParams(location.search).get('surveyor'), data = null, picked = {};
 
   function iso(d) { return d.toISOString().slice(0, 10); }
   function dow(d) { return new Date(d + 'T12:00:00Z').getUTCDay(); }

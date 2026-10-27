@@ -123,3 +123,17 @@ test('a job card history shows the deposit and payments, and an email without a 
   assert.ok(e.some((x) => x.kind === 'fact' && x.text === 'Payment received (deposit) £155'));
   assert.equal(e.find((x) => x.kind === 'email').subject, 'Can you do the 9th?');
 });
+
+test('a caller added by hand is a card in Contacted, and the same number is offered back first', async () => {
+  const s = await owners();
+  const r = await call(s, { op: 'create', site: 'ati-london', name: 'Porsche', phone: '07700 900123', postcode: 'SE15 4AB', note: 'Damp in the bedroom' });
+  assert.equal(r.data.kind, 'lead');
+  const b = await callRoute(route, s, { method: 'GET', url: '/api/admin/scheduling' });
+  const c = b.data.cards.find((x) => x.kind === 'lead' && x.id === r.data.id);
+  assert.equal(c.stage, 'contacted');
+  assert.match(c.log[0].note, /They rang: Damp in the bedroom/);
+  const again = await call(s, { op: 'create', site: 'ati-london', name: 'P', phone: '+447700900123', postcode: 'SE15 4AB' });
+  assert.equal(again.data.same.name, 'Porsche');
+  assert.ok((await call(s, { op: 'create', site: 'ati-london', name: 'P2', phone: '+447700900123', postcode: 'SE15 4AB', force: true })).data.id);
+  assert.equal((await call(s, { op: 'create', site: 'ati-london', name: 'No contact', postcode: 'SE15 4AB' })).status, 400);
+});

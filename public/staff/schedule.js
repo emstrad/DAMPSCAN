@@ -223,7 +223,7 @@
     if (slot || c.surveyor) el('b-who').value = slot ? slot.surveyor : c.surveyor;
     if (c.surveyType) el('b-type').value = c.surveyType;
     el('b-type').disabled = c.kind === 'job';
-    el('b-note').textContent = '';
+    el('b-note').textContent = ''; el('b-hours').hidden = true;
     el('b-go').textContent = 'Book it';
     el('b-pencil').textContent = 'Pencil in (48h)';
     el('b-go').dataset.force = '';
@@ -244,7 +244,7 @@
         : 'Booked. It is on Today now.' + (d.bumped && d.bumped.length ? ' ' + d.bumped.join(', ') + ' had that time pencilled and went back to Waiting, with a to-do to offer another time.' : '');
       load(); return;
     }
-    if (r.data && r.data.clash) { el('b-note').textContent = r.data.clash + ' Go ahead anyway?'; el('b-go').textContent = 'Book anyway'; el('b-pencil').textContent = 'Pencil anyway'; el('b-go').dataset.force = '1'; return; }
+    if (r.data && r.data.clash) { global.DSSCHEDNEW.clash(r.data.clash); el('b-note').textContent = r.data.clash + ' Go ahead anyway?'; el('b-go').textContent = 'Book anyway'; el('b-pencil').textContent = 'Pencil anyway'; el('b-go').dataset.force = '1'; return; }
     el('b-note').textContent = (r.data && r.data.error) || 'That did not save.';
   }
   el('book-form').addEventListener('submit', function (e) { e.preventDefault(); submit('book'); });
@@ -286,6 +286,12 @@
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }
   }
+  /* A caller just added: reload, then open their card with the times to offer. */
+  global.addEventListener('sched:made', async function (e) {
+    await load();
+    var c = data.cards.find(function (x) { return x.kind === e.detail.kind && x.id === e.detail.id; });
+    if (c) global.DSSCHEDCARD.open(c, { act: act, book: openBook });
+  });
   var r = el('refresh'); if (r) r.addEventListener('click', load);
   var o = el('logout'); if (o) o.addEventListener('click', async function () { await fetch('/api/auth/logout', { method: 'POST' }); location.replace('/staff'); });
   load();

@@ -155,6 +155,11 @@ enforces the mechanical ones in CI.
   nobody in touch) and the times wanted; after a log the card is brought into
   view. An enquiry can be closed from its card with a reason (it stays on the
   Leads page).
+- "+ New customer" on Scheduling (`lib/sched-create.js`): a caller becomes an
+  enquiry card (source "phone") in Contacted with what they said, then their
+  card opens with times to offer; the same phone or email already open is
+  offered back first. The booking form has Today and Tomorrow, and a clash
+  about missing hours links to that surveyor's My hours.
 - Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
   customers on the board: name, postcode, phone, email, address, message;
   typos and spacing forgiven; a result opens the customer card.

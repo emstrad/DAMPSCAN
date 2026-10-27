@@ -61,6 +61,7 @@
     <input id="ss-q" type="search" autocomplete="off" placeholder="Find a customer: name, postcode, phone, email" />
     <ul class="ss-list" id="ss-list" hidden></ul>
   </div>
+  <p><button class="btn" type="button" id="newc-open">+ New customer</button> <span class="panel-note">Someone on the phone? Add them and their best times come straight up.</span></p>
   <p class="panel-note" id="note" role="status"></p>
   <div class="dsp" id="dispatch"></div>
   <details class="sched-fold" id="free-fold"><summary>Who's free over the next two weeks</summary>
@@ -83,16 +84,32 @@
       <label id="b-for-row" hidden>For <select id="b-for"></select></label>
       <p class="panel-note" id="b-new" hidden>Someone new on the phone? Add them with the + button first, then pick them here.</p>
       <label>Day <input type="date" id="b-date" required /></label>
+      <div class="sched-row"><button class="btn btn--ghost btn--sm" type="button" id="b-today">Today</button><button class="btn btn--ghost btn--sm" type="button" id="b-tomorrow">Tomorrow</button></div>
       <label>Time <input type="time" id="b-time" step="900" required /></label>
       <label>Who is going <select id="b-who"><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></label>
       <label>Survey <select id="b-type"></select></label>
       <p class="panel-note" id="b-note" role="status"></p>
+      <a class="btn btn--ghost btn--sm" id="b-hours" hidden href="/staff/hours.html?area=damp">Set their hours</a>
       <div class="top-end"><button class="btn btn--ghost" value="cancel" type="button" id="b-cancel">Cancel</button><button class="btn btn--ghost" type="button" id="b-pencil">Pencil in (48h)</button><button class="btn" type="submit" id="b-go">Book it</button></div>
+    </form>
+  </dialog>
+  <dialog class="sched-dialog" id="newc">
+    <form method="dialog" id="newc-form">
+      <h2>New customer</h2>
+      <label>Business <select id="nc-site"><option value="ati-london">ATi Damp Survey</option><option value="dampscan">DampScan</option></select></label>
+      <label>Name <input id="nc-name" required autocomplete="off" /></label>
+      <label>Phone <input id="nc-phone" type="tel" autocomplete="off" /></label>
+      <label>Email <input id="nc-email" type="email" autocomplete="off" /></label>
+      <label>Postcode <input id="nc-postcode" required autocomplete="off" /></label>
+      <label>Address <input id="nc-address" autocomplete="off" /></label>
+      <label>What they need <textarea id="nc-note" rows="3"></textarea></label>
+      <p class="panel-note" id="newc-note" role="status"></p>
+      <div class="top-end"><button class="btn btn--ghost" type="button" id="newc-cancel">Cancel</button><button class="btn" type="submit">Add</button></div>
     </form>
   </dialog>
 </main>
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script>
-<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/sched-search.js"></script><script src="/staff/schedule.js"></script>
+<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/sched-search.js"></script><script src="/staff/sched-new.js"></script><script src="/staff/schedule.js"></script>
 </body>
 </html>
