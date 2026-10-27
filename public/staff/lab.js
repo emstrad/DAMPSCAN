@@ -54,6 +54,8 @@
       var pc = el('lab-pc') ? el('lab-pc').value.trim() : '';
       var data = await U.get('/api/admin/hours?view=slots' + (pc ? '&postcode=' + encodeURIComponent(pc) : ''));
       prices = data.prices;
+      el('sw-slots').checked = Boolean(data.live); el('sw-quiz').checked = Boolean(data.quiz);
+      el('sw-slots').disabled = el('sw-quiz').disabled = false;
       slots(data.slots);
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
   }
@@ -61,6 +63,17 @@
   global.SurveyQuiz.mount(el('quiz'), { onChoose: function (r) {
     el('quiz-out').textContent = 'On the website this would open the booking form with "' + r.survey.name + '" chosen' + (r.addOns.length ? ' and ' + r.addOns.map(function (x) { return x.name.toLowerCase(); }).join(' and ') + ' noted' : '') + '.';
   } });
+  /* The two switches that put the time picker and the survey step on the sites. */
+  ['sw-slots', 'sw-quiz'].forEach(function (id) {
+    var box = el(id);
+    box.addEventListener('change', async function () {
+      box.disabled = true;
+      var res = await U.send('/api/admin/hours', { op: 'flag', key: box.getAttribute('data-key'), enabled: box.checked });
+      if (!res.ok) box.checked = !box.checked;
+      el('sw-note').textContent = res.ok ? (box.checked ? 'Now live on the websites.' : 'Taken off the websites.') : (res.data && res.data.error) || 'That did not save.';
+      box.disabled = false;
+    });
+  });
   var r = el('refresh'); if (r) r.addEventListener('click', load);
   if (el('lab-pc-go')) el('lab-pc-go').addEventListener('click', load);
   var o = el('logout'); if (o) o.addEventListener('click', async function () { await fetch('/api/auth/logout', { method: 'POST' }); location.replace('/staff'); });
