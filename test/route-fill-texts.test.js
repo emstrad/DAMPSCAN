@@ -22,7 +22,7 @@ const sent = [];
 globalThis.fetch = async (url, init) => { sent.push({ url: String(url), body: init.body }); return { ok: true, status: 200, json: async () => ({}) }; };
 const { routeCheck } = await import('../lib/route-check.js');
 const { offerFreedSlot } = await import('../lib/cancel-fill.js');
-const { sendText, textFor } = await import('../lib/sms.js');
+const { sendText, textFor, textJob } = await import('../lib/sms.js');
 const H = await import('../lib/hours-store.js');
 const JOB = `insert into jobs (site, status, surveyor, job_date, job_time, date_set, customer_name, customer_postcode, tax_bp, lead_bp, lead_earner, partner_a, partner_b, reserve_bp, fee_bp, fee_floor_pence, split_bp)
   values ('dampscan', 'booked', $1, $2, $3, true, $4, $5, 0, 0, '', '', '', 0, 0, 0, 5000)`;
@@ -70,4 +70,12 @@ test('texts are off until switched on, then go to Twilio with the words', async 
   assert.match(sent.at(-1).url, /api\.twilio\.com\/2010-04-01\/Accounts\/AC1\/Messages\.json/);
   assert.match(String(sent.at(-1).body), /To=%2B447700900123/);
   assert.deepEqual(await sendText({ to: '01622 123456', body }), { sent: false, why: 'no_mobile' }, 'a landline cannot take a text');
+  /* A booked survey with only a landline: one to-do for the owners, never two. */
+  const id = (await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, customer_phone, tax_bp, lead_bp, lead_earner, partner_a, partner_b)
+    values ('dampscan', 'booked', 'Kim Smith', 'ME19 6AB', '01622 123456', 2000, 1000, 'scott', 'tom', 'ben') returning id`)).rows[0].id;
+  await textJob(id, 'confirm'); await textJob(id, 'confirm');
+  const todos = (await pool.query('select text, for_owners from todos where job_id = $1', [id])).rows;
+  assert.equal(todos.length, 1);
+  assert.match(todos[0].text, /^No mobile for Kim \(ME19\): the booking confirmation text could not go/);
+  for (const k of ['SMS_AUTO', 'TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM']) delete process.env[k];
 });

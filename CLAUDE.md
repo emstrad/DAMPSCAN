@@ -26,7 +26,8 @@ enforces the mechanical ones in CI.
   The one exception the owners chose: survey texts through Twilio
   (`lib/sms.js`), a booking confirmation and the evening-before reminder,
   built and off until SMS_AUTO=on with TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
-  and TWILIO_FROM set.
+  and TWILIO_FROM set. A customer with no mobile (a landline or email
+  only) gets no text; the owners get one to-do to email or call them instead.
 
 ## People and access (enforced on the server)
 - Owners: Scott, Tom, Ben. Tom (manages ATi, DampScan) and Ben (manages
@@ -172,10 +173,11 @@ enforces the mechanical ones in CI.
   about missing hours links to that surveyor's My hours.
 - One stage per damp customer (`lib/journey.js`): New, Contacted, Waiting for
   time, Pencilled, Booked, Surveyed, Report sent, Paid (or Closed, Cancelled),
-  worked out one way for every page; the job pop-up shows it. After any change
-  to a job (every route, ChatGPT and the alert buttons, through
-  lib/activity.js) its open to-dos that the facts have overtaken (deposit,
-  booking, report, payment) tick themselves off.
+  worked out one way for every page; the job pop-up shows it. To-dos that the
+  facts look to have overtaken (deposit, booking, report, payment) are never
+  cleared on their own: the job pop-up asks "These look done now. Clear them?"
+  and ChatGPT gets todosLookDone and asks before complete_todo (the owners'
+  choice).
 - Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
   customers on the board: name, postcode, phone, email, address, message;
   typos and spacing forgiven; a result opens the customer card.
@@ -183,7 +185,9 @@ enforces the mechanical ones in CI.
   one status line (brand and the latest contact, or how long nobody has been in
   touch) and short flags (pencilled, best time, times wanted, agent, deadline).
   Everything else is in the card that opens on tap (`public/staff/sched-detail.js`
-  adds Book, Move to, the hold, photos, times wanted and Close).
+  adds a big "Book it in", Move to (including Booked, which opens the booking
+  form), the hold, photos and times wanted; Close enquiry is folded away at
+  the very end so it is never tapped by mistake).
 - Tapping a Scheduling card opens the customer card (`public/staff/sched-card.js`):
   the basic details, times to offer, an add-to-history box, and everything so
   far newest first (`lib/correspondence.js`): calls, texts, notes, times

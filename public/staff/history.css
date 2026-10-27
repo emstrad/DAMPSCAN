@@ -17,3 +17,7 @@
 .scc-when { font-size: .78rem; color: var(--muted); }
 .scc-body { white-space: pre-wrap; font-size: .9rem; margin: 6px 0 0; }
 .scc details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-hi); }
+.sched-bookit { width: 100%; min-height: 48px; margin: 10px 0 4px; font-size: 1rem; }
+.sched-closefold { margin: 18px 0 4px; border-top: 1px solid var(--line); padding-top: 8px; }
+.sched-closefold summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--muted); font-size: .88rem; }
+.scc .sched-bookit, .scc .btn:not(.btn--ghost) { background: var(--accent); color: var(--navy); border: 0; border-radius: 999px; font-weight: 700; }

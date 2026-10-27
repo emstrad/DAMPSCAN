@@ -138,14 +138,14 @@ test('a caller added by hand is a card in Contacted, and the same number is offe
   assert.equal((await call(s, { op: 'create', site: 'ati-london', name: 'No contact', postcode: 'SE15 4AB' })).status, 400);
 });
 
-test('a to-do the facts have overtaken ticks itself off, and only that one', async () => {
+test('a to-do the facts have overtaken is offered to clear, and only that one', async () => {
   const id = Number((await pool.query(`insert into jobs (site, customer_name, customer_postcode, status, deposit_paid_at, tax_bp, lead_bp, lead_earner, partner_a, partner_b)
     values ('ati-london', 'Neil', 'DA15 8JN', 'booked', now(), 2000, 1000, 'scott', 'tom', 'ben') returning id`)).rows[0].id);
   await pool.query(`insert into todos (site, job_id, text) values ('ati-london', $1, 'Chase the deposit'), ('ati-london', $1, 'Send the report')`, [id]);
-  const { tickSettled } = await import('../lib/journey.js');
-  assert.equal(await tickSettled(id), 1);
-  const open = (await pool.query('select text from todos where job_id = $1 and done_at is null', [id])).rows.map((r) => r.text);
-  assert.deepEqual(open, ['Send the report']);
+  const { settledTodos } = await import('../lib/journey.js');
+  assert.deepEqual((await settledTodos(id)).map((t) => t.text), ['Chase the deposit']);
+  /* Offered, never cleared without asking. */
+  assert.equal((await pool.query('select count(*)::int as n from todos where job_id = $1 and done_at is null', [id])).rows[0].n, 2);
 });
 
 test('what enquiries turned into: booked and paid by source, phone callers apart, money only for managers', async () => {
@@ -184,8 +184,7 @@ test('a change to an enquiry on Scheduling never ticks off a job that happens to
   await pool.query(`insert into todos (site, job_id, text) values ('dampscan', $1, 'Chase the deposit'), ('dampscan', $1, 'Send booking confirmation')`, [jid]);
   await call(s, { op: 'log', kind: 'lead', id: lid, how: 'call', note: 'Left a message' });
   assert.equal((await pool.query('select count(*)::int as n from todos where done_at is null')).rows[0].n, 2);
-  const { tickSettled } = await import('../lib/journey.js');
+  const { settledTodos } = await import('../lib/journey.js');
   await pool.query(`update jobs set date_set = true, job_date = current_date + 3, job_time = '10:00' where id = $1`, [jid]);
-  await tickSettled(jid);
-  assert.deepEqual((await pool.query('select text from todos where done_at is null')).rows.map((r) => r.text), ['Send booking confirmation']);
+  assert.deepEqual((await settledTodos(jid)).map((t) => t.text), ['Chase the deposit']);
 });

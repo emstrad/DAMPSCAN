@@ -16,14 +16,18 @@
   function button(text, cls, fn) { var b = U.node('button', cls || 'btn btn--ghost btn--sm', text); b.type = 'button'; b.addEventListener('click', fn); return b; }
 
   /* Fills `box` with the card's working parts. done() closes the pop-up. */
+  var closeBox = null;
   function fill(box, c, opts, done) {
+    closeBox = null;
     var act = function (body, said) { done(); return opts.act(body, said); };
     var book = function (slot) { done(); opts.book(c, slot); };
+    /* Booking is the main thing a card is for: a day, a time and who, then it is on Today. */
+    var go = button('Book it in', 'btn sched-bookit', function () { book(null); });
+    box.appendChild(go);
     var main = U.node('div', 'sched-row');
-    main.appendChild(button('Book', 'btn btn--sm', function () { book(null); }));
     var move = document.createElement('select'); move.setAttribute('aria-label', 'Move to');
-    COLS.forEach(function (k) { if (c.kind === 'job' && k[0] === 'new') return; var o = document.createElement('option'); o.value = k[0]; o.textContent = 'Move to: ' + k[1]; if (k[0] === c.stage) o.selected = true; move.appendChild(o); });
-    move.addEventListener('change', function () { act({ op: 'move', kind: c.kind, id: c.id, to: move.value }); });
+    COLS.concat([['booked', 'Booked (pick a day and time)']]).forEach(function (k) { if (c.kind === 'job' && k[0] === 'new') return; var o = document.createElement('option'); o.value = k[0]; o.textContent = 'Move to: ' + k[1]; if (k[0] === c.stage) o.selected = true; move.appendChild(o); });
+    move.addEventListener('change', function () { if (move.value === 'booked') book(null); else act({ op: 'move', kind: c.kind, id: c.id, to: move.value }); });
     main.appendChild(move);
     box.appendChild(main);
     if (c.files && c.files.length) {
@@ -67,15 +71,20 @@
     want.appendChild(wi);
     want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }, 'Times saved for ' + (c.name || 'the card') + '.'); }));
     box.appendChild(want);
+    /* Closing is folded away at the very end so it is never tapped by mistake. */
     if (c.kind === 'lead') {
+      var fold = document.createElement('details'); fold.className = 'sched-closefold';
+      fold.appendChild(U.node('summary', null, 'Not going ahead? Close this enquiry'));
       var shut = U.node('div', 'sched-row sched-close');
       var why = document.createElement('select'); why.setAttribute('aria-label', 'Why close it');
       ['Booked elsewhere', 'Not interested', 'No answer', 'Already sorted', 'Spam', 'Other'].forEach(function (w) { var o = document.createElement('option'); o.value = w; o.textContent = w; why.appendChild(o); });
       shut.appendChild(why);
       shut.appendChild(button('Close enquiry', null, function () { act({ op: 'close', kind: 'lead', id: c.id, reason: why.value }, (c.name || 'Enquiry') + ' closed: ' + why.value + '. It stays on the Leads page.'); }));
-      box.appendChild(shut);
+      fold.appendChild(shut);
+      closeBox = fold;
     }
   }
 
-  global.DSSCHEDDETAIL = { fill: fill };
+  /* The close fold, for the pop-up to put at its very end. */
+  global.DSSCHEDDETAIL = { fill: fill, closeBox: function () { return closeBox; } };
 })(window);

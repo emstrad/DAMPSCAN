@@ -73,6 +73,8 @@
     d.appendChild(row);
     d.appendChild(U.node('h3', null, 'Everything so far'));
     var list = U.node('ol', 'scc-list'); d.appendChild(list);
+    var fold = global.DSSCHEDDETAIL && global.DSSCHEDDETAIL.closeBox();
+    if (fold) d.appendChild(fold);
     d.showModal();
     history(c, list);
   }
