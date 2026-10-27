@@ -175,3 +175,17 @@ test('ChatGPT hears where a customer now is on Scheduling after a change, and ca
   const found = await callTool(s, { name: 'find_enquiry', arguments: { text: 'Kim' } });
   assert.equal(found.structuredContent.enquiries.find((e) => e.id === id).scheduler.stage, 'Waiting for time');
 });
+
+test('a change to an enquiry on Scheduling never ticks off a job that happens to share its number', async () => {
+  const s = await owners();
+  const lid = Number(await lead());
+  const jid = Number((await pool.query(`insert into jobs (id, site, customer_name, status, deposit_paid_at, tax_bp, lead_bp, lead_earner, partner_a, partner_b)
+    values ($1, 'dampscan', 'Other', 'booked', now(), 2000, 1000, 'scott', 'tom', 'ben') returning id`, [lid])).rows[0].id);
+  await pool.query(`insert into todos (site, job_id, text) values ('dampscan', $1, 'Chase the deposit'), ('dampscan', $1, 'Send booking confirmation')`, [jid]);
+  await call(s, { op: 'log', kind: 'lead', id: lid, how: 'call', note: 'Left a message' });
+  assert.equal((await pool.query('select count(*)::int as n from todos where done_at is null')).rows[0].n, 2);
+  const { tickSettled } = await import('../lib/journey.js');
+  await pool.query(`update jobs set date_set = true, job_date = current_date + 3, job_time = '10:00' where id = $1`, [jid]);
+  await tickSettled(jid);
+  assert.deepEqual((await pool.query('select text from todos where done_at is null')).rows.map((r) => r.text), ['Send booking confirmation']);
+});

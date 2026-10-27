@@ -167,7 +167,8 @@ enforces the mechanical ones in CI.
 - "+ New customer" on Scheduling (`lib/sched-create.js`): a caller becomes an
   enquiry card (source "phone") in Contacted with what they said, then their
   card opens with times to offer; the same phone or email already open is
-  offered back first. The booking form has Today and Tomorrow, and a clash
+  offered back first. Phone callers never count as website bookings in the
+  Leads figures, and their channel reads "Phone call". The booking form has Today and Tomorrow, and a clash
   about missing hours links to that surveyor's My hours.
 - One stage per damp customer (`lib/journey.js`): New, Contacted, Waiting for
   time, Pencilled, Booked, Surveyed, Report sent, Paid (or Closed, Cancelled),

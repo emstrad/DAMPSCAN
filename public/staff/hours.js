@@ -136,7 +136,7 @@
         el('who-row').hidden = false;
       }
       if (who) el('who').value = who;
-      if (data.note && !who) { el('note').textContent = 'Pick whose hours to set.'; return; }
+      if (data.note) { el('note').textContent = who && data.manager ? 'Pick whose hours to set.' : data.note; return; }
       render(); renderUsual();
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load your hours.'; }
   }
