@@ -138,8 +138,10 @@ enforces the mechanical ones in CI.
 - The website time picker (`lib/web-booking.js`, `public/assets/book-times.js`,
   through `api/lead.js` op times/pick) uses the same best-fit engine as the
   phone: the customer's postcode, real drive, no hop over 75 minutes, two
-  days' notice, nothing after a buyer's deadline, up to six times, surveyor
-  never shown. A pick is a request: checked again, held 48 hours as a
+  days' notice, nothing after a buyer's deadline, surveyor never shown. The
+  customer picks a day first (every day with a free time, in order), then
+  sees every free on-the-hour start that day (`dayTimes`); a time several
+  surveyors could do goes to whoever it suits best. The Lab shows the same. A pick is a request: checked again, held 48 hours as a
   pencilled hold and alerted; the team confirms it on Scheduling.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a

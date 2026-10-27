@@ -189,3 +189,5 @@
 .bt-time{min-height:44px;min-width:88px;padding:0 14px;border-radius:10px;border:1px solid var(--accent-ring,#4fa8e8);background:var(--accent-soft,rgba(79,168,232,.12));color:inherit;font:inherit;font-weight:700;cursor:pointer}
 .bt-time:disabled{opacity:.5}
 .bt-skip{margin-top:12px;min-height:44px;background:none;border:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
+.bt-dayb[aria-pressed="true"]{background:var(--accent,#4fa8e8);color:#06121f}
+.bt-times{margin-top:4px}

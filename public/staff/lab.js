@@ -5,6 +5,7 @@
   var U = global.DSUI;
   var el = function (id) { return document.getElementById(id); };
   var day = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); };
+  var short = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   var nice = function (t) { var h = Number(t.slice(0, 2)); return (h % 12 || 12) + (t.slice(3) === '00' ? '' : ':' + t.slice(3)) + (h < 12 ? 'am' : 'pm'); };
 
   function slots(list) {
@@ -15,21 +16,30 @@
       box.appendChild(U.node('p', 'panel-note', 'No times to offer yet: nobody has set hours on My hours for the next three weeks. The customer would just see "We will call you to arrange a time".'));
       return;
     }
+    /* As the customer sees it: the days first, then every free time on the day tapped. */
     var byDay = {};
     list.forEach(function (s) { (byDay[s.date] = byDay[s.date] || []).push(s); });
-    Object.keys(byDay).slice(0, 7).forEach(function (d) {
-      box.appendChild(U.node('p', 'lab-day', day(d)));
-      var row = U.node('div', 'quiz-options');
-      byDay[d].forEach(function (s) {
-        var b = U.node('button', 'quiz-opt', nice(s.time));
-        b.type = 'button';
-        b.title = 'Would be held for ' + s.surveyor + (s.why ? ': ' + s.why : '') + ' (the customer does not see who or why)';
-        row.appendChild(b);
+    var dayRow = U.node('div', 'quiz-options'), times = U.node('div');
+    Object.keys(byDay).sort().forEach(function (d) {
+      var b = U.node('button', 'quiz-opt', short(d)); b.type = 'button';
+      b.addEventListener('click', function () {
+        dayRow.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        times.textContent = '';
+        times.appendChild(U.node('p', 'lab-day', day(d) + ': pick a time'));
+        var row = U.node('div', 'quiz-options');
+        byDay[d].forEach(function (s) {
+          var t = U.node('button', 'quiz-opt', nice(s.time)); t.type = 'button';
+          t.title = 'Would be held for ' + s.surveyor + ' (the customer does not see who)';
+          row.appendChild(t);
+        });
+        times.appendChild(row);
       });
-      box.appendChild(row);
+      dayRow.appendChild(b);
     });
+    box.appendChild(dayRow);
+    box.appendChild(times);
     box.appendChild(U.node('button', 'link-btn', 'No thanks, call me to arrange'));
-    box.appendChild(U.node('p', 'panel-note', list.length + ' free times over the next three weeks. Hover a time to see whose hours it comes from.'));
+    box.appendChild(U.node('p', 'panel-note', Object.keys(byDay).length + ' days with free times, ' + list.length + ' times in all. Tap a day to see its times; hover a time to see whose hours it comes from.'));
   }
 
   async function load() {

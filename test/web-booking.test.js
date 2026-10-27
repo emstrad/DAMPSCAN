@@ -55,12 +55,23 @@ test('off until switched on; then best times for their postcode, two days on, be
   assert.equal((await W.timesFor({ ...l, today: TODAY })).off, true);
   await pool.query("insert into lab_flags (key, enabled) values ('booking_slots', true)");
   await pool.query(JOB, ['ben', '2030-06-06', '10:00', true, 'Pat', 'CT1 1AA', null]);
-  const t = (await W.timesFor({ ...l, today: TODAY })).times;
-  assert.ok(t.length >= 1 && t.length <= 6);
-  assert.equal(t[0].date, '2030-06-06', 'the day Ben is already near');
+  const r = await W.timesFor({ ...l, today: TODAY });
+  const t = r.times;
+  assert.deepEqual(r.days.map((d) => d.date), ['2030-06-05', '2030-06-06', '2030-06-07'], 'each day in order, two days on, by the deadline');
+  assert.deepEqual(r.days[0].times.map((x) => x.time), ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'], 'every free hour on the day');
   assert.ok(t.every((x) => x.date >= '2030-06-05' && x.date <= '2030-06-07'), 'two days on, by the deadline');
   assert.ok(t.every((x) => !('surveyor' in x)), 'who goes is not shown');
   assert.deepEqual((await W.timesFor({ leadId: l.leadId, sessionId: '00000000-0000-0000-0000-000000000000', today: TODAY })), { error: 'not_found' });
+});
+
+test('a day shows every hour still free, never one inside a booked survey or its drive', async () => {
+  await pool.query("insert into lab_flags (key, enabled) values ('booking_slots', true)");
+  await pool.query(JOB, ['ben', '2030-06-05', '11:00', true, 'Pat', 'CT1 1AA', null]);
+  await pool.query(JOB, ['tom', '2030-06-05', '11:00', true, 'Sam', 'CT1 1AA', null]);
+  const day = (await W.timesFor({ ...(await lead()), today: TODAY })).days.find((d) => d.date === '2030-06-05');
+  const hours = day.times.map((x) => x.time);
+  assert.ok(!hours.includes('11:00') && !hours.includes('10:00') && !hours.includes('12:00'), 'the survey and the drive either side are kept clear: ' + hours.join(' '));
+  assert.ok(hours.includes('09:00') && hours.includes('15:00'));
 });
 
 test('a pick is checked again, held as a request and alerted; forged or taken times are refused', async () => {
