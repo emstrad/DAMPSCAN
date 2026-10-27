@@ -1,0 +1,57 @@
+/* Motion, site wide: the websites and the staff area alike. Short and quick
+   (160 to 300 ms), easing out so things arrive softly, a little spring on a
+   choice settling, steps that slide in rather than snap, and nothing at all
+   for anyone whose device asks for reduced motion. Plain CSS so it works on
+   every page with no build step; book-times.js adds the step classes. */
+:root{--ms-out:cubic-bezier(.22,1,.36,1);--ms-spring:cubic-bezier(.34,1.56,.64,1);--ms-fast:.16s;--ms-med:.28s}
+
+/* Taps answer the finger: a slight press, released with a spring. */
+button,.btn,.pill,.chip,.bt-time,.bt-survey,.bt-info,.quiz-opt,.cal-day,.tag,a.btn{
+  transition:transform var(--ms-fast) var(--ms-out),background-color .18s,border-color .18s,box-shadow .18s,color .18s,opacity .18s}
+button:active:not(:disabled),.btn:active,a.btn:active,.bt-survey:active,.quiz-opt:active,.cal-day:active{transform:scale(.97);transition-duration:.08s}
+
+/* A choice just made settles into place. */
+[aria-pressed="true"]{animation:ms-settle .34s var(--ms-spring)}
+@keyframes ms-settle{0%{transform:scale(.95)}100%{transform:scale(1)}}
+
+/* Pop-ups rise in; their backdrop fades. */
+dialog[open]{animation:ms-pop var(--ms-med) var(--ms-out)}
+dialog[open]::backdrop{animation:ms-fade var(--ms-med) ease-out}
+@keyframes ms-pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes ms-fade{from{opacity:0}}
+
+/* Opening a fold slides its contents down a touch. */
+details[open]>:not(summary){animation:ms-in .26s var(--ms-out)}
+summary{transition:color .18s}
+
+/* A new step or panel arrives; lists come in one after another. */
+.ms-enter{animation:ms-in var(--ms-med) var(--ms-out) both}
+.ms-stagger>*{animation:ms-in var(--ms-med) var(--ms-out) both}
+.ms-stagger>*:nth-child(2){animation-delay:35ms}.ms-stagger>*:nth-child(3){animation-delay:70ms}
+.ms-stagger>*:nth-child(4){animation-delay:105ms}.ms-stagger>*:nth-child(5){animation-delay:140ms}
+.ms-stagger>*:nth-child(6){animation-delay:175ms}.ms-stagger>*:nth-child(n+7){animation-delay:200ms}
+@keyframes ms-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* A finished step draws its tick. */
+.ms-tick{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 6px;border-radius:50%;
+  background:var(--accent-soft,rgba(79,168,232,.14));color:var(--accent,#4fa8e8);animation:ms-settle .4s var(--ms-spring)}
+.ms-tick path{stroke-dasharray:30;stroke-dashoffset:30;animation:ms-draw .5s .12s var(--ms-out) forwards}
+@keyframes ms-draw{to{stroke-dashoffset:0}}
+
+/* Cards lift a hair under a mouse (never on touch, where hover sticks). */
+@media (hover:hover){
+  .sched-card,.band,.bt-survey,.quiz-opt,.cal-day:not(:disabled){transition:transform .2s var(--ms-out),box-shadow .2s,border-color .18s,background-color .18s}
+  .sched-card:hover,.bt-survey:hover,.quiz-opt:hover{transform:translateY(-1px);box-shadow:0 6px 18px -10px rgba(0,0,0,.45)}
+}
+
+/* Smooth page scrolling for in-page links and brought-into-view cards. */
+html{scroll-behavior:smooth}
+
+/* Step changes in browsers that can cross-fade between two states. */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .ms-tick path{stroke-dashoffset:0}
+}

@@ -57,6 +57,10 @@ enforces the mechanical ones in CI.
   split into a sibling module instead. Comments say why, not what. Match the
   surrounding style: plain DOM in `public/staff`, no framework, no build step.
 - No model names in commits, PRs or code.
+- Motion is shared site wide (`public/assets/motion.css`, imported by
+  header.css and the staff shell.css): quick ease-out transitions, a press on
+  taps, choices settle, pop-ups rise, steps slide in, nothing when the device
+  asks for reduced motion. Keep new motion there, short (under 300 ms).
 - Every staff page must work on iPhone, iPad and desktop: no sideways scroll,
   dialogs inside the viewport, 44px tap targets, 16px inputs.
 - Run `TEST_DATABASE_URL=postgresql://dampscan:dampscan@127.0.0.1:5432/dampscan npm test`

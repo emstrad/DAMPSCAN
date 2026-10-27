@@ -18,7 +18,20 @@
     var d = await r.json().catch(function () { return {}; });
     return { status: r.status, data: d };
   }
-  function done(box, title, words) { box.textContent = ''; box.appendChild(el('h4', 'bt-title', title)); if (words) box.appendChild(el('p', 'note', words)); }
+  /* Each step slides in (motion.css), cross-fading where the browser can. */
+  function swap(fn) {
+    if (document.startViewTransition && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) document.startViewTransition(fn);
+    else fn();
+  }
+  function enter(box) { box.classList.remove('ms-enter'); void box.offsetWidth; box.classList.add('ms-enter'); }
+  function done(box, title, words) {
+    swap(function () {
+      box.textContent = '';
+      var t = el('div', 'ms-tick'); t.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+      box.appendChild(t); box.appendChild(el('h4', 'bt-title', title)); if (words) box.appendChild(el('p', 'note', words));
+      enter(box);
+    });
+  }
 
   async function start(box, lead, note) {
     var r = await post({ op: 'times', leadId: lead.id, sessionId: lead.sessionId });
@@ -34,14 +47,14 @@
   function times(box, lead, days, note, next) {
     box.appendChild(el('h4', 'bt-title', 'Want to pick a survey time now?'));
     box.appendChild(el('p', 'note', note || 'Pick a day, then a time that suits you. We will confirm it with you shortly.'));
-    var dayRow = el('div', 'bt-row bt-days'), timeBox = el('div', 'bt-times');
+    var dayRow = el('div', 'bt-row bt-days ms-stagger'), timeBox = el('div', 'bt-times');
     days.forEach(function (d) {
       var b = el('button', 'bt-time bt-dayb', short(d.date)); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', function () {
         dayRow.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
         timeBox.textContent = '';
         timeBox.appendChild(el('p', 'bt-day', nice(d.date) + ': pick a time'));
-        var row = el('div', 'bt-row');
+        var row = el('div', 'bt-row ms-stagger');
         d.times.forEach(function (t) {
           var tb = el('button', 'bt-time', clock(t.time)); tb.type = 'button';
           tb.addEventListener('click', async function () {
@@ -53,10 +66,12 @@
           row.appendChild(tb);
         });
         timeBox.appendChild(row);
+        enter(timeBox);
+        if (timeBox.scrollIntoView) timeBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
       dayRow.appendChild(b);
     });
-    box.appendChild(dayRow); box.appendChild(timeBox);
+    box.appendChild(dayRow); box.appendChild(timeBox); enter(box);
     var no = el('button', 'bt-skip', 'No thanks, call me to arrange a time'); no.type = 'button';
     no.addEventListener('click', function () { next('No problem, we will call you to arrange a time.'); });
     box.appendChild(no);
@@ -81,18 +96,22 @@
 
   /* Step two: what they need, then the size, then anything to add. */
   function survey(box, lead, P, said) {
-    box.textContent = '';
-    if (said) box.appendChild(el('p', 'bt-said', said));
-    box.appendChild(el('h4', 'bt-title', 'What do you need?'));
-    box.appendChild(el('p', 'note', 'So we come with the right time and price. You can change it when we call.'));
-    var pick = { service: null, size: null, extras: [] };
-    var list = el('div', 'bt-surveys'), rest = el('div');
-    [['damp', P.services.damp.name, P.services.damp.info], ['timber', P.services.timber.name, P.services.timber.info],
-      ['alone', 'Just a timber, camera or cavity check', 'One of our checks on its own, without a damp survey.'],
-      ['unsure', 'Not sure, help me choose', 'Tell us on the phone what you are seeing and we will recommend the right one.']].forEach(function (s) {
-      list.appendChild(choice(s[1], null, s[2], function (b) { only(list, b); pick = { service: s[0], size: null, extras: [] }; draw(); }));
-    });
-    box.appendChild(list); box.appendChild(rest);
+    swap(function () { draw0(); });
+    function draw0() {
+      box.textContent = '';
+      if (said) box.appendChild(el('p', 'bt-said', said));
+      box.appendChild(el('h4', 'bt-title', 'What do you need?'));
+      box.appendChild(el('p', 'note', 'So we come with the right time and price. You can change it when we call.'));
+      pick = { service: null, size: null, extras: [] };
+      list = el('div', 'bt-surveys ms-stagger'); rest = el('div');
+      [['damp', P.services.damp.name, P.services.damp.info], ['timber', P.services.timber.name, P.services.timber.info],
+        ['alone', 'Just a timber, camera or cavity check', 'One of our checks on its own, without a damp survey.'],
+        ['unsure', 'Not sure, help me choose', 'Tell us on the phone what you are seeing and we will recommend the right one.']].forEach(function (s) {
+        list.appendChild(choice(s[1], null, s[2], function (b) { only(list, b); pick = { service: s[0], size: null, extras: [] }; draw(); }));
+      });
+      box.appendChild(list); box.appendChild(rest); enter(box);
+    }
+    var pick, list, rest;
     function draw() {
       rest.textContent = '';
       if (pick.service === 'unsure') return send();
@@ -101,7 +120,7 @@
         P.extras.forEach(function (x) { rest.appendChild(tick(x.name, money(x.alone, x.from), x.scope + '. ' + x.info, x.key)); });
       } else {
         rest.appendChild(el('p', 'bt-day', 'How much of the home?'));
-        var sizes = el('div', 'bt-surveys');
+        var sizes = el('div', 'bt-surveys ms-stagger');
         P.sizes.forEach(function (z) {
           var price = z.damp + (pick.service === 'timber' ? z.timber : 0);
           sizes.appendChild(choice(z.name + ': ' + z.scope, money(price, z.from), z.info, function (b) { only(sizes, b); pick.size = z.key; go.disabled = false; }));
@@ -114,6 +133,8 @@
       go.addEventListener('click', send);
       rest.appendChild(go);
       rest.go = go;
+      enter(rest);
+      if (rest.scrollIntoView) rest.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     function tick(name, price, info, key) {
       var row = el('div', 'bt-pick');
