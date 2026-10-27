@@ -1281,3 +1281,19 @@ alter table leads add column if not exists sched_log jsonb not null default '[]'
 alter table jobs add column if not exists sched_stage text;
 alter table jobs add column if not exists sched_wanted text;
 alter table jobs add column if not exists sched_log jsonb not null default '[]';
+
+-- Scheduling holds: a time pencilled in for an enquiry or a dateless job,
+-- shown grey on Today and the week until booked or it lapses (lib/pencils.js).
+alter table leads add column if not exists pencil_date date;
+alter table leads add column if not exists pencil_time time;
+alter table leads add column if not exists pencil_surveyor text;
+alter table leads add column if not exists pencil_until timestamptz;
+alter table jobs add column if not exists pencil_date date;
+alter table jobs add column if not exists pencil_time time;
+alter table jobs add column if not exists pencil_surveyor text;
+alter table jobs add column if not exists pencil_until timestamptz;
+-- Emails the inbox scan has already read (lib/mail-scan.js); ids only.
+create table if not exists mail_seen (
+  message_id  text primary key,
+  seen_at     timestamptz not null default now()
+);

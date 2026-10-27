@@ -84,10 +84,12 @@
     return b;
   }
 
+  function draw(e, compact) { return e.kind === 'pencil' ? global.DSPENCIL.button(e, compact) : jobButton(e, compact); }
+
   function onTimeline(e) { return e.kind !== 'job' || e.dateSet !== false; }
   function byDay() {
     var map = {};
-    state.events.filter(onTimeline).forEach(function (e) { (map[e.date] = map[e.date] || []).push(e); });
+    state.events.filter(onTimeline).concat(state.pencils || []).forEach(function (e) { (map[e.date] = map[e.date] || []).push(e); });
     return map;
   }
 
@@ -108,7 +110,7 @@
       box.appendChild(h);
       var timed = list.filter(function (e) { return e.time || e.kind === 'service'; });
       var tbc = list.filter(function (e) { return !e.time && e.kind === 'job'; });
-      timed.forEach(function (e) { box.appendChild(jobButton(e)); });
+      timed.forEach(function (e) { box.appendChild(draw(e)); });
       if (tbc.length) {
         box.appendChild(U.node('p', 'tl-sub', 'Time to confirm'));
         tbc.forEach(function (e) { box.appendChild(jobButton(e)); });
@@ -132,7 +134,7 @@
       num.setAttribute('aria-label', 'Week of ' + fmt(d, { day: 'numeric', month: 'long' }));
       num.addEventListener('click', function (date) { state.view = 'week'; state.cursor = date; remember(); load(); }.bind(null, d));
       cell.appendChild(num);
-      (days[d] || []).forEach(function (e) { cell.appendChild(jobButton(e, true)); });
+      (days[d] || []).forEach(function (e) { cell.appendChild(draw(e, true)); });
       drop(cell, d);
       grid.appendChild(cell);
     }
@@ -206,6 +208,7 @@
     try {
       var data = await U.get('/api/admin/calendar?view=work&from=' + r.from + '&to=' + r.to + (state.area ? '&area=' + state.area : ''));
       state.events = data.events || [];
+      state.pencils = data.pencils || [];
       state.unbooked = data.unbooked || [];
       state.work = data.work;
       el('state').hidden = true;

@@ -24,6 +24,7 @@
 
   function card(c) {
     var box = U.node('article', 'sched-card');
+    box.id = c.kind + '-' + c.id;
     box.draggable = true;
     box.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.kind + ':' + c.id); });
     box.appendChild(U.node('h3', null, (c.name || 'No name') + (c.postcode ? ', ' + c.postcode : '')));
@@ -37,6 +38,17 @@
     box.appendChild(contact);
     if (c.wanted) box.appendChild(U.node('p', 'meta', 'Wants: ' + c.wanted));
     if (c.held) box.appendChild(U.node('p', 'meta', 'Picked on the website: ' + new Date(c.held.at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' with ' + cap(c.held.surveyor)));
+    if (c.pencil) {
+      var pc = c.pencil;
+      var pen = U.node('div', 'sched-pencil');
+      pen.appendChild(U.node('p', null, 'Pencilled: ' + day(pc.date) + ' ' + pc.time + ' with ' + cap(pc.surveyor) + ', held until ' + new Date(pc.until).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit' })));
+      if (pc.sharing && pc.sharing.length) pen.appendChild(U.node('p', 'tl-clash', 'Also offered to ' + pc.sharing.join(', ') + '. Whoever says yes first gets it.'));
+      var pr = U.node('div', 'sched-row');
+      pr.appendChild(button('They said yes: book it', 'btn btn--sm', function () { openBook(c, pc); }));
+      pr.appendChild(button('Let it go', null, function () { act({ op: 'unpencil', kind: c.kind, id: c.id }); }));
+      pen.appendChild(pr);
+      box.appendChild(pen);
+    }
     if (c.log.length) {
       var ul = U.node('ul');
       c.log.slice(-4).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
@@ -109,19 +121,29 @@
     el('b-type').disabled = c.kind === 'job';
     el('b-note').textContent = '';
     el('b-go').textContent = 'Book it';
+    el('b-pencil').textContent = 'Pencil in (48h)';
+    el('b-go').dataset.force = '';
     el('book').showModal();
   }
 
-  el('book-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
+  async function submit(op) {
     var force = el('b-go').dataset.force === '1';
-    var r = await U.send('/api/admin/scheduling', { op: 'book', kind: booking.kind, id: booking.id, date: el('b-date').value, time: el('b-time').value, surveyor: el('b-who').value, surveyType: el('b-type').value, force: force });
+    var r = await U.send('/api/admin/scheduling', { op: op, kind: booking.kind, id: booking.id, date: el('b-date').value, time: el('b-time').value, surveyor: el('b-who').value, surveyType: el('b-type').value, force: force });
     el('b-go').dataset.force = '';
-    if (r.ok) { el('book').close(); el('note').textContent = 'Booked. It is on Today now.'; load(); return; }
-    if (r.data && r.data.clash) { el('b-note').textContent = r.data.clash + ' Book anyway?'; el('b-go').textContent = 'Book anyway'; el('b-go').dataset.force = '1'; return; }
-    el('b-note').textContent = (r.data && r.data.error) || 'That did not book.';
-  });
-  ['b-date', 'b-time', 'b-who'].forEach(function (id) { el(id).addEventListener('change', function () { el('b-go').dataset.force = ''; el('b-go').textContent = 'Book it'; }); });
+    if (r.ok) {
+      el('book').close();
+      var d = r.data || {};
+      el('note').textContent = op === 'pencil'
+        ? 'Pencilled in for 48 hours. It shows grey on Today.' + (d.sharing && d.sharing.length ? ' The same time is also offered to ' + d.sharing.join(', ') + '.' : '')
+        : 'Booked. It is on Today now.' + (d.bumped && d.bumped.length ? ' ' + d.bumped.join(', ') + ' had that time pencilled and went back to Waiting, with a to-do to offer another time.' : '');
+      load(); return;
+    }
+    if (r.data && r.data.clash) { el('b-note').textContent = r.data.clash + ' Go ahead anyway?'; el('b-go').textContent = 'Book anyway'; el('b-pencil').textContent = 'Pencil anyway'; el('b-go').dataset.force = '1'; return; }
+    el('b-note').textContent = (r.data && r.data.error) || 'That did not save.';
+  }
+  el('book-form').addEventListener('submit', function (e) { e.preventDefault(); submit('book'); });
+  el('b-pencil').addEventListener('click', function () { submit('pencil'); });
+  ['b-date', 'b-time', 'b-who'].forEach(function (id) { el(id).addEventListener('change', function () { el('b-go').dataset.force = ''; el('b-go').textContent = 'Book it'; el('b-pencil').textContent = 'Pencil in (48h)'; }); });
   el('b-cancel').addEventListener('click', function () { el('book').close(); });
 
   async function load() {
@@ -130,6 +152,8 @@
       var t = el('b-type');
       if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label; t.appendChild(o); });
       render();
+      var hit = location.hash && document.getElementById(location.hash.slice(1));
+      if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }
   }
   var r = el('refresh'); if (r) r.addEventListener('click', load);

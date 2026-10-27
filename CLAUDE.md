@@ -106,6 +106,13 @@ enforces the mechanical ones in CI.
   then Waiting for time (times they want noted), then Booked into the normal
   flow. Any stage can be skipped. Booking checks the surveyor's My hours and
   their booked surveys, and only goes ahead anyway when the person says so.
+- Pencilled times (`lib/pencils.js`): a time offered and not confirmed shows
+  grey on Today and the week, is off the free list and lapses after 48 hours
+  back to Waiting with a to-do. Two customers may hold the same time; both
+  show, flagged, and the first booked bumps the other back with a to-do.
+- Inbox scan (`lib/mail-scan.js`, hourly with report-due): reads sender,
+  recipients and subject only (Graph Mail.Read, one mailbox), logs each email
+  on its one matching card; ambiguous ones are left for the ChatGPT sweep.
 - Ronnie alone gets the Send to car button.
 
 ## ChatGPT connector (`/api/admin/mcp`)
