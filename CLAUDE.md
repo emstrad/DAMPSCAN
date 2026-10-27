@@ -64,9 +64,10 @@ enforces the mechanical ones in CI.
 - Every staff page must work on iPhone, iPad and desktop: no sideways scroll,
   dialogs inside the viewport, 44px tap targets, 16px inputs.
   The websites too. `public/assets/fit.css` (imported with motion.css) keeps
-  every field inside its box, iOS date and time fields included. The booking
-  form has no "report needed by" date (removed by the owner); a buyer just
-  ticks that they need the report quickly.
+  every field inside its box, iOS date and time fields included. Every pop-up
+  fits the visible screen (dvh, not vh, for iOS) and scrolls inside itself.
+  The booking form has no buyer box, no "report needed by" and no agent
+  fields (removed by the owner).
 - Run `TEST_DATABASE_URL=postgresql://dampscan:dampscan@127.0.0.1:5432/dampscan npm test`
   (mass failures mean local Postgres died: `service postgresql restart`),
   `npm run build:check`, and the em dash check before pushing.

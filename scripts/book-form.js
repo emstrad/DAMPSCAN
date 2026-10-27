@@ -22,7 +22,6 @@ const COPY = {
     sub: 'Takes about 30 seconds.',
     start: 'Get My Survey Booked',
     previous: "I've had a damp survey on this property before",
-    buyer: true,
     submit: 'Book My Survey',
     foot: 'We only use your details to arrange your survey. No marketing lists, no third parties.',
     doneTitle: "Got it, you're booked in.",
@@ -40,7 +39,6 @@ const COPY = {
     sub: '',
     start: 'Get My Report Started',
     previous: "I've had a damp survey or report on this property before",
-    buyer: true,
     submit: 'Request My Survey',
     foot: 'Your details arrange your survey and nothing else. No marketing lists, no contractor referrals.',
     doneTitle: "Received. We're on it.",
@@ -207,22 +205,7 @@ export function bookForm(site) {
             </div>
             <div class="form-row">
               <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>${t.previous}</label>
-            </div>${t.buyer ? `
-            <!-- Buyers in a hurry: that and the agent go into the notes,
-                 so the card and the assistant see them with the enquiry. -->
-            <div class="form-row">
-              <label class="check" for="f-buyer"><input type="checkbox" id="f-buyer" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I'm buying this property and need the report quickly</label>
             </div>
-            <div class="buyer-fields" id="f-buyer-fields" hidden>
-              <div class="form-row">
-                <label for="f-agent">Estate agent and branch <span class="opt">(we arrange access with them)</span></label>
-                <input id="f-agent" type="text" autocomplete="off" />
-              </div>
-              <div class="form-row">
-                <label for="f-agent-phone">Agent's phone <span class="opt">(optional)</span></label>
-                <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
-              </div>
-            </div>` : ''}
             <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />

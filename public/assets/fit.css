@@ -10,3 +10,11 @@ input[type="date"],input[type="time"],input[type="datetime-local"],input[type="m
 input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date-and-time-value{text-align:left}
 img,video,iframe,table{max-width:100%}
 form,fieldset{min-width:0}
+
+/* Every pop-up fits the visible screen and scrolls inside itself. iOS counts
+   100vh as the screen without its toolbars, so a pop-up sized by vh runs off
+   the bottom where it cannot be reached; dvh is what is actually visible.
+   (dialog[open] outweighs a page's own .x-dialog size on purpose.) */
+dialog[open]{max-width:calc(100vw - 16px);max-height:calc(100vh - 24px);
+  max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-sizing:border-box}

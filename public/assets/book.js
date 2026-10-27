@@ -129,17 +129,6 @@
     return el ? (el.value || '').trim() : '';
   };
 
-  /* Buyers in a hurry (damp sites): that and the agent ride in the
-     notes, so the card and the assistant see them with the enquiry. */
-  const buyerBox = document.getElementById('f-buyer');
-  if (buyerBox) buyerBox.addEventListener('change', () => { document.getElementById('f-buyer-fields').hidden = !buyerBox.checked; });
-  function withBuyer(notes) {
-    if (!buyerBox || !buyerBox.checked) return notes;
-    const line = ['Buying this property, report needed quickly.',
-      val('f-agent') ? 'Agent: ' + val('f-agent') + (val('f-agent-phone') ? ', ' + val('f-agent-phone') : '') + '.' : ''].filter(Boolean).join(' ');
-    return [line, notes].filter(Boolean).join(' ');
-  }
-
   /* The postcode of the property being surveyed. Step 1 asks for one to get the
      conversation started and to have something on a partial lead; step 3 asks
      again as part of the address, prefilled from step 1. The later answer is
@@ -166,7 +155,7 @@
       phone: val('f-phone'),
       issues: Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value),
       previousSurvey: document.getElementById('f-prev').checked,
-      notes: withBuyer(val('f-notes')),
+      notes: val('f-notes'),
       sourcePath: location.pathname,
       referrer: DS.referrer,
       utm: DS.utm,
@@ -250,7 +239,7 @@
         : { Attachments: 'None' }),
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
-      Notes: withBuyer(val('f-notes')) || 'None',
+      Notes: val('f-notes') || 'None',
       'Lead stage': stage,
       Submitted: new Date().toLocaleString('en-GB'),
       'Lead ID': id ? String(id) : 'Saved as they left the page'
