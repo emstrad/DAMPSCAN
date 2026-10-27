@@ -95,7 +95,7 @@ enforces the mechanical ones in CI.
 - Friday morning: one alert for work done over a week ago and not paid.
 - My hours (`lib/availability.js`): Tom, Ronnie and Ben each set their own
   survey hours day by day; nothing set means not available. Free times are
-  one hour starts from two days ahead, never within an hour's travel of a
+  one hour starts from two days ahead, never inside the drive to or from a
   booked survey, never on a day with an untimed booked survey, never a time
   an enquiry holds. The booking form is always filled in; picking a time is
   only offered at the end, and only once the owners switch it on after the
@@ -112,10 +112,21 @@ enforces the mechanical ones in CI.
   show, flagged, and the first booked bumps the other back with a to-do.
 - Who's free (top of Scheduling, "Who's free?" on Today for managers):
   every surveyor's open starts for two weeks, grouped by day and person, for
-  answering the phone. Same rules as the free list, booked and pencilled out.
+  answering the phone. Same rules as the free list, booked and pencilled out;
+  with the caller's postcode it uses real travel.
+- Travel time (`lib/travel.js`, `lib/travel-guard.js`): a survey is an hour
+  plus the drive to the next, from postcodes (postcodes.io, cached in
+  postcode_geo; an hour when unknown). Every way of booking a damp survey
+  refuses a time inside it with the reason unless told to go ahead (force).
+- Holds for a buyer waiting on the estate agent never lapse; someone lets them
+  go by hand. A hold notes who pencilled it; pencilling a time someone else
+  pencilled in the last ten minutes says so. A hold whose hours were removed
+  or that a survey was booked over goes back with a to-do, unless it was
+  pencilled anyway. The board flags the same person on two cards.
 - Inbox scan (`lib/mail-scan.js`, hourly with report-due): reads sender,
-  recipients and subject only (Graph Mail.Read, one mailbox), logs each email
-  on its one matching card; ambiguous ones are left for the ChatGPT sweep.
+  recipients, subject and preview (Graph Mail.Read, one mailbox), keeps only the
+  subject on its one matching card (or a booked job's history; a new address
+  by postcode); ambiguous ones are left for the ChatGPT sweep.
 - Ronnie alone gets the Send to car button.
 
 ## ChatGPT connector (`/api/admin/mcp`)

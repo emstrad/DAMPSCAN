@@ -11,7 +11,10 @@
   var booking = null;
   var cap = function (s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; };
   function day(d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
-  function ago(iso) { var h = Math.round((Date.now() - new Date(iso).getTime()) / 3600000); return h < 48 ? h + 'h ago' : Math.round(h / 24) + ' days ago'; }
+  function ago(iso) {
+    var m = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000)), h = Math.round(m / 60);
+    return m < 60 ? m + ' min ago' : h < 48 ? h + 'h ago' : Math.round(h / 24) + ' days ago';
+  }
 
   async function act(body) {
     var r = await U.send('/api/admin/scheduling', body);
@@ -41,7 +44,9 @@
     if (c.pencil) {
       var pc = c.pencil;
       var pen = U.node('div', 'sched-pencil');
-      pen.appendChild(U.node('p', null, 'Pencilled: ' + day(pc.date) + ' ' + pc.time + ' with ' + cap(pc.surveyor) + ', held until ' + new Date(pc.until).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit' })));
+      pen.appendChild(U.node('p', null, 'Pencilled: ' + day(pc.date) + ' ' + pc.time + ' with ' + cap(pc.surveyor) + (pc.byHand ? ', held until someone lets it go (waiting on the agent)'
+        : ', held until ' + new Date(pc.until).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit' }))));
+      if (pc.by) pen.appendChild(U.node('p', 'meta', 'By ' + pc.by + (pc.setAt ? ', ' + ago(pc.setAt) : '')));
       if (pc.sharing && pc.sharing.length) pen.appendChild(U.node('p', 'tl-clash', 'Also offered to ' + pc.sharing.join(', ') + '. Whoever says yes first gets it.'));
       var pr = U.node('div', 'sched-row');
       pr.appendChild(button('They said yes: book it', 'btn btn--sm', function () { openBook(c, pc); }));
@@ -49,6 +54,16 @@
       pen.appendChild(pr);
       box.appendChild(pen);
     }
+    /* The same person on another card: link the enquiry to the job, or close the spare enquiry. */
+    (c.same || []).forEach(function (o) {
+      var dup = U.node('div', 'sched-pencil');
+      dup.appendChild(U.node('p', 'tl-clash', 'Looks like the same person as ' + (o.name || 'another card') + (o.postcode ? ', ' + o.postcode : '') + (o.kind === 'lead' ? ' (enquiry)' : ' (job)') + '.'));
+      var dr = U.node('div', 'sched-row');
+      if (c.kind === 'job' && o.kind === 'lead') dr.appendChild(button('Link their enquiry to this job', 'btn btn--sm', function () { act({ op: 'link', kind: 'job', id: c.id, leadId: o.id }); }));
+      if (c.kind === 'lead') dr.appendChild(button('Close this one as a duplicate', null, function () { act({ op: 'close_dup', kind: 'lead', id: c.id }); }));
+      dup.appendChild(dr);
+      box.appendChild(dup);
+    });
     if (c.log.length) {
       var ul = U.node('ul');
       c.log.slice(-4).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
@@ -136,6 +151,7 @@
     });
   }
   el('free-who').addEventListener('change', renderFree);
+  el('free-go').addEventListener('click', function () { load(); });
 
   function openBook(c, slot) {
     /* From Who's free there is no card yet: pick who it is for. */
@@ -170,7 +186,9 @@
       el('book').close();
       var d = r.data || {};
       el('note').textContent = op === 'pencil'
-        ? 'Pencilled in for 48 hours. It shows grey on Today.' + (d.sharing && d.sharing.length ? ' The same time is also offered to ' + d.sharing.join(', ') + '.' : '')
+        ? (d.byHand ? 'Pencilled in, held until someone lets it go (waiting on the agent).' : 'Pencilled in for 48 hours.') + ' It shows grey on Today.'
+          + (d.sharing && d.sharing.length ? ' The same time is also offered to ' + d.sharing.join(', ') + '.' : '')
+          + (d.recent && d.recent.length ? ' Heads up: ' + d.recent.join('; ') + '.' : '')
         : 'Booked. It is on Today now.' + (d.bumped && d.bumped.length ? ' ' + d.bumped.join(', ') + ' had that time pencilled and went back to Waiting, with a to-do to offer another time.' : '');
       load(); return;
     }
@@ -184,7 +202,8 @@
 
   async function load() {
     try {
-      data = await U.get('/api/admin/scheduling');
+      var pcode = el('free-pc').value.trim();
+      data = await U.get('/api/admin/scheduling' + (pcode ? '?postcode=' + encodeURIComponent(pcode) : ''));
       var t = el('b-type');
       if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label; t.appendChild(o); });
       render();

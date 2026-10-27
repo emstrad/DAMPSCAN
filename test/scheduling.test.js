@@ -70,7 +70,7 @@ test('an enquiry goes New, Contacted, then booked into a job', async () => {
 
   const id2 = Number(await lead());
   const near = await call(s, { op: 'book', kind: 'lead', id: id2, date, time: '11:00', surveyor: 'tom', surveyType: 'localised' });
-  assert.match(near.data.clash, /already has/);
+  assert.match(near.data.clash, /has Kim at 10:00/);
   const forced = await call(s, { op: 'book', kind: 'lead', id: id2, date, time: '11:00', surveyor: 'tom', surveyType: 'localised', force: true });
   assert.equal(forced.status, 200, JSON.stringify(forced.data));
 });

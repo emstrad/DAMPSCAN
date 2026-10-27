@@ -30,3 +30,4 @@
 .free-who { align-items: center; }
 .free-name { min-width: 56px; color: var(--muted); }
 .sched-free select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; }
+.sched-free input { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; max-width: 100%; }

@@ -12,6 +12,8 @@
     var main = U.node('span', 'tl-main');
     main.appendChild(U.node('span', 'tl-who', (compact ? e.time + ' ' : '') + 'Pencilled: ' + [e.customerName || 'No name', e.postcode].filter(Boolean).join(', ')));
     main.appendChild(U.node('span', 'tl-biz tl-kind', (e.surveyor ? e.surveyor.charAt(0).toUpperCase() + e.surveyor.slice(1) + ' · ' : '') + 'not confirmed'));
+    if (e.by) main.appendChild(U.node('span', 'tl-biz', 'By ' + e.by + (e.byHand ? ', held until let go (agent)' : '')));
+    if (e.outsideHours) main.appendChild(U.node('span', 'tl-biz tl-clash', 'Outside ' + (e.surveyor || 'their') + '\'s hours now'));
     if (e.sharing.length) main.appendChild(U.node('span', 'tl-biz tl-clash', 'Also offered to ' + e.sharing.join(', ') + ': first yes gets it'));
     if (e.clashesBooked) main.appendChild(U.node('span', 'tl-biz tl-clash', 'Clashes with a booked survey'));
     b.appendChild(main);

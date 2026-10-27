@@ -327,7 +327,7 @@ test('free times come only from set hours, two days on, and never next to a book
   assert.deepEqual((await freeSlots({ today })).map((s) => s.time), ['09:00', '10:00', '11:00', '12:00']);
   await callTool(scope, { name: 'create_job', arguments: { ...ASKED, job_date: '2026-11-07', job_time: '10:00' } });
   assert.deepEqual((await freeSlots({ today })).map((s) => s.time), ['12:00'], 'an hour either side of a booked survey is travel');
-  await pool.query(`insert into leads (session_id, site, stage, first_name, email, postcode, slot_at, slot_surveyor) values (gen_random_uuid(), 'ati-london', 'complete', 'Held', 'h@example.com', 'SW2 2JX', '2026-11-07 12:00:00 Europe/London', 'tom')`);
+  await pool.query(`insert into leads (session_id, site, stage, first_name, email, postcode, pencil_date, pencil_time, pencil_surveyor, pencil_until) values (gen_random_uuid(), 'ati-london', 'complete', 'Held', 'h@example.com', 'SW2 2JX', '2026-11-07', '12:00', 'tom', now() + interval '48 hours')`);
   assert.deepEqual(await freeSlots({ today }), [], 'a time an enquiry is holding is taken');
   await addHours(scope, 'ronnie', '2026-11-08', '09:00', '10:00');
   await callTool(scope, { name: 'create_job', arguments: { ...ASKED, customer_name: 'No Time', job_date: '2026-11-08', job_time: undefined, surveyor: 'Ronnie' } });

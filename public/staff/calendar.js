@@ -148,7 +148,9 @@
       node.classList.remove('is-target');
       var e = state.events.find(function (x) { return x.kind === 'job' && x.id === Number(ev.dataTransfer.getData('text/plain')); });
       if (!e || e.date === date) return;
-      U.send('/api/admin/' + (e.quoted ? 'quoted' : 'clients'), W.moveBody({ jobId: e.id, quoted: e.quoted, status: e.status }, date, e.time)).then(load);
+      var path = '/api/admin/' + (e.quoted ? 'quoted' : 'clients'), body = W.moveBody({ jobId: e.id, quoted: e.quoted, status: e.status }, date, e.time);
+      /* Inside the drive to or from another survey: say so, and only go ahead if asked. */
+      U.send(path, body).then(function (r) { return r && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?') ? U.send(path, Object.assign({}, body, { force: true })) : null; }).then(load);
     });
   }
 
