@@ -8,6 +8,7 @@
   var short = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   var nice = function (t) { var h = Number(t.slice(0, 2)); return (h % 12 || 12) + (t.slice(3) === '00' ? '' : ':' + t.slice(3)) + (h < 12 ? 'am' : 'pm'); };
 
+  var prices = null;
   function slots(list) {
     var box = el('slots');
     box.textContent = '';
@@ -30,6 +31,12 @@
         byDay[d].forEach(function (s) {
           var t = U.node('button', 'quiz-opt', nice(s.time)); t.type = 'button';
           t.title = 'Would be held for ' + s.surveyor + ' (the customer does not see who)';
+          /* Then what the customer sees next, as on the website; nothing is saved. */
+          t.addEventListener('click', function () {
+            var next = U.node('div', 'bt'); box.textContent = ''; box.appendChild(next);
+            box.appendChild(U.node('p', 'panel-note', 'Preview only: on the website this time would now be held 48 hours for ' + s.surveyor + ' and alerted. Nothing has been saved.'));
+            global.DSBookPreview.survey(next, prices, day(d) + ' at ' + nice(s.time) + ' is requested. We will be in touch shortly to confirm it.');
+          });
           row.appendChild(t);
         });
         times.appendChild(row);
@@ -46,6 +53,7 @@
     try {
       var pc = el('lab-pc') ? el('lab-pc').value.trim() : '';
       var data = await U.get('/api/admin/hours?view=slots' + (pc ? '&postcode=' + encodeURIComponent(pc) : ''));
+      prices = data.prices;
       slots(data.slots);
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
   }

@@ -130,13 +130,27 @@
       return row;
     }
     async function send() {
-      var r = await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick });
-      var c = r.data && r.data.chose;
+      /* The staff Lab previews this with no enquiry: priced here, nothing saved. */
+      var c = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}).chose : preview(P, pick);
       done(box, 'Thanks, all noted', (said ? said + ' ' : '') + (pick.service !== 'unsure' && c && c.price
         ? c.name + ', ' + money(c.price, c.from) + ((c.addOns || []).length ? ', with ' + c.addOns.map(function (a) { return a.name.toLowerCase() + ' ' + money(a.price, a.from); }).join(' and ') : '') + '. We confirm the fee before we come.'
         : 'We will help you choose the right survey when we call.'));
     }
   }
+
+  function preview(P, pick) {
+    var picked = function (e) { return pick.extras.indexOf(e.key) !== -1; };
+    if (pick.service === 'alone') {
+      var a = P.extras.filter(picked);
+      return { name: a.map(function (e) { return e.name; }).join(' and '), price: a.reduce(function (t, e) { return t + e.alone; }, 0), from: a.some(function (e) { return e.from; }), addOns: [] };
+    }
+    var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
+    if (!z) return null;
+    return { name: z.name + (pick.service === 'timber' ? ' damp and timber' : ' damp') + ' survey', price: z.damp + (pick.service === 'timber' ? z.timber : 0), from: z.from,
+      addOns: P.extras.filter(function (e) { return e.addable && picked(e); }).map(function (e) { return { name: e.name, price: e.withSurvey, from: e.from }; }) };
+  }
+  /* For the staff Lab: the survey step exactly as a customer sees it, saving nothing. */
+  window.DSBookPreview = { survey: function (box, prices, said) { survey(box, null, prices, said); } };
 
   window.addEventListener('lead:sent', function (e) {
     var success = document.querySelector('.book-success');
