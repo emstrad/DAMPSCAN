@@ -83,6 +83,9 @@ enforces the mechanical ones in CI.
 - Timeline cards show survey type and surveyor; cards show phone and email.
 - To-do list: newest first by when it came in, each with how long it has
   been waiting.
+  Above it, "Customers who need something" (`public/staff/todo-clients.js`):
+  everything outstanding from lib/work.js gathered into one card per
+  customer, late first, with Call and Open.
 - Survey cards show a small report countdown (24h from survey end, red when
   over) until the report is ticked sent.
 - Jobs page: totals are ATi and DampScan surveys only; earnings count surveys
@@ -101,7 +104,8 @@ enforces the mechanical ones in CI.
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
 - My hours (`lib/hours-store.js`): Tom, Ronnie and Ben each set a usual week
-  once and it fills every future week; a day changed by hand keeps what was
+  once and it fills every future week; the next five weeks come first on the
+  page, a ticked day is set straight away; a day changed by hand keeps what was
   typed (tick days to set, add, mark off or reset together; presets for the
   usual shapes; the usual week can be learnt from what they have been
   setting). A day with no hours means not available. Free times are

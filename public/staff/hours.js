@@ -77,7 +77,8 @@
       var hand = mine.some(function (h) { return h.source === 'set'; }) || (data.setDays || []).indexOf(d) >= 0;
       var li = U.node('li', 'hrs-day' + (picked[d] ? ' is-picked' : '') + (mine.length ? '' : ' is-off'));
       var box = document.createElement('input'); box.type = 'checkbox'; box.checked = Boolean(picked[d]); box.id = 'd-' + d;
-      (function (day) { box.addEventListener('change', function () { if (box.checked) picked[day] = true; else delete picked[day]; renderDays(); renderBulk(); }); })(d);
+      /* Each box reads its own state (the loop's variable is the last box). */
+      (function (day) { box.addEventListener('change', function (e) { if (e.target.checked) picked[day] = true; else delete picked[day]; renderDays(); renderBulk(); if (e.target.checked) showBulk(); }); })(d);
       var lab = document.createElement('label'); lab.htmlFor = box.id;
       lab.appendChild(U.node('span', 'hrs-date', label(d)));
       lab.appendChild(U.node('span', 'hrs-when', mine.length ? mine.map(function (h) { return h.start + ' to ' + h.end; }).join(', ') : 'Not available'));
@@ -87,6 +88,8 @@
     }
   }
 
+  /* The bar for the ticked days comes into view, ready to set their hours. */
+  function showBulk() { var b = el('bulk'); if (b && b.getBoundingClientRect().top < 0) b.scrollIntoView({ block: 'nearest' }); }
   var bulkTime = null;
   function renderBulk() {
     var n = Object.keys(picked).length;

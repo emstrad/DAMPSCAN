@@ -38,3 +38,13 @@
 .todo-list .todo-meta{font-size:13px;color:var(--muted);margin:4px 0 0}
 .todo-list .is-overdue{color:#e5484d;font-weight:600}
 .todo-list .is-done .todo-words{text-decoration:line-through;opacity:.7}
+/* To-do page: customers who need something, one card each. */
+.tc-list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; grid-template-columns: 1fr; }
+@media (min-width: 800px) { .tc-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .tc-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tc-card { border: 1px solid var(--line-strong); border-radius: 12px; padding: 10px; background: var(--navy-2); min-width: 0; overflow-wrap: anywhere; }
+.tc-card.is-late { border-left: 4px solid var(--warn); }
+.tc-biz { display: block; font-size: .8rem; color: var(--muted); }
+.tc-things { margin: 6px 0; padding-left: 18px; font-size: .9rem; }
+.tc-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.tc-row .btn { min-height: 44px; }
