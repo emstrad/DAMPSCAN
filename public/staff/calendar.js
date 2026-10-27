@@ -84,10 +84,12 @@
     return b;
   }
 
+  function draw(e, compact) { return e.kind === 'pencil' ? global.DSPENCIL.button(e, compact) : jobButton(e, compact); }
+
   function onTimeline(e) { return e.kind !== 'job' || e.dateSet !== false; }
   function byDay() {
     var map = {};
-    state.events.filter(onTimeline).forEach(function (e) { (map[e.date] = map[e.date] || []).push(e); });
+    state.events.filter(onTimeline).concat(state.pencils || []).forEach(function (e) { (map[e.date] = map[e.date] || []).push(e); });
     return map;
   }
 
@@ -108,7 +110,7 @@
       box.appendChild(h);
       var timed = list.filter(function (e) { return e.time || e.kind === 'service'; });
       var tbc = list.filter(function (e) { return !e.time && e.kind === 'job'; });
-      timed.forEach(function (e) { box.appendChild(jobButton(e)); });
+      timed.forEach(function (e) { box.appendChild(draw(e)); });
       if (tbc.length) {
         box.appendChild(U.node('p', 'tl-sub', 'Time to confirm'));
         tbc.forEach(function (e) { box.appendChild(jobButton(e)); });
@@ -132,7 +134,7 @@
       num.setAttribute('aria-label', 'Week of ' + fmt(d, { day: 'numeric', month: 'long' }));
       num.addEventListener('click', function (date) { state.view = 'week'; state.cursor = date; remember(); load(); }.bind(null, d));
       cell.appendChild(num);
-      (days[d] || []).forEach(function (e) { cell.appendChild(jobButton(e, true)); });
+      (days[d] || []).forEach(function (e) { cell.appendChild(draw(e, true)); });
       drop(cell, d);
       grid.appendChild(cell);
     }
@@ -146,7 +148,9 @@
       node.classList.remove('is-target');
       var e = state.events.find(function (x) { return x.kind === 'job' && x.id === Number(ev.dataTransfer.getData('text/plain')); });
       if (!e || e.date === date) return;
-      U.send('/api/admin/' + (e.quoted ? 'quoted' : 'clients'), W.moveBody({ jobId: e.id, quoted: e.quoted, status: e.status }, date, e.time)).then(load);
+      var path = '/api/admin/' + (e.quoted ? 'quoted' : 'clients'), body = W.moveBody({ jobId: e.id, quoted: e.quoted, status: e.status }, date, e.time);
+      /* Inside the drive to or from another survey: say so, and only go ahead if asked. */
+      U.send(path, body).then(function (r) { return r && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?') ? U.send(path, Object.assign({}, body, { force: true })) : null; }).then(load);
     });
   }
 
@@ -206,6 +210,7 @@
     try {
       var data = await U.get('/api/admin/calendar?view=work&from=' + r.from + '&to=' + r.to + (state.area ? '&area=' + state.area : ''));
       state.events = data.events || [];
+      state.pencils = data.pencils || [];
       state.unbooked = data.unbooked || [];
       state.work = data.work;
       el('state').hidden = true;
@@ -272,6 +277,8 @@
   U.get('/api/admin/me').catch(function () { return null; }).then(function (me) {
     if (!me || !me.businesses) return;
     var held = me.businesses.map(function (b) { return W.AREA_OF[b.slug]; });
+    /* Who's free opens Scheduling, which is for whoever manages a damp brand. */
+    el('who-free').hidden = !me.businesses.some(function (b) { return W.AREA_OF[b.slug] === 'damp' && b.level === 'manage'; });
     document.querySelectorAll('[data-area-filter]').forEach(function (b) {
       var a = b.getAttribute('data-area-filter');
       if (a && held.indexOf(a) === -1) b.remove();

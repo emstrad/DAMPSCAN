@@ -1,7 +1,9 @@
-# Hourly check for survey reports past their 24 hours (lib/report-late.js).
-# The hosting plan only runs its own schedules once a day. Needs the
-# repository secret CRON_SECRET, the same value as on Vercel; without it the
-# step does nothing and the morning and evening runs still check.
+# Hourly check for survey reports past their 24 hours (lib/report-late.js),
+# lapsed scheduling holds and the inbox scan. The hosting plan only runs its
+# own schedules once a day. Runs only in VERTISE-DEV/DAMPSCAN, the mirror
+# Vercel deploys from, because CRON_SECRET (the same value as on Vercel) is
+# kept there and nowhere else; without it the step does nothing and the
+# morning and evening runs still check.
 name: Report due check
 on:
   schedule:
@@ -11,6 +13,7 @@ permissions: {}
 jobs:
   ping:
     runs-on: ubuntu-latest
+    if: github.repository == 'VERTISE-DEV/DAMPSCAN'
     steps:
       - name: Check for overdue reports
         env:

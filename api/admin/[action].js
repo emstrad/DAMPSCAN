@@ -19,6 +19,7 @@ import { requireScope } from '../../lib/access.js';
 import { workOnly, allowedWrite, REFUSED } from '../../lib/work-only.js';
 import { withActivity } from '../../lib/activity.js';
 import { withFigures } from '../../lib/figures.js';
+import scheduling from '../../lib/routes/admin/scheduling.js';
 import hours from '../../lib/routes/admin/hours.js';
 import conversions from '../../lib/routes/admin/conversions.js';
 import quick from '../../lib/routes/admin/quick.js';
@@ -52,7 +53,7 @@ import usage from '../../lib/routes/admin/usage.js';
 
 export const config = { runtime: 'nodejs' };
 
-const ROUTES = { quick, conversions, hours, attachment, bank, business, calendar, clients, contracts, coolright, due, insights, jobs, leads, mcp, me, oauth, people, photos, pricebook, push, quoted, rates, roofing, search, snooze, summary, surveys, todos, usage };
+const ROUTES = { quick, conversions, hours, scheduling, attachment, bank, business, calendar, clients, contracts, coolright, due, insights, jobs, leads, mcp, me, oauth, people, photos, pricebook, push, quoted, rates, roofing, search, snooze, summary, surveys, todos, usage };
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST', 'DELETE'])) return;

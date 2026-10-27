@@ -70,6 +70,7 @@
           <button class="btn btn--ghost btn--sm" id="today">This week</button>
           <button class="btn btn--ghost btn--sm" id="next" aria-label="Next">&rarr;</button>
         </div>
+        <a class="btn btn--sm" id="who-free" href="/staff/schedule.html#free" hidden>Who's free?</a>
         <div class="pills" role="group" aria-label="View">
           <button type="button" class="pill" data-view="week">Week</button>
           <button type="button" class="pill" data-view="month">Month</button>
@@ -79,7 +80,7 @@
     </section>
     <div class="today-lists">
       <section class="today-panel" aria-labelledby="unbooked-h">
-        <h2 id="unbooked-h">Not booked in yet <span class="act-count" id="unbooked-count"></span></h2>
+        <h2 id="unbooked-h">Not booked in yet <span class="act-count" id="unbooked-count"></span> <a class="link-btn" href="/staff/schedule.html">Scheduling</a></h2>
         <ul class="tl-list" id="unbooked"></ul>
       </section>
       <section class="today-panel" aria-labelledby="needs-h">
@@ -93,6 +94,6 @@
 
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script>
-<script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script><script src="/staff/calendar-ac.js"></script><script src="/staff/calendar.js"></script><script src="/staff/today-todo.js"></script>
+<script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script><script src="/staff/calendar-ac.js"></script><script src="/staff/calendar-pencil.js"></script><script src="/staff/calendar.js"></script><script src="/staff/today-todo.js"></script>
 </body>
 </html>

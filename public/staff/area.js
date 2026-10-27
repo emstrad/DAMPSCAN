@@ -22,7 +22,7 @@
   var AREAS = {
     damp: {
       name: 'ATi & DampScan', sites: ['dampscan', 'ati-london'], books: 'damp',
-      tabs: [['Surveys', 'surveys.html'], ['Reports', 'reports.html'], ['Day sheet', 'day.html'], ['Agents', 'agents.html'], ['Leads', 'dashboard.html'], ['Jobs', 'jobs.html'], ['Clients', 'clients.html'], ['Insights', 'insights.html'], ['Records', 'records.html'], ['My hours', 'hours.html'], ['Lab', 'lab.html']]
+      tabs: [['Surveys', 'surveys.html'], ['Scheduling', 'schedule.html'], ['Reports', 'reports.html'], ['Day sheet', 'day.html'], ['Agents', 'agents.html'], ['Leads', 'dashboard.html'], ['Jobs', 'jobs.html'], ['Clients', 'clients.html'], ['Insights', 'insights.html'], ['Records', 'records.html'], ['My hours', 'hours.html'], ['Lab', 'lab.html']]
     },
     roofing: {
       name: 'Verge Roofing', sites: ['roofing'], books: 'roofing',
@@ -119,9 +119,10 @@
       held.forEach(function (a) { bar.appendChild(link(AREAS[a].name, href(a, MONEY), a === area, 'section-tab')); });
     } else {
       bar.setAttribute('aria-label', AREAS[area].name + ' sections');
-      /* Jobs is the earnings page: only for whoever manages a damp brand. */
+      /* Jobs (earnings), Lab and Scheduling (enquiry contact details): only for
+         whoever manages a damp brand. */
       AREAS[area].tabs.forEach(function (t) {
-        if ((t[1] === 'jobs.html' || t[1] === 'lab.html') && rights.known && !AREAS[area].sites.some(function (x) { return rights.manages[x]; })) return;
+        if ((t[1] === 'jobs.html' || t[1] === 'lab.html' || t[1] === 'schedule.html') && rights.known && !AREAS[area].sites.some(function (x) { return rights.manages[x]; })) return;
         bar.appendChild(link(t[0], href(area, t[1]), t[1] === page, 'section-tab'));
       });
     }

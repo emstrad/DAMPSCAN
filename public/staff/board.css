@@ -244,3 +244,7 @@
   .cal-bar .pills{margin-left:auto}
   .wrap.work{padding-top:12px}
 }
+/* Pencilled, not booked: grey and dashed; red words when the time is shared. */
+.tl-job.is-pencil{border-style:dashed;background:var(--navy-2);color:var(--muted)}
+.tl-job.is-pencil .tl-who{color:var(--muted)}
+.tl-clash{color:var(--warn)}

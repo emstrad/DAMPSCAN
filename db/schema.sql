@@ -1271,3 +1271,48 @@ create table if not exists lab_flags (
   enabled     boolean not null default false,
   changed_at  timestamptz not null default now()
 );
+
+-- Scheduling (lib/scheduling.js): the stretch before a survey is booked.
+-- An enquiry or an undated job sits in New, Contacted or Waiting for time,
+-- with a log of calls and emails and the times the customer asked for.
+alter table leads add column if not exists sched_stage text;
+alter table leads add column if not exists sched_wanted text;
+alter table leads add column if not exists sched_log jsonb not null default '[]';
+alter table jobs add column if not exists sched_stage text;
+alter table jobs add column if not exists sched_wanted text;
+alter table jobs add column if not exists sched_log jsonb not null default '[]';
+
+-- Scheduling holds: a time pencilled in for an enquiry or a dateless job,
+-- shown grey on Today and the week until booked or it lapses (lib/pencils.js).
+alter table leads add column if not exists pencil_date date;
+alter table leads add column if not exists pencil_time time;
+alter table leads add column if not exists pencil_surveyor text;
+alter table leads add column if not exists pencil_until timestamptz;
+alter table jobs add column if not exists pencil_date date;
+alter table jobs add column if not exists pencil_time time;
+alter table jobs add column if not exists pencil_surveyor text;
+alter table jobs add column if not exists pencil_until timestamptz;
+-- Emails the inbox scan has already read (lib/mail-scan.js); ids only.
+create table if not exists mail_seen (
+  message_id  text primary key,
+  seen_at     timestamptz not null default now()
+);
+-- Where a postcode is, for travel time between surveys (lib/travel.js).
+create table if not exists postcode_geo (
+  postcode    text primary key,
+  lat         double precision,
+  lon         double precision,
+  looked_at   timestamptz not null default now()
+);
+-- Who pencilled a time in and when, so two people at once see each other.
+alter table leads add column if not exists pencil_by text;
+alter table leads add column if not exists pencil_set_at timestamptz;
+alter table jobs add column if not exists pencil_by text;
+alter table jobs add column if not exists pencil_set_at timestamptz;
+-- Pencilled anyway, outside the hours or over a survey: the hourly run leaves it.
+alter table leads add column if not exists pencil_forced boolean not null default false;
+alter table jobs add column if not exists pencil_forced boolean not null default false;
+-- The website time picker's hold becomes an ordinary pencil (one system).
+update leads set pencil_date = (slot_at at time zone 'Europe/London')::date, pencil_time = (slot_at at time zone 'Europe/London')::time,
+       pencil_surveyor = slot_surveyor, pencil_until = now() + interval '48 hours', pencil_by = 'Website', pencil_set_at = now(), slot_at = null
+ where slot_at is not null and pencil_date is null;

@@ -37,7 +37,8 @@ enforces the mechanical ones in CI.
 - Vercel Hobby: at most 12 files under `api/`. New endpoints go into an
   existing dispatcher (`api/admin/[action].js`, `api/cron/[task].js`).
 - Vercel crons run once a day only (06:30 digest run, 17:00 evening run).
-  Anything hourly goes through `.github/workflows/report-due.yml`.
+  Anything hourly goes through `.github/workflows/report-due.yml`, which runs
+  only in the VERTISE-DEV/DAMPSCAN mirror, where CRON_SECRET is kept.
 - `db/schema.sql` is re-applied on every merge: every statement idempotent
   (`if not exists`, `on conflict`, guarded `do` blocks). Add new tables to the
   list in `test/migrate.test.js`.
@@ -98,12 +99,38 @@ enforces the mechanical ones in CI.
 - Friday morning: one alert for work done over a week ago and not paid.
 - My hours (`lib/availability.js`): Tom, Ronnie and Ben each set their own
   survey hours day by day; nothing set means not available. Free times are
-  one hour starts from two days ahead, never within an hour's travel of a
+  one hour starts from two days ahead, never inside the drive to or from a
   booked survey, never on a day with an untimed booked survey, never a time
   an enquiry holds. The booking form is always filled in; picking a time is
   only offered at the end, and only once the owners switch it on after the
   Lab. The Lab (owners only) previews that picker and the survey quiz (ATi
   and DampScan share one price list).
+- Scheduling (`lib/scheduling.js`, managers only): every damp enquiry starts
+  in New enquiry, moves to Contacted when a call, email or text is logged,
+  then Waiting for time (times they want noted), then Booked into the normal
+  flow. Any stage can be skipped. Booking checks the surveyor's My hours and
+  their booked surveys, and only goes ahead anyway when the person says so.
+- Pencilled times (`lib/pencils.js`): a time offered and not confirmed shows
+  grey on Today and the week, is off the free list and lapses after 48 hours
+  back to Waiting with a to-do. Two customers may hold the same time; both
+  show, flagged, and the first booked bumps the other back with a to-do.
+- Who's free (top of Scheduling, "Who's free?" on Today for managers):
+  every surveyor's open starts for two weeks, grouped by day and person, for
+  answering the phone. Same rules as the free list, booked and pencilled out;
+  with the caller's postcode it uses real travel.
+- Travel time (`lib/travel.js`, `lib/travel-guard.js`): a survey is an hour
+  plus the drive to the next, from postcodes (postcodes.io, cached in
+  postcode_geo; an hour when unknown). Every way of booking a damp survey
+  refuses a time inside it with the reason unless told to go ahead (force).
+- Holds for a buyer waiting on the estate agent never lapse; someone lets them
+  go by hand. A hold notes who pencilled it; pencilling a time someone else
+  pencilled in the last ten minutes says so. A hold whose hours were removed
+  or that a survey was booked over goes back with a to-do, unless it was
+  pencilled anyway. The board flags the same person on two cards.
+- Inbox scan (`lib/mail-scan.js`, hourly with report-due): reads sender,
+  recipients, subject and preview (Graph Mail.Read, one mailbox), keeps only the
+  subject on its one matching card (or a booked job's history; a new address
+  by postcode); ambiguous ones are left for the ChatGPT sweep.
 - Ronnie alone gets the Send to car button.
 
 ## ChatGPT connector (`/api/admin/mcp`)
