@@ -100,8 +100,11 @@ enforces the mechanical ones in CI.
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
-- My hours (`lib/availability.js`): Tom, Ronnie and Ben each set their own
-  survey hours day by day; nothing set means not available. Free times are
+- My hours (`lib/hours-store.js`): Tom, Ronnie and Ben each set a usual week
+  once and it fills every future week; a day changed by hand keeps what was
+  typed (tick days to set, add, mark off or reset together; presets for the
+  usual shapes; the usual week can be learnt from what they have been
+  setting). A day with no hours means not available. Free times are
   one hour starts from two days ahead, never inside the drive to or from a
   booked survey, never on a day with an untimed booked survey, never a time
   an enquiry holds. The booking form is always filled in; picking a time is
@@ -116,8 +119,10 @@ enforces the mechanical ones in CI.
 - The Scheduling map (`public/staff/sched-map.js`, Leaflet kept in `public/staff/vendor`, OpenStreetMap tiles,
   loaded without blocking the board): the day's surveys as numbered pins in
   each surveyor's colour joined as a route, holds grey, customers to book
-  orange. Each card to book shows its best fit (`lib/best-fit.js`): the free
-  start nearest a survey already planned that fortnight, then the next ones.
+  orange. Each card to book shows the times to offer, best first, with why
+  (`lib/best-fit.js`): who has hours, who is already near that day, then the
+  start adding least driving, snug after the survey before; no drive over 75
+  minutes between surveys; fresh days (nothing booked) after nearby ones.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

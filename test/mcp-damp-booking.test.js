@@ -317,7 +317,7 @@ test('reports owed, the customer story, the same-person link and the Friday mone
 
 test('free times come only from set hours, two days on, and never next to a booked survey', async () => {
   const { addHours, freeSlots, addUsual } = await import('../lib/availability.js');
-  await pool.query('truncate surveyor_hours, lab_flags');
+  await pool.query('truncate surveyor_hours, surveyor_usual, surveyor_day_set, lab_flags');
   const scope = await owners();
   const today = '2026-11-02';
   assert.deepEqual(await freeSlots({ today }), [], 'no hours, nothing offered');

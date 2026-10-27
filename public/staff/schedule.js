@@ -103,18 +103,24 @@
     more.appendChild(want);
     /* Other good times nearest planned work (lib/best-fit.js), behind the fold. */
     var chips = U.node('div', 'sched-row');
-    (c.best || []).slice(1).forEach(function (s) {
-      chips.appendChild(button(day(s.date) + ' ' + s.time + ' ' + cap(s.surveyor) + (s.near ? ', ' + s.near.minutes + ' min away' : ''), 'sched-chip', function () { openBook(c, s); }));
+    (c.best || []).slice(3).forEach(function (s) {
+      chips.appendChild(button(day(s.date) + ' ' + s.time + ' ' + cap(s.surveyor), 'sched-chip', function () { openBook(c, s); }));
     });
     more.appendChild(chips);
     /* The single best time, in plain sight: closest to a survey already planned. */
-    var top = (c.best || [])[0];
-    if (top && !c.pencil) {
-      var bb = button('', 'sched-best', function () { openBook(c, top); });
-      bb.appendChild(U.node('b', null, 'Best fit: ' + day(top.date) + ' ' + top.time + ' with ' + cap(top.surveyor)));
-      bb.appendChild(U.node('span', 'meta', top.near ? 'About ' + top.near.minutes + ' min from ' + top.near.name + (top.near.postcode ? ' (' + top.near.postcode + ')' : '') + ' that day' : 'Nothing else booked that day'));
-      box.appendChild(bb);
-    } else if (!c.pencil && c.at === null && c.postcode) box.appendChild(U.node('p', 'meta', 'Postcode not found, so no best fit.'));
+    /* The best times to read out, best first, each with why (lib/best-fit.js). */
+    if ((c.best || []).length && !c.pencil) {
+      var opts = U.node('div', 'sched-opts');
+      opts.appendChild(U.node('p', 'meta', 'Times to offer, best first:'));
+      c.best.slice(0, 3).forEach(function (s, i) {
+        var bb = button('', 'sched-best' + (i ? ' is-alt' : ''), function () { openBook(c, s); });
+        bb.appendChild(U.node('b', null, (i + 1) + '. ' + day(s.date) + ' at ' + s.time + ' with ' + cap(s.surveyor)));
+        bb.appendChild(U.node('span', 'meta', s.why));
+        opts.appendChild(bb);
+      });
+      box.appendChild(opts);
+    } else if (!c.pencil && !(c.best || []).length) box.appendChild(U.node('p', 'meta', 'No free time in the next two weeks. Ask the surveyors to set their usual week on My hours.'));
+    else if (!c.pencil && c.at === null && c.postcode) box.appendChild(U.node('p', 'meta', 'Postcode not found, so no best fit.'));
     box.appendChild(more);
     var end = U.node('div', 'sched-row');
     var move = document.createElement('select'); move.setAttribute('aria-label', 'Move to');

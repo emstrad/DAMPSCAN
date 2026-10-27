@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0c1a2b" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="manifest" href="/staff/manifest.webmanifest" /><link rel="apple-touch-icon" href="/staff/icon-180.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
-<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" />
+<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" /><link rel="stylesheet" href="/staff/hours.css" />
 <script>
 /* Both sites share this staff area, so the hostname decides whose name is on
    it. This runs in the head, before anything is painted, so neither brand ever
@@ -54,11 +54,35 @@
 
 <main class="wrap">
   <h1 class="records-title">My hours</h1>
-  <p class="panel-note">The times you can do surveys. If a day has nothing set, you are not available that day. Customers are never offered anything inside two days, and never a time next to a survey you already have.</p>
+  <p class="panel-note">Set your usual week once and it fills every week from then on. Change any day on its own, or tick several days and change them together. A day with no hours means not available.</p>
   <div class="ranges" id="who-row" hidden><label for="who">Hours for</label> <select id="who"></select></div>
-  <div class="top-end" style="margin:12px 0"><button class="btn btn--ghost btn--sm" id="usual" type="button">Add my usual: weekends 9 to 5, weekdays 5 to 6pm, next 4 weeks</button></div>
   <p class="panel-note" id="note" role="status"></p>
-  <ol class="hours-days" id="days"></ol>
+  <section class="panel hrs-usual" aria-labelledby="h-usual">
+    <h2 id="h-usual">My usual week</h2>
+    <p class="panel-note" id="learn-row" hidden>No usual week yet. <button class="btn btn--sm" id="learn" type="button">Remember the hours I have been setting</button></p>
+    <ol class="hrs-week" id="usual"></ol>
+  </section>
+  <section class="panel" aria-labelledby="h-days">
+    <h2 id="h-days">The next five weeks</h2>
+    <div class="hrs-pick">
+      <span>Tick days, or pick:</span>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="weekdays">Weekdays</button>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="weekends">Weekends</button>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="all">All</button>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="none">None</button>
+    </div>
+    <div class="hrs-bulk" id="bulk" hidden>
+      <strong id="bulk-count"></strong>
+      <div class="hrs-times" id="bulk-times"></div>
+      <div class="hrs-actions">
+        <button class="btn btn--sm" type="button" data-act="replace">Set these hours</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-act="add">Add as extra hours</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-act="off">Not available</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-act="usual">Back to my usual week</button>
+      </div>
+    </div>
+    <ol class="hrs-days" id="days"></ol>
+  </section>
 </main>
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/hours.js"></script>

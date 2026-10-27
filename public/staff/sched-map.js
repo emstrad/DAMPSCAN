@@ -23,7 +23,7 @@
     if (!c.best.length) { var p = document.createElement('p'); p.textContent = 'No free time in the next two weeks. Ask the surveyors to add hours.'; box.appendChild(p); }
     c.best.forEach(function (b) {
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn btn--sm map-fit';
-      btn.textContent = nice(b.date) + ' ' + b.time + ' ' + cap(b.surveyor) + (b.near ? ', ' + b.near.minutes + ' min from ' + b.near.name : ', nothing else that day');
+      btn.textContent = nice(b.date) + ' ' + b.time + ' ' + cap(b.surveyor) + ': ' + b.why;
       btn.addEventListener('click', function () { opts.book(c, b); });
       box.appendChild(btn);
     });

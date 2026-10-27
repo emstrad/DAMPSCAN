@@ -1318,3 +1318,20 @@ update leads set pencil_date = (slot_at at time zone 'Europe/London')::date, pen
  where slot_at is not null and pencil_date is null;
 -- When an untouched enquiry was nudged once (lib/enquiry-nudge.js).
 alter table leads add column if not exists sched_nudged_at timestamptz;
+-- My hours, the easy way (lib/hours-store.js): each surveyor's usual week,
+-- which fills every day they have not changed by hand, and the days they did.
+create table if not exists surveyor_usual (
+  id          bigserial primary key,
+  surveyor    text not null,
+  weekday     smallint not null check (weekday between 0 and 6),
+  start_time  time not null,
+  end_time    time not null
+);
+create index if not exists surveyor_usual_idx on surveyor_usual (surveyor, weekday);
+create table if not exists surveyor_day_set (
+  surveyor    text not null,
+  on_date     date not null,
+  primary key (surveyor, on_date)
+);
+-- Hours already typed in day by day stay exactly as they were.
+insert into surveyor_day_set (surveyor, on_date) select distinct surveyor, on_date from surveyor_hours on conflict do nothing;
