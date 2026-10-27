@@ -22,7 +22,7 @@
   if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
 })();
 </script>
-<link rel="stylesheet" href="/staff/board.css" /><link rel="stylesheet" href="/staff/schedule.css" />
+<link rel="stylesheet" href="/staff/vendor/leaflet.css" /><link rel="stylesheet" href="/staff/board.css" /><link rel="stylesheet" href="/staff/schedule.css" />
 </head>
 <body>
 
@@ -58,6 +58,8 @@
   <p class="panel-note">The whole survey in one place: the day lane by lane, who still needs booking, and what is owed after the visit. Tap a survey for the full job; tap or drop onto a free time to book.</p>
   <p class="panel-note" id="note" role="status"></p>
   <div class="dsp" id="dispatch"></div>
+  <div class="map-key" aria-hidden="true"><span style="--c:#4fa8e8">Tom</span><span style="--c:#b48cf2">Ben</span><span style="--c:#5fcf9e">Ronnie</span><span style="--c:#e3b341">Scott</span><span style="--c:#8a94a6">Pencilled</span><span class="is-hollow" style="--c:#f0a04b">To book</span></div>
+  <div class="sched-map" id="map" role="region" aria-label="Map of the day and customers to book"></div>
   <details class="sched-fold" id="free-fold"><summary>Who's free over the next two weeks</summary>
   <section class="sched-free" id="free" aria-labelledby="free-h">
     <h2 id="free-h">Who's free</h2>
@@ -88,6 +90,6 @@
 </main>
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script>
-<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/schedule.js"></script>
+<script id="leaflet-js" async src="/staff/vendor/leaflet.js"></script><script src="/staff/sched-map.js"></script><script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/schedule.js"></script>
 </body>
 </html>

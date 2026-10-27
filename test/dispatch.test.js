@@ -47,3 +47,20 @@ test('lanes show surveys, the drive between them and the free starts left', asyn
   assert.equal(w[0].surveys, 2);
   assert.deepEqual(w[0].onHours, ['tom']);
 });
+
+test('a Whitstable enquiry is offered the day someone is already in Kent, not London', async () => {
+  const { bestFits } = await import('../lib/best-fit.js');
+  await pool.query(`insert into postcode_geo (postcode, lat, lon) values ('CT51AA', 51.36, 1.025), ('CT11AA', 51.28, 1.08), ('N11AA', 51.54, -0.10)
+    on conflict (postcode) do update set lat = excluded.lat, lon = excluded.lon`);
+  const d1 = '2030-06-03', d2 = '2030-06-04';
+  await pool.query(`insert into surveyor_hours (surveyor, on_date, start_time, end_time) values ('tom', $1, '09:00', '17:00'), ('ben', $2, '09:00', '17:00')`, [d1, d2]);
+  await pool.query(JOB, ['tom', d1, '10:00', 'Lee', 'N1 1AA']);
+  await pool.query(JOB, ['ben', d2, '10:00', 'Pat', 'CT1 1AA']);
+  const { fits } = await bestFits([{ kind: 'lead', id: 1, postcode: 'CT5 1AA' }], ['dampscan'], '2030-06-01');
+  const best = fits.get('lead:1').best;
+  assert.equal(best[0].surveyor, 'ben');
+  assert.equal(best[0].date, d2);
+  assert.equal(best[0].near.name, 'Pat');
+  assert.ok(best[0].near.minutes < 40);
+  assert.ok(fits.get('lead:1').at, 'its place, for the map');
+});

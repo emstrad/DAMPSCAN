@@ -113,6 +113,11 @@ enforces the mechanical ones in CI.
   hours, surveys with the drive to the next, holds, free starts to tap or drop
   a card on), the To book board, and After the visit (surveyed not paid; paid,
   report to send). A survey opens the same job pop-up as Today.
+- The Scheduling map (`public/staff/sched-map.js`, Leaflet kept in `public/staff/vendor`, OpenStreetMap tiles,
+  loaded without blocking the board): the day's surveys as numbered pins in
+  each surveyor's colour joined as a route, holds grey, customers to book
+  orange. Each card to book shows its best fit (`lib/best-fit.js`): the free
+  start nearest a survey already planned that fortnight, then the next ones.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

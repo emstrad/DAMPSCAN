@@ -101,12 +101,20 @@
     want.appendChild(wi);
     want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }); }));
     more.appendChild(want);
-    /* The next free times from the surveyors' own hours: a tap fills the booking. */
+    /* Other good times nearest planned work (lib/best-fit.js), behind the fold. */
     var chips = U.node('div', 'sched-row');
-    data.slots.slice(0, 4).forEach(function (s) {
-      chips.appendChild(button(day(s.date) + ' ' + s.time + ' ' + cap(s.surveyor), 'sched-chip', function () { openBook(c, s); }));
+    (c.best || []).slice(1).forEach(function (s) {
+      chips.appendChild(button(day(s.date) + ' ' + s.time + ' ' + cap(s.surveyor) + (s.near ? ', ' + s.near.minutes + ' min away' : ''), 'sched-chip', function () { openBook(c, s); }));
     });
     more.appendChild(chips);
+    /* The single best time, in plain sight: closest to a survey already planned. */
+    var top = (c.best || [])[0];
+    if (top && !c.pencil) {
+      var bb = button('', 'sched-best', function () { openBook(c, top); });
+      bb.appendChild(U.node('b', null, 'Best fit: ' + day(top.date) + ' ' + top.time + ' with ' + cap(top.surveyor)));
+      bb.appendChild(U.node('span', 'meta', top.near ? 'About ' + top.near.minutes + ' min from ' + top.near.name + (top.near.postcode ? ' (' + top.near.postcode + ')' : '') + ' that day' : 'Nothing else booked that day'));
+      box.appendChild(bb);
+    } else if (!c.pencil && c.at === null && c.postcode) box.appendChild(U.node('p', 'meta', 'Postcode not found, so no best fit.'));
     box.appendChild(more);
     var end = U.node('div', 'sched-row');
     var move = document.createElement('select'); move.setAttribute('aria-label', 'Move to');
@@ -247,6 +255,7 @@
       renderFree();
       global.DSDISPATCH.render(el('dispatch'), data.dispatch, dispatchOpts);
       global.DSAFTER.render(el('after'), load);
+      if (global.DSMAP) global.DSMAP.render(el('map'), data, dispatchOpts);
       var hit = location.hash && document.getElementById(location.hash.slice(1));
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }
