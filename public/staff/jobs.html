@@ -53,7 +53,7 @@
 </header>
 
 <main class="wrap">
-  <h1 class="sr-only">Jobs and earnings</h1>
+  <h1 class="sr-only">Survey money and rates</h1>
   <div class="ranges" role="group" aria-label="Site" style="margin-bottom:10px">
     <button class="pill" data-site="" aria-pressed="true">Both brands</button>
     <button class="pill" data-site="dampscan" aria-pressed="false">DampScan, Kent</button>
@@ -159,13 +159,13 @@
       </form>
     </details>
 
-    <section class="panel" aria-labelledby="h-jobs">
-      <h2 id="h-jobs">Jobs</h2>
+    <details class="panel jobs-fold" id="jobs-panel">
+      <summary><h2 id="h-jobs">Every job, as a list</h2><span class="panel-note">Surveys, Scheduling and Clients show the same jobs; this list is for exports and checking.</span></summary>
       <div class="top-end" style="margin-bottom:14px">
         <button class="btn btn--ghost btn--sm" id="csv">Export CSV</button>
       </div>
       <div id="jobs"></div>
-    </section>
+    </details>
 
     <details class="panel jobs-fold">
       <summary><h2 id="h-rates">Rate card</h2></summary>

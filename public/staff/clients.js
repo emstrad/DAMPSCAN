@@ -11,7 +11,7 @@
   var fillDialog = D.fill;
   var el = function (id) { return document.getElementById(id); };
 
-  var state = { site: '', view: 'upcoming', clients: [], open: null, opener: null,
+  var state = { site: '', view: 'all', clients: [], open: null, opener: null,
     query: '', all: null };   // `all` caches every client, fetched the first time a search needs it
 
   /* "Thu 10 Sep" for a date, "Today" and "Tomorrow" where they apply, since a
@@ -44,6 +44,8 @@
        than in a field of its own. A job with only a day agreed shows the day. */
     top.appendChild(U.node('span', 'ccard-when', day(c.surveyDate) + (c.awaitingAgent ? ' · awaiting estate agent' : c.surveyTime ? ' ' + c.surveyTime : '')));
     top.appendChild(U.node('span', 'tag ' + (c.site === 'ati-london' ? 'tag--accent' : 'tag--muted'), SITE[c.site] || c.site));
+    /* Someone who has had more than one survey with us. */
+    if ((repeats[who(c)] || 0) > 1) top.appendChild(U.node('span', 'tag tag--good', repeats[who(c)] + ' surveys'));
     b.appendChild(top);
 
     b.appendChild(U.node('span', 'ccard-name', c.name || 'No name'));
@@ -98,7 +100,12 @@
     return (state.all || []).filter(function (c) { return matches(c, state.query); });
   }
 
+  /* The same person across jobs: their phone digits, else their email. */
+  var repeats = {};
+  function who(c) { return String(c.phone || '').replace(/\D/g, '').replace(/^44/, '0') || String(c.email || '').toLowerCase(); }
   function render() {
+    repeats = {};
+    (state.all || state.clients).forEach(function (c) { var k = who(c); if (k) repeats[k] = (repeats[k] || 0) + 1; });
     var mount = el('cards');
     mount.textContent = '';
     var list = shown();

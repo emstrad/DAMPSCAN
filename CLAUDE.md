@@ -100,7 +100,10 @@ enforces the mechanical ones in CI.
   over) until the report is ticked sent.
 - Jobs page: totals are ATi and DampScan surveys only; earnings count surveys
   whose day has come; booked ahead, paid and still to pay shown apart. The
-  hand form is folded away (ChatGPT books jobs now).
+  hand form and the plain list of every job are folded away (ChatGPT books
+  jobs now); the tab is "Money and rates". Clients is the "Customers" tab:
+  everyone first (then upcoming, past), repeat customers tagged, and a damp
+  customer opens the one customer card.
 - Leads stays the marketing view (failed forms, landing pages, sources) and
   is joined to the work: each enquiry shows "Where now" (its stage, opening
   the customer), the old Stage column is "Form" (Sent or Partial), and "What
