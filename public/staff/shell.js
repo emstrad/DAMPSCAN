@@ -219,26 +219,25 @@
   }
   var todayPages = ['calendar.html', 'due.html', 'todo.html'];
   barLink('Today', '/staff/calendar.html', todayPages.indexOf(A.page) !== -1);
-  var sBtn = button('Search', 'search', 'bb-item');
-  sBtn.addEventListener('click', function () { openSearch(false); });
-  bar.appendChild(sBtn);
+  /* The owners' bar: Scheduling where Search was, Search where Money was. */
+  barLink('Scheduling', '/staff/schedule.html?area=damp', A.page === 'schedule.html');
+  var sched = bar.lastChild;
   var bPlus = button('', 'plus-bar', 'bb-item bb-plus', 'Add new');
   bPlus.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
   bPlus.setAttribute('aria-expanded', 'false');
   bPlus.setAttribute('data-plus', '');
   bPlus.addEventListener('click', function () { showSheet(bPlus, plusMenu); });
   bar.appendChild(bPlus);
-  var cBtn = button('Companies', 'companies', 'bb-item' + (A.area && todayPages.indexOf(A.page) === -1 && A.page !== 'bank.html' ? ' is-current' : ''));
+  var cBtn = button('Companies', 'companies', 'bb-item' + (A.area && todayPages.indexOf(A.page) === -1 && A.page !== 'bank.html' && A.page !== 'schedule.html' ? ' is-current' : ''));
   cBtn.addEventListener('click', function () { showSheet(cBtn, companiesMenu); });
   bar.appendChild(cBtn);
-  /* Money only for an admin, the one person the bank answers (area.js). */
-  function moneyLink() {
-    if (!A.rights || !A.rights.money || bar.querySelector('[data-money]')) return;
-    barLink('Money', '/staff/bank.html?area=' + (A.area || (A.held || ['damp'])[0]), A.page === 'bank.html');
-    bar.lastChild.setAttribute('data-money', '');
-  }
-  moneyLink();
-  document.addEventListener('ds:me', moneyLink);
+  var sBtn = button('Search', 'search', 'bb-item');
+  sBtn.addEventListener('click', function () { openSearch(false); });
+  bar.appendChild(sBtn);
+  /* Scheduling is for managers (the server says so too): hidden from the rest. */
+  function schedFor() { var r = A.rights; if (r && r.known && !Object.keys(r.manages || {}).some(function (k) { return r.manages[k]; })) sched.hidden = true; }
+  schedFor();
+  document.addEventListener('ds:me', schedFor);
   document.body.appendChild(bar);
   document.documentElement.classList.add('has-shell');
 

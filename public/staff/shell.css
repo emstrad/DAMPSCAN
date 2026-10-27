@@ -31,10 +31,11 @@
   .top nav.tabs,.top .gsearch,.top .shell-plus{display:none}
   .has-search .top .gsearch{display:block;position:fixed;top:8px;left:8px;right:8px;z-index:70;flex:none}
   .has-search .gsearch-results{min-width:0}
-  .bottom-bar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:50;
+  .bottom-bar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;position:fixed;left:0;right:0;bottom:0;z-index:50;
     background:rgba(8,19,33,.96);border-top:1px solid var(--line-strong);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
   .bb-item{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 2px;font:inherit;font-size:12.5px;font-weight:600;
     color:var(--muted);background:none;border:0;border-radius:10px;text-align:center}
+  .bb-item[hidden]{display:none}
   .bb-item[aria-current="page"],.bb-item.is-current{color:var(--text);background:var(--accent-soft)}
   /* A soft lit tile rather than a flat disc; the plus turns to a cross while
      its menu is open. Motion stays short and drops out for reduced motion. */

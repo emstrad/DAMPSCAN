@@ -268,6 +268,9 @@ enforces the mechanical ones in CI.
 - A survey cancelled, moved or handed over offers its gap to the customers
   still waiting who fit it best (`lib/cancel-fill.js`), one owners' alert.
 - Ronnie alone gets the Send to car button.
+- The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
+  Search. No Money button (the owner's choice); the bank stays in the
+  Companies tabs.
 
 ## ChatGPT connector (`/api/admin/mcp`)
 - "Strictly ChatGPT, no extra parts on the site" for assistant features.
