@@ -101,6 +101,11 @@ enforces the mechanical ones in CI.
   only offered at the end, and only once the owners switch it on after the
   Lab. The Lab (owners only) previews that picker and the survey quiz (ATi
   and DampScan share one price list).
+- Scheduling (`lib/scheduling.js`, managers only): every damp enquiry starts
+  in New enquiry, moves to Contacted when a call, email or text is logged,
+  then Waiting for time (times they want noted), then Booked into the normal
+  flow. Any stage can be skipped. Booking checks the surveyor's My hours and
+  their booked surveys, and only goes ahead anyway when the person says so.
 - Ronnie alone gets the Send to car button.
 
 ## ChatGPT connector (`/api/admin/mcp`)

@@ -1271,3 +1271,13 @@ create table if not exists lab_flags (
   enabled     boolean not null default false,
   changed_at  timestamptz not null default now()
 );
+
+-- Scheduling (lib/scheduling.js): the stretch before a survey is booked.
+-- An enquiry or an undated job sits in New, Contacted or Waiting for time,
+-- with a log of calls and emails and the times the customer asked for.
+alter table leads add column if not exists sched_stage text;
+alter table leads add column if not exists sched_wanted text;
+alter table leads add column if not exists sched_log jsonb not null default '[]';
+alter table jobs add column if not exists sched_stage text;
+alter table jobs add column if not exists sched_wanted text;
+alter table jobs add column if not exists sched_log jsonb not null default '[]';

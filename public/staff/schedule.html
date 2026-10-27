@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Scheduling | DampScan staff</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="manifest" href="/staff/manifest.webmanifest" /><link rel="apple-touch-icon" href="/staff/icon-180.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" />
+<script>
+/* Both sites share this staff area, so the hostname decides whose name is on
+   it. This runs in the head, before anything is painted, so neither brand ever
+   flashes the other's. The markup carries both lockups; staff.css hides one. */
+(function brand(){
+  var ati = /(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname);
+  if (!ati) return;
+  document.documentElement.setAttribute('data-brand', 'ati');
+  document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var icon = document.querySelector('link[rel="icon"]');
+  if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
+})();
+</script>
+<link rel="stylesheet" href="/staff/schedule.css" />
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
+    <span class="logo-type">
+      <span class="logo-word">ATi <span class="scan">Damp</span></span>
+      <span class="logo-tag">Survey Practice</span>
+    </span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/staff/due.html">Due</a>
+    <a href="/staff/dashboard.html">Dashboard</a>
+    <a href="/staff/jobs.html" >Jobs</a>
+    <a href="/staff/quoted.html">Quotes</a>
+    <a href="/staff/clients.html">Clients</a>
+    <a href="/staff/bank.html">Bank</a>
+  </nav>
+  <div class="top-end">
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="records-title">Scheduling</h1>
+  <p class="panel-note">Everything before a survey is booked. Log each call or email, note the times they want, then book: suggested times come from the surveyors' own hours and never clash with a booked survey. Skip any stage you like. Once booked it is on Today and the week.</p>
+  <p class="panel-note" id="note" role="status"></p>
+  <div class="sched-board" id="board"></div>
+  <dialog class="sched-dialog" id="book">
+    <form method="dialog" id="book-form">
+      <h2 id="book-title">Book</h2>
+      <label>Day <input type="date" id="b-date" required /></label>
+      <label>Time <input type="time" id="b-time" step="900" required /></label>
+      <label>Who is going <select id="b-who"><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></label>
+      <label>Survey <select id="b-type"></select></label>
+      <p class="panel-note" id="b-note" role="status"></p>
+      <div class="top-end"><button class="btn btn--ghost" value="cancel" type="button" id="b-cancel">Cancel</button><button class="btn" type="submit" id="b-go">Book it</button></div>
+    </form>
+  </dialog>
+</main>
+<script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
+<script src="/staff/schedule.js"></script>
+</body>
+</html>
