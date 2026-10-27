@@ -1339,3 +1339,7 @@ insert into surveyor_day_set (surveyor, on_date) select distinct surveyor, on_da
 alter table job_rates add column if not exists duration_min integer not null default 60;
 -- When a website enquiry with the same email or phone replaced this one.
 alter table leads add column if not exists merged_into bigint;
+-- What the surveyor's own alert feed was last told about this survey (lib/surveyor-alerts.js).
+alter table jobs add column if not exists surveyor_told text;
+update jobs set surveyor_told = surveyor || '|' || job_date::text || '|' || coalesce(to_char(job_time, 'HH24:MI'), '')
+ where surveyor_told is null and status in ('booked', 'completed') and date_set and surveyor is not null;

@@ -31,7 +31,7 @@ enforces the mechanical ones in CI.
 - Work level (Ronnie): sees all jobs in his businesses, never any money;
   may only mark Surveyed and Report sent and attach a report; contact details
   only on jobs he surveys or is assigned; ChatGPT read-only plus those marks;
-  no ntfy.
+  no owners' ntfy, only his own diary feed (below).
 - Every filter lives on the server (`lib/figures.js`, `lib/work-only.js`),
   never only in the page.
 
@@ -73,6 +73,12 @@ enforces the mechanical ones in CI.
   button), survey not paid in full (morning after, with Paid/Deposit
   buttons), overdue invoices, half-finished forms, to-dos, competitor watch.
 - Alert buttons use signed, 3-day tickets (`lib/quick-action.js`).
+- Each surveyor's own feed (`lib/surveyor-alerts.js`): the owners (Scott,
+  Tom) keep the main topic with everything; NTFY_TOPIC_BEN, NTFY_TOPIC_RONNIE
+  (and NTFY_TOPIC_TOM if wanted) only hear their diary: booked for them,
+  moved, taken off them, cancelled, and times pencilled or requested for
+  them. Hooked once in lib/activity.js, so every route and ChatGPT count;
+  surveyor_told stops repeats. First name and district, never money.
 
 ## Staff area behaviour the owners chose
 - Today is a vertical week timeline; jobs without a confirmed date sit in
