@@ -160,6 +160,12 @@ enforces the mechanical ones in CI.
   card opens with times to offer; the same phone or email already open is
   offered back first. The booking form has Today and Tomorrow, and a clash
   about missing hours links to that surveyor's My hours.
+- One stage per damp customer (`lib/journey.js`): New, Contacted, Waiting for
+  time, Pencilled, Booked, Surveyed, Report sent, Paid (or Closed, Cancelled),
+  worked out one way for every page; the job pop-up shows it. After any change
+  to a job (every route, ChatGPT and the alert buttons, through
+  lib/activity.js) its open to-dos that the facts have overtaken (deposit,
+  booking, report, payment) tick themselves off.
 - Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
   customers on the board: name, postcode, phone, email, address, message;
   typos and spacing forgiven; a result opens the customer card.

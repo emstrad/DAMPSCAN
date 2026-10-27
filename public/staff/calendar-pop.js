@@ -173,7 +173,7 @@
     name.textContent = j.customerName || 'No name';
     sub.textContent = '';
     sub.appendChild(U.node('span', 'tl-biz', W.NAME[j.site] || j.business));
-    sub.appendChild(U.node('span', 'sheet-status', j.status === 'quoted' && j.accepted ? 'accepted' : j.status));
+    sub.appendChild(U.node('span', 'sheet-status', j.stage || (j.status === 'quoted' && j.accepted ? 'accepted' : j.status)));
     sub.appendChild(U.node('span', 'sheet-when', !j.dateSet ? 'Not booked in yet' : shortDate(j.date) + (j.time ? ', ' + j.time : ', time to confirm')));
 
     outstanding(j);
