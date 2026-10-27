@@ -69,7 +69,7 @@ const ati = {
       name: 'Very large or period property',
       price: bandPrice('premium'), timber: timberPrice('premium'),
       fixed: false,
-      scope: 'Six or more bedrooms, heavily extended, or listed and period',
+      scope: 'Six or more bedrooms, or period',
       best: 'Buildings where the construction itself is the complication: multiple build eras, cellars, lightwells, extensions meeting original fabric.',
       note: 'Quoted individually after we know what the building is. Ask and we will give you a figure, not a range, before you commit to anything.'
     }
@@ -174,7 +174,7 @@ const dampscan = {
       name: 'Very large or period property',
       price: bandPrice('premium'), timber: timberPrice('premium'),
       fixed: false,
-      scope: 'Six or more bedrooms, heavily extended, or listed and period',
+      scope: 'Six or more bedrooms, or period',
       best: 'Buildings where the construction itself is the complication: multiple build eras, cellars, outbuildings, extensions meeting original fabric.',
       note: 'Quoted individually after we know what the building is. Ask and we will give you a figure, not a range, before you commit to anything.'
     }

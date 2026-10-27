@@ -157,7 +157,10 @@ enforces the mechanical ones in CI.
   size bands): damp £215, £295, from £375, from £450; damp and timber £310,
   £445 (the two larger bands assume +£150, "from"); timber, invasive, camera
   and cavity on their own or with a survey. The prices pages, the website's
-  survey step and the Lab quiz all use it (test/prices.test.js). Minutes on
+  survey step and the Lab quiz all use it (test/prices.test.js). The prices
+  page is kept simple: one table by size (damp, damp and timber), one table
+  of extra checks (with a survey, on its own), and everything wordy folded
+  away in tap-to-open sections. Minutes on
   site: 60, 120, 150, 180, set once on the rate card. A pick is a request: checked again, held 48 hours as a
   pencilled hold and alerted; the team confirms it on Scheduling.
 - Survey length per survey type is on the rate card (Minutes on site,

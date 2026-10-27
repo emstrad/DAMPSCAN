@@ -70,18 +70,6 @@ function faqSchema(pricing) {
   });
 }
 
-function band(pricing, b) {
-  return `      <article class="band${b.fixed ? ' band--fixed' : ''}">
-        <h3>${esc(b.name)}</h3>
-        <p class="band-price">${esc(b.price)}</p>
-        <p class="band-scope">${esc(b.scope)}</p>
-        <p class="band-timber">Damp and timber: <strong>${esc(b.timber)}</strong></p>
-        <p class="band-best">${esc(b.best)}</p>
-        <p class="band-note">${esc(b.note)}</p>
-        <p class="band-extra">${esc(pricing.invasiveLine)}</p>
-      </article>`;
-}
-
 export function render(siteKey) {
   const pricing = pricing_[siteKey];
   if (!pricing) throw new Error(`no pricing content for site "${siteKey}"`);
@@ -98,45 +86,44 @@ export function render(siteKey) {
 
   <p class="price-note"><strong>${esc(pricing.priceLead)}</strong> ${esc(pricing.fixedFee)}</p>
 
-  <section class="sec">
-    <h2>Which one is my property</h2>
-    <p>The price follows how long the building takes to inspect properly, which
-      in practice means how much of it there is. Pick by what you want looked
-      at, not by what you think is wrong: that is our job to work out.</p>
-    <div class="bands">
-${pricing.bands.map((b) => band(pricing, b)).join('\n')}
-    </div>
-    <p class="band-foot">If you are between two bands, take the smaller one and
-      ask. We will tell you on site if it needs to be wider, and what that
-      would cost, before doing anything.</p>
-  </section>
-
-
-  <section class="sec" id="extras">
-    <h2>Timber, invasive checks and add-ons</h2>
-    <p>Each of these can be booked on its own, or added to a damp survey on
-      the same visit for much less. A damp and timber survey is the damp
-      survey plus the timber assessment, priced in each band above.</p>
-    <div class="extras-wrap"><table class="extras">
-      <thead><tr><th scope="col">Service</th><th scope="col">With a survey</th><th scope="col">On its own</th></tr></thead>
+  <section class="sec" id="prices">
+    <h2>Prices</h2>
+    <div class="extras-wrap"><table class="extras price-table">
+      <thead><tr><th scope="col">Size of home</th><th scope="col">Damp survey</th><th scope="col">Damp and timber</th></tr></thead>
       <tbody>
-${EXTRAS.map((x) => `        <tr><th scope="row">${esc(x.name)}<small>${esc(x.scope)}. ${esc(x.info)}</small></th><td>${esc(pounds(x.withSurvey, x.from))}</td><td>${esc(pounds(x.alone, x.from))}</td></tr>`).join('\n')}
+${pricing.bands.map((b) => `        <tr><th scope="row">${esc(b.scope)}</th><td>${esc(b.price)}</td><td>${esc(b.timber)}</td></tr>`).join('\n')}
       </tbody>
     </table></div>
-    <p class="band-foot">Larger openings, lifting floors and making good are
-      scoped and agreed with you first, never added afterwards.</p>
+
+    <h3 class="extras-h">Extra checks</h3>
+    <div class="extras-wrap"><table class="extras">
+      <thead><tr><th scope="col">Check</th><th scope="col">With a survey</th><th scope="col">On its own</th></tr></thead>
+      <tbody>
+${EXTRAS.map((x) => `        <tr><th scope="row">${esc(x.name)}<small>${esc(x.scope)}</small></th><td>${esc(pounds(x.withSurvey, x.from))}</td><td>${esc(pounds(x.alone, x.from))}</td></tr>`).join('\n')}
+      </tbody>
+    </table></div>
+    <p class="band-foot">Not sure which you need? Book and tell us what you are
+      seeing: we recommend the right one and confirm the fee before we come.</p>
   </section>
 
-  <section class="sec">
-    <h2>What every survey includes, whichever band</h2>
-    <ul class="ticks">
-      ${pricing.included.map((i) => `<li>${esc(i)}</li>`).join('\n      ')}
-    </ul>
-  </section>
-
-  <section class="sec">
-    <h2>What is not on the invoice</h2>
-    ${pricing.notIncluded.map((n) => `<h3>${esc(n.h)}</h3>\n    <p>${esc(n.p)}</p>`).join('\n    ')}
+  <section class="sec more">
+    <details class="qa"><summary>Which size is my property?</summary>
+${pricing.bands.map((b) => `      <h3>${esc(b.name)}: ${esc(b.price)}</h3>
+      <p>${esc(b.best)} ${esc(b.note)}</p>`).join('\n')}
+    </details>
+    <details class="qa"><summary>What the extra checks are</summary>
+${EXTRAS.map((x) => `      <h3>${esc(x.name)}</h3>
+      <p>${esc(x.info)}</p>`).join('\n')}
+      <p>${esc(pricing.invasiveLine)}</p>
+    </details>
+    <details class="qa"><summary>What every survey includes</summary>
+      <ul class="ticks">
+        ${pricing.included.map((i) => `<li>${esc(i)}</li>`).join('\n        ')}
+      </ul>
+    </details>
+    <details class="qa"><summary>What is never added to the bill</summary>
+      ${pricing.notIncluded.map((n) => `<h3>${esc(n.h)}</h3>\n      <p>${esc(n.p)}</p>`).join('\n      ')}
+    </details>
   </section>
 
   <section class="sec" id="faq">

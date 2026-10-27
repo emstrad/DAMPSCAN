@@ -272,3 +272,6 @@ body{padding-top:92px}
 .extras td{white-space:nowrap;font-weight:700}
 .extras tbody th{font-weight:700}
 .extras small{display:block;font-weight:400;color:var(--muted-2);margin-top:4px;font-size:13px}
+.price-table td{font-size:18px}
+.extras-h{margin-top:26px}
+.more .qa h3{font-size:15px;margin:14px 0 4px}
