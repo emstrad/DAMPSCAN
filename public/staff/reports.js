@@ -28,7 +28,11 @@
   function row(s) {
     var li = U.node('li', 'jobs-row');
     var top = U.node('div', 'jobs-top');
-    top.appendChild(U.node('span', 'jobs-who', [s.name || s.firstName || 'No name', s.postcode].filter(Boolean).join(', ')));
+    /* The name opens the same customer card as Today and Scheduling. */
+    var who = U.node('button', 'jobs-who link-btn', [s.name || s.firstName || 'No name', s.postcode].filter(Boolean).join(', '));
+    who.type = 'button';
+    who.addEventListener('click', function () { if (global.DSPOP) global.DSPOP.open(s.id, { onChange: load }); });
+    top.appendChild(who);
     var cd = countdown(s);
     if (cd) top.appendChild(cd);
     li.appendChild(top);

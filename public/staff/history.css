@@ -1,0 +1,19 @@
+/* A customer's history ("Everything so far"), on the Scheduling card and in the job pop-up everywhere. */
+.sched-card { cursor: pointer; }
+.scc { width: min(640px, calc(100vw - 32px)); overflow-y: auto; }
+.scc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.scc-top h2 { margin: 0; font-size: 1.15rem; }
+.scc h3 { font-size: 1rem; margin: 14px 0 6px; }
+.scc-line { margin: 4px 0; font-size: .92rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.scc input, .scc select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; flex: 1 1 140px; min-width: 0; }
+.scc-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.scc-entry { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--navy-2); overflow-wrap: anywhere; }
+/* The whole entry takes its colour, not a stripe, so each kind is known at a glance. */
+.scc-entry.is-email { background: color-mix(in srgb, var(--accent) 22%, var(--navy-2)); border-color: var(--accent); }
+.scc-entry.is-email.is-out { background: color-mix(in srgb, var(--good) 22%, var(--navy-2)); border-color: var(--good); }
+.scc-entry.is-call, .scc-entry.is-text { background: color-mix(in srgb, #e3b341 22%, var(--navy-2)); border-color: #e3b341; }
+.scc-entry.is-action { opacity: .8; }
+.scc-entry.is-fact { background: color-mix(in srgb, var(--good) 14%, var(--navy-2)); border-color: var(--good); }
+.scc-when { font-size: .78rem; color: var(--muted); }
+.scc-body { white-space: pre-wrap; font-size: .9rem; margin: 6px 0 0; }
+.scc details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-hi); }

@@ -169,8 +169,11 @@ enforces the mechanical ones in CI.
   wanted, emails in full, what the team did, and the survey's own facts
   (deposit, payments, paid in full, visit, report) from `lib/timeline.js`. An
   email with no subject is named by its first words. Emails are filed whole by
-  ChatGPT's log_email (inbox sweep or pasted in). Today's pop-up stays the
-  basic card; the history is the Scheduling view only.
+  ChatGPT's log_email (inbox sweep or pasted in). The same history, with its
+  add box, is in the job pop-up (`public/staff/pop-history.js`, managers), and
+  that pop-up is the one customer card everywhere: Today, Scheduling, Surveys,
+  To-do, Reports (tap the name) and Clients (damp customers; "Edit details"
+  still opens the client dialog).
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

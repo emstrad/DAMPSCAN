@@ -206,8 +206,10 @@
     if (!j.quoted) dampMessages(j, section('Messages'));
     if (j.status !== 'paid') dateForm(j);
     todos(j);
+    if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
+    if (!j.quoted) foot.appendChild(link('Edit details', '/staff/clients.html?area=damp#job-' + j.id, 'pill'));
     /* Deleting cannot be undone, so it asks once, by name, before it goes. */
     var del = U.node('button', 'pill act-delete', 'Delete job');
     del.type = 'button';

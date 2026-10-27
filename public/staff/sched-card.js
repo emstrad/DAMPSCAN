@@ -46,6 +46,8 @@
     var acts = U.node('div', 'sched-row');
     if (c.phone) { var a = U.node('a', 'btn btn--sm', 'Call ' + c.phone); a.href = 'tel:' + String(c.phone).replace(/[^\d+]/g, ''); acts.appendChild(a); }
     if (c.email) { var m = U.node('a', 'btn btn--ghost btn--sm', 'Email ' + c.email); m.href = 'mailto:' + c.email; acts.appendChild(m); }
+    /* A job already made opens as the same full card as everywhere else. */
+    if (c.kind === 'job' && global.DSPOP) acts.appendChild(btn('Open the full job', 'btn btn--ghost btn--sm', function () { d.close(); global.DSPOP.open(c.id, { onChange: opts.reload }); }));
     d.appendChild(acts);
     [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')), line('Problem', (c.issues || []).join(', ')), line('Their message', c.notes),
       line('Report needed by', c.deadline), line('Agent', c.agent), line('Times they want', c.wanted),
@@ -84,5 +86,5 @@
     } catch (e) { list.textContent = 'Could not load the history.'; }
   }
 
-  global.DSSCHEDCARD = { open: open };
+  global.DSSCHEDCARD = { open: open, entry: entry };
 })(window);

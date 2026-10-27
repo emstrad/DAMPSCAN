@@ -63,7 +63,11 @@
     else if (c.archived) chips.appendChild(U.node('span', 'tag tag--warn', 'Date passed, not marked done'));
     b.appendChild(chips);
 
-    b.addEventListener('click', function () { open(c, b); });
+    /* A damp customer opens the same card as Today and Scheduling. */
+    b.addEventListener('click', function () {
+      if (global.DSPOP && ['dampscan', 'ati-london'].indexOf(c.site) !== -1) global.DSPOP.open(c.id, { onChange: function () { global.location.reload(); } });
+      else open(c, b);
+    });
     return b;
   }
 
