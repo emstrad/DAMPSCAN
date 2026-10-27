@@ -35,3 +35,42 @@
 .sched-files { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
 .sched-file { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-size: .85rem; }
 .sched-file img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line-strong); }
+/* Dispatch day: week strip, then a lane per surveyor (side by side when wide). */
+.dsp { margin: 8px 0 16px; }
+.dsp-week { display: flex; gap: 6px; align-items: stretch; overflow-x: auto; padding-bottom: 4px; }
+.dsp-week > .btn { flex: 0 0 auto; min-height: 44px; }
+.dsp-daybtn { flex: 1 0 64px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 44px; padding: 6px 4px;
+  background: var(--navy-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; font: inherit; cursor: pointer; }
+.dsp-daybtn.is-today { border-color: var(--accent-ring); }
+.dsp-daybtn.is-on { background: var(--accent-soft); border-color: var(--accent); }
+.dsp-dow { font-size: .75rem; color: var(--muted); }
+.dsp-num { font-weight: 700; font-size: 1.1rem; }
+.dsp-count { font-size: .7rem; color: var(--muted); text-align: center; }
+.dsp-title-day { font-size: 1.1rem; margin: 12px 0 8px; }
+.dsp-lanes { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .dsp-lanes { grid-template-columns: repeat(min(var(--lanes), 2), minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .dsp-lanes { grid-template-columns: repeat(min(var(--lanes), 4), minmax(0, 1fr)); } }
+.dsp-lane { background: var(--navy-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; min-width: 0; }
+.dsp-lane h3 { margin: 0; font-size: 1rem; }
+.dsp-hours { margin: 2px 0 8px; font-size: .8rem; color: var(--muted); }
+.dsp-item { display: flex; gap: 10px; width: 100%; text-align: left; min-height: 44px; margin: 0 0 6px; padding: 8px 10px; border-radius: 10px;
+  border: 1px solid var(--line-strong); background: var(--slate); color: var(--text); font: inherit; cursor: pointer; }
+.dsp-time { font-weight: 700; min-width: 48px; font-variant-numeric: tabular-nums; }
+.dsp-main { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.dsp-title { font-weight: 600; }
+.dsp-sub { font-size: .8rem; color: var(--muted); }
+.dsp-item.is-survey { border-left: 4px solid var(--accent); }
+.dsp-item.is-owed { border-left-color: var(--warn); }
+.dsp-item.is-paid { border-left-color: #e3b341; }
+.dsp-item.is-done { border-left-color: var(--good); opacity: .75; }
+.dsp-item.is-wait { border-left-color: var(--muted); }
+.dsp-item.is-pencil { border-style: dashed; background: var(--navy-2); color: var(--muted); }
+.dsp-item.is-free { border-style: dashed; border-color: var(--good); background: transparent; color: var(--good); }
+.dsp-item.is-free .dsp-sub { color: var(--muted); }
+.dsp-item.is-over { background: var(--accent-soft); }
+.dsp-drive { margin: -2px 0 6px 58px; font-size: .78rem; color: var(--muted); }
+.sched-fold { margin: 12px 0; }
+.sched-fold > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+.sched-h { margin: 18px 0 8px; font-size: 1.15rem; }
+@media (min-width: 900px) { .sched-after { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.sched-more > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: .9rem; color: var(--accent-hi); }

@@ -81,9 +81,13 @@
     });
     if (c.log.length) {
       var ul = U.node('ul');
-      c.log.slice(-4).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
+      c.log.slice(-2).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
       box.appendChild(ul);
     }
+    /* Logging, wanted times and suggestions fold away so the card stays short;
+       the last thing that happened shows above. */
+    var more = document.createElement('details'); more.className = 'sched-more';
+    more.appendChild(U.node('summary', null, 'Log a call, times wanted, suggestions'));
     /* Log a contact: what happened and an optional line about it. */
     var log = U.node('div', 'sched-row');
     var how = document.createElement('select'); how.setAttribute('aria-label', 'What happened');
@@ -91,18 +95,19 @@
     var said = document.createElement('input'); said.placeholder = 'What was said'; said.setAttribute('aria-label', 'What was said');
     log.appendChild(how); log.appendChild(said);
     log.appendChild(button('Log', null, function () { act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }); }));
-    box.appendChild(log);
+    more.appendChild(log);
     var want = U.node('div', 'sched-row');
     var wi = document.createElement('input'); wi.placeholder = 'Times they want, e.g. Sat mornings'; wi.value = c.wanted || ''; wi.setAttribute('aria-label', 'Times they want');
     want.appendChild(wi);
     want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }); }));
-    box.appendChild(want);
+    more.appendChild(want);
     /* The next free times from the surveyors' own hours: a tap fills the booking. */
     var chips = U.node('div', 'sched-row');
     data.slots.slice(0, 4).forEach(function (s) {
       chips.appendChild(button(day(s.date) + ' ' + s.time + ' ' + cap(s.surveyor), 'sched-chip', function () { openBook(c, s); }));
     });
-    box.appendChild(chips);
+    more.appendChild(chips);
+    box.appendChild(more);
     var end = U.node('div', 'sched-row');
     var move = document.createElement('select'); move.setAttribute('aria-label', 'Move to');
     COLS.forEach(function (k) { if (c.kind === 'job' && k[0] === 'new') return; var o = document.createElement('option'); o.value = k[0]; o.textContent = 'Move to: ' + k[1]; if (k[0] === c.stage) o.selected = true; move.appendChild(o); });
@@ -215,14 +220,33 @@
   ['b-date', 'b-time', 'b-who'].forEach(function (id) { el(id).addEventListener('change', function () { el('b-go').dataset.force = ''; el('b-go').textContent = 'Book it'; el('b-pencil').textContent = 'Pencil in (48h)'; }); });
   el('b-cancel').addEventListener('click', function () { el('book').close(); });
 
+  /* The dispatch day: which day and week are on screen, and what its buttons do. */
+  var view = { day: '', week: '' };
+  var dispatchOpts = {
+    get today() { return data && data.today; },
+    reload: function () { load(); },
+    go: function (d, w) { view.day = d; view.week = w; load(); },
+    book: function (c, slot) { openBook(c, slot); },
+    focusCard: function (kind, id) { var n = document.getElementById(kind + '-' + id); if (n) { n.scrollIntoView({ block: 'center' }); n.classList.add('is-hit'); } },
+    /* A board card dropped on a free start books that card at that time. */
+    dropOn: function (ref, slot) {
+      var p = String(ref).split(':');
+      var c = data.cards.find(function (x) { return x.kind === p[0] && x.id === Number(p[1]); });
+      if (c) openBook(c, slot);
+    }
+  };
   async function load() {
     try {
       var pcode = el('free-pc').value.trim();
-      data = await U.get('/api/admin/scheduling' + (pcode ? '?postcode=' + encodeURIComponent(pcode) : ''));
+      var q = ['day=' + view.day, 'week=' + view.week].filter(function (x) { return !/=$/.test(x); });
+      if (pcode) q.push('postcode=' + encodeURIComponent(pcode));
+      data = await U.get('/api/admin/scheduling' + (q.length ? '?' + q.join('&') : ''));
       var t = el('b-type');
       if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label; t.appendChild(o); });
       render();
       renderFree();
+      global.DSDISPATCH.render(el('dispatch'), data.dispatch, dispatchOpts);
+      global.DSAFTER.render(el('after'), load);
       var hit = location.hash && document.getElementById(location.hash.slice(1));
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }

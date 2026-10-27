@@ -108,6 +108,11 @@ enforces the mechanical ones in CI.
   only offered at the end, and only once the owners switch it on after the
   Lab. The Lab (owners only) previews that picker and the survey quiz (ATi
   and DampScan share one price list).
+- Scheduling is the one overview for ATi and DampScan (Today and Surveys stay
+  as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
+  hours, surveys with the drive to the next, holds, free starts to tap or drop
+  a card on), the To book board, and After the visit (surveyed not paid; paid,
+  report to send). A survey opens the same job pop-up as Today.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,
