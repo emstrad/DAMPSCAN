@@ -140,8 +140,13 @@ enforces the mechanical ones in CI.
   phone: the customer's postcode, real drive, no hop over 75 minutes, two
   days' notice, nothing after a buyer's deadline, surveyor never shown. The
   customer picks a day first (every day with a free time, in order), then
-  sees every free on-the-hour start that day (`dayTimes`); a time several
-  surveyors could do goes to whoever it suits best. The Lab shows the same. A pick is a request: checked again, held 48 hours as a
+  sees every free on-the-hour start that day (`dayTimes`). Patches
+  (`lib/patches.js`): Tom covers London, Ben and Ronnie Kent (Bexley's DA
+  districts are London, Dartford's are Kent); a time goes to the patch
+  surveyor first, then whoever else can reach it, else it is not offered.
+  Brands do not matter. The day's limit is only hours, survey length and
+  drive. Picks stay requests; the team confirms, decides who goes and sends
+  the deposit by hand. The Lab shows the same. A pick is a request: checked again, held 48 hours as a
   pencilled hold and alerted; the team confirms it on Scheduling.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a
