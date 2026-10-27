@@ -98,3 +98,27 @@ test('the inbox scan logs a reply and an incoming email on the card, once', asyn
   assert.deepEqual(l.sched_log.map((x) => x.note), ['They emailed: Survey enquiry', 'Replied: Re: Survey enquiry']);
   for (const k of ['M365_TENANT_ID', 'M365_CLIENT_ID', 'M365_CLIENT_SECRET', 'M365_MAILBOX']) delete process.env[k];
 });
+
+test('a survey booked over a hold elsewhere sends the hold back, and auto-replies are skipped', async () => {
+  const kim = await lead('Kim', 'kim@example.com');
+  await post({ op: 'pencil', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom' });
+  await pool.query(`insert into jobs (site, status, surveyor, job_date, job_time, date_set, customer_name, tax_bp, lead_bp, lead_earner, partner_a, partner_b, reserve_bp, fee_bp, fee_floor_pence, split_bp) values ('dampscan', 'booked', 'tom', $1, '10:30', true, 'Lee', 0, 0, '', '', '', 0, 0, 0, 5000)`, [DATE]);
+  assert.equal(await expirePencils(), 1);
+  assert.match((await pool.query('select text from todos')).rows[0].text, /booked for another survey/);
+
+  Object.assign(process.env, { M365_TENANT_ID: 't', M365_CLIENT_ID: 'c', M365_CLIENT_SECRET: 's', M365_MAILBOX: 'office@dampscan.co.uk' });
+  const msgs = [{ id: 'oo', subject: 'Automatic reply: Survey', from: { emailAddress: { address: 'kim@example.com' } }, toRecipients: [] }];
+  const fetchImpl = async (url) => ({ ok: true, json: async () => (String(url).includes('oauth2') ? { access_token: 'x' } : { value: msgs }) });
+  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 0 });
+  for (const k of ['M365_TENANT_ID', 'M365_CLIENT_ID', 'M365_CLIENT_SECRET', 'M365_MAILBOX']) delete process.env[k];
+});
+
+test('Who\'s free lists every surveyor at the same time, not one per time', async () => {
+  await pool.query(`insert into surveyor_hours (surveyor, on_date, start_time, end_time) values ('ben', $1, '09:00', '11:00')`, [DATE]);
+  const s = await owners();
+  const got = await callRoute(route, s, { method: 'GET', url: '/api/admin/scheduling' });
+  assert.equal(got.status, 200);
+  const free = await freeSlots({ today: '2030-05-25', days: 10, perSurveyor: true });
+  const nine = free.filter((x) => x.date === DATE && x.time === '09:00').map((x) => x.surveyor).sort();
+  assert.deepEqual(nine, ['ben', 'tom']);
+});

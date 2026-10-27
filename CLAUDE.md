@@ -110,6 +110,9 @@ enforces the mechanical ones in CI.
   grey on Today and the week, is off the free list and lapses after 48 hours
   back to Waiting with a to-do. Two customers may hold the same time; both
   show, flagged, and the first booked bumps the other back with a to-do.
+- Who's free (top of Scheduling, "Who's free?" on Today for managers):
+  every surveyor's open starts for two weeks, grouped by day and person, for
+  answering the phone. Same rules as the free list, booked and pencilled out.
 - Inbox scan (`lib/mail-scan.js`, hourly with report-due): reads sender,
   recipients and subject only (Graph Mail.Read, one mailbox), logs each email
   on its one matching card; ambiguous ones are left for the ChatGPT sweep.

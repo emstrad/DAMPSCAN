@@ -111,7 +111,43 @@
     b.appendChild(booked);
   }
 
+  /* Who's free: each day, each surveyor, their open starts. Grouped by
+     person so "Tom can do 9, 10 or 2 on Saturday" reads in one line. */
+  function renderFree() {
+    var list = el('free-days'); list.textContent = '';
+    var only = el('free-who').value;
+    var days = {};
+    (data.free || []).filter(function (s) { return !only || s.surveyor === only; }).forEach(function (s) {
+      var d = days[s.date] = days[s.date] || {};
+      (d[s.surveyor] = d[s.surveyor] || []).push(s);
+    });
+    var keys = Object.keys(days).sort();
+    if (!keys.length) { list.appendChild(U.node('li', 'panel-note', 'Nobody has set free hours for the next two weeks. Each surveyor sets theirs on My hours.')); return; }
+    keys.forEach(function (d) {
+      var li = U.node('li', 'free-day');
+      li.appendChild(U.node('span', 'free-date', day(d)));
+      Object.keys(days[d]).sort().forEach(function (who) {
+        var row = U.node('div', 'sched-row free-who');
+        row.appendChild(U.node('span', 'free-name', cap(who)));
+        days[d][who].forEach(function (s) { row.appendChild(button(s.time, 'sched-chip', function () { openBook(null, s); })); });
+        li.appendChild(row);
+      });
+      list.appendChild(li);
+    });
+  }
+  el('free-who').addEventListener('change', renderFree);
+
   function openBook(c, slot) {
+    /* From Who's free there is no card yet: pick who it is for. */
+    el('b-for-row').hidden = Boolean(c);
+    el('b-new').hidden = Boolean(c);
+    if (!c) {
+      var f = el('b-for'); f.textContent = '';
+      data.cards.forEach(function (x, i) { var o = document.createElement('option'); o.value = String(i); o.textContent = (x.name || 'No name') + (x.postcode ? ', ' + x.postcode : ''); f.appendChild(o); });
+      if (!data.cards.length) { el('note').textContent = 'Nobody is waiting on the board. Add the caller with the + button first.'; return; }
+      c = data.cards[0];
+      f.onchange = function () { booking = data.cards[Number(f.value)]; };
+    }
     booking = c;
     el('book-title').textContent = 'Book ' + (c.name || 'survey') + (c.postcode ? ', ' + c.postcode : '');
     el('b-date').value = slot ? slot.date : '';
@@ -152,6 +188,7 @@
       var t = el('b-type');
       if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label; t.appendChild(o); });
       render();
+      renderFree();
       var hit = location.hash && document.getElementById(location.hash.slice(1));
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }

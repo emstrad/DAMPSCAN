@@ -275,6 +275,8 @@
   U.get('/api/admin/me').catch(function () { return null; }).then(function (me) {
     if (!me || !me.businesses) return;
     var held = me.businesses.map(function (b) { return W.AREA_OF[b.slug]; });
+    /* Who's free opens Scheduling, which is for whoever manages a damp brand. */
+    el('who-free').hidden = !me.businesses.some(function (b) { return W.AREA_OF[b.slug] === 'damp' && b.level === 'manage'; });
     document.querySelectorAll('[data-area-filter]').forEach(function (b) {
       var a = b.getAttribute('data-area-filter');
       if (a && held.indexOf(a) === -1) b.remove();

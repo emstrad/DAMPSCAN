@@ -57,10 +57,18 @@
   <h1 class="records-title">Scheduling</h1>
   <p class="panel-note">Everything before a survey is booked. Log each call or email, note the times they want, then book: suggested times come from the surveyors' own hours and never clash with a booked survey. Skip any stage you like. Once booked it is on Today and the week.</p>
   <p class="panel-note" id="note" role="status"></p>
+  <section class="sched-free" id="free" aria-labelledby="free-h">
+    <h2 id="free-h">Who's free</h2>
+    <p class="panel-note">On the phone? Every surveyor's open times for the next two weeks, from their own hours, with booked and pencilled surveys taken out. Tap a time to pencil it or book it for someone on the board.</p>
+    <div class="ranges"><label for="free-who">Show</label> <select id="free-who"><option value="">Everyone</option><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></div>
+    <ol class="free-days" id="free-days"></ol>
+  </section>
   <div class="sched-board" id="board"></div>
   <dialog class="sched-dialog" id="book">
     <form method="dialog" id="book-form">
       <h2 id="book-title">Book</h2>
+      <label id="b-for-row" hidden>For <select id="b-for"></select></label>
+      <p class="panel-note" id="b-new" hidden>Someone new on the phone? Add them with the + button first, then pick them here.</p>
       <label>Day <input type="date" id="b-date" required /></label>
       <label>Time <input type="time" id="b-time" step="900" required /></label>
       <label>Who is going <select id="b-who"><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></label>
