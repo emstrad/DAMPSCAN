@@ -25,10 +25,12 @@
     var li = U.node('li', 'scc-entry is-' + e.kind + (e.dir ? ' is-' + e.dir : ''));
     /* A filed email has a subject or its words; "Emailed" logged by hand is just what was typed. */
     var filed = e.kind === 'email' && (e.subject || e.body);
-    var label = filed ? (e.dir === 'out' ? 'Email to them' : 'Email from them') : { call: 'Called', email: 'Emailed', text: 'Texted', note: 'Note', action: 'Done' }[e.kind] || 'Note';
+    var label = filed ? (e.dir === 'out' ? 'Email to them' : 'Email from them') : { call: 'Called', email: 'Emailed', text: 'Texted', note: 'Note', action: 'Done', fact: 'Survey' }[e.kind] || 'Note';
     li.appendChild(U.node('span', 'scc-when', label + ' · ' + when(e.at) + (e.by ? ' · ' + e.by : '')));
     if (filed) {
-      li.appendChild(U.node('b', null, e.subject || '(no subject)'));
+      /* Older emails were filed as "(no subject)"; name them by their first words instead. */
+      var subj = e.subject && e.subject !== '(no subject)' ? e.subject : String(e.body || '').trim().split('\n')[0].slice(0, 80);
+      li.appendChild(U.node('b', null, subj || 'No subject line'));
       if (e.body) { var d = document.createElement('details'); d.appendChild(U.node('summary', null, 'Read the email')); d.appendChild(U.node('p', 'scc-body', e.body)); li.appendChild(d); }
     } else li.appendChild(U.node('span', e.text ? null : 'meta', e.text || 'Nothing was written with this one.'));
     return li;

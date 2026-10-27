@@ -109,3 +109,17 @@ test('ChatGPT files an email whole on the card', async () => {
   assert.equal(l.sched_stage, 'contacted', 'our email moves a new enquiry on');
   assert.equal(l.sched_log[0].body, 'We can do Saturday at 10.');
 });
+
+test('a job card history shows the deposit and payments, and an email without a subject is named by its words', async () => {
+  const s = await owners();
+  const id = Number((await pool.query(`insert into jobs (site, customer_name, customer_postcode, status, deposit_paid_at, tax_bp, lead_bp, lead_earner, partner_a, partner_b)
+    values ('ati-london', 'Neil', 'DA15 8JN', 'booked', now(), 2000, 1000, 'scott', 'tom', 'ben') returning id`)).rows[0].id);
+  await pool.query(`insert into job_payments (job_id, amount_pence, label) values ($1, 15500, 'deposit')`, [id]);
+  const { addEmail } = await import('../lib/correspondence.js');
+  await addEmail('job', id, { dir: 'in', subject: '', body: 'Can you do the 9th?\nThanks' });
+  const r = await callRoute(route, s, { method: 'GET', url: `/api/admin/scheduling?card=job:${id}` });
+  const e = r.data.entries;
+  assert.ok(e.some((x) => x.kind === 'fact' && x.text === 'Deposit paid'));
+  assert.ok(e.some((x) => x.kind === 'fact' && x.text === 'Payment received (deposit) £155'));
+  assert.equal(e.find((x) => x.kind === 'email').subject, 'Can you do the 9th?');
+});

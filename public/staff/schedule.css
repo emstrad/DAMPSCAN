@@ -97,6 +97,7 @@
 .scc-entry.is-email.is-out { border-left-color: var(--good); }
 .scc-entry.is-call, .scc-entry.is-text { border-left-color: #e3b341; }
 .scc-entry.is-action { opacity: .8; }
+.scc-entry.is-fact { border-left-color: var(--good); }
 .scc-when { font-size: .78rem; color: var(--muted); }
 .scc-body { white-space: pre-wrap; font-size: .9rem; margin: 6px 0 0; }
 .scc details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-hi); }

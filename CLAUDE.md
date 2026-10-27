@@ -161,7 +161,9 @@ enforces the mechanical ones in CI.
 - Tapping a Scheduling card opens the customer card (`public/staff/sched-card.js`):
   the basic details, times to offer, an add-to-history box, and everything so
   far newest first (`lib/correspondence.js`): calls, texts, notes, times
-  wanted, emails in full, and what the team did. Emails are filed whole by
+  wanted, emails in full, what the team did, and the survey's own facts
+  (deposit, payments, paid in full, visit, report) from `lib/timeline.js`. An
+  email with no subject is named by its first words. Emails are filed whole by
   ChatGPT's log_email (inbox sweep or pasted in). Today's pop-up stays the
   basic card; the history is the Scheduling view only.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
