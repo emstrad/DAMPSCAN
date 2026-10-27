@@ -163,3 +163,15 @@ test('what enquiries turned into: booked and paid by source, phone callers apart
   assert.deepEqual([web.booked, web.paid, web.paidPence, web.bookedRate], [1, 1, 31000, 100]);
   assert.equal((await outcomes('all', ['dampscan'], false)).byPage[0].paidPence, undefined);
 });
+
+test('ChatGPT hears where a customer now is on Scheduling after a change, and can move a card', async () => {
+  const s = await owners();
+  const id = Number(await lead());
+  const { callTool } = await import('../lib/routes/admin/mcp.js');
+  const moved = await callTool(s, { name: 'move_on_board', arguments: { enquiry: 'Kim ME19', to: 'waiting' } });
+  assert.equal(moved.isError, false);
+  assert.equal(moved.structuredContent.scheduler.stage, 'Waiting for time');
+  assert.match(moved.content[0].text, /Now: Waiting for time \(Scheduling, To book board, Waiting for time column\)/);
+  const found = await callTool(s, { name: 'find_enquiry', arguments: { text: 'Kim' } });
+  assert.equal(found.structuredContent.enquiries.find((e) => e.id === id).scheduler.stage, 'Waiting for time');
+});

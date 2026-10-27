@@ -231,6 +231,10 @@ enforces the mechanical ones in CI.
   The version hash follows the tool list; tell the owner to refresh the
   connector after any tool change. Keep `lib/mcp/guide-tools.js` (every tool
   listed) and the instructions in `lib/routes/admin/mcp.js` in step.
+- Every answer about an ATi or DampScan customer carries `scheduler` (stage
+  and where it sits on Scheduling, `whereNow` in lib/journey.js), and a
+  change's sentence ends "Now: ..."; move_on_board puts an unbooked customer
+  in New, Contacted or Waiting for time.
 - Changes read back and wait for a yes. A failed change goes on the caller's
   to-do list.
 
