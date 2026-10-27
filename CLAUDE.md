@@ -34,7 +34,8 @@ enforces the mechanical ones in CI.
 - Vercel Hobby: at most 12 files under `api/`. New endpoints go into an
   existing dispatcher (`api/admin/[action].js`, `api/cron/[task].js`).
 - Vercel crons run once a day only (06:30 digest run, 17:00 evening run).
-  Anything hourly goes through `.github/workflows/report-due.yml`.
+  Anything hourly goes through `.github/workflows/report-due.yml`, which runs
+  only in the VERTISE-DEV/DAMPSCAN mirror, where CRON_SECRET is kept.
 - `db/schema.sql` is re-applied on every merge: every statement idempotent
   (`if not exists`, `on conflict`, guarded `do` blocks). Add new tables to the
   list in `test/migrate.test.js`.
