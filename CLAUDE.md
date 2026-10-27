@@ -113,8 +113,20 @@ enforces the mechanical ones in CI.
   booked survey, never on a day with an untimed booked survey, never a time
   an enquiry holds. The booking form is always filled in; picking a time is
   only offered at the end, and only once the owners switch it on after the
-  Lab. The Lab (owners only) previews that picker and the survey quiz (ATi
-  and DampScan share one price list).
+  Lab. The Lab (owners only) previews that picker for any postcode and the
+  survey quiz (ATi and DampScan share one price list).
+- The website time picker (`lib/web-booking.js`, `public/assets/book-times.js`,
+  through `api/lead.js` op times/pick) uses the same best-fit engine as the
+  phone: the customer's postcode, real drive, no hop over 75 minutes, two
+  days' notice, nothing after a buyer's deadline, up to six times, surveyor
+  never shown. A pick is a request: checked again, held 48 hours as a
+  pencilled hold and alerted; the team confirms it on Scheduling.
+- Survey length per survey type is on the rate card (Minutes on site,
+  default 60) and every drive check uses it. Staff best times after a
+  buyer's deadline are marked and listed last.
+- A second form from the same email or phone folds the earlier open enquiry
+  into the new one (`lib/merge-dupes.js`): its history, times wanted and
+  hold move over; the old one closes as a duplicate.
 - Scheduling is the one overview for ATi and DampScan (Today and Surveys stay
   as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
   hours, surveys with the drive to the next, holds, free starts to tap or drop

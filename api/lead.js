@@ -13,6 +13,9 @@ import { sendLeadEmail } from '../lib/lead-email.js';
 import { notify } from '../lib/notify.js';
 import { enquiryAlert } from '../lib/alert-enquiry.js';
 import { alertPartials } from '../lib/daily-alerts.js';
+import { timesFor, pickTime } from '../lib/web-booking.js';
+import { mergeDuplicates } from '../lib/merge-dupes.js';
+import { londonToday } from '../lib/pipeline.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -70,6 +73,22 @@ export default async function handler(req, res) {
   pruneRateHits();
 
   const body = await readJson(req);
+
+  /* After the enquiry: the survey times to pick from, and the pick itself
+     (lib/web-booking.js). Here rather than a new file: the plan allows twelve. */
+  if (body.op === 'times' || body.op === 'pick') {
+    const today = londonToday();
+    try {
+      const out = body.op === 'times'
+        ? await timesFor({ leadId: body.leadId, sessionId: body.sessionId, today })
+        : await pickTime({ leadId: body.leadId, sessionId: body.sessionId, date: str(body.date, 10), time: str(body.time, 5), ticket: str(body.ticket, 80), today });
+      json(res, out.error ? (out.error === 'not_found' ? 404 : 409) : 200, { ok: !out.error, ...out });
+    } catch (err) {
+      console.error('web booking failed:', err.message);
+      json(res, 500, { ok: false, error: 'booking_failed' });
+    }
+    return;
+  }
 
   // Honeypot. Silent success so a bot learns nothing from the response, and
   // nothing at all is written.
@@ -160,6 +179,11 @@ export default async function handler(req, res) {
      Once only: a complete row is new once per visit. First name and
      district only, because it lands on a lock screen; the number rides in
      the Call button's tel: link and is never shown as text. */
+  /* The same person's earlier open enquiry folds into this one (lib/merge-dupes.js). */
+  if (value.stage === 'complete' && row.inserted) {
+    try { await mergeDuplicates(id); } catch (err) { console.warn('duplicate merge failed:', err.message); }
+  }
+
   if (value.stage === 'complete' && row.inserted) {
     /* Through notify, so ntfy buzzes as well as the staff app: the one alert
        that does not depend on the enquiry email arriving. */

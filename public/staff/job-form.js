@@ -180,7 +180,8 @@
       row.dataset.key = rate.key;
       [['Survey', 'label', rate.label, false],
         ['Price £', 'price', (rate.pricePence / 100).toFixed(2), true],
-        ['Surveyor fee £', 'fee', (rate.surveyorFeePence / 100).toFixed(2), true]]
+        ['Surveyor fee £', 'fee', (rate.surveyorFeePence / 100).toFixed(2), true],
+        ['Minutes on site', 'minutes', String(rate.minutes || 60), true]]
         .forEach(function (field) {
           var id = 'rate-' + rate.key + '-' + field[1];
           var wrap = U.node('div', 'form-row');
@@ -215,7 +216,7 @@
       if (price === null || fee === null) { bad = true; return; }
       rates.push({
         key: row.dataset.key, label: value('label'),
-        pricePence: price, surveyorFeePence: fee, position: index + 1
+        pricePence: price, surveyorFeePence: fee, position: index + 1, minutes: Number(value('minutes')) || 60
       });
     });
 

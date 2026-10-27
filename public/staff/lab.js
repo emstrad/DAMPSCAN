@@ -23,7 +23,7 @@
       byDay[d].forEach(function (s) {
         var b = U.node('button', 'quiz-opt', nice(s.time));
         b.type = 'button';
-        b.title = 'Would be held for ' + s.surveyor + ' (the customer does not see who)';
+        b.title = 'Would be held for ' + s.surveyor + (s.why ? ': ' + s.why : '') + ' (the customer does not see who or why)';
         row.appendChild(b);
       });
       box.appendChild(row);
@@ -34,7 +34,8 @@
 
   async function load() {
     try {
-      var data = await U.get('/api/admin/hours?view=slots');
+      var pc = el('lab-pc') ? el('lab-pc').value.trim() : '';
+      var data = await U.get('/api/admin/hours?view=slots' + (pc ? '&postcode=' + encodeURIComponent(pc) : ''));
       slots(data.slots);
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
   }
@@ -43,6 +44,7 @@
     el('quiz-out').textContent = 'On the website this would open the booking form with "' + r.survey.name + '" chosen' + (r.addOns.length ? ' and ' + r.addOns.map(function (x) { return x.name.toLowerCase(); }).join(' and ') + ' noted' : '') + '.';
   } });
   var r = el('refresh'); if (r) r.addEventListener('click', load);
+  if (el('lab-pc-go')) el('lab-pc-go').addEventListener('click', load);
   var o = el('logout'); if (o) o.addEventListener('click', async function () { await fetch('/api/auth/logout', { method: 'POST' }); location.replace('/staff'); });
   load();
 })(window);

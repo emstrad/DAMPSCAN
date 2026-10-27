@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0c1a2b" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="manifest" href="/staff/manifest.webmanifest" /><link rel="apple-touch-icon" href="/staff/icon-180.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
-<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" />
+<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" /><link rel="stylesheet" href="/staff/hours.css" />
 <script>
 /* Both sites share this staff area, so the hostname decides whose name is on
    it. This runs in the head, before anything is painted, so neither brand ever
@@ -58,7 +58,8 @@
 
   <section class="panel" aria-labelledby="h-slots">
     <h2 id="h-slots">Pick a time, at the end of the booking form</h2>
-    <p class="panel-note">After a customer fills in the form (it is always filled in either way), they would see the times below and could pick one, or leave it for us to call. Times come only from hours set on My hours, from two days ahead, never next to a booked survey, and a picked time is held so nobody else gets it.</p>
+    <p class="panel-note">After a customer sends the form they see up to six times, best for their area first, and can ask for one or leave it for us to call. Same rules as booking on the phone: their postcode and real drive times, nobody hopping over 75 minutes, someone already nearby first, two days' notice, nothing after a buyer's deadline. A pick is held 48 hours for us to confirm on Scheduling. Type a postcode to see what a customer there would get.</p>
+    <div class="ranges"><label for="lab-pc">Customer's postcode</label> <input id="lab-pc" autocomplete="off" placeholder="e.g. CT5 1AA" /> <button class="btn btn--ghost btn--sm" id="lab-pc-go" type="button">Show their times</button></div>
     <div class="lab-preview" id="slots"></div>
   </section>
 

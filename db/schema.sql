@@ -1335,3 +1335,7 @@ create table if not exists surveyor_day_set (
 );
 -- Hours already typed in day by day stay exactly as they were.
 insert into surveyor_day_set (surveyor, on_date) select distinct surveyor, on_date from surveyor_hours on conflict do nothing;
+-- How long each survey type takes on site, for travel and day planning.
+alter table job_rates add column if not exists duration_min integer not null default 60;
+-- When a website enquiry with the same email or phone replaced this one.
+alter table leads add column if not exists merged_into bigint;

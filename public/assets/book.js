@@ -475,6 +475,14 @@
       card.querySelector('.book-success').appendChild(note);
     }
     card.classList.add('is-sent');
+    /* The time picker (damp sites, once the owners switch it on) loads only now. */
+    if (result.id) {
+      const s = document.createElement('script');
+      /* Assets are cached for a year: bump the v when book-times.js changes. */
+      s.src = '/assets/book-times.js?v=1';
+      s.onload = () => window.dispatchEvent(new CustomEvent('lead:sent', { detail: { id: result.id, sessionId: DS.id } }));
+      document.head.appendChild(s);
+    }
     card.querySelector('.book-success h3').focus?.();
   });
 
