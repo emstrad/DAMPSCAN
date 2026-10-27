@@ -81,3 +81,13 @@ test('best times: nearby first, never a long hop, fresh days after', async () =>
   assert.ok(best.every((o) => o.date !== d3 || o.tier === 2));
 });
 const toMinutes = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+
+test('on empty days the surveyor living nearer comes first', async () => {
+  await H.setUsual('ben', [3], [{ start: '09:00', end: '17:00' }]);
+  await H.setUsual('tom', [3], [{ start: '09:00', end: '17:00' }]);
+  const { fits } = await bestFits([{ kind: 'lead', id: 2, postcode: 'ME19 6AB' }, { kind: 'lead', id: 3, postcode: 'N1 1AA' }], ['dampscan'], '2030-06-03');
+  const kent = fits.get('lead:2').best, london = fits.get('lead:3').best;
+  assert.equal(kent[0].surveyor, 'ben');
+  assert.match(kent[0].why, /from home \(West Malling\)/);
+  assert.equal(london[0].surveyor, 'tom');
+});

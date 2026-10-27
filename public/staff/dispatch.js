@@ -55,6 +55,7 @@
   function lane(l, date, opts) {
     var box = U.node('section', 'dsp-lane');
     box.appendChild(U.node('h3', null, cap(l.surveyor)));
+    if (l.home) box.appendChild(U.node('p', 'dsp-hours', 'From ' + l.home.area + (l.home.toFirst != null ? ', ' + l.home.toFirst + ' min to the first survey' : '') + (l.home.fromLast != null ? ', ' + l.home.fromLast + ' min home after the last' : '')));
     box.appendChild(U.node('p', 'dsp-hours', l.hours.length ? 'Hours ' + l.hours.map(function (h) { return h.start + ' to ' + h.end; }).join(', ') : 'No hours set'));
     var rows = [];
     l.surveys.forEach(function (s) {

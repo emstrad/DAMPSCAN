@@ -123,6 +123,10 @@ enforces the mechanical ones in CI.
   (`lib/best-fit.js`): who has hours, who is already near that day, then the
   start adding least driving, snug after the survey before; no drive over 75
   minutes between surveys; fresh days (nothing booked) after nearby ones.
+- Home areas (`lib/homes.js`, area only, never a street): Ben and Ronnie
+  West Malling, Tom Shooter's Hill. The first survey counts the drive from
+  home and the last the drive back (up to two hours), shown on the day lane
+  and the map; on an empty day the surveyor living nearer comes first.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

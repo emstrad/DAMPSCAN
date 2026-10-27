@@ -49,12 +49,14 @@
     var points = [];
     (data.dispatch.day.lanes || []).forEach(function (l) {
       var colour = COLOURS[l.surveyor] || '#999';
-      var route = [];
+      var route = l.home ? [[l.home.lat, l.home.lon]] : [];
+      if (l.home && l.surveys.length) pin(L, l.home, colour, 'H').bindTooltip(cap(l.surveyor) + ' starts from ' + l.home.area).addTo(layer);
       l.surveys.filter(function (s) { return s.at; }).forEach(function (s, i) {
         route.push([s.at.lat, s.at.lon]); points.push([s.at.lat, s.at.lon]);
         pin(L, s.at, colour, String(i + 1)).bindTooltip(cap(l.surveyor) + ' ' + (s.time || '') + ': ' + (s.name || '') + ', ' + (s.postcode || ''))
           .on('click', function () { if (global.DSPOP) global.DSPOP.open(s.id, { onChange: opts.reload }); }).addTo(layer);
       });
+      if (l.home && route.length > 1) route.push([l.home.lat, l.home.lon]);
       if (route.length > 1) L.polyline(route, { color: colour, weight: 3, opacity: .8 }).addTo(layer);
       l.pencils.filter(function (p) { return p.at; }).forEach(function (p) {
         points.push([p.at.lat, p.at.lon]);
