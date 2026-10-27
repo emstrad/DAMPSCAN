@@ -104,9 +104,17 @@
         return node('span', 'tag ' + (r.site === 'ati-london' ? 'tag--accent' : 'tag--muted'),
           SITE_LABEL[r.site] || r.site || 'Kent');
       } },
-    { label: 'Stage', get: function(r){
+    /* The form itself: sent in full, or given up part way. */
+    { label: 'Form', get: function(r){
         return node('span', 'tag ' + (r.stage === 'complete' ? 'tag--good' : 'tag--muted'),
-          r.stage === 'complete' ? 'Booked' : 'Partial');
+          r.stage === 'complete' ? 'Sent' : 'Partial');
+      } },
+    /* Where the customer is now (lib/journey.js), opening their card. */
+    { label: 'Where now', get: function(r){
+        if (r.stage !== 'complete' || !r.journey || !/^(dampscan|ati-london)$/.test(r.site)) return '';
+        var a = node('a', 'tag ' + (/Paid|Report sent|Booked|Surveyed/.test(r.journey) ? 'tag--good' : /Closed|Cancelled/.test(r.journey) ? 'tag--muted' : 'tag--accent'), r.journey);
+        a.href = r.jobId ? '/staff/surveys.html?area=damp#job-' + r.jobId : '/staff/schedule.html?area=damp#lead-' + r.id;
+        return a;
       } },
     /* The status and, for anything short of a confirmed send, why. Next to
        the stage so it is seen without scrolling, and written out rather than

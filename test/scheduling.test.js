@@ -147,3 +147,19 @@ test('a to-do the facts have overtaken ticks itself off, and only that one', asy
   const open = (await pool.query('select text from todos where job_id = $1 and done_at is null', [id])).rows.map((r) => r.text);
   assert.deepEqual(open, ['Send the report']);
 });
+
+test('what enquiries turned into: booked and paid by source, phone callers apart, money only for managers', async () => {
+  const s = await owners();
+  await call(s, { op: 'create', site: 'ati-london', name: 'Porsche', phone: '07700 900123', postcode: 'SE15 4AB' });
+  const id = Number(await lead());
+  await pool.query(`insert into jobs (site, lead_id, customer_name, status, paid_at, survey_price_pence, tax_bp, lead_bp, lead_earner, partner_a, partner_b)
+    values ('dampscan', $1, 'Kim', 'booked', now(), 31000, 2000, 1000, 'scott', 'tom', 'ben')`, [id]);
+  const { outcomes } = await import('../lib/lead-outcomes.js');
+  const o = await outcomes('all', ['dampscan', 'ati-london'], true);
+  const phone = o.bySource.find((r) => r.key === 'Phone call');
+  assert.equal(phone.enquiries, 1);
+  assert.equal(phone.booked, 0);
+  const web = o.bySource.find((r) => r.key !== 'Phone call');
+  assert.deepEqual([web.booked, web.paid, web.paidPence, web.bookedRate], [1, 1, 31000, 100]);
+  assert.equal((await outcomes('all', ['dampscan'], false)).byPage[0].paidPence, undefined);
+});

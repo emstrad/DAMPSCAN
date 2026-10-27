@@ -84,6 +84,7 @@
       D.bars(el('src-campaign'), sum.sources.byCampaign, same);
       el('campaign-more').hidden = !(sum.sources.byCampaign || []).length;
       D.bars(el('landing'), sum.landingPages, D.pageName, { limit: 8 });
+      if (window.DSOUTCOMES) window.DSOUTCOMES.render(el('outcomes'), sum.outcomes);
       D.bars(el('devices'), sum.devices, function (k) { return D.DEVICE[k] || k; });
       DSLEADS.render(state.leads);
 

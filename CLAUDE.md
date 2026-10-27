@@ -101,6 +101,12 @@ enforces the mechanical ones in CI.
 - Jobs page: totals are ATi and DampScan surveys only; earnings count surveys
   whose day has come; booked ahead, paid and still to pay shown apart. The
   hand form is folded away (ChatGPT books jobs now).
+- Leads stays the marketing view (failed forms, landing pages, sources) and
+  is joined to the work: each enquiry shows "Where now" (its stage, opening
+  the customer), the old Stage column is "Form" (Sent or Partial), and "What
+  enquiries turned into" (`lib/lead-outcomes.js`) gives enquiries, booked,
+  paid and (managers) money by landing page and by source, phone callers
+  apart.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).
