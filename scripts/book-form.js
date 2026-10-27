@@ -30,6 +30,7 @@ const COPY = {
     addressLabel: 'Address for the survey',
     addressErr: 'Please give the address for the survey.',
     filesSummary: 'Add photos or a previous report',
+    agent: true,
     filesLabel: 'Previous surveys or photos',
     filesHint: `Up to 10 photos or PDFs, 25MB each. An earlier report or a
                   shot of the affected wall often says more than a paragraph.`
@@ -47,6 +48,7 @@ const COPY = {
     addressLabel: 'Address for the survey',
     addressErr: 'Please give the address for the survey.',
     filesSummary: 'Add photos or a previous report',
+    agent: true,
     filesLabel: 'Previous surveys or photos',
     filesHint: `Up to 10 photos or PDFs, 25MB each. An earlier report or a
                   shot of the affected wall often says more than a paragraph.`
@@ -206,7 +208,20 @@ export function bookForm(site) {
             <div class="form-row">
               <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>${t.previous}</label>
             </div>
+${t.agent ? `            <!-- Buyers whose visit the estate agent arranges: the time is settled
+                 with the agent, so a ticked box skips the time picker (book.js). -->
             <div class="form-row">
+              <label class="check" for="f-agent-on"><input type="checkbox" id="f-agent-on" /><span class="box">${TICK}</span>The estate agent needs to be contacted to arrange access</label>
+            </div>
+            <div class="form-row agent-fields" id="f-agent-fields" hidden>
+              <label for="f-agent">Estate agent's name or branch</label>
+              <input id="f-agent" type="text" autocomplete="off" />
+              <label for="f-agent-phone">Agent's phone</label>
+              <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
+              <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
+              <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
+            </div>
+` : ''}            <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
               <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
             </div>

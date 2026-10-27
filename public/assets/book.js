@@ -129,6 +129,17 @@
     return el ? (el.value || '').trim() : '';
   };
 
+  /* Damp sites: the estate agent arranges access, so their details ride in
+     the notes where the Scheduling card and ChatGPT see them. */
+  const agentBox = document.getElementById('f-agent-on');
+  if (agentBox) agentBox.addEventListener('change', () => { document.getElementById('f-agent-fields').hidden = !agentBox.checked; });
+  const viaAgent = () => Boolean(agentBox && agentBox.checked);
+  function withAgent(notes) {
+    if (!viaAgent()) return notes;
+    const who = [val('f-agent'), val('f-agent-phone'), val('f-agent-email')].filter(Boolean).join(', ');
+    return ['Estate agent to be contacted to arrange access' + (who ? ': ' + who : '') + '.', notes].filter(Boolean).join(' ');
+  }
+
   /* The postcode of the property being surveyed. Step 1 asks for one to get the
      conversation started and to have something on a partial lead; step 3 asks
      again as part of the address, prefilled from step 1. The later answer is
@@ -155,7 +166,7 @@
       phone: val('f-phone'),
       issues: Array.from(form.querySelectorAll('input[name="Issue"]:checked')).map(b => b.value),
       previousSurvey: document.getElementById('f-prev').checked,
-      notes: val('f-notes'),
+      notes: withAgent(val('f-notes')),
       sourcePath: location.pathname,
       referrer: DS.referrer,
       utm: DS.utm,
@@ -239,7 +250,7 @@
         : { Attachments: 'None' }),
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
-      Notes: val('f-notes') || 'None',
+      Notes: withAgent(val('f-notes')) || 'None',
       'Lead stage': stage,
       Submitted: new Date().toLocaleString('en-GB'),
       'Lead ID': id ? String(id) : 'Saved as they left the page'
@@ -461,9 +472,11 @@
         : `${filesFailed} of your files did not come through. Reply to your confirmation email with them and we will add them to the job.`;
       card.querySelector('.book-success').appendChild(note);
     }
+    if (viaAgent()) card.querySelector('.book-success p').textContent = 'We will contact the estate agent to arrange access and confirm the time with you.';
     card.classList.add('is-sent');
-    /* The time picker (damp sites, once the owners switch it on) loads only now. */
-    if (result.id) {
+    /* The time picker (damp sites, once the owners switch it on) loads only now,
+       and never when the estate agent is arranging access: we confirm with them. */
+    if (result.id && !viaAgent()) {
       const s = document.createElement('script');
       /* Assets are cached for a year: bump the v when book-times.js changes. */
       s.src = '/assets/book-times.js?v=6';
