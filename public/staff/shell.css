@@ -36,7 +36,17 @@
   .bb-item{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 2px;font:inherit;font-size:12.5px;font-weight:600;
     color:var(--muted);background:none;border:0;border-radius:10px;text-align:center}
   .bb-item[aria-current="page"],.bb-item.is-current{color:var(--text);background:var(--accent-soft)}
-  .bb-plus{font-size:26px;color:#06121f;background:var(--accent);width:48px;height:48px;border-radius:50%;justify-self:center;margin-top:-14px;box-shadow:0 6px 18px -6px rgba(0,0,0,.7)}
+  /* A soft lit tile rather than a flat disc; the plus turns to a cross while
+     its menu is open. Motion stays short and drops out for reduced motion. */
+  .bb-plus{width:52px;height:52px;padding:0;justify-self:center;margin-top:-16px;border-radius:17px;color:#06121f;
+    background:linear-gradient(155deg,#b9dcff 0%,var(--accent) 55%,#4b8fd6 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 6px rgba(6,18,31,.18),0 0 0 4px rgba(8,19,33,.96),0 10px 24px -8px rgba(110,170,235,.75);
+    transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s ease-out}
+  .bb-plus svg{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+  .bb-plus[aria-expanded="true"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 4px rgba(8,19,33,.96),0 0 0 7px rgba(110,170,235,.28),0 12px 28px -8px rgba(110,170,235,.9)}
+  .bb-plus[aria-expanded="true"] svg{transform:rotate(45deg)}
+  .bb-plus:active{transform:scale(.92)}
+  @media (prefers-reduced-motion:reduce){.bb-plus,.bb-plus svg{transition:none}}
   /* The bar is 60px and the + rises above it: the last card must clear both
      with room to tap, on every page. */
   html.has-shell body{padding-bottom:calc(104px + env(safe-area-inset-bottom))}

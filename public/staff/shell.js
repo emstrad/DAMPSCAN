@@ -126,7 +126,9 @@
   sheet.hidden = true;
   sheet.setAttribute('role', 'menu');
   document.body.appendChild(sheet);
-  function closeSheet() { sheet.hidden = true; }
+  /* The bar's + turns to a cross while its menu is open (shell.css). */
+  function plusOpen(on) { var p = document.querySelector('.bb-plus'); if (p) p.setAttribute('aria-expanded', on ? 'true' : 'false'); }
+  function closeSheet() { sheet.hidden = true; plusOpen(false); }
   function item(text, onClick) {
     var b = U.node('button', 'shell-item', text);
     b.type = 'button';
@@ -141,6 +143,7 @@
     sheet.dataset.for = anchor.dataset.shell;
     fill();
     sheet.hidden = false;
+    plusOpen(anchor.dataset.shell === 'plus-bar');
     var r = anchor.getBoundingClientRect();
     var phone = global.matchMedia('(max-width: 759px)').matches;
     sheet.classList.toggle('is-bottom', phone);
@@ -219,7 +222,9 @@
   var sBtn = button('Search', 'search', 'bb-item');
   sBtn.addEventListener('click', function () { openSearch(false); });
   bar.appendChild(sBtn);
-  var bPlus = button('+', 'plus-bar', 'bb-item bb-plus', 'Add new');
+  var bPlus = button('', 'plus-bar', 'bb-item bb-plus', 'Add new');
+  bPlus.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  bPlus.setAttribute('aria-expanded', 'false');
   bPlus.setAttribute('data-plus', '');
   bPlus.addEventListener('click', function () { showSheet(bPlus, plusMenu); });
   bar.appendChild(bPlus);
