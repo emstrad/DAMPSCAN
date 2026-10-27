@@ -31,3 +31,7 @@
 .free-name { min-width: 56px; color: var(--muted); }
 .sched-free select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; }
 .sched-free input { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; max-width: 100%; }
+.sched-notes { font-size: .9rem; margin: 4px 0; white-space: pre-wrap; }
+.sched-files { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.sched-file { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-size: .85rem; }
+.sched-file img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line-strong); }

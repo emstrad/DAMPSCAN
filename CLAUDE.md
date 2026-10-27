@@ -16,9 +16,11 @@ enforces the mechanical ones in CI.
   never merge pipelines.
 - Never touch, merge with or send to Surveymate. Resend is Surveymate's;
   nothing here sends email through it unless the owner says otherwise.
-- Enquiry emails go from the owners' own Microsoft 365 mailbox to their own
-  inbox (`lib/m365-email.js`, M365_USER and M365_APP_PASSWORD), with
-  FormSubmit as the fallback.
+- Enquiry alerts are ntfy plus the installed staff app's own notification
+  (both for every enquiry; Settings lists whose phones have it on). The email
+  is only a backup copy through FormSubmit. Microsoft 365 sending
+  (`lib/m365-email.js`) is off because the GoDaddy-run tenant refuses it;
+  LEAD_EMAIL_M365=on turns it back on.
 - Nothing is ever sent to a customer automatically: messages are words with
   tap-to-send links, emails are drafts the person checks and sends.
 
@@ -66,7 +68,8 @@ enforces the mechanical ones in CI.
   09:00."); title is the business, plus a colleague's first name when it was
   them. Never "Owners", never "via ChatGPT". Changes to one job within a
   minute are one alert (per-job ntfy sequence id, 1 minute delay).
-- On: new enquiries, report overdue (24h after survey end, with Report sent
+- On: new enquiries (a damp one opens its Scheduling card; one untouched two
+  hours in working hours is nudged once, `lib/enquiry-nudge.js`), report overdue (24h after survey end, with Report sent
   button), survey not paid in full (morning after, with Paid/Deposit
   buttons), overdue invoices, half-finished forms, to-dos, competitor watch.
 - Alert buttons use signed, 3-day tickets (`lib/quick-action.js`).
@@ -105,7 +108,8 @@ enforces the mechanical ones in CI.
   only offered at the end, and only once the owners switch it on after the
   Lab. The Lab (owners only) previews that picker and the survey quiz (ATi
   and DampScan share one price list).
-- Scheduling (`lib/scheduling.js`, managers only): every damp enquiry starts
+- Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
+  (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,
   then Waiting for time (times they want noted), then Booked into the normal
   flow. Any stage can be skipped. Booking checks the surveyor's My hours and

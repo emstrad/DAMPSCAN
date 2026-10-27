@@ -1316,3 +1316,5 @@ alter table jobs add column if not exists pencil_forced boolean not null default
 update leads set pencil_date = (slot_at at time zone 'Europe/London')::date, pencil_time = (slot_at at time zone 'Europe/London')::time,
        pencil_surveyor = slot_surveyor, pencil_until = now() + interval '48 hours', pencil_by = 'Website', pencil_set_at = now(), slot_at = null
  where slot_at is not null and pencil_date is null;
+-- When an untouched enquiry was nudged once (lib/enquiry-nudge.js).
+alter table leads add column if not exists sched_nudged_at timestamptz;

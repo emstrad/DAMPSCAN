@@ -39,6 +39,21 @@
     if (c.phone) { var a = U.node('a', 'btn btn--ghost btn--sm', 'Call ' + c.phone); a.href = 'tel:' + c.phone; contact.appendChild(a); }
     if (c.email) { var m = U.node('a', 'btn btn--ghost btn--sm', 'Email'); m.href = 'mailto:' + c.email; contact.appendChild(m); }
     box.appendChild(contact);
+    /* The whole enquiry here, so nobody needs the email or the Leads page. */
+    if (c.street) box.appendChild(U.node('p', 'meta', c.street + (c.postcode ? ', ' + c.postcode : '')));
+    if (c.issues && c.issues.length) box.appendChild(U.node('p', 'meta', 'Problem: ' + c.issues.join(', ')));
+    if (c.notes) box.appendChild(U.node('p', 'sched-notes', c.notes));
+    if (c.files && c.files.length) {
+      var pics = U.node('div', 'sched-files');
+      c.files.forEach(function (path) {
+        var a = U.node('a', 'sched-file'); a.href = '/api/admin/attachment?path=' + encodeURIComponent(path); a.target = '_blank'; a.rel = 'noopener';
+        var name = path.split('/').pop().replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, '');
+        if (/\.(jpe?g|png|gif|webp|heic)$/i.test(name)) { var img = document.createElement('img'); img.src = a.href; img.alt = 'Photo: ' + name; img.loading = 'lazy'; a.appendChild(img); }
+        else a.textContent = name;
+        pics.appendChild(a);
+      });
+      box.appendChild(pics);
+    }
     if (c.wanted) box.appendChild(U.node('p', 'meta', 'Wants: ' + c.wanted));
     if (c.held) box.appendChild(U.node('p', 'meta', 'Picked on the website: ' + new Date(c.held.at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' with ' + cap(c.held.surveyor)));
     if (c.pencil) {

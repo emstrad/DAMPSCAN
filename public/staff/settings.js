@@ -24,6 +24,12 @@
 
   var on = 'Notification' in global && global.Notification.permission === 'granted';
   el('push-state').textContent = on ? 'Notifications are on for this device.' : 'Notifications are not on for this device.';
+  /* Who gets the staff app alert as well as ntfy, so a missing phone shows. */
+  U.get('/api/admin/push').then(function (d) {
+    var list = el('push-phones'); list.textContent = '';
+    (d.phones || []).forEach(function (p) { list.appendChild(U.node('li', null, p.name + ': ' + p.phones + (p.phones === 1 ? ' phone' : ' phones'))); });
+    if (!list.children.length) list.appendChild(U.node('li', null, 'No phone has staff app notifications on yet. Only ntfy will buzz.'));
+  }).catch(function () {});
 
   el('refresh').addEventListener('click', function () { global.location.reload(); });
   el('logout').addEventListener('click', async function () {
