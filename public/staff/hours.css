@@ -1,24 +1,30 @@
-/* My hours: the usual week, the tick-to-select days and the bulk bar. */
-.hrs-week, .hrs-days { list-style: none; padding: 0; margin: 8px 0 0; }
+/* My hours: a calendar of days to tap, a bar of hours to tap, the usual week. */
+.hrs-week { list-style: none; padding: 0; margin: 8px 0 0; }
 .hrs-row { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-@media (min-width: 900px) { .hrs-row { grid-template-columns: 120px 1fr auto; align-items: center; } }
+@media (min-width: 900px) { .hrs-row { grid-template-columns: 110px 170px 1fr; align-items: center; } }
 .hrs-name { font-weight: 700; }
-.hrs-wins { display: flex; flex-wrap: wrap; gap: 6px; }
-.hrs-add, .hrs-time, .hrs-pick, .hrs-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.hrs-time select, .hrs-add select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 6px; max-width: 100%; }
-.hrs-add .btn, .hrs-pick .btn, .hrs-actions .btn { min-height: 44px; }
+.hrs-now { color: var(--good); }
+.hrs-now.is-off { color: var(--muted); }
+.hrs-pick, .hrs-quick { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .hrs-pick { margin: 8px 0; }
-.hrs-bulk { position: sticky; top: 0; z-index: 2; background: var(--slate); border: 1px solid var(--accent-ring); border-radius: 12px; padding: 10px; margin: 8px 0; display: grid; gap: 8px; }
-.hrs-days { display: grid; gap: 6px; grid-template-columns: 1fr; }
-@media (min-width: 700px) { .hrs-days { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1100px) { .hrs-days { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
-.hrs-day { display: flex; gap: 8px; align-items: flex-start; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--navy-2); min-height: 44px; }
-.hrs-day input { width: 22px; height: 22px; margin-top: 2px; flex: 0 0 auto; }
-.hrs-day label { display: flex; flex-direction: column; min-width: 0; cursor: pointer; flex: 1; }
-.hrs-day.is-picked { border-color: var(--accent); background: var(--accent-soft); }
-.hrs-day.is-off .hrs-when { color: var(--muted); }
-.hrs-date { font-weight: 700; }
-.hrs-when { font-size: .85rem; }
-.hrs-src { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.hrs-pick .btn { min-height: 44px; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-head { text-align: center; font-size: .78rem; color: var(--muted); padding: 2px 0; }
+.cal-day { min-height: 60px; min-width: 0; padding: 6px 4px; border-radius: 10px; border: 2px solid var(--line); background: var(--navy-2); color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; font: inherit; }
+.cal-num { font-weight: 700; font-size: .95rem; white-space: nowrap; }
+.cal-when { font-size: .72rem; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+.cal-day.is-on { background: color-mix(in srgb, var(--good) 22%, var(--navy-2)); border-color: color-mix(in srgb, var(--good) 55%, transparent); }
+.cal-day.is-off .cal-when { color: var(--muted); }
+.cal-day.is-past { opacity: .35; cursor: default; }
+.cal-day.is-picked { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); background: var(--accent-soft); }
+.hrs-bar { position: sticky; top: 0; z-index: 2; margin: 0 0 10px; background: var(--slate); border: 1px solid var(--line-strong); border-radius: 12px; padding: 10px; display: grid; gap: 8px; }
+.hrs-bar.is-ready { border-color: var(--accent); }
+.chip { min-height: 44px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--navy-2); color: var(--text); font: inherit; cursor: pointer; }
+.chip.is-on { background: color-mix(in srgb, var(--good) 30%, var(--navy-2)); border-color: var(--good); }
+.chip--big { display: flex; flex-direction: column; align-items: center; border-radius: 12px; min-width: 96px; }
+.chip--big span { font-size: .78rem; color: var(--muted); }
+.chip:disabled { opacity: .45; cursor: default; }
+.hrs-own select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 6px; }
+.hrs-own .btn { min-height: 44px; }
 #who { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; }
 #lab-pc{font-size:16px;min-height:44px;padding:0 8px;border-radius:8px;background:var(--navy-2);color:var(--text);border:1px solid var(--line-strong)}

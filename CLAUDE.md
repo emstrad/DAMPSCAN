@@ -113,12 +113,12 @@ enforces the mechanical ones in CI.
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
-- My hours (`lib/hours-store.js`): Tom, Ronnie and Ben each set a usual week
-  once and it fills every future week; the next five weeks come first on the
-  page, a ticked day is set straight away; a day changed by hand keeps what was
-  typed (tick days to set, add, mark off or reset together; presets for the
-  usual shapes; the usual week can be learnt from what they have been
-  setting). A day with no hours means not available. Free times are
+- My hours (`lib/hours-store.js`) is a calendar: tap the days (or Weekdays,
+  Weekends), then tap the hours (All day, Morning, Afternoon, Evening, Not
+  available, My usual week, or any from and to) and they save at once. Below,
+  the usual week is one tap per weekday and fills every future week; a day set
+  on the calendar keeps what was picked (the usual week can be learnt from
+  what they have been setting). A day with no hours means not available. Free times are
   one hour starts from two days ahead, never inside the drive to or from a
   booked survey, never on a day with an untimed booked survey, never a time
   an enquiry holds. The booking form is always filled in; picking a time is

@@ -54,32 +54,27 @@
 
 <main class="wrap">
   <h1 class="records-title">My hours</h1>
-  <p class="panel-note">Tick a day (or several) and set its hours. Below, set your usual week once and it fills every week from then on. A day with no hours means not available.</p>
+  <p class="panel-note">Tap the days you can work, then tap the hours. Green days are available, grey are off. Your usual week (below) fills every week by itself.</p>
   <div class="ranges" id="who-row" hidden><label for="who">Hours for</label> <select id="who"></select></div>
-  <p class="panel-note" id="note" role="status"></p>
+  <p class="panel-note" id="note" role="status" aria-live="polite"></p>
   <section class="panel" aria-labelledby="h-days">
-    <h2 id="h-days">The next five weeks</h2>
+    <h2 id="h-days">Calendar</h2>
     <div class="hrs-pick">
-      <span>Tick days, or pick:</span>
+      <span>Quick pick:</span>
       <button class="btn btn--ghost btn--sm" type="button" data-pick="weekdays">Weekdays</button>
       <button class="btn btn--ghost btn--sm" type="button" data-pick="weekends">Weekends</button>
-      <button class="btn btn--ghost btn--sm" type="button" data-pick="all">All</button>
-      <button class="btn btn--ghost btn--sm" type="button" data-pick="none">None</button>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="none">Clear</button>
     </div>
-    <div class="hrs-bulk" id="bulk" hidden>
-      <strong id="bulk-count"></strong>
-      <div class="hrs-times" id="bulk-times"></div>
-      <div class="hrs-actions">
-        <button class="btn btn--sm" type="button" data-act="replace">Set these hours</button>
-        <button class="btn btn--ghost btn--sm" type="button" data-act="add">Add as extra hours</button>
-        <button class="btn btn--ghost btn--sm" type="button" data-act="off">Not available</button>
-        <button class="btn btn--ghost btn--sm" type="button" data-act="usual">Back to my usual week</button>
-      </div>
+    <div class="hrs-bar" id="bar">
+      <strong id="bar-count"></strong>
+      <div class="hrs-quick" id="bar-times"></div>
+      <div class="hrs-quick hrs-own" id="bar-own"></div>
     </div>
-    <ol class="hrs-days" id="days"></ol>
+    <div class="cal" id="cal"></div>
   </section>
   <section class="panel hrs-usual" aria-labelledby="h-usual">
     <h2 id="h-usual">My usual week</h2>
+    <p class="panel-note">Tap one for each day. It fills every week ahead, except days you set on the calendar.</p>
     <p class="panel-note" id="learn-row" hidden>No usual week yet. <button class="btn btn--sm" id="learn" type="button">Remember the hours I have been setting</button></p>
     <ol class="hrs-week" id="usual"></ol>
   </section>
