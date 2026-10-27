@@ -163,6 +163,8 @@ test('the route keeps a subscription for the signed-in person and forgets it aga
   assert.equal((await call('GET')).data.publicKey, KEYS.publicKey);
   assert.equal((await call('POST', { subscription: p.sub })).status, 200);
   assert.equal(Number((await pool.query('select person_id from push_subscriptions')).rows[0].person_id), me.personId);
+  /* Settings lists whose phones have the app on. */
+  assert.deepEqual((await call('GET')).data.phones, [{ name: 'Ann', phones: 1 }]);
   assert.equal((await call('POST', { subscription: { endpoint: 'nope' } })).status, 400);
   assert.equal((await call('DELETE', { endpoint: p.sub.endpoint })).status, 200);
   assert.equal((await pool.query('select count(*) from push_subscriptions')).rows[0].count, '0');

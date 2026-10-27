@@ -34,119 +34,26 @@
     box.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.kind + ':' + c.id); });
     /* A tap on the card itself (not its buttons or boxes) opens the full customer card. */
     box.addEventListener('click', function (e) { if (!e.target.closest('button,a,input,select,textarea,summary,details,label')) global.DSSCHEDCARD.open(c, { act: act, book: openBook }); });
-    box.appendChild(U.node('h3', null, (c.name || 'No name') + (c.postcode ? ', ' + c.postcode : '')));
-    var bits = [c.site === 'ati-london' ? 'ATi' : 'DampScan', c.kind === 'lead' ? 'website enquiry ' + ago(c.since) : 'job, no time yet'];
-    if (c.awaitingAgent) bits.push('waiting on ' + (c.agent || 'the agent'));
-    if (c.deadline) bits.push('report needed by ' + c.deadline);
-    box.appendChild(U.node('p', 'meta', bits.join(' · ')));
-    /* Where contact stands, in plain sight: the latest call, email or note, or
-       how long it has waited with nobody in touch. */
+    box.appendChild(U.node('h3', null, c.name || 'No name'));
+    box.appendChild(U.node('p', 'meta', [c.street, c.postcode].filter(Boolean).join(', ') || 'No address yet'));
+    if (c.phone) { var a = U.node('a', 'sched-phone', c.phone); a.href = 'tel:' + c.phone; box.appendChild(a); }
+    /* Where contact stands, in one short line: the latest call, email or note,
+       or how long it has waited with nobody in touch. */
     var last = c.log.length ? c.log[c.log.length - 1] : null;
-    var lastWords = last ? (HOW.find(function (h) { return h[0] === last.how; }) || ['', 'Note'])[1] + ' ' + ago(last.at) + ' by ' + last.by + (last.note ? ': ' + last.note : '') : null;
-    box.appendChild(U.node('p', 'sched-status' + (last ? '' : ' is-cold'), last ? 'Latest: ' + lastWords : 'Nobody in touch yet, waiting ' + ago(c.since).replace(' ago', '')));
-    if (c.wanted) box.appendChild(U.node('p', 'sched-status is-wanted', 'Times they want: ' + c.wanted));
-    var contact = U.node('div', 'sched-row');
-    if (c.phone) { var a = U.node('a', 'btn btn--ghost btn--sm', 'Call ' + c.phone); a.href = 'tel:' + c.phone; contact.appendChild(a); }
-    if (c.email) { var m = U.node('a', 'btn btn--ghost btn--sm', 'Email'); m.href = 'mailto:' + c.email; contact.appendChild(m); }
-    box.appendChild(contact);
-    /* The whole enquiry here, so nobody needs the email or the Leads page. */
-    if (c.street) box.appendChild(U.node('p', 'meta', c.street + (c.postcode ? ', ' + c.postcode : '')));
-    if (c.issues && c.issues.length) box.appendChild(U.node('p', 'meta', 'Problem: ' + c.issues.join(', ')));
-    if (c.notes) box.appendChild(U.node('p', 'sched-notes', c.notes));
-    if (c.files && c.files.length) {
-      var pics = U.node('div', 'sched-files');
-      c.files.forEach(function (path) {
-        var a = U.node('a', 'sched-file'); a.href = '/api/admin/attachment?path=' + encodeURIComponent(path); a.target = '_blank'; a.rel = 'noopener';
-        var name = path.split('/').pop().replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, '');
-        if (/\.(jpe?g|png|gif|webp|heic)$/i.test(name)) { var img = document.createElement('img'); img.src = a.href; img.alt = 'Photo: ' + name; img.loading = 'lazy'; a.appendChild(img); }
-        else a.textContent = name;
-        pics.appendChild(a);
-      });
-      box.appendChild(pics);
-    }
-    if (c.held) box.appendChild(U.node('p', 'meta', 'Picked on the website: ' + new Date(c.held.at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' with ' + cap(c.held.surveyor)));
-    if (c.pencil) {
-      var pc = c.pencil;
-      var pen = U.node('div', 'sched-pencil');
-      pen.appendChild(U.node('p', null, 'Pencilled: ' + day(pc.date) + ' ' + pc.time + ' with ' + cap(pc.surveyor) + (pc.byHand ? ', held until someone lets it go (waiting on the agent)'
-        : ', held until ' + new Date(pc.until).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit' }))));
-      if (pc.by) pen.appendChild(U.node('p', 'meta', 'By ' + pc.by + (pc.setAt ? ', ' + ago(pc.setAt) : '')));
-      if (pc.sharing && pc.sharing.length) pen.appendChild(U.node('p', 'tl-clash', 'Also offered to ' + pc.sharing.join(', ') + '. Whoever says yes first gets it.'));
-      var pr = U.node('div', 'sched-row');
-      pr.appendChild(button('They said yes: book it', 'btn btn--sm', function () { openBook(c, pc); }));
-      pr.appendChild(button('Let it go', null, function () { act({ op: 'unpencil', kind: c.kind, id: c.id }); }));
-      pen.appendChild(pr);
-      box.appendChild(pen);
-    }
-    /* The same person on another card: link the enquiry to the job, or close the spare enquiry. */
-    (c.same || []).forEach(function (o) {
-      var dup = U.node('div', 'sched-pencil');
-      dup.appendChild(U.node('p', 'tl-clash', 'Looks like the same person as ' + (o.name || 'another card') + (o.postcode ? ', ' + o.postcode : '') + (o.kind === 'lead' ? ' (enquiry)' : ' (job)') + '.'));
-      var dr = U.node('div', 'sched-row');
-      if (c.kind === 'job' && o.kind === 'lead') dr.appendChild(button('Link their enquiry to this job', 'btn btn--sm', function () { act({ op: 'link', kind: 'job', id: c.id, leadId: o.id }); }));
-      if (c.kind === 'lead') dr.appendChild(button('Close this one as a duplicate', null, function () { act({ op: 'close_dup', kind: 'lead', id: c.id }); }));
-      dup.appendChild(dr);
-      box.appendChild(dup);
-    });
-    if (c.log.length > 1) {
-      var ul = U.node('ul');
-      c.log.slice(0, -1).slice(-3).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
-      box.appendChild(ul);
-    }
-    /* Logging, wanted times and suggestions fold away so the card stays short;
-       the last thing that happened shows above. */
-    var more = document.createElement('details'); more.className = 'sched-more';
-    more.appendChild(U.node('summary', null, 'Log a call, times wanted, suggestions'));
-    /* Log a contact: what happened and an optional line about it. */
-    var log = U.node('div', 'sched-row');
-    var how = document.createElement('select'); how.setAttribute('aria-label', 'What happened');
-    HOW.forEach(function (h) { var o = document.createElement('option'); o.value = h[0]; o.textContent = h[1]; how.appendChild(o); });
-    var said = document.createElement('input'); said.placeholder = 'What was said'; said.setAttribute('aria-label', 'What was said');
-    log.appendChild(how); log.appendChild(said);
-    log.appendChild(button('Log', null, function () { act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }, 'Logged on ' + (c.name || 'the card') + '.'); }));
-    more.appendChild(log);
-    var want = U.node('div', 'sched-row');
-    var wi = document.createElement('input'); wi.placeholder = 'Times they want, e.g. Sat mornings'; wi.value = c.wanted || ''; wi.setAttribute('aria-label', 'Times they want');
-    want.appendChild(wi);
-    want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }, 'Times saved for ' + (c.name || 'the card') + '.'); }));
-    more.appendChild(want);
-    /* Other good times nearest planned work (lib/best-fit.js), behind the fold. */
-    var chips = U.node('div', 'sched-row');
-    (c.best || []).slice(3).forEach(function (s) {
-      chips.appendChild(button(day(s.date) + ' ' + s.time + ' ' + cap(s.surveyor), 'sched-chip', function () { openBook(c, s); }));
-    });
-    more.appendChild(chips);
-    /* The single best time, in plain sight: closest to a survey already planned. */
-    /* The best times to read out, best first, each with why (lib/best-fit.js). */
-    if ((c.best || []).length && !c.pencil) {
-      var opts = U.node('div', 'sched-opts');
-      opts.appendChild(U.node('p', 'meta', 'Times to offer, best first:'));
-      c.best.slice(0, 3).forEach(function (s, i) {
-        var bb = button('', 'sched-best' + (i ? ' is-alt' : ''), function () { openBook(c, s); });
-        bb.appendChild(U.node('b', null, (i + 1) + '. ' + day(s.date) + ' at ' + s.time + ' with ' + cap(s.surveyor)));
-        bb.appendChild(U.node('span', 'meta', s.why));
-        opts.appendChild(bb);
-      });
-      box.appendChild(opts);
-    } else if (!c.pencil && !(c.best || []).length) box.appendChild(U.node('p', 'meta', 'No free time in the next two weeks. Ask the surveyors to set their usual week on My hours.'));
-    else if (!c.pencil && c.at === null && c.postcode) box.appendChild(U.node('p', 'meta', 'Postcode not found, so no best fit.'));
-    box.appendChild(more);
-    var end = U.node('div', 'sched-row');
-    var move = document.createElement('select'); move.setAttribute('aria-label', 'Move to');
-    COLS.forEach(function (k) { if (c.kind === 'job' && k[0] === 'new') return; var o = document.createElement('option'); o.value = k[0]; o.textContent = 'Move to: ' + k[1]; if (k[0] === c.stage) o.selected = true; move.appendChild(o); });
-    move.addEventListener('change', function () { act({ op: 'move', kind: c.kind, id: c.id, to: move.value }); });
-    end.appendChild(move);
-    end.appendChild(button('Book', 'btn btn--sm', function () { openBook(c, null); }));
-    /* An enquiry that will not become a survey leaves the board, with why. */
-    if (c.kind === 'lead') {
-      var why = document.createElement('select'); why.setAttribute('aria-label', 'Why close it');
-      ['Booked elsewhere', 'Not interested', 'No answer', 'Already sorted', 'Spam', 'Other'].forEach(function (w) { var o = document.createElement('option'); o.value = w; o.textContent = w; why.appendChild(o); });
-      var shut = U.node('div', 'sched-row sched-close');
-      shut.appendChild(why);
-      shut.appendChild(button('Close enquiry', null, function () { act({ op: 'close', kind: 'lead', id: c.id, reason: why.value }, (c.name || 'Enquiry') + ' closed: ' + why.value + '. It stays on the Leads page.'); }));
-      more.appendChild(shut);
-    }
-    box.appendChild(end);
+    var brand = c.site === 'ati-london' ? 'ATi' : 'DampScan';
+    box.appendChild(U.node('p', 'sched-status' + (last ? '' : ' is-cold'), brand + ' · ' + (last
+      ? (HOW.find(function (h) { return h[0] === last.how; }) || ['', 'Note'])[1] + ' ' + ago(last.at) + ' by ' + last.by
+      : 'nobody in touch yet, ' + ago(c.since).replace(' ago', '') + ' waiting')));
+    /* A tap opens everything else: notes, history, times to offer, Book, Move to. */
+    var flags = [];
+    if (c.awaitingAgent) flags.push('Waiting on ' + (c.agent || 'the agent'));
+    if (c.deadline) flags.push('Report by ' + c.deadline);
+    if (c.wanted) flags.push('Wants ' + c.wanted);
+    if (c.pencil) flags.push('Pencilled ' + day(c.pencil.date) + ' ' + c.pencil.time);
+    if (c.held) flags.push('Picked a time online');
+    if ((c.same || []).length) flags.push('Same person on another card');
+    if ((c.best || []).length && !c.pencil) flags.push('Best: ' + day(c.best[0].date) + ' ' + c.best[0].time + ' ' + cap(c.best[0].surveyor));
+    if (flags.length) box.appendChild(U.node('p', 'sched-flags', flags.join(' · ')));
     return box;
   }
 

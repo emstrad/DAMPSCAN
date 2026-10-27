@@ -89,3 +89,11 @@
 .ss-list { list-style: none; padding: 6px; margin: 4px 0 0; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--slate); display: grid; gap: 4px; }
 .ss-hit { display: flex; flex-direction: column; align-items: flex-start; width: 100%; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
 .ss-hit:hover, .ss-hit:focus { background: var(--accent-soft); }
+/* The compact board card: name, address, phone and one status line; the rest opens on tap. */
+.sched-card { padding: 8px 10px; margin-bottom: 6px; cursor: pointer; }
+.sched-card .meta { margin: 2px 0; font-size: .85rem; }
+.sched-phone { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-hi); font-weight: 600; }
+.sched-card .sched-status { margin: 2px 0 0; padding: 4px 8px; font-size: .8rem; }
+.sched-flags { margin: 4px 0 0; font-size: .78rem; color: var(--muted); }
+.scc .sched-row { flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.scc .sched-pencil { margin: 8px 0; }

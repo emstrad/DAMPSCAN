@@ -50,11 +50,13 @@
     if (c.kind === 'job' && global.DSPOP) acts.appendChild(btn('Open the full job', 'btn btn--ghost btn--sm', function () { d.close(); global.DSPOP.open(c.id, { onChange: opts.reload }); }));
     d.appendChild(acts);
     [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')), line('Problem', (c.issues || []).join(', ')), line('Their message', c.notes),
-      line('Report needed by', c.deadline), line('Agent', c.agent), line('Times they want', c.wanted),
-      line('Pencilled', c.pencil ? day(c.pencil.date) + ' ' + c.pencil.time + ' with ' + cap(c.pencil.surveyor) : null)].forEach(function (n) { if (n) d.appendChild(n); });
-    if ((c.best || []).length) {
-      d.appendChild(U.node('h3', null, 'Times to offer'));
-      c.best.slice(0, 3).forEach(function (s, i) {
+      line('Report needed by', c.deadline), line('Agent', c.agent)].forEach(function (n) { if (n) d.appendChild(n); });
+    /* Book, Move to, the hold, photos, times wanted and Close (sched-detail.js). */
+    if (global.DSSCHEDDETAIL && opts.act) global.DSSCHEDDETAIL.fill(d, c, opts, function () { d.close(); });
+    if (!(c.best || []).length && !c.pencil) d.appendChild(U.node('p', 'meta', 'No free time in the next two weeks. Ask the surveyors to set their usual week on My hours.'));
+    if ((c.best || []).length && !c.pencil) {
+      d.appendChild(U.node('h3', null, 'Times to offer, best first'));
+      c.best.slice(0, 6).forEach(function (s, i) {
         var b = btn('', 'sched-best' + (i ? ' is-alt' : ''), function () { d.close(); opts.book(c, s); });
         b.appendChild(U.node('b', null, (i + 1) + '. ' + day(s.date) + ' at ' + s.time + ' with ' + cap(s.surveyor)));
         b.appendChild(U.node('span', 'meta', s.why));

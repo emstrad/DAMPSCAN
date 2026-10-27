@@ -178,6 +178,11 @@ enforces the mechanical ones in CI.
 - Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
   customers on the board: name, postcode, phone, email, address, message;
   typos and spacing forgiven; a result opens the customer card.
+- Scheduling's board cards are compact: name, address, phone (tap to call),
+  one status line (brand and the latest contact, or how long nobody has been in
+  touch) and short flags (pencilled, best time, times wanted, agent, deadline).
+  Everything else is in the card that opens on tap (`public/staff/sched-detail.js`
+  adds Book, Move to, the hold, photos, times wanted and Close).
 - Tapping a Scheduling card opens the customer card (`public/staff/sched-card.js`):
   the basic details, times to offer, an add-to-history box, and everything so
   far newest first (`lib/correspondence.js`): calls, texts, notes, times
