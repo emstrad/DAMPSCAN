@@ -133,6 +133,12 @@ enforces the mechanical ones in CI.
   nobody in touch) and the times wanted; after a log the card is brought into
   view. An enquiry can be closed from its card with a reason (it stays on the
   Leads page).
+- Tapping a Scheduling card opens the customer card (`public/staff/sched-card.js`):
+  the basic details, times to offer, an add-to-history box, and everything so
+  far newest first (`lib/correspondence.js`): calls, texts, notes, times
+  wanted, emails in full, and what the team did. Emails are filed whole by
+  ChatGPT's log_email (inbox sweep or pasted in). Today's pop-up stays the
+  basic card; the history is the Scheduling view only.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

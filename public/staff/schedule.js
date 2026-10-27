@@ -32,6 +32,8 @@
     box.id = c.kind + '-' + c.id;
     box.draggable = true;
     box.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.kind + ':' + c.id); });
+    /* A tap on the card itself (not its buttons or boxes) opens the full customer card. */
+    box.addEventListener('click', function (e) { if (!e.target.closest('button,a,input,select,textarea,summary,details,label')) global.DSSCHEDCARD.open(c, { act: act, book: openBook }); });
     box.appendChild(U.node('h3', null, (c.name || 'No name') + (c.postcode ? ', ' + c.postcode : '')));
     var bits = [c.site === 'ati-london' ? 'ATi' : 'DampScan', c.kind === 'lead' ? 'website enquiry ' + ago(c.since) : 'job, no time yet'];
     if (c.awaitingAgent) bits.push('waiting on ' + (c.agent || 'the agent'));

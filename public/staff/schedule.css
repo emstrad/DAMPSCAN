@@ -83,3 +83,20 @@
 .sched-status.is-cold { background: rgba(240,160,139,.12); color: var(--warn); }
 .sched-status.is-wanted { background: transparent; border: 1px dashed var(--line-strong); }
 .sched-close { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+/* The customer card pop-up on Scheduling. */
+.sched-card { cursor: pointer; }
+.scc { width: min(640px, calc(100vw - 32px)); overflow-y: auto; }
+.scc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.scc-top h2 { margin: 0; font-size: 1.15rem; }
+.scc h3 { font-size: 1rem; margin: 14px 0 6px; }
+.scc-line { margin: 4px 0; font-size: .92rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.scc input, .scc select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; flex: 1 1 140px; min-width: 0; }
+.scc-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.scc-entry { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border-left: 4px solid var(--line-strong); background: var(--navy-2); overflow-wrap: anywhere; }
+.scc-entry.is-email { border-left-color: var(--accent); }
+.scc-entry.is-email.is-out { border-left-color: var(--good); }
+.scc-entry.is-call, .scc-entry.is-text { border-left-color: #e3b341; }
+.scc-entry.is-action { opacity: .8; }
+.scc-when { font-size: .78rem; color: var(--muted); }
+.scc-body { white-space: pre-wrap; font-size: .9rem; margin: 6px 0 0; }
+.scc details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-hi); }

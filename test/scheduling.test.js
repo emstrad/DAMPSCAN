@@ -79,3 +79,33 @@ test('the work login cannot see or change the board', async () => {
   const ronnie = { isAdmin: false, personId: 9, name: 'Ronnie', businesses: ['dampscan', 'ati-london'], levels: { dampscan: 'work', 'ati-london': 'work' } };
   assert.equal((await call(ronnie)).status, 403);
 });
+
+test('the customer card history: logs, times wanted, emails in full, what was done', async () => {
+  const id = Number(await lead());
+  const s = await owners();
+  await call(s, { op: 'log', kind: 'lead', id, how: 'call', note: 'Left a message' });
+  await call(s, { op: 'wanted', kind: 'lead', id, text: 'Sat morning' });
+  const { addEmail } = await import('../lib/correspondence.js');
+  await addEmail('lead', id, { dir: 'in', subject: 'Re: survey', body: 'Saturday works, thanks', at: '2030-01-01T10:00:00Z' });
+  assert.deepEqual(await addEmail('lead', id, { dir: 'in', subject: 'Re: survey', body: 'x', at: '2030-01-01T10:00:00Z' }), { ok: true, duplicate: true });
+  await call(s, { op: 'pencil', kind: 'lead', id, date: '2030-06-01', time: '10:00', surveyor: 'tom', force: true });
+  const r = await callRoute(route, s, { method: 'GET', url: `/api/admin/scheduling?card=lead:${id}` });
+  assert.equal(r.status, 200);
+  const e = r.data.entries;
+  assert.equal(e[0].kind, 'email', 'newest first');
+  assert.equal(e[0].body, 'Saturday works, thanks');
+  assert.ok(e.some((x) => x.kind === 'call' && x.text === 'Left a message'));
+  assert.ok(e.some((x) => x.text === 'Times wanted: Sat morning'));
+  assert.ok(e.some((x) => x.kind === 'action' && /Pencilled/.test(x.text)));
+  assert.equal(e.filter((x) => /Times/.test(x.text || '')).length, 1, 'times wanted once, not twice');
+});
+
+test('ChatGPT files an email whole on the card', async () => {
+  await lead();
+  const { callTool } = await import('../lib/routes/admin/mcp.js');
+  const out = await callTool({ ...(await owners()), viaAssistant: true }, { name: 'log_email', arguments: { enquiry: 'Kim ME19', direction: 'out', subject: 'Survey times', body: 'We can do Saturday at 10.', sent_at: '2030-01-02T09:00:00Z' } });
+  assert.equal(out.isError, false, JSON.stringify(out.content));
+  const l = (await pool.query('select sched_stage, sched_log from leads')).rows[0];
+  assert.equal(l.sched_stage, 'contacted', 'our email moves a new enquiry on');
+  assert.equal(l.sched_log[0].body, 'We can do Saturday at 10.');
+});
