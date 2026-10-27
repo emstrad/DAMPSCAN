@@ -1347,3 +1347,17 @@ update jobs set surveyor_told = surveyor || '|' || job_date::text || '|' || coal
 -- The survey the customer chose on the website after their enquiry (or "not
 -- sure"): name, price, add-ons and the rate card key it maps to.
 alter table leads add column if not exists survey_choice jsonb;
+
+-- Minutes on site per size, from the owners (27 Oct 2026): localised up to an
+-- hour, full house up to two, large two and a half, very large three. Once
+-- only (a marker in lab_flags), so a figure changed later on the rate card is
+-- never put back by the next merge.
+do $$
+begin
+  if not exists (select 1 from lab_flags where key = 'rate_minutes_v1') then
+    update job_rates set duration_min = 120 where key = 'full-house';
+    update job_rates set duration_min = 150 where key = 'large-property';
+    update job_rates set duration_min = 180 where key = 'premium';
+    insert into lab_flags (key, enabled) values ('rate_minutes_v1', true);
+  end if;
+end $$;

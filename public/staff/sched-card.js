@@ -50,7 +50,7 @@
     if (c.kind === 'job' && global.DSPOP) acts.appendChild(btn('Open the full job', 'btn btn--ghost btn--sm', function () { d.close(); global.DSPOP.open(c.id, { onChange: opts.reload }); }));
     d.appendChild(acts);
     [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')), line('Problem', (c.issues || []).join(', ')), line('Their message', c.notes),
-      line('Survey they chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null),
+      line('Survey they chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (' + (c.chose.from ? 'from ' : '') + '£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null),
       line('Report needed by', c.deadline), line('Agent', c.agent)].forEach(function (n) { if (n) d.appendChild(n); });
     /* Book, Move to, the hold, photos, times wanted and Close (sched-detail.js). */
     if (global.DSSCHEDDETAIL && opts.act) global.DSSCHEDDETAIL.fill(d, c, opts, function () { d.close(); });

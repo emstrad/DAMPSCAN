@@ -11,6 +11,7 @@ import { orCall } from './page-shell.js';
 import { SITES, bookScripts, verifiedBadge, shell } from './area-template.js';
 import { bookForm } from './book-form.js';
 import { pricing as pricing_ } from '../content/pricing.js';
+import { EXTRAS, pounds } from '../content/prices.js';
 
 const esc = (value) =>
   String(value == null ? '' : value)
@@ -74,6 +75,7 @@ function band(pricing, b) {
         <h3>${esc(b.name)}</h3>
         <p class="band-price">${esc(b.price)}</p>
         <p class="band-scope">${esc(b.scope)}</p>
+        <p class="band-timber">Damp and timber: <strong>${esc(b.timber)}</strong></p>
         <p class="band-best">${esc(b.best)}</p>
         <p class="band-note">${esc(b.note)}</p>
         <p class="band-extra">${esc(pricing.invasiveLine)}</p>
@@ -109,6 +111,21 @@ ${pricing.bands.map((b) => band(pricing, b)).join('\n')}
       would cost, before doing anything.</p>
   </section>
 
+
+  <section class="sec" id="extras">
+    <h2>Timber, invasive checks and add-ons</h2>
+    <p>Each of these can be booked on its own, or added to a damp survey on
+      the same visit for much less. A damp and timber survey is the damp
+      survey plus the timber assessment, priced in each band above.</p>
+    <div class="extras-wrap"><table class="extras">
+      <thead><tr><th scope="col">Service</th><th scope="col">With a survey</th><th scope="col">On its own</th></tr></thead>
+      <tbody>
+${EXTRAS.map((x) => `        <tr><th scope="row">${esc(x.name)}<small>${esc(x.scope)}. ${esc(x.info)}</small></th><td>${esc(pounds(x.withSurvey, x.from))}</td><td>${esc(pounds(x.alone, x.from))}</td></tr>`).join('\n')}
+      </tbody>
+    </table></div>
+    <p class="band-foot">Larger openings, lifting floors and making good are
+      scoped and agreed with you first, never added afterwards.</p>
+  </section>
 
   <section class="sec">
     <h2>What every survey includes, whichever band</h2>

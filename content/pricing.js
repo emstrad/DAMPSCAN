@@ -13,6 +13,12 @@
  * price that quietly stops being the total is the sort of thing these pages
  * exist to argue against.
  */
+import { SIZES, pounds } from './prices.js';
+
+/* The figures come from the one price list (content/prices.js). */
+const at = (key) => SIZES.find((x) => x.key === key);
+const bandPrice = (key) => pounds(at(key).damp, at(key).from);
+const timberPrice = (key) => pounds(at(key).damp + at(key).timber, at(key).from);
 
 const ati = {
   site: 'ati',
@@ -28,31 +34,31 @@ const ati = {
      said nothing is ever added and then listed an add on, which is the kind of
      thing this practice exists to stop other people doing. */
   priceLead: 'The price you see is the price you pay.',
-  fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. There is one optional extra, an invasive inspection, and it is never carried out unless you agree to it on the day.',
+  fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. Extras such as a timber assessment or an invasive check are priced below, and nothing is added unless you agree to it first.',
 
   bands: [
     {
       key: 'localised',
       name: 'Localised damp survey',
-      price: '£215',
+      price: bandPrice('localised'), timber: timberPrice('localised'),
       fixed: true,
       scope: 'One or two rooms',
       best: 'A specific problem in a specific place: one damp wall, one stained ceiling, one room with mould.',
       note: 'The rest of the property is not inspected, so if the cause turns out to sit elsewhere we will say so and tell you what a wider look would cost. We do not simply widen the survey and bill you for it.'
     },
     {
-      key: 'full',
+      key: 'full-house',
       name: 'Full house survey',
-      price: '£295',
+      price: bandPrice('full-house'), timber: timberPrice('full-house'),
       fixed: true,
       scope: 'Up to three bedrooms',
       best: 'Most flats and terraces. A whole property inspected inside and out, whether or not you have spotted a problem in every room.',
       note: 'This is the right choice before a purchase, for a landlord facing a complaint, or when damp has appeared in more than one place and you do not yet know whether they are related.'
     },
     {
-      key: 'large',
+      key: 'large-property',
       name: 'Large property survey',
-      price: 'From £375',
+      price: bandPrice('large-property'), timber: timberPrice('large-property'),
       fixed: false,
       scope: 'Four to five bedrooms',
       best: 'Larger houses, which take longer to inspect properly rather than being harder.',
@@ -61,7 +67,7 @@ const ati = {
     {
       key: 'premium',
       name: 'Very large or period property',
-      price: 'From £450',
+      price: bandPrice('premium'), timber: timberPrice('premium'),
       fixed: false,
       scope: 'Six or more bedrooms, heavily extended, or listed and period',
       best: 'Buildings where the construction itself is the complication: multiple build eras, cellars, lightwells, extensions meeting original fabric.',
@@ -72,7 +78,7 @@ const ati = {
   /* Printed inside every band card, identical in each, because it applies to
      every band and a reader comparing two cards should not have to notice that
      only one of them mentions it. */
-  invasiveLine: 'Invasive checks, if needed: £85. If we find something on site that can only be settled by opening up, we carry the tools for it: small incisions in plaster, a length of skirting off, a floorboard lifted. Agreed with you before we start, never after.',
+  invasiveLine: 'Invasive checks, if needed: from £85 on the same visit. If something can only be settled by opening up, we carry the tools for it: a small incision in plaster, a length of skirting off, a floorboard lifted. Agreed with you before we start, never after.',
 
   included: [
     'A qualified surveyor on site for as long as the property takes, not a fixed appointment slot',
@@ -133,31 +139,31 @@ const dampscan = {
     'Plenty of Kent damp firms will survey for nothing, and then quote for the treatment. We do it the other way: you pay a published fee for the survey and the written report, and we carry out no remedial work, so there is nothing to sell you afterwards. The report tells you what does not need doing as plainly as what does.',
 
   priceLead: 'The price you see is the price you pay.',
-  fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. There is one optional extra, an invasive inspection, and it is never carried out unless you agree to it on the day.',
+  fixedFee: 'The survey fee is agreed in writing before we attend and does not change afterwards, whatever we find. Extras such as a timber assessment or an invasive check are priced below, and nothing is added unless you agree to it first.',
 
   bands: [
     {
       key: 'localised',
       name: 'Localised damp survey',
-      price: '£215',
+      price: bandPrice('localised'), timber: timberPrice('localised'),
       fixed: true,
       scope: 'One or two rooms',
       best: 'A specific problem in a specific place: one damp wall, one stained ceiling, one room with mould.',
       note: 'The rest of the property is not inspected, so if the cause turns out to sit elsewhere we will say so and tell you what a wider look would cost. We do not simply widen the survey and bill you for it.'
     },
     {
-      key: 'full',
+      key: 'full-house',
       name: 'Full house survey',
-      price: '£295',
+      price: bandPrice('full-house'), timber: timberPrice('full-house'),
       fixed: true,
       scope: 'Up to three bedrooms',
       best: 'Most semis and terraces. A whole property inspected inside and out, whether or not you have spotted a problem in every room.',
       note: 'This is the right choice before a purchase, for a landlord facing a complaint, or when damp has appeared in more than one place and you do not yet know whether they are related.'
     },
     {
-      key: 'large',
+      key: 'large-property',
       name: 'Large property survey',
-      price: 'From £375',
+      price: bandPrice('large-property'), timber: timberPrice('large-property'),
       fixed: false,
       scope: 'Four to five bedrooms',
       best: 'Larger houses, which take longer to inspect properly rather than being harder.',
@@ -166,7 +172,7 @@ const dampscan = {
     {
       key: 'premium',
       name: 'Very large or period property',
-      price: 'From £450',
+      price: bandPrice('premium'), timber: timberPrice('premium'),
       fixed: false,
       scope: 'Six or more bedrooms, heavily extended, or listed and period',
       best: 'Buildings where the construction itself is the complication: multiple build eras, cellars, outbuildings, extensions meeting original fabric.',
@@ -174,7 +180,7 @@ const dampscan = {
     }
   ],
 
-  invasiveLine: 'Invasive checks, if needed: £85. If we find something on site that can only be settled by opening up, we carry the tools for it: small incisions in plaster, a length of skirting off, a floorboard lifted. Agreed with you before we start, never after.',
+  invasiveLine: 'Invasive checks, if needed: from £85 on the same visit. If something can only be settled by opening up, we carry the tools for it: a small incision in plaster, a length of skirting off, a floorboard lifted. Agreed with you before we start, never after.',
 
   included: [
     'A qualified surveyor on site for as long as the property takes, not a fixed appointment slot',

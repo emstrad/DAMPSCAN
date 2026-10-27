@@ -27,7 +27,7 @@ export default {
     {
       h2: 'Our fees',
       paras: [
-        `A localised survey of one or two rooms is ${band('localised')}. A full survey of a flat or house of up to three bedrooms is ${band('full')}. Larger homes of four or five bedrooms start at ${band('large')}, and very large, heavily extended or listed buildings start at ${band('premium')}. The fee is agreed in writing before we attend and does not change afterwards. Congestion Charge, ULEZ and parking are not added.`,
+        `A localised survey of one or two rooms is ${band('localised')}. A full survey of a flat or house of up to three bedrooms is ${band('full-house')}. Larger homes of four or five bedrooms start at ${band('large-property')}, and very large, heavily extended or listed buildings start at ${band('premium')}. The fee is agreed in writing before we attend and does not change afterwards. Congestion Charge, ULEZ and parking are not added.`,
         'The only optional extra is an invasive check, agreed with you on the day. Full details are on our <a href="/pricing">prices page</a>.'
       ]
     },

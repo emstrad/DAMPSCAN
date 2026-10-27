@@ -208,3 +208,8 @@
 .bt .quiz-adds{margin:0;padding-left:18px}
 .bt .quiz-why,.bt .quiz-total{margin:0;opacity:.8}
 .bt .link-btn{background:none;border:0;color:inherit;text-decoration:underline;min-height:44px;cursor:pointer;font:inherit}
+.bt-pick{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start}
+.bt-pick .bt-infotext{grid-column:1 / -1;margin:0 0 4px;font-size:.9em;opacity:.85;text-align:left}
+.bt-info{width:44px;height:44px;border-radius:50%;border:1px solid var(--accent-ring,#4fa8e8);background:transparent;color:inherit;font:inherit;font-style:italic;font-weight:700;cursor:pointer}
+.bt-price{font-weight:700}
+.bt-said{margin:0 0 10px;font-weight:600}

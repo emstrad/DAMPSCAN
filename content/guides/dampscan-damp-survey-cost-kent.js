@@ -40,7 +40,7 @@ export default {
     {
       h2: 'Our fees',
       paras: [
-        `A localised survey of one or two rooms is ${band('localised')}. A full survey of a house of up to three bedrooms is ${band('full')}. Larger houses of four or five bedrooms start at ${band('large')}, and very large, listed or heavily extended properties start at ${band('premium')}. The fee is confirmed in writing before we come and does not change afterwards, whatever we find. There is nothing added for travel anywhere we cover in Kent.`,
+        `A localised survey of one or two rooms is ${band('localised')}. A full survey of a house of up to three bedrooms is ${band('full-house')}. Larger houses of four or five bedrooms start at ${band('large-property')}, and very large, listed or heavily extended properties start at ${band('premium')}. The fee is confirmed in writing before we come and does not change afterwards, whatever we find. There is nothing added for travel anywhere we cover in Kent.`,
         'The only optional extra is an invasive check, such as lifting a board or cutting a small inspection hole, and that is only ever done with your agreement on the day. Every band and what it includes is on our <a href="/pricing">prices page</a>.'
       ]
     },

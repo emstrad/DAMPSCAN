@@ -40,18 +40,29 @@ const lead = async () => {
 
 test('the survey is asked first, kept on the enquiry, and a longer one gets fewer start times', async () => {
   const a = await lead();
-  assert.equal((await W.timesFor({ ...a, today: TODAY })).askSurvey, true);
-  await W.saveSurvey({ ...a, choice: { name: 'Localised damp survey', price: 215, size: 'localised', addOns: [] } });
+  const first = await W.timesFor({ ...a, today: TODAY });
+  assert.ok(first.days.length, 'the time comes first');
+  assert.equal(first.askSurvey, true, 'then the survey');
+  assert.equal(first.prices.sizes[0].damp, 215, 'with the one price list');
+  await W.saveSurvey({ ...a, choice: { service: 'damp', size: 'localised', extras: [] } });
   const short = (await W.timesFor({ ...a, today: TODAY })).days.find((d) => d.date === MON).times.map((t) => t.time);
   assert.deepEqual(short, ['09:00', '10:00', '11:00', '12:00']);
 
   const b = await lead();
-  await W.saveSurvey({ ...b, choice: { name: 'Full-house damp survey', price: 295, size: 'full', addOns: [{ name: 'Underfloor camera check', price: 85 }] } });
+  /* Prices come from the list, never from the browser. */
+  await W.saveSurvey({ ...b, choice: { service: 'damp', size: 'full-house', extras: ['camera'], price: 1 } });
+  await pool.query(`update leads set survey_choice = jsonb_set(survey_choice, '{minutes}', '180') where id = $1`, [b.leadId]);
   const long = (await W.timesFor({ ...b, today: TODAY })).days.find((d) => d.date === MON).times.map((t) => t.time);
-  assert.deepEqual(long, ['09:00', '10:00'], 'three hours on site must end by 1pm');
+  assert.deepEqual(long, ['09:00', '10:00'], 'three hours on site (as the rate card says here) must end by 1pm');
   const row = (await pool.query('select survey_choice, sched_log from leads where id = $1', [b.leadId])).rows[0];
   assert.equal(row.survey_choice.key, 'full-house');
-  assert.match(row.sched_log[0].note, /Wants Full-house damp survey \(£295\) with underfloor camera check \(£85\)/);
+  assert.equal(row.survey_choice.price, 295);
+  assert.match(row.sched_log[0].note, /Wants Full house damp survey \(£295\) with underfloor camera check \(£85\)/);
+  const t = await lead();
+  assert.equal((await W.saveSurvey({ ...t, choice: { service: 'timber', size: 'premium', extras: [] } })).chose.price, 600);
+  const s = await lead();
+  const alone = await W.saveSurvey({ ...s, choice: { service: 'alone', extras: ['camera', 'cavity'] } });
+  assert.equal(alone.chose.price, 305, 'camera £145 and cavity £160 on their own');
 
   const c = await lead();
   await W.saveSurvey({ ...c, choice: { unsure: true } });
