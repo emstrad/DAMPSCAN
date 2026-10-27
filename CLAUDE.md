@@ -116,17 +116,19 @@ enforces the mechanical ones in CI.
   hours, surveys with the drive to the next, holds, free starts to tap or drop
   a card on), the To book board, and After the visit (surveyed not paid; paid,
   report to send). A survey opens the same job pop-up as Today.
-- The Scheduling map (`public/staff/sched-map.js`, Leaflet kept in `public/staff/vendor`, OpenStreetMap tiles,
-  loaded without blocking the board): the day's surveys as numbered pins in
-  each surveyor's colour joined as a route, holds grey, customers to book
-  orange. Each card to book shows the times to offer, best first, with why
+- No map on Scheduling (the owners found it clutter). Each card to book shows the times to offer, best first, with why
   (`lib/best-fit.js`): who has hours, who is already near that day, then the
   start adding least driving, snug after the survey before; no drive over 75
   minutes between surveys; fresh days (nothing booked) after nearby ones.
 - Home areas (`lib/homes.js`, area only, never a street): Ben and Ronnie
   West Malling, Tom Shooter's Hill. The first survey counts the drive from
   home and the last the drive back (up to two hours), shown on the day lane
-  and the map; on an empty day the surveyor living nearer comes first.
+  ; on an empty day the surveyor living nearer comes first.
+- Every Scheduling card shows where contact stands at the top (the latest
+  call, email, text or note with who and when, or how long it has waited with
+  nobody in touch) and the times wanted; after a log the card is brought into
+  view. An enquiry can be closed from its card with a reason (it stays on the
+  Leads page).
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

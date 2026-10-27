@@ -16,10 +16,12 @@
     return m < 60 ? m + ' min ago' : h < 48 ? h + 'h ago' : Math.round(h / 24) + ' days ago';
   }
 
-  async function act(body) {
+  /* After a change the card is brought into view, wherever its column now is. */
+  var focusAfter = null;
+  async function act(body, said) {
     var r = await U.send('/api/admin/scheduling', body);
-    el('note').textContent = r.ok ? '' : (r.data && r.data.error) || 'That did not save.';
-    if (r.ok) load();
+    el('note').textContent = r.ok ? (said || '') : (r.data && r.data.error) || 'That did not save.';
+    if (r.ok) { focusAfter = body.kind && body.id ? body.kind + '-' + body.id : null; load(); }
     return r;
   }
 
@@ -35,6 +37,12 @@
     if (c.awaitingAgent) bits.push('waiting on ' + (c.agent || 'the agent'));
     if (c.deadline) bits.push('report needed by ' + c.deadline);
     box.appendChild(U.node('p', 'meta', bits.join(' · ')));
+    /* Where contact stands, in plain sight: the latest call, email or note, or
+       how long it has waited with nobody in touch. */
+    var last = c.log.length ? c.log[c.log.length - 1] : null;
+    var lastWords = last ? (HOW.find(function (h) { return h[0] === last.how; }) || ['', 'Note'])[1] + ' ' + ago(last.at) + ' by ' + last.by + (last.note ? ': ' + last.note : '') : null;
+    box.appendChild(U.node('p', 'sched-status' + (last ? '' : ' is-cold'), last ? 'Latest: ' + lastWords : 'Nobody in touch yet, waiting ' + ago(c.since).replace(' ago', '')));
+    if (c.wanted) box.appendChild(U.node('p', 'sched-status is-wanted', 'Times they want: ' + c.wanted));
     var contact = U.node('div', 'sched-row');
     if (c.phone) { var a = U.node('a', 'btn btn--ghost btn--sm', 'Call ' + c.phone); a.href = 'tel:' + c.phone; contact.appendChild(a); }
     if (c.email) { var m = U.node('a', 'btn btn--ghost btn--sm', 'Email'); m.href = 'mailto:' + c.email; contact.appendChild(m); }
@@ -54,7 +62,6 @@
       });
       box.appendChild(pics);
     }
-    if (c.wanted) box.appendChild(U.node('p', 'meta', 'Wants: ' + c.wanted));
     if (c.held) box.appendChild(U.node('p', 'meta', 'Picked on the website: ' + new Date(c.held.at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' with ' + cap(c.held.surveyor)));
     if (c.pencil) {
       var pc = c.pencil;
@@ -79,9 +86,9 @@
       dup.appendChild(dr);
       box.appendChild(dup);
     });
-    if (c.log.length) {
+    if (c.log.length > 1) {
       var ul = U.node('ul');
-      c.log.slice(-2).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
+      c.log.slice(0, -1).slice(-3).reverse().forEach(function (x) { ul.appendChild(U.node('li', null, (HOW.find(function (h) { return h[0] === x.how; }) || ['', 'Note'])[1] + ' by ' + x.by + ', ' + ago(x.at) + (x.note ? ': ' + x.note : ''))); });
       box.appendChild(ul);
     }
     /* Logging, wanted times and suggestions fold away so the card stays short;
@@ -94,12 +101,12 @@
     HOW.forEach(function (h) { var o = document.createElement('option'); o.value = h[0]; o.textContent = h[1]; how.appendChild(o); });
     var said = document.createElement('input'); said.placeholder = 'What was said'; said.setAttribute('aria-label', 'What was said');
     log.appendChild(how); log.appendChild(said);
-    log.appendChild(button('Log', null, function () { act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }); }));
+    log.appendChild(button('Log', null, function () { act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }, 'Logged on ' + (c.name || 'the card') + '.'); }));
     more.appendChild(log);
     var want = U.node('div', 'sched-row');
     var wi = document.createElement('input'); wi.placeholder = 'Times they want, e.g. Sat mornings'; wi.value = c.wanted || ''; wi.setAttribute('aria-label', 'Times they want');
     want.appendChild(wi);
-    want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }); }));
+    want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }, 'Times saved for ' + (c.name || 'the card') + '.'); }));
     more.appendChild(want);
     /* Other good times nearest planned work (lib/best-fit.js), behind the fold. */
     var chips = U.node('div', 'sched-row');
@@ -128,6 +135,15 @@
     move.addEventListener('change', function () { act({ op: 'move', kind: c.kind, id: c.id, to: move.value }); });
     end.appendChild(move);
     end.appendChild(button('Book', 'btn btn--sm', function () { openBook(c, null); }));
+    /* An enquiry that will not become a survey leaves the board, with why. */
+    if (c.kind === 'lead') {
+      var why = document.createElement('select'); why.setAttribute('aria-label', 'Why close it');
+      ['Booked elsewhere', 'Not interested', 'No answer', 'Already sorted', 'Spam', 'Other'].forEach(function (w) { var o = document.createElement('option'); o.value = w; o.textContent = w; why.appendChild(o); });
+      var shut = U.node('div', 'sched-row sched-close');
+      shut.appendChild(why);
+      shut.appendChild(button('Close enquiry', null, function () { act({ op: 'close', kind: 'lead', id: c.id, reason: why.value }, (c.name || 'Enquiry') + ' closed: ' + why.value + '. It stays on the Leads page.'); }));
+      more.appendChild(shut);
+    }
     box.appendChild(end);
     return box;
   }
@@ -261,8 +277,8 @@
       renderFree();
       global.DSDISPATCH.render(el('dispatch'), data.dispatch, dispatchOpts);
       global.DSAFTER.render(el('after'), load);
-      if (global.DSMAP) global.DSMAP.render(el('map'), data, dispatchOpts);
-      var hit = location.hash && document.getElementById(location.hash.slice(1));
+      var hit = (focusAfter && document.getElementById(focusAfter)) || (location.hash && document.getElementById(location.hash.slice(1)));
+      focusAfter = null;
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }
   }
