@@ -1343,3 +1343,7 @@ alter table leads add column if not exists merged_into bigint;
 alter table jobs add column if not exists surveyor_told text;
 update jobs set surveyor_told = surveyor || '|' || job_date::text || '|' || coalesce(to_char(job_time, 'HH24:MI'), '')
  where surveyor_told is null and status in ('booked', 'completed') and date_set and surveyor is not null;
+
+-- The survey the customer chose on the website after their enquiry (or "not
+-- sure"): name, price, add-ons and the rate card key it maps to.
+alter table leads add column if not exists survey_choice jsonb;

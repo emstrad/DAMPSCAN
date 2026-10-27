@@ -13,7 +13,7 @@ import { sendLeadEmail } from '../lib/lead-email.js';
 import { notify } from '../lib/notify.js';
 import { enquiryAlert } from '../lib/alert-enquiry.js';
 import { alertPartials } from '../lib/daily-alerts.js';
-import { timesFor, pickTime } from '../lib/web-booking.js';
+import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { londonToday } from '../lib/pipeline.js';
 
@@ -76,10 +76,11 @@ export default async function handler(req, res) {
 
   /* After the enquiry: the survey times to pick from, and the pick itself
      (lib/web-booking.js). Here rather than a new file: the plan allows twelve. */
-  if (body.op === 'times' || body.op === 'pick') {
+  if (body.op === 'times' || body.op === 'pick' || body.op === 'survey') {
     const today = londonToday();
     try {
-      const out = body.op === 'times'
+      const out = body.op === 'survey' ? await saveSurvey({ leadId: body.leadId, sessionId: body.sessionId, choice: body.choice })
+        : body.op === 'times'
         ? await timesFor({ leadId: body.leadId, sessionId: body.sessionId, today })
         : await pickTime({ leadId: body.leadId, sessionId: body.sessionId, date: str(body.date, 10), time: str(body.time, 5), ticket: str(body.ticket, 80), today });
       json(res, out.error ? (out.error === 'not_found' ? 404 : 409) : 200, { ok: !out.error, ...out });

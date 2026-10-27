@@ -19,6 +19,7 @@
   async function offer(box, lead, note) {
     var r = await post({ op: 'times', leadId: lead.id, sessionId: lead.sessionId });
     box.textContent = '';
+    if (r.data && r.data.askSurvey) { chooseSurvey(box, lead, r.data.slots); return; }
     if (!((r.data && r.data.days) || []).length) { box.hidden = true; return; }
     box.hidden = false;
     box.appendChild(el('h4', 'bt-title', 'Want to pick a survey time now?'));
@@ -59,6 +60,64 @@
     var no = el('button', 'bt-skip', 'No thanks, call me to arrange a time'); no.type = 'button';
     no.addEventListener('click', function () { box.hidden = true; });
     box.appendChild(no);
+  }
+
+  /* Which survey, with prices (the price list in survey-quiz.js), any
+     add-ons, or "not sure": the quiz's four questions, or the team helps
+     them choose on the phone. Saved on the enquiry, then the times. */
+  function quiz(cb) {
+    if (window.SurveyQuiz) return cb();
+    var s = document.createElement('script'); s.src = '/assets/survey-quiz.js?v=2'; s.onload = cb; document.head.appendChild(s);
+  }
+  function chooseSurvey(box, lead, slots) {
+    quiz(function () {
+      var P = window.SurveyQuiz.PRICE;
+      box.textContent = ''; box.hidden = false;
+      box.appendChild(el('h4', 'bt-title', 'Which survey would you like?'));
+      var picked = null, adds = [];
+      var kinds = [
+        ['Localised damp survey', P.damp.localised, 'localised', false, 'One area, one or two rooms'],
+        ['Full-house damp survey', P.damp.full, 'full', false, 'The whole home; best if you are buying'],
+        ['Localised damp and timber survey', P.dampTimber.localised, 'localised', true, 'One area, with rot or woodworm checked'],
+        ['Full-house damp and timber survey', P.dampTimber.full, 'full', true, 'The whole home, damp and timber']];
+      var list = el('div', 'bt-surveys');
+      kinds.forEach(function (k) {
+        var b = el('button', 'bt-survey'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+        b.appendChild(el('b', null, k[0] + ', £' + k[1])); b.appendChild(el('span', null, k[4]));
+        b.addEventListener('click', function () {
+          list.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+          picked = { name: k[0], price: k[1], size: k[2], timber: k[3] }; go.disabled = false;
+        });
+        list.appendChild(b);
+      });
+      box.appendChild(list);
+      box.appendChild(el('p', 'bt-day', 'Add on the same visit (optional)'));
+      [['Underfloor camera check', P.addOn.camera[0]], ['Low-level cavity bridging check', P.addOn.cavity[0]]].forEach(function (a) {
+        var l = el('label', 'bt-add'), c = document.createElement('input'); c.type = 'checkbox';
+        c.addEventListener('change', function () { adds = adds.filter(function (x) { return x.name !== a[0]; }); if (c.checked) adds.push({ name: a[0], price: a[1] }); });
+        l.appendChild(c); l.appendChild(document.createTextNode(' ' + a[0] + ', from £' + a[1])); box.appendChild(l);
+      });
+      var go = el('button', 'bt-time bt-go', 'Continue'); go.type = 'button'; go.disabled = true;
+      go.addEventListener('click', function () { save(Object.assign({}, picked, { addOns: adds })); });
+      box.appendChild(go);
+      var help = el('button', 'bt-skip', 'Not sure? Answer four quick questions'); help.type = 'button';
+      help.addEventListener('click', function () {
+        box.textContent = '';
+        var q = el('div', 'quiz'); box.appendChild(q);
+        window.SurveyQuiz.mount(q, { onChoose: function (r) { save({ name: r.survey.name, price: r.survey.price, size: r.size, timber: r.timber, addOns: r.addOns }); } });
+      });
+      box.appendChild(help);
+      var unsure = el('button', 'bt-skip', 'Not sure, help me choose when you call'); unsure.type = 'button';
+      unsure.addEventListener('click', function () { save({ unsure: true }); });
+      box.appendChild(unsure);
+    });
+    async function save(choice) {
+      await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: choice });
+      if (slots) return offer(box, lead);
+      box.textContent = '';
+      box.appendChild(el('h4', 'bt-title', 'Thanks, noted'));
+      box.appendChild(el('p', 'note', 'We will be in touch shortly to arrange a time.'));
+    }
   }
 
   window.addEventListener('lead:sent', function (e) {

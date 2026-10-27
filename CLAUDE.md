@@ -146,7 +146,12 @@ enforces the mechanical ones in CI.
   surveyor first, then whoever else can reach it, else it is not offered.
   Brands do not matter. The day's limit is only hours, survey length and
   drive. Picks stay requests; the team confirms, decides who goes and sends
-  the deposit by hand. The Lab shows the same. A pick is a request: checked again, held 48 hours as a
+  the deposit by hand. The Lab shows the same. With the Lab's survey quiz
+  switch on, the customer first picks their survey with prices (the four
+  surveys, optional add-ons), answers the quiz's four questions, or says
+  "not sure, help me choose"; it is kept on the enquiry (survey_choice),
+  shown on the Scheduling card and preselected when booking, and the times
+  use that survey's Minutes on site. A pick is a request: checked again, held 48 hours as a
   pencilled hold and alerted; the team confirms it on Scheduling.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a
