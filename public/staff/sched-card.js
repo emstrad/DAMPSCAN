@@ -6,7 +6,6 @@
 (function (global) {
   'use strict';
   var U = global.DSUI;
-  var HOW = { call: 'Call', email: 'Email', text: 'Text', note: 'Note', action: 'Done' };
   var cap = function (s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; };
   function when(iso) { return new Date(iso).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
   function day(d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
@@ -24,12 +23,14 @@
 
   function entry(e) {
     var li = U.node('li', 'scc-entry is-' + e.kind + (e.dir ? ' is-' + e.dir : ''));
-    var head = (e.kind === 'email' ? (e.dir === 'out' ? 'Email to them' : 'Email from them') : HOW[e.kind] || 'Note') + ' · ' + when(e.at) + (e.by ? ' · ' + e.by : '');
-    li.appendChild(U.node('span', 'scc-when', head));
-    if (e.kind === 'email') {
+    /* A filed email has a subject or its words; "Emailed" logged by hand is just what was typed. */
+    var filed = e.kind === 'email' && (e.subject || e.body);
+    var label = filed ? (e.dir === 'out' ? 'Email to them' : 'Email from them') : { call: 'Called', email: 'Emailed', text: 'Texted', note: 'Note', action: 'Done' }[e.kind] || 'Note';
+    li.appendChild(U.node('span', 'scc-when', label + ' · ' + when(e.at) + (e.by ? ' · ' + e.by : '')));
+    if (filed) {
       li.appendChild(U.node('b', null, e.subject || '(no subject)'));
       if (e.body) { var d = document.createElement('details'); d.appendChild(U.node('summary', null, 'Read the email')); d.appendChild(U.node('p', 'scc-body', e.body)); li.appendChild(d); }
-    } else if (e.text) li.appendChild(U.node('span', null, e.text));
+    } else li.appendChild(U.node('span', e.text ? null : 'meta', e.text || 'Nothing was written with this one.'));
     return li;
   }
 
