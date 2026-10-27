@@ -1,4 +1,5 @@
 @import url("/assets/motion.css");
+@import url("/assets/fit.css");
 /* The site header, shared by the two home pages and all seventy generated ones.
 
    It used to exist twice: an elaborate fixed header inline on each home page,

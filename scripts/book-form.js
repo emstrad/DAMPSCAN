@@ -208,16 +208,12 @@ export function bookForm(site) {
             <div class="form-row">
               <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>${t.previous}</label>
             </div>${t.buyer ? `
-            <!-- Buyers on a deadline: the date and the agent go into the notes,
+            <!-- Buyers in a hurry: that and the agent go into the notes,
                  so the card and the assistant see them with the enquiry. -->
             <div class="form-row">
               <label class="check" for="f-buyer"><input type="checkbox" id="f-buyer" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I'm buying this property and need the report quickly</label>
             </div>
             <div class="buyer-fields" id="f-buyer-fields" hidden>
-              <div class="form-row">
-                <label for="f-deadline">Report needed by <span class="opt">(optional)</span></label>
-                <input id="f-deadline" type="date" />
-              </div>
               <div class="form-row">
                 <label for="f-agent">Estate agent and branch <span class="opt">(we arrange access with them)</span></label>
                 <input id="f-agent" type="text" autocomplete="off" />

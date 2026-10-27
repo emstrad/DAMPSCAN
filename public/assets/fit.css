@@ -1,0 +1,12 @@
+/* Every field stays inside its box on every screen, phone to desktop. iOS
+   and iPadOS draw date and time fields at their own natural width, which
+   pushes them past the form's edge; taking their appearance back and letting
+   them shrink keeps them in line with the other boxes. Imported by
+   header.css (the websites) and the staff shell.css. */
+input,select,textarea,button{max-width:100%;box-sizing:border-box}
+input,select,textarea{min-width:0}
+input[type="date"],input[type="time"],input[type="datetime-local"],input[type="month"]{
+  -webkit-appearance:none;appearance:none;min-width:0;text-align:left}
+input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date-and-time-value{text-align:left}
+img,video,iframe,table{max-width:100%}
+form,fieldset{min-width:0}

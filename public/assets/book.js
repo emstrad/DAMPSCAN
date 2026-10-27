@@ -129,15 +129,13 @@
     return el ? (el.value || '').trim() : '';
   };
 
-  /* Buyers on a deadline (damp sites): the date and the agent ride in the
+  /* Buyers in a hurry (damp sites): that and the agent ride in the
      notes, so the card and the assistant see them with the enquiry. */
   const buyerBox = document.getElementById('f-buyer');
   if (buyerBox) buyerBox.addEventListener('change', () => { document.getElementById('f-buyer-fields').hidden = !buyerBox.checked; });
   function withBuyer(notes) {
     if (!buyerBox || !buyerBox.checked) return notes;
-    const by = val('f-deadline');
-    const nice = by ? new Date(by + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) : '';
-    const line = ['Buying this property, report needed quickly' + (nice ? ' (by ' + nice + ')' : '') + '.',
+    const line = ['Buying this property, report needed quickly.',
       val('f-agent') ? 'Agent: ' + val('f-agent') + (val('f-agent-phone') ? ', ' + val('f-agent-phone') : '') + '.' : ''].filter(Boolean).join(' ');
     return [line, notes].filter(Boolean).join(' ');
   }
