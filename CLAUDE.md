@@ -23,6 +23,10 @@ enforces the mechanical ones in CI.
   LEAD_EMAIL_M365=on turns it back on.
 - Nothing is ever sent to a customer automatically: messages are words with
   tap-to-send links, emails are drafts the person checks and sends.
+  The one exception the owners chose: survey texts through Twilio
+  (`lib/sms.js`), a booking confirmation and the evening-before reminder,
+  built and off until SMS_AUTO=on with TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
+  and TWILIO_FROM set.
 
 ## People and access (enforced on the server)
 - Owners: Scott, Tom, Ben. Tom (manages ATi, DampScan) and Ben (manages
@@ -187,6 +191,13 @@ enforces the mechanical ones in CI.
   recipients, subject and preview (Graph Mail.Read, one mailbox), keeps only the
   subject on its one matching card (or a booked job's history; a new address
   by postcode); ambiguous ones are left for the ChatGPT sweep.
+- Evening route check (`lib/route-check.js`, 17:00 run): each surveyor's day
+  tomorrow in order with drives from home, between surveys and home again,
+  to their own feed; a time too tight, a hop over 75 minutes, no time, no
+  postcode or outside their hours is called out, and only those problems go
+  to the owners.
+- A survey cancelled, moved or handed over offers its gap to the customers
+  still waiting who fit it best (`lib/cancel-fill.js`), one owners' alert.
 - Ronnie alone gets the Send to car button.
 
 ## ChatGPT connector (`/api/admin/mcp`)
