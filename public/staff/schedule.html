@@ -56,6 +56,11 @@
 <main class="wrap">
   <h1 class="records-title">Scheduling</h1>
   <p class="panel-note">The whole survey in one place: the day lane by lane, who still needs booking, and what is owed after the visit. Tap a survey for the full job; tap or drop onto a free time to book.</p>
+  <div class="ss" role="search">
+    <label for="ss-q" class="sr-only">Find a customer</label>
+    <input id="ss-q" type="search" autocomplete="off" placeholder="Find a customer: name, postcode, phone, email" />
+    <ul class="ss-list" id="ss-list" hidden></ul>
+  </div>
   <p class="panel-note" id="note" role="status"></p>
   <div class="dsp" id="dispatch"></div>
   <details class="sched-fold" id="free-fold"><summary>Who's free over the next two weeks</summary>
@@ -88,6 +93,6 @@
 </main>
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script>
-<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/schedule.js"></script>
+<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/sched-search.js"></script><script src="/staff/schedule.js"></script>
 </body>
 </html>

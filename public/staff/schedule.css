@@ -100,3 +100,9 @@
 .scc-when { font-size: .78rem; color: var(--muted); }
 .scc-body { white-space: pre-wrap; font-size: .9rem; margin: 6px 0 0; }
 .scc details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-hi); }
+/* Find a customer on the board. */
+.ss { position: relative; margin: 10px 0; }
+.ss input { width: 100%; box-sizing: border-box; font-size: 16px; min-height: 48px; padding: 0 12px; border-radius: 10px; background: var(--navy-2); color: var(--text); border: 1px solid var(--accent-ring); }
+.ss-list { list-style: none; padding: 6px; margin: 4px 0 0; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--slate); display: grid; gap: 4px; }
+.ss-hit { display: flex; flex-direction: column; align-items: flex-start; width: 100%; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.ss-hit:hover, .ss-hit:focus { background: var(--accent-soft); }

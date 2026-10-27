@@ -133,6 +133,9 @@ enforces the mechanical ones in CI.
   nobody in touch) and the times wanted; after a log the card is brought into
   view. An enquiry can be closed from its card with a reason (it stays on the
   Leads page).
+- Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
+  customers on the board: name, postcode, phone, email, address, message;
+  typos and spacing forgiven; a result opens the customer card.
 - Tapping a Scheduling card opens the customer card (`public/staff/sched-card.js`):
   the basic details, times to offer, an add-to-history box, and everything so
   far newest first (`lib/correspondence.js`): calls, texts, notes, times

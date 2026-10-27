@@ -267,6 +267,7 @@
       if (c) openBook(c, slot);
     }
   };
+  var search = global.DSSCHEDSEARCH.wire(el('ss-q'), el('ss-list'), { cards: function () { return data && data.cards; }, open: function (c) { global.DSSCHEDCARD.open(c, { act: act, book: openBook }); } });
   async function load() {
     try {
       var pcode = el('free-pc').value.trim();
@@ -277,6 +278,7 @@
       if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label; t.appendChild(o); });
       render();
       renderFree();
+      search.refresh();
       global.DSDISPATCH.render(el('dispatch'), data.dispatch, dispatchOpts);
       global.DSAFTER.render(el('after'), load);
       var hit = (focusAfter && document.getElementById(focusAfter)) || (location.hash && document.getElementById(location.hash.slice(1)));
