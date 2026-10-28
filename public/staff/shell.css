@@ -117,7 +117,8 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
    leaving the header and footer with nothing between them. */
 .sheet-body{padding:6px 16px 12px;overflow:auto;flex:1 1 auto;min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .sheet-addr{margin:0 0 10px;font-size:16px;font-weight:600;overflow-wrap:anywhere}
-.sheet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin:0 0 10px}
+.sheet-grid{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.sheet-grid .sheet-big{flex:1 1 auto;min-height:44px;padding:6px 12px;font-size:14px;border-radius:999px}
 .sheet-big{display:flex;align-items:center;justify-content:center;min-height:48px;padding:8px 12px;border:1px solid var(--line-strong);border-radius:12px;
   color:var(--text);text-decoration:none;font-weight:700;font-size:15px;text-align:center;overflow-wrap:anywhere;cursor:pointer}
 .sheet-big.is-main{background:var(--accent);border-color:var(--accent);color:var(--navy)}
@@ -186,3 +187,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 .quiz-opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
 .quiz-adds{margin:0;padding-left:18px}
 .quiz-why,.quiz-total{margin:0;color:var(--muted)}
+/* A folded part of the job sheet: one tidy line until opened. */
+.sheet-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--accent)}
+.sheet-sec:has(> .sheet-fold){padding:2px 0}
+.sheet .meta,.scc .meta{font-size:13px;color:var(--muted);margin:2px 0 6px}

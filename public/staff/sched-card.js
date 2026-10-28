@@ -42,29 +42,36 @@
     top.appendChild(U.node('h2', null, (c.name || 'No name') + (c.postcode ? ', ' + c.postcode : '')));
     top.appendChild(btn('Close', null, function () { d.close(); }));
     d.appendChild(top);
-    d.appendChild(U.node('p', 'meta', (c.site === 'ati-london' ? 'ATi' : 'DampScan') + ' · ' + (c.kind === 'lead' ? 'website enquiry' : 'job, no time yet') + ' · ' + ({ new: 'New enquiry', contacted: 'Contacted', waiting: 'Waiting for time' }[c.stage] || '')));
-    var acts = U.node('div', 'sched-row');
-    if (c.phone) { var a = U.node('a', 'btn btn--sm', 'Call ' + c.phone); a.href = 'tel:' + String(c.phone).replace(/[^\d+]/g, ''); acts.appendChild(a); }
-    if (c.email) { var m = U.node('a', 'btn btn--ghost btn--sm', 'Email ' + c.email); m.href = 'mailto:' + c.email; acts.appendChild(m); }
+    d.appendChild(U.node('p', 'meta', (c.site === 'ati-london' ? 'ATi' : 'DampScan') + ' · ' + ({ new: 'New enquiry', contacted: 'Contacted', waiting: 'Waiting for time', cold: 'Gone cold' }[c.stage] || '')));
+    /* One row of quick contacts, then the facts; the number stays readable underneath. */
+    var tel = c.phone ? String(c.phone).replace(/[^\d+]/g, '') : '';
+    var acts = U.node('div', 'sheet-grid');
+    var chip = function (text, href, main) { var a = U.node('a', 'sheet-big' + (main ? ' is-main' : ''), text); a.href = href; if (/^https:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } acts.appendChild(a); };
+    if (tel) { chip('Call', 'tel:' + tel, true); chip('Text', 'sms:' + tel); chip('WhatsApp', 'https://wa.me/' + tel.replace(/^\+/, '').replace(/^0/, '44')); }
+    if (c.email) chip('Email', 'mailto:' + c.email);
     /* A job already made opens as the same full card as everywhere else. */
-    if (c.kind === 'job' && global.DSPOP) acts.appendChild(btn('Open the full job', 'btn btn--ghost btn--sm', function () { d.close(); global.DSPOP.open(c.id, { onChange: opts.reload }); }));
-    d.appendChild(acts);
-    [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')), line('Problem', (c.issues || []).join(', ')), line('Their message', c.notes),
-      line('Survey they chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (' + (c.chose.from ? 'from ' : '') + '£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null),
-      line('Report needed by', c.deadline), line('Agent', c.agent)].forEach(function (n) { if (n) d.appendChild(n); });
+    if (c.kind === 'job' && global.DSPOP) { var fj = btn('Full job', 'sheet-big', function () { d.close(); global.DSPOP.open(c.id, { onChange: opts.reload }); }); acts.appendChild(fj); }
+    if (acts.children.length) d.appendChild(acts);
+    if (c.phone || c.email) d.appendChild(U.node('p', 'meta', [c.phone, c.email].filter(Boolean).join(' · ')));
+    [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')), line('Problem', (c.issues || []).join(', ')), line('Message', c.notes),
+      line('Chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (' + (c.chose.from ? 'from ' : '') + '£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null),
+      line('Agent', c.agent)].forEach(function (n) { if (n) d.appendChild(n); });
     /* Book, Move to, the hold, photos, times wanted and Close (sched-detail.js). */
     if (global.DSSCHEDDETAIL && opts.act) global.DSSCHEDDETAIL.fill(d, c, opts, function () { d.close(); });
-    if (!(c.best || []).length && !c.pencil) d.appendChild(U.node('p', 'meta', 'No free time in the next two weeks. Ask the surveyors to set their usual week on My hours.'));
+    if (!(c.best || []).length && !c.pencil) d.appendChild(U.node('p', 'meta', 'No free time in the next two weeks: check My hours.'));
     if ((c.best || []).length && !c.pencil) {
-      d.appendChild(U.node('h3', null, 'Times to offer, best first'));
+      d.appendChild(U.node('h3', null, 'Times to offer'));
+      /* The best three in view, the rest a tap away. */
+      var more = document.createElement('details'); more.className = 'sheet-fold';
       c.best.slice(0, 6).forEach(function (s, i) {
         var b = btn('', 'sched-best' + (i ? ' is-alt' : ''), function () { d.close(); opts.book(c, s); });
-        b.appendChild(U.node('b', null, (i + 1) + '. ' + day(s.date) + ' at ' + s.time + ' with ' + cap(s.surveyor)));
+        b.appendChild(U.node('b', null, day(s.date) + ', ' + s.time + ', ' + cap(s.surveyor)));
         b.appendChild(U.node('span', 'meta', s.why));
-        d.appendChild(b);
+        (i < 3 ? d : more).appendChild(b);
       });
+      if (c.best.length > 3) { more.insertBefore(U.node('summary', null, 'More times (' + (Math.min(6, c.best.length) - 3) + ')'), more.firstChild); d.appendChild(more); }
     }
-    d.appendChild(U.node('h3', null, 'Add to the history'));
+    d.appendChild(U.node('h3', null, 'History'));
     var row = U.node('div', 'sched-row');
     var how = document.createElement('select'); how.setAttribute('aria-label', 'What happened');
     [['call', 'Called'], ['email', 'Emailed'], ['text', 'Texted'], ['note', 'Note']].forEach(function (h) { var o = document.createElement('option'); o.value = h[0]; o.textContent = h[1]; how.appendChild(o); });
@@ -72,7 +79,6 @@
     row.appendChild(how); row.appendChild(said);
     row.appendChild(btn('Log', 'btn btn--sm', async function () { await opts.act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }, 'Logged on ' + (c.name || 'the card') + '.'); said.value = ''; history(c, list); }));
     d.appendChild(row);
-    d.appendChild(U.node('h3', null, 'Everything so far'));
     var list = U.node('ol', 'scc-list'); d.appendChild(list);
     var fold = global.DSSCHEDDETAIL && global.DSSCHEDDETAIL.closeBox();
     if (fold) d.appendChild(fold);
@@ -86,7 +92,7 @@
     try {
       var r = await U.get('/api/admin/scheduling?card=' + c.kind + ':' + c.id);
       list.textContent = '';
-      if (!r.entries.length) list.appendChild(U.node('li', 'panel-note', 'Nothing yet. Calls, texts and notes logged here and emails filed by ChatGPT show up here.'));
+      if (!r.entries.length) list.appendChild(U.node('li', 'meta', 'Nothing logged yet.'));
       r.entries.forEach(function (e) { list.appendChild(entry(e)); });
     } catch (e) { list.textContent = 'Could not load the history.'; }
   }

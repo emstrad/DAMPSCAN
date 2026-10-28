@@ -22,7 +22,7 @@
       l.appendChild(U.node('span', null, x.text + (x.forName ? ' (' + x.forName + ')' : '')));
       mount.appendChild(l);
     });
-    if (!(todos || []).length) mount.appendChild(U.node('p', 'panel-note', 'Nothing to do for this customer.'));
+
 
     var form = U.node('form', 'todo-add');
     var input = document.createElement('input');

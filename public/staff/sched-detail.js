@@ -70,9 +70,8 @@
       dup.appendChild(dr);
       box.appendChild(dup);
     });
-    box.appendChild(U.node('h3', null, 'Times they want'));
     var want = U.node('div', 'sched-row');
-    var wi = document.createElement('input'); wi.placeholder = 'e.g. Sat mornings'; wi.value = c.wanted || ''; wi.setAttribute('aria-label', 'Times they want');
+    var wi = document.createElement('input'); wi.placeholder = 'Times they want, e.g. Sat mornings'; wi.value = c.wanted || ''; wi.setAttribute('aria-label', 'Times they want');
     want.appendChild(wi);
     want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }, 'Times saved for ' + (c.name || 'the card') + '.'); }));
     box.appendChild(want);

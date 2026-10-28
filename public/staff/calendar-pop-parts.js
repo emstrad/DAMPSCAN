@@ -34,8 +34,8 @@
     if (q) {
       var nav = U.node('div', 'sheet-grid');
       nav.appendChild(big('Waze', 'https://waze.com/ul?q=' + q + '&navigate=yes', 'is-main'));
-      nav.appendChild(big('Google Maps', 'https://www.google.com/maps/dir/?api=1&destination=' + q));
-      nav.appendChild(big('Apple Maps', 'https://maps.apple.com/?daddr=' + q));
+      nav.appendChild(big('Google', 'https://www.google.com/maps/dir/?api=1&destination=' + q));
+      nav.appendChild(big('Apple', 'https://maps.apple.com/?daddr=' + q));
       s.appendChild(nav);
       if (sendsToCar() && navigator.share) {
         /* Ronnie drives by his Tesla's own sat nav: the share sheet hands the
@@ -52,15 +52,15 @@
     var tel = j.phone ? String(j.phone).replace(/[^\d+]/g, '') : '';
     var talk = U.node('div', 'sheet-grid');
     if (tel) {
-      talk.appendChild(big('Call ' + j.phone, 'tel:' + tel, 'is-main'));
+      talk.appendChild(big('Call', 'tel:' + tel, 'is-main'));
       talk.appendChild(big('WhatsApp', 'https://wa.me/' + tel.replace(/^\+/, '').replace(/^0/, '44')));
       talk.appendChild(big('Text', 'sms:' + tel));
     }
     if (j.email) talk.appendChild(big('Email', 'mailto:' + j.email));
     if (talk.children.length) {
-      /* The number and address written out too, to read over the phone or copy. */
-      s.appendChild(U.node('p', 'sheet-note', [j.phone, j.email].filter(Boolean).join(' · ')));
       s.appendChild(talk);
+      /* The number and email written out small, to read over the phone or copy. */
+      s.appendChild(U.node('p', 'meta', [j.phone, j.email].filter(Boolean).join(' · ')));
     }
     else s.appendChild(U.node('p', 'panel-note', 'No phone or email on file.'));
   }
@@ -130,8 +130,7 @@
       grid.appendChild(thumb(p.thumb ? '/api/admin/photos?img=' + p.id + '&size=thumb' : full, full, p.caption || 'Job photo ' + p.id));
     });
     if (grid.children.length) s.appendChild(grid);
-    else s.appendChild(U.node('p', 'panel-note', 'No photos or files yet.'));
-    var label = U.node('label', 'sheet-big');
+    var label = U.node('label', 'pill');
     var pick = document.createElement('input');
     pick.type = 'file'; pick.accept = 'image/*'; pick.multiple = true; pick.className = 'sr-only';
     label.appendChild(document.createTextNode('Add photos'));

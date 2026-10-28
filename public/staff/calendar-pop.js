@@ -151,7 +151,7 @@
       if (!j.depositPaid) add(m.deposit, 'Deposit request');
       if (j.awaitingAgent) add(m.chase, 'Ask the agent for a time');
       if (j.reportSent) add(m.remedial, 'Offer to quote the remedial work');
-      if (!list.children.length) s.appendChild(U.node('p', 'panel-note', 'No messages ready.'));
+      if (!list.children.length) s.appendChild(U.node('p', 'meta', 'None ready.'));
     } catch (e) { s.appendChild(U.node('p', 'panel-note', 'Messages are on the full card.')); }
   }
 
@@ -166,7 +166,7 @@
   }
 
   function todos(j) {
-    var td = section('To-dos for this customer');
+    var td = section('To-dos');
     /* What has happened (deposit, booking, report, payment) may have done
        some to-dos; the owners chose to be asked rather than have them cleared. */
     var maybe = j.maybeDone || [];
@@ -229,12 +229,13 @@
 
     notes(j);
     if (j.lead && (j.lead.notes || j.lead.issues.length)) {
-      var en = section('From the enquiry');
-      if (j.lead.issues.length) en.appendChild(U.node('p', 'sheet-note', 'Issues: ' + j.lead.issues.join(', ')));
+      var en = section('Their enquiry');
+      if (j.lead.issues.length) en.appendChild(U.node('p', 'sheet-note', j.lead.issues.join(', ')));
       if (j.lead.notes) en.appendChild(U.node('p', 'sheet-note', j.lead.notes));
     }
-    X.pictures(j, section('Photos and files'), changed);
-    if (!j.quoted) dampMessages(j, section('Messages'));
+    X.pictures(j, section('Photos'), changed);
+    /* Ready messages folded: one line until someone wants to send one. */
+    if (!j.quoted) { var ms = section(''); var mf = document.createElement('details'); mf.className = 'sheet-fold'; mf.appendChild(U.node('summary', null, 'Messages to send')); ms.appendChild(mf); dampMessages(j, mf); }
     if (j.status !== 'paid') dateForm(j);
     todos(j);
     if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section);

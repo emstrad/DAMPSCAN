@@ -277,6 +277,9 @@ enforces the mechanical ones in CI.
 - A booked survey can be unbooked from the job pop-up (Unbook, under the date):
   off the diary but never deleted; the card goes back to Scheduling, Waiting
   for time, with a note, and the surveyor and the gap are told.
+- Kept uncluttered (the owner's choice): contacts and maps are one row of
+  small chips, empty sections say nothing, ready messages and extra times
+  are folded, and the Scheduling page has no explaining paragraphs.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
   Search. No Money button (the owner's choice); the bank stays in the
