@@ -174,7 +174,9 @@ enforces the mechanical ones in CI.
   page is kept simple: one table by size (damp, damp and timber), one table
   of extra checks (with a survey, on its own), and everything wordy folded
   away in tap-to-open sections. Minutes on
-  site: 60, 120, 150, 180, set once on the rate card. A pick is a request: checked again, held 48 hours as a
+  site: 60, 120, 150, 180, set once on the rate card. The rate card also has
+  damp and timber at each size (dt- keys), and the Scheduling booking form's
+  Survey list shows each with its price. A pick is a request: checked again, held 48 hours as a
   pencilled hold and alerted; the team confirms it on Scheduling.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a

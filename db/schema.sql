@@ -1361,3 +1361,12 @@ begin
     insert into lab_flags (key, enabled) values ('rate_minutes_v1', true);
   end if;
 end $$;
+
+-- Damp and timber at each size, from the one price list (content/prices.js):
+-- the owner wanted them on the booking form beside the damp sizes.
+insert into job_rates (key, label, price_pence, surveyor_fee_pence, position, duration_min) values
+  ('dt-localised',      'Damp and timber, localised',      31000, 10000, 5, 60),
+  ('dt-full-house',     'Damp and timber, full house',     44500, 13000, 6, 120),
+  ('dt-large-property', 'Damp and timber, large property', 52500, 16000, 7, 150),
+  ('dt-premium',        'Damp and timber, very large',     60000, 19000, 8, 180)
+on conflict (key) do nothing;

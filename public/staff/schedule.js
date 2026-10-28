@@ -183,7 +183,7 @@
       if (pcode) q.push('postcode=' + encodeURIComponent(pcode));
       data = await U.get('/api/admin/scheduling' + (q.length ? '?' + q.join('&') : ''));
       var t = el('b-type');
-      if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label; t.appendChild(o); });
+      if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label + (r.pricePence ? ', £' + Math.round(r.pricePence / 100) : ''); t.appendChild(o); });
       render();
       renderFree();
       search.refresh();
