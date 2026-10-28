@@ -1060,6 +1060,8 @@ create table if not exists estate_agents (
 create unique index if not exists estate_agents_name_idx on estate_agents (lower(name), lower(coalesce(branch, '')));
 alter table jobs add column if not exists estate_agent_id bigint references estate_agents (id) on delete set null;
 create index if not exists jobs_estate_agent_idx on jobs (estate_agent_id) where estate_agent_id is not null;
+-- An enquiry's agent, before there is a job: carried onto the job when it is booked.
+alter table leads add column if not exists estate_agent_id bigint references estate_agents (id) on delete set null;
 alter table jobs add column if not exists remedial_status text not null default 'none';
 alter table jobs drop constraint if exists jobs_remedial_status_check;
 alter table jobs add constraint jobs_remedial_status_check check (remedial_status in ('none', 'quoting', 'won', 'declined'));

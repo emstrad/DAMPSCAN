@@ -59,8 +59,8 @@
     enq.appendChild(U.node('summary', null, 'Their enquiry'));
     [line('Problem', (c.issues || []).join(', ')), line('Message', c.notes)].forEach(function (n) { if (n) enq.appendChild(n); });
     [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')),
-      line('Chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (' + (c.chose.from ? 'from ' : '') + '£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null),
-      line('Agent', c.agent)].forEach(function (n) { if (n) d.appendChild(n); });
+      line('Chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (' + (c.chose.from ? 'from ' : '') + '£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null)].forEach(function (n) { if (n) d.appendChild(n); });
+    agentBox(d, c, opts);
     if (enq.children.length > 1) d.appendChild(enq);
     /* Book, Move to, the hold, photos, times wanted and Close (sched-detail.js). */
     if (global.DSSCHEDDETAIL && opts.act) global.DSSCHEDDETAIL.fill(d, c, opts, function () { d.close(); });
@@ -92,6 +92,31 @@
     if (fold) d.appendChild(fold);
     d.showModal();
     history(c, list);
+  }
+
+  /* The estate agent: who, with a call and email chip, and a folded editor to add or change them. */
+  function agentBox(d, c, opts) {
+    var a = c.agentInfo;
+    if (a) {
+      d.appendChild(line('Agent', [a.name, a.branch].filter(Boolean).join(', ')));
+      var row = U.node('div', 'sheet-grid');
+      if (a.phone) { var t = U.node('a', 'sheet-big', 'Call agent'); t.href = 'tel:' + String(a.phone).replace(/[^\d+]/g, ''); row.appendChild(t); }
+      if (a.email) { var m = U.node('a', 'sheet-big', 'Email agent'); m.href = 'mailto:' + a.email; row.appendChild(m); }
+      if (row.children.length) d.appendChild(row);
+    }
+    var f = document.createElement('details'); f.className = 'sheet-fold';
+    f.appendChild(U.node('summary', null, a ? 'Change the estate agent' : 'Add an estate agent'));
+    var box = U.node('div', 'sched-row');
+    var fields = [['name', 'Agent name'], ['branch', 'Branch'], ['phone', 'Phone'], ['email', 'Email']].map(function (k) {
+      var i = document.createElement('input'); i.placeholder = k[1]; i.setAttribute('aria-label', k[1]); i.value = (a && a[k[0]]) || '';
+      if (k[0] === 'phone') i.type = 'tel'; if (k[0] === 'email') i.type = 'email';
+      box.appendChild(i); return [k[0], i];
+    });
+    var save = function (agent) { return opts.act({ op: 'agent', kind: c.kind, id: c.id, agent: agent }, agent ? 'Estate agent saved for ' + (c.name || 'the card') + '.' : 'Estate agent taken off.').then(function () { d.close(); }); };
+    box.appendChild(btn('Save', 'btn btn--sm', function () { var o = {}; fields.forEach(function (x) { o[x[0]] = x[1].value.trim(); }); save(o.name ? o : null); }));
+    if (a) box.appendChild(btn('Remove', null, function () { save(null); }));
+    f.appendChild(box);
+    d.appendChild(f);
   }
 
   async function history(c, list) {

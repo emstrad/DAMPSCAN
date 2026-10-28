@@ -38,7 +38,7 @@ before(async () => {
   await pool.query(`insert into job_rates (key, label, price_pence, surveyor_fee_pence, position) values ('localised', 'Localised', 25000, 11000, 1) on conflict (key) do nothing`);
 });
 beforeEach(async () => {
-  await pool.query('truncate jobs, leads, todos, audit, notifications, surveyor_hours, mail_seen restart identity cascade');
+  await pool.query('truncate jobs, leads, todos, audit, notifications, surveyor_hours, mail_seen, estate_agents restart identity cascade');
   await pool.query(`insert into surveyor_hours (surveyor, on_date, start_time, end_time) values ('tom', $1, '09:00', '17:00')`, [DATE]);
 });
 after(async () => { await pool.end(); });
@@ -149,4 +149,19 @@ test('a card can go cold and come back, and a job card can be closed as not goin
   assert.equal(shut.status, 200, JSON.stringify(shut.data));
   assert.equal((await pool.query('select status from jobs where id = $1', [job])).rows[0].status, 'cancelled');
   assert.ok(!(await board(['dampscan', 'ati-london'], '2030-05-20')).cards.some((c) => c.kind === 'job' && c.id === job), 'off the board');
+});
+
+test('an enquiry keeps its estate agent (from the form or added) and the job gets it when booked', async () => {
+  const kim = await lead('Kim', 'kim@example.com');
+  await pool.query("update leads set notes = 'Estate agent to be contacted to arrange access: Foxtons Bromley, 020 8460 1234, b@foxtons.co.uk. Damp hall.' where id = $1", [kim]);
+  const { board } = await import('../lib/scheduling.js');
+  const card = (await board(['dampscan', 'ati-london'], '2030-05-20')).cards.find((c) => c.id === kim);
+  assert.equal(card.agent, 'Foxtons Bromley');
+  assert.equal(card.agentInfo.phone, '020 8460 1234');
+  const saved = await post({ op: 'agent', kind: 'lead', id: kim, agent: { name: 'Savills', branch: 'Sevenoaks', phone: '01732 000000' } });
+  assert.equal(saved.status, 200, JSON.stringify(saved.data));
+  assert.equal((await board(['dampscan', 'ati-london'], '2030-05-20')).cards.find((c) => c.id === kim).agent, 'Savills');
+  await post({ op: 'book', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  const a = (await pool.query('select a.name from jobs j join estate_agents a on a.id = j.estate_agent_id where j.lead_id = $1', [kim])).rows[0];
+  assert.equal(a.name, 'Savills');
 });

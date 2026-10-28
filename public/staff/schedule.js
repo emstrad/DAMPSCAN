@@ -47,6 +47,7 @@
     /* A tap opens everything else: notes, history, times to offer, Book, Move to. */
     var flags = [];
     if (c.awaitingAgent) flags.push('Waiting on ' + (c.agent || 'the agent'));
+    else if (c.agent) flags.push('Agent: ' + c.agent);
     if (c.deadline) flags.push('Report by ' + c.deadline);
     if (c.chose) flags.push(c.chose.unsure ? 'Not sure which survey' : c.chose.name);
     if (c.wanted) flags.push('Wants ' + c.wanted);

@@ -274,6 +274,11 @@ enforces the mechanical ones in CI.
   Waiting for time, Gone cold (went quiet; folded at the end of the board, to
   try later), Booked, and Not going ahead (a reason; an enquiry closes, a job
   card is cancelled, never deleted). ChatGPT's move_on_board takes cold too.
+- Estate agents on Scheduling: an enquiry keeps its agent too (leads.estate_agent_id,
+  or read from the website form's agent line in the notes); the customer card
+  shows the agent with Call agent and Email agent, and a folded box to add,
+  change or remove one; booking carries the agent onto the job; the board
+  card flags "Agent: name".
 - A booked survey can be unbooked from the job pop-up (Unbook, under the date):
   off the diary but never deleted; the card goes back to Scheduling, Waiting
   for time, with a note, and the surveyor and the gap are told.
