@@ -566,6 +566,8 @@ create table if not exists notifications (
   digest_sent_at timestamptz
 );
 create index if not exists notifications_pending_idx on notifications (business_slug, created_at) where digest_sent_at is null;
+-- Why ntfy refused a push (its daily quota shows as 429), for Settings to show.
+alter table notifications add column if not exists push_error text;
 
 -- ---------------------------------------------------------------------------
 -- Service contracts

@@ -32,7 +32,7 @@
     el('push-ntfy').textContent = d.ntfy ? 'ntfy is set up. The last enquiry alerts:' : 'ntfy is not set up: NTFY_TOPIC is missing in Vercel, so no ntfy alerts go.';
     var rec = el('push-recent'); rec.textContent = '';
     (d.recent || []).forEach(function (r) {
-      rec.appendChild(U.node('li', null, new Date(r.at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ', ' + r.title + ': ' + (r.sent ? 'ntfy took it' : 'ntfy did not take it')));
+      rec.appendChild(U.node('li', null, new Date(r.at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ', ' + r.title + ': ' + (r.sent ? 'ntfy took it' : 'ntfy refused it' + (r.error ? ' (' + (/^429/.test(r.error) ? 'daily limit reached' : r.error) + ')' : ''))));
     });
   }).catch(function () {});
   el('push-test').addEventListener('click', async function () {
@@ -40,7 +40,7 @@
     var r = await U.send('/api/admin/push?test=1', {});
     var d = r.data || {};
     el('push-test-out').textContent = !r.ok ? 'That did not send.'
-      : (d.ntfy ? 'ntfy took it.' : 'ntfy did not take it (check NTFY_TOPIC in Vercel).') + ' Staff app: sent to ' + (d.app || 0) + (d.app === 1 ? ' phone.' : ' phones.');
+      : (d.ntfy ? 'ntfy took it.' : 'ntfy refused it: ' + (d.why && /^429/.test(d.why) ? 'its daily message limit is used up. Add NTFY_TOKEN from an ntfy account.' : (d.why || 'check NTFY_TOPIC in Vercel.'))) + ' Staff app: sent to ' + (d.app || 0) + (d.app === 1 ? ' phone.' : ' phones.');
   });
 
   el('refresh').addEventListener('click', function () { global.location.reload(); });

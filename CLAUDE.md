@@ -113,6 +113,11 @@ checks the mechanical ones.
   button), survey not paid in full (morning after, with Paid/Deposit
   buttons), overdue invoices, half-finished forms, to-dos, competitor watch.
 - Alert buttons use signed, 3-day tickets (`lib/quick-action.js`).
+- ntfy.sh's free tier has a daily message limit (anonymous: per sending IP,
+  shared on Vercel); past it every push is refused with 429. Each refusal's
+  reason is kept (notifications.push_error) and shown in Settings, "Are alerts
+  getting through?". NTFY_TOKEN (an ntfy account, paid tier for headroom)
+  takes the limit off the shared IP.
 - Each surveyor's own feed (`lib/surveyor-alerts.js`): the owners (Scott,
   Tom) keep the main topic with everything; NTFY_TOPIC_BEN, NTFY_TOPIC_RONNIE
   (and NTFY_TOPIC_TOM if wanted) only hear their diary: booked for them,
