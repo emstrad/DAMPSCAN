@@ -54,11 +54,9 @@
 
 <main class="wrap">
   <h1 class="records-title">Lab</h1>
-  <p class="panel-note">Things being tried before they reach the websites. Only the owners see this page. Nothing here is shown to customers until you say so.</p>
 
   <section class="panel" aria-labelledby="h-live">
     <h2 id="h-live">Live on the websites</h2>
-    <p class="panel-note">Tick to show it to customers on DampScan and ATi; untick to take it off. It changes at once.</p>
     <label class="lab-switch"><input type="checkbox" id="sw-slots" data-key="booking_slots" disabled /> Pick a time, after the booking form is sent</label>
     <label class="lab-switch"><input type="checkbox" id="sw-quiz" data-key="survey_quiz" disabled /> "What do you need?", the survey and its price, after the time</label>
     <p class="panel-note" id="sw-note" role="status"></p>
@@ -66,14 +64,12 @@
 
   <section class="panel" aria-labelledby="h-slots">
     <h2 id="h-slots">Pick a time, at the end of the booking form</h2>
-    <p class="panel-note">After a customer sends the form they see a day, then every free time that day, and can ask for one or leave it for us to call. Same rules as booking on the phone: their postcode and real drive times, nobody hopping over 75 minutes, someone already nearby first, two days' notice, nothing after a buyer's deadline. A pick is held 48 hours for us to confirm on Scheduling. Type a postcode to see what a customer there would get.</p>
     <div class="ranges"><label for="lab-pc">Customer's postcode</label> <input id="lab-pc" autocomplete="off" placeholder="e.g. CT5 1AA" /> <button class="btn btn--ghost btn--sm" id="lab-pc-go" type="button">Show their times</button></div>
     <div class="lab-preview" id="slots"></div>
   </section>
 
   <section class="panel" aria-labelledby="h-quiz">
     <h2 id="h-quiz">Which survey do I need?</h2>
-    <p class="panel-note">Four taps, then the survey and any add-ons, with the new price list. Try it as a customer would.</p>
     <div class="lab-preview quiz" id="quiz"></div>
     <p class="panel-note" id="quiz-out" role="status"></p>
   </section>

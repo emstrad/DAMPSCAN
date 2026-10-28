@@ -136,7 +136,7 @@
     state.picks = [];
     var waiting = state.lines.length - state.at;
     head.textContent = 'Match payments' + (waiting > 0 ? ' (' + waiting + ' waiting)' : '');
-    if (waiting <= 0) { card.appendChild(U.node('p', 'panel-note', 'Every payment in is matched to a job or sorted. Nothing waiting.')); return; }
+    if (waiting <= 0) { card.appendChild(U.node('p', 'panel-note', 'All matched.')); return; }
     var tx = state.lines[state.at];
     var top = U.node('div', 'match-top');
     top.appendChild(U.node('span', 'match-amount', U.money(tx.amountPence)));

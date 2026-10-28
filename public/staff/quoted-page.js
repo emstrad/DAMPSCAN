@@ -17,7 +17,6 @@
   var box = U.node('div', 'job-page');
   box.id = 'h-page';
   box.appendChild(U.node('h4', null, 'Project page on the website'));
-  box.appendChild(U.node('p', 'panel-note', 'For a finished job with at least one photo ticked for the website. The page shows the title, town, postcode district and your write-up; never the customer\'s name or street.'));
 
   function input(id, label, placeholder) {
     var row = U.node('label', 'photo-field');

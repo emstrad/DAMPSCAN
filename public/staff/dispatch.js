@@ -98,7 +98,7 @@
     strip(mount, d, opts);
     mount.appendChild(U.node('h2', 'dsp-title-day', nice(d.day.date, { weekday: 'long', day: 'numeric', month: 'long' }) + (d.day.date === opts.today ? ' · Today' : '')));
     var lanes = U.node('div', 'dsp-lanes');
-    if (!d.day.lanes.length) lanes.appendChild(U.node('p', 'panel-note', 'Nobody is working this day: no surveys and no hours set on My hours.'));
+    if (!d.day.lanes.length) lanes.appendChild(U.node('p', 'panel-note', 'Nobody working.'));
     d.day.lanes.forEach(function (l) { lanes.appendChild(lane(l, d.day.date, opts)); });
     lanes.style.setProperty('--lanes', String(Math.max(1, d.day.lanes.length)));
     mount.appendChild(lanes);

@@ -279,7 +279,8 @@ enforces the mechanical ones in CI.
   for time, with a note, and the surveyor and the gap are told.
 - Kept uncluttered (the owner's choice): contacts and maps are one row of
   small chips, empty sections say nothing, ready messages and extra times
-  are folded, and the Scheduling page has no explaining paragraphs.
+  are folded, and no staff page has explaining paragraphs under its
+  headings (headings and labels say enough; empty states are a few words).
   Urgent first: Scheduling opens with "Needs you now" (a time picked online
   to confirm, a hold about to lapse, a new enquiry untouched two hours); the
   job pop-up opens with its one next step (book, confirm the time, deposit,

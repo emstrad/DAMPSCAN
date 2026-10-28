@@ -138,7 +138,7 @@
     var left = state.summer.customers.filter(function (c) { return !c.askedThisYear; }).length;
     mount.appendChild(U.node('p', 'card-meta', left + ' to ask, ' + (state.summer.customers.length - left) + ' asked this year.'));
     state.summer.customers.forEach(function (c) { mount.appendChild(summerItem(c)); });
-    if (!state.summer.customers.length) mount.appendChild(U.node('p', 'panel-note', 'Nobody to ask: every past customer is on a plan that is not due yet.'));
+    if (!state.summer.customers.length) mount.appendChild(U.node('p', 'panel-note', 'Nobody to ask.'));
     return state.summer;
   }
 

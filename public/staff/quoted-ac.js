@@ -79,7 +79,6 @@
     });
     [status, supplier, cost, save].forEach(function (n) { row.appendChild(n); });
     item.appendChild(row);
-    item.appendChild(U.node('p', 'panel-note', 'A cost typed here is one line in What it cost, updated in place.'));
     return item;
   }
 
@@ -158,7 +157,7 @@
       send(b, 'Commissioning saved.');
     });
     item.appendChild(f);
-    if (['installed', 'commissioned', 'paid'].indexOf(card.stage) === -1) item.appendChild(U.node('p', 'panel-note', 'The commissioning date can be saved once the job is marked installed.'));
+    if (['installed', 'commissioned', 'paid'].indexOf(card.stage) === -1) item.appendChild(U.node('p', 'panel-note', 'Mark it installed first.'));
     return item;
   }
 

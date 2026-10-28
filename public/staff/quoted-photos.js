@@ -20,7 +20,6 @@
   var h = U.node('h3', null, 'Photos');
   h.id = 'h-photos';
   block.appendChild(h);
-  block.appendChild(U.node('p', 'panel-note', 'Before, during and after. Private to the staff area unless you tick one for the website, where only its caption and town are shown.'));
   var bar = U.node('div', 'work-add');
   var stageSel = document.createElement('select');
   stageSel.id = 'ph-stage';

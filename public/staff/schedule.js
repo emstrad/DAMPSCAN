@@ -105,7 +105,7 @@
     var b = el('board'); b.textContent = '';
     COLS.forEach(function (k) { b.appendChild(column(k[0], k[1], data.cards.filter(function (c) { return c.stage === k[0]; }))); });
     var booked = column('booked', 'Booked', []);
-    booked.appendChild(U.node('p', 'panel-note', 'Drop a card here to book it. Booked surveys are on Today and the week.'));
+    booked.appendChild(U.node('p', 'panel-note', 'Drop a card here to book it.'));
     var link = U.node('a', 'btn btn--ghost btn--sm', 'Open Today'); link.href = '/staff/calendar.html';
     booked.appendChild(link);
     b.appendChild(booked);

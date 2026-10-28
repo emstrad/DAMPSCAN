@@ -144,7 +144,7 @@
       return p.hourlyRatePence !== undefined && p.businesses.some(function (b) { return b.slug === j.site; });
     });
     if (!people.length) return;
-    rates.appendChild(U.node('p', 'panel-note', 'Hourly rates price the clocked time. A change applies to every job\'s labour, including this one.'));
+    rates.appendChild(U.node('p', 'panel-note', 'Changes every job\'s labour, this one too.'));
     people.forEach(function (p) {
       var row = U.node('div', 'work-day');
       row.appendChild(U.node('span', 'work-day-name', p.name));

@@ -13,9 +13,7 @@
   block.setAttribute('aria-labelledby', 'h-messages');
   block.appendChild(U.node('h3', null, 'Messages'));
   block.firstChild.id = 'h-messages';
-  var intro = U.node('p', 'panel-note', 'Opens on your phone with the words written. You send it; tapping a button records that it went.');
   var list = U.node('div', 'msg-list');
-  block.appendChild(intro);
   block.appendChild(list);
   var quote = document.querySelector('#job-dialog .quote-block');
   quote.parentNode.insertBefore(block, quote.nextSibling);
