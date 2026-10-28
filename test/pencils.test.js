@@ -122,3 +122,17 @@ test('Who\'s free lists every surveyor at the same time, not one per time', asyn
   const nine = free.filter((x) => x.date === DATE && x.time === '09:00').map((x) => x.surveyor).sort();
   assert.deepEqual(nine, ['ben', 'tom']);
 });
+
+test('a booked survey can be unbooked: off the diary, back to Waiting, card kept', async () => {
+  const kim = await lead('Kim', 'kim@example.com');
+  const booked = await post({ op: 'book', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  assert.equal(booked.status, 200, JSON.stringify(booked.data));
+  const job = (await pool.query('select id from jobs where lead_id = $1', [kim])).rows[0].id;
+  const off = await post({ op: 'unbook', kind: 'job', id: Number(job) });
+  assert.equal(off.status, 200, JSON.stringify(off.data));
+  const j = (await pool.query('select status, date_set, job_time, sched_stage from jobs where id = $1', [job])).rows[0];
+  assert.deepEqual([j.status, j.date_set, j.job_time, j.sched_stage], ['booked', false, null, 'waiting']);
+  const { board } = await import('../lib/scheduling.js');
+  assert.ok((await board(['dampscan', 'ati-london'], '2030-05-20')).cards.some((c) => c.kind === 'job' && c.id === Number(job)), 'back on the To book board');
+  assert.equal((await post({ op: 'unbook', kind: 'job', id: Number(job) })).status, 400, 'twice is refused');
+});

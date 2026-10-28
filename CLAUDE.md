@@ -270,6 +270,9 @@ enforces the mechanical ones in CI.
   to the owners.
 - A survey cancelled, moved or handed over offers its gap to the customers
   still waiting who fit it best (`lib/cancel-fill.js`), one owners' alert.
+- A booked survey can be unbooked from the job pop-up (Unbook, under the date):
+  off the diary but never deleted; the card goes back to Scheduling, Waiting
+  for time, with a note, and the surveyor and the gap are told.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
   Search. No Money button (the owner's choice); the bank stays in the

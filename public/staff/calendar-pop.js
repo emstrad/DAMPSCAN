@@ -97,6 +97,17 @@
     });
     s.appendChild(f);
     s.appendChild(note);
+    /* Taking a booking off the diary keeps the customer: back to Waiting for time on Scheduling. */
+    if (j.dateSet && !j.quoted && j.status === 'booked') {
+      var off = U.node('button', 'pill', 'Unbook'); off.type = 'button';
+      off.addEventListener('click', async function () {
+        if (!global.confirm('Take ' + (j.customerName || 'this survey') + ' off the diary? Their card goes back to Scheduling, waiting for a new time.')) return;
+        var r = await U.send('/api/admin/scheduling', { op: 'unbook', kind: 'job', id: j.id });
+        if (!r.ok) { note.textContent = (r.data && r.data.error) || 'Could not unbook.'; return; }
+        changed();
+      });
+      s.appendChild(off);
+    }
   }
 
   function notes(j) {
