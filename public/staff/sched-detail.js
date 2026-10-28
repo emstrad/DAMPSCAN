@@ -26,8 +26,13 @@
     box.appendChild(go);
     var main = U.node('div', 'sched-row');
     var move = document.createElement('select'); move.setAttribute('aria-label', 'Move to');
-    COLS.concat([['booked', 'Booked (pick a day and time)']]).forEach(function (k) { if (c.kind === 'job' && k[0] === 'new') return; var o = document.createElement('option'); o.value = k[0]; o.textContent = 'Move to: ' + k[1]; if (k[0] === c.stage) o.selected = true; move.appendChild(o); });
-    move.addEventListener('change', function () { if (move.value === 'booked') book(null); else act({ op: 'move', kind: c.kind, id: c.id, to: move.value }); });
+    /* Every next step from here, warm or cold: the board columns, booked, or not going ahead. */
+    COLS.concat([['cold', 'Gone cold (try later)'], ['booked', 'Booked (pick a day and time)'], ['close', 'Not going ahead']]).forEach(function (k) { if (c.kind === 'job' && k[0] === 'new') return; var o = document.createElement('option'); o.value = k[0]; o.textContent = 'Move to: ' + k[1]; if (k[0] === c.stage) o.selected = true; move.appendChild(o); });
+    move.addEventListener('change', function () {
+      if (move.value === 'booked') book(null);
+      else if (move.value === 'close') { if (closeBox) { closeBox.open = true; closeBox.scrollIntoView({ behavior: 'smooth', block: 'center' }); } move.value = c.stage; }
+      else act({ op: 'move', kind: c.kind, id: c.id, to: move.value });
+    });
     main.appendChild(move);
     box.appendChild(main);
     if (c.files && c.files.length) {
@@ -72,14 +77,14 @@
     want.appendChild(button('Save', null, function () { act({ op: 'wanted', kind: c.kind, id: c.id, text: wi.value }, 'Times saved for ' + (c.name || 'the card') + '.'); }));
     box.appendChild(want);
     /* Closing is folded away at the very end so it is never tapped by mistake. */
-    if (c.kind === 'lead') {
+    {
       var fold = document.createElement('details'); fold.className = 'sched-closefold';
-      fold.appendChild(U.node('summary', null, 'Not going ahead? Close this enquiry'));
+      fold.appendChild(U.node('summary', null, 'Not going ahead? Close it'));
       var shut = U.node('div', 'sched-row sched-close');
       var why = document.createElement('select'); why.setAttribute('aria-label', 'Why close it');
       ['Booked elsewhere', 'Not interested', 'No answer', 'Already sorted', 'Spam', 'Other'].forEach(function (w) { var o = document.createElement('option'); o.value = w; o.textContent = w; why.appendChild(o); });
       shut.appendChild(why);
-      shut.appendChild(button('Close enquiry', null, function () { act({ op: 'close', kind: 'lead', id: c.id, reason: why.value }, (c.name || 'Enquiry') + ' closed: ' + why.value + '. It stays on the Leads page.'); }));
+      shut.appendChild(button('Close', null, function () { act({ op: 'close', kind: c.kind, id: c.id, reason: why.value }, (c.name || 'Customer') + ' closed: ' + why.value + (c.kind === 'lead' ? '. It stays on the Leads page.' : '. The job is kept as cancelled.')); }));
       fold.appendChild(shut);
       closeBox = fold;
     }

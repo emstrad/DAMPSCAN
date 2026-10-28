@@ -99,3 +99,5 @@
 .sched-flags { margin: 4px 0 0; font-size: .78rem; color: var(--muted); }
 .scc .sched-row { flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .scc .sched-pencil { margin: 8px 0; }
+/* Gone cold: folded at the end of the board so it never crowds the live columns. */
+.sched-coldfold > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--muted); font-weight: 600; }

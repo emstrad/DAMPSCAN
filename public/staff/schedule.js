@@ -84,6 +84,12 @@
     var link = U.node('a', 'btn btn--ghost btn--sm', 'Open Today'); link.href = '/staff/calendar.html';
     booked.appendChild(link);
     b.appendChild(booked);
+    /* Gone quiet: kept, folded at the end, to try again later. */
+    var cold = data.cards.filter(function (c) { return c.stage === 'cold'; });
+    var fold = document.createElement('details'); fold.className = 'sched-coldfold';
+    fold.appendChild(U.node('summary', null, 'Gone cold (' + cold.length + ')'));
+    fold.appendChild(column('cold', 'Gone cold', cold));
+    b.appendChild(fold);
   }
 
   /* Who's free: each day, each surveyor, their open starts. Grouped by

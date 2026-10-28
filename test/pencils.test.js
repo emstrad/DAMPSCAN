@@ -136,3 +136,17 @@ test('a booked survey can be unbooked: off the diary, back to Waiting, card kept
   assert.ok((await board(['dampscan', 'ati-london'], '2030-05-20')).cards.some((c) => c.kind === 'job' && c.id === Number(job)), 'back on the To book board');
   assert.equal((await post({ op: 'unbook', kind: 'job', id: Number(job) })).status, 400, 'twice is refused');
 });
+
+test('a card can go cold and come back, and a job card can be closed as not going ahead', async () => {
+  const kim = await lead('Kim', 'kim@example.com');
+  assert.equal((await post({ op: 'move', kind: 'lead', id: kim, to: 'cold' })).status, 200);
+  const { board } = await import('../lib/scheduling.js');
+  assert.equal((await board(['dampscan', 'ati-london'], '2030-05-20')).cards.find((c) => c.id === kim).stage, 'cold');
+  await post({ op: 'book', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  const job = Number((await pool.query('select id from jobs where lead_id = $1', [kim])).rows[0].id);
+  await post({ op: 'unbook', kind: 'job', id: job });
+  const shut = await post({ op: 'close', kind: 'job', id: job, reason: 'Booked elsewhere' });
+  assert.equal(shut.status, 200, JSON.stringify(shut.data));
+  assert.equal((await pool.query('select status from jobs where id = $1', [job])).rows[0].status, 'cancelled');
+  assert.ok(!(await board(['dampscan', 'ati-london'], '2030-05-20')).cards.some((c) => c.kind === 'job' && c.id === job), 'off the board');
+});
