@@ -56,3 +56,26 @@ test('Surveymate is never written to and change alerts never say who via ChatGPT
   const activity = await readFile(join(root, 'lib/activity.js'), 'utf8');
   assert.ok(!/via ChatGPT\)/.test(activity), 'change alerts say what happened, not who via what');
 });
+
+/* The locked-in build (CLAUDE.md, "How every page is built"): shared motion
+   and fit on every page, hidden stays hidden, and no explaining paragraphs. */
+test('every page loads the shared motion and fit, and hidden stays hidden', async () => {
+  for (const css of ['public/assets/header.css', 'public/staff/shell.css']) {
+    const s = await readFile(join(root, css), 'utf8');
+    assert.match(s, /@import url\("\/assets\/motion\.css"\)/, css);
+    assert.match(s, /@import url\("\/assets\/fit\.css"\)/, css);
+  }
+  assert.match(await readFile(join(root, 'public/assets/fit.css'), 'utf8'), /\[hidden\]\{display:none!important\}/);
+});
+
+test('staff pages carry no explaining paragraphs under their headings', async () => {
+  /* The few kept say where a setting lives or warn before a change; a new one needs the owner's yes and this number raised. */
+  const KEPT = 4;
+  let plain = 0;
+  for (const f of await files('public/staff', (p) => p.endsWith('.html'))) {
+    const html = await readFile(join(root, f), 'utf8');
+    assert.ok(!/<h1[^>]*>[^<]*<\/h1>\s*<p class="panel-note">/.test(html), `${f} opens with an explaining paragraph`);
+    for (const m of html.matchAll(/<p class="panel-note">([\s\S]*?)<\/p>/g)) if (!/<(a|button|code)\b/.test(m[1])) plain += 1;
+  }
+  assert.ok(plain <= KEPT, `${plain} explaining paragraphs on staff pages (at most ${KEPT})`);
+});

@@ -76,6 +76,29 @@ enforces the mechanical ones in CI.
   `npm run build:check`, and the em dash check before pushing.
 - Ship through a PR to main, wait for CI to pass, then merge. Never merge red.
 
+## How every page is built (locked in by the owner, 28 Oct 2026)
+Everything new, and every change, follows these. `test/guardrails.test.js`
+checks the mechanical ones.
+- Urgent first. Each screen leads with what needs doing now (Needs you now,
+  the one next step, Nobody in touch yet); everything else is one tap away
+  in a folded line. Nothing important is ever hidden, only folded.
+- No explaining paragraphs. Headings and labels say enough; an empty state is
+  a few words ("All matched."). Only a where-it-lives pointer or a warning
+  before a change may stay (at most four on staff pages, guardrail-counted).
+- Calm and compact: contacts and maps as one row of small chips; the number
+  or email written small beneath; dark theme fields everywhere.
+- One customer, one journey. Every page reads the same stage (`lib/journey.js`)
+  and offers the real next steps (Move to: New, Contacted, Waiting, Gone cold,
+  Booked, Not going ahead; Unbook). Nothing about a customer is ever deleted
+  by a step; it is moved, closed with a reason, or cancelled, and logged in
+  their history. A new feature joins this journey rather than starting its own.
+- One card per customer everywhere (the job pop-up and the Scheduling card),
+  never a new kind of card.
+- Shared look: motion.css and fit.css on every page; anything marked hidden
+  stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
+  visible screen; checked at phone size before shipping.
+- Nothing reaches a customer by itself (see The businesses).
+
 ## Alerts (ntfy)
 - Customer details in alert text: first name and postcode district only.
 - Off by the owner's choice: the 06:30 "Good morning" digest push
@@ -305,7 +328,7 @@ enforces the mechanical ones in CI.
 - Every answer about an ATi or DampScan customer carries `scheduler` (stage
   and where it sits on Scheduling, `whereNow` in lib/journey.js), and a
   change's sentence ends "Now: ..."; move_on_board puts an unbooked customer
-  in New, Contacted or Waiting for time.
+  in New, Contacted, Waiting for time or Gone cold.
 - Changes read back and wait for a yes. A failed change goes on the caller's
   to-do list.
 
