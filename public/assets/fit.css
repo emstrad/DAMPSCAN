@@ -18,3 +18,7 @@ form,fieldset{min-width:0}
 dialog[open]{max-width:calc(100vw - 16px);max-height:calc(100vh - 24px);
   max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-sizing:border-box}
+
+/* Anything marked hidden stays hidden, whatever its own display rule says:
+   otherwise an empty list or box shows as a blank pill. */
+[hidden]{display:none!important}
