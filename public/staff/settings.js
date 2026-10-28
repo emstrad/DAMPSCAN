@@ -29,7 +29,19 @@
     var list = el('push-phones'); list.textContent = '';
     (d.phones || []).forEach(function (p) { list.appendChild(U.node('li', null, p.name + ': ' + p.phones + (p.phones === 1 ? ' phone' : ' phones'))); });
     if (!list.children.length) list.appendChild(U.node('li', null, 'No phone has staff app notifications on yet. Only ntfy will buzz.'));
+    el('push-ntfy').textContent = d.ntfy ? 'ntfy is set up. The last enquiry alerts:' : 'ntfy is not set up: NTFY_TOPIC is missing in Vercel, so no ntfy alerts go.';
+    var rec = el('push-recent'); rec.textContent = '';
+    (d.recent || []).forEach(function (r) {
+      rec.appendChild(U.node('li', null, new Date(r.at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ', ' + r.title + ': ' + (r.sent ? 'ntfy took it' : 'ntfy did not take it')));
+    });
   }).catch(function () {});
+  el('push-test').addEventListener('click', async function () {
+    el('push-test-out').textContent = 'Sending.';
+    var r = await U.send('/api/admin/push?test=1', {});
+    var d = r.data || {};
+    el('push-test-out').textContent = !r.ok ? 'That did not send.'
+      : (d.ntfy ? 'ntfy took it.' : 'ntfy did not take it (check NTFY_TOPIC in Vercel).') + ' Staff app: sent to ' + (d.app || 0) + (d.app === 1 ? ' phone.' : ' phones.');
+  });
 
   el('refresh').addEventListener('click', function () { global.location.reload(); });
   el('logout').addEventListener('click', async function () {

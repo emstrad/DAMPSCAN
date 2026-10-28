@@ -182,13 +182,18 @@
 .btn:hover .arrow{transform:translateX(3px)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* Picking a survey time after the enquiry (book-times.js). */
-.bt{width:100%;text-align:left;margin-top:8px;border-top:1px solid var(--line,rgba(0,0,0,.12));padding-top:12px}
-.bt-title{font-size:17px;margin:0 0 4px}
-.bt-day{font-weight:700;margin:12px 0 6px}
+.bt{width:100%;text-align:center;margin-top:4px;border-top:1px solid var(--line,rgba(0,0,0,.12));padding-top:16px}
+.bt .note{margin:0 auto 12px;font-size:14px;opacity:.8}
+.bt-title{font-size:19px;margin:0 0 2px}
+/* Picker showing: the thank-you shrinks to its tick and heading. */
+.book-success:has(> .bt:not([hidden])) > p{display:none}
+.bt .bt-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;max-width:360px;margin:0 auto}
+.bt .bt-times .bt-row{justify-content:center;max-width:360px;margin:0 auto}
+.bt-day{font-weight:700;margin:16px 0 8px}
 .bt-row{display:flex;flex-wrap:wrap;gap:8px}
 .bt-time{min-height:44px;min-width:88px;padding:0 14px;border-radius:10px;border:1px solid var(--accent-ring,#4fa8e8);background:var(--accent-soft,rgba(79,168,232,.12));color:inherit;font:inherit;font-weight:700;cursor:pointer}
 .bt-time:disabled{opacity:.5}
-.bt-skip{margin-top:12px;min-height:44px;background:none;border:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
+.bt-skip{display:block;margin:14px auto 0;opacity:.8;min-height:44px;background:none;border:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
 .bt-dayb[aria-pressed="true"]{background:var(--accent,#4fa8e8);color:#06121f}
 .bt-times{margin-top:4px}
 .bt-surveys{display:grid;gap:8px;margin:8px 0}

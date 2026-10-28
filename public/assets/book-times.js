@@ -45,22 +45,22 @@
 
   /* Step one: the days with a free time, then every free time on the day tapped. */
   function times(box, lead, days, note, next) {
-    box.appendChild(el('h4', 'bt-title', 'Want to request a survey time?'));
-    box.appendChild(el('p', 'note', note || 'Pick a day, then a time that suits you. It is a request, not a booking yet: we will call you to confirm it.'));
+    box.appendChild(el('h4', 'bt-title', 'Pick a time'));
+    box.appendChild(el('p', 'note', note || 'A request: we call to confirm.'));
     var dayRow = el('div', 'bt-row bt-days ms-stagger'), timeBox = el('div', 'bt-times');
     days.forEach(function (d) {
       var b = el('button', 'bt-time bt-dayb', short(d.date)); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', function () {
         dayRow.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
         timeBox.textContent = '';
-        timeBox.appendChild(el('p', 'bt-day', nice(d.date) + ': pick a time to request'));
+        timeBox.appendChild(el('p', 'bt-day', nice(d.date)));
         var row = el('div', 'bt-row ms-stagger');
         d.times.forEach(function (t) {
           var tb = el('button', 'bt-time', clock(t.time)); tb.type = 'button';
           tb.addEventListener('click', async function () {
             tb.disabled = true;
             var p = await post({ op: 'pick', leadId: lead.id, sessionId: lead.sessionId, date: t.date, time: t.time, ticket: t.ticket });
-            if (p.data && p.data.ok) next(nice(t.date) + ' at ' + clock(t.time) + ' requested. This is not booked yet: we will call you to confirm it.');
+            if (p.data && p.data.ok) next(nice(t.date) + ' at ' + clock(t.time) + ' requested. We will call to confirm.');
             else start(box, lead, 'Sorry, that time has just gone. Here are the times still free.');
           });
           row.appendChild(tb);
@@ -72,7 +72,7 @@
       dayRow.appendChild(b);
     });
     box.appendChild(dayRow); box.appendChild(timeBox); enter(box);
-    var no = el('button', 'bt-skip', 'No thanks, call me to arrange a time'); no.type = 'button';
+    var no = el('button', 'bt-skip', 'Skip, just call me'); no.type = 'button';
     no.addEventListener('click', function () { next('No problem, we will call you to arrange a time.'); });
     box.appendChild(no);
   }
