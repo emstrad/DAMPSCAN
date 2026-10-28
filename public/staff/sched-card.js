@@ -43,6 +43,7 @@
     top.appendChild(btn('Close', null, function () { d.close(); }));
     d.appendChild(top);
     d.appendChild(U.node('p', 'meta', (c.site === 'ati-london' ? 'ATi' : 'DampScan') + ' · ' + ({ new: 'New enquiry', contacted: 'Contacted', waiting: 'Waiting for time', cold: 'Gone cold' }[c.stage] || '')));
+    if (!(c.log || []).length) d.appendChild(U.node('p', 'sheet-next', 'Nobody in touch yet: call them.'));
     /* One row of quick contacts, then the facts; the number stays readable underneath. */
     var tel = c.phone ? String(c.phone).replace(/[^\d+]/g, '') : '';
     var acts = U.node('div', 'sheet-grid');
@@ -53,9 +54,14 @@
     if (c.kind === 'job' && global.DSPOP) { var fj = btn('Full job', 'sheet-big', function () { d.close(); global.DSPOP.open(c.id, { onChange: opts.reload }); }); acts.appendChild(fj); }
     if (acts.children.length) d.appendChild(acts);
     if (c.phone || c.email) d.appendChild(U.node('p', 'meta', [c.phone, c.email].filter(Boolean).join(' · ')));
-    [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')), line('Problem', (c.issues || []).join(', ')), line('Message', c.notes),
+    /* Where contact stands, first: the urgent thing is a customer nobody has rung. */
+    var enq = document.createElement('details'); enq.className = 'sheet-fold';
+    enq.appendChild(U.node('summary', null, 'Their enquiry'));
+    [line('Problem', (c.issues || []).join(', ')), line('Message', c.notes)].forEach(function (n) { if (n) enq.appendChild(n); });
+    [line('Address', [c.street, c.postcode].filter(Boolean).join(', ')),
       line('Chose', c.chose ? (c.chose.unsure ? 'Not sure, help them choose' : c.chose.name + ' (' + (c.chose.from ? 'from ' : '') + '£' + c.chose.price + ')' + ((c.chose.addOns || []).length ? ' + ' + c.chose.addOns.map(function (a) { return a.name.toLowerCase() + ' (£' + a.price + ')'; }).join(', ') : '')) : null),
       line('Agent', c.agent)].forEach(function (n) { if (n) d.appendChild(n); });
+    if (enq.children.length > 1) d.appendChild(enq);
     /* Book, Move to, the hold, photos, times wanted and Close (sched-detail.js). */
     if (global.DSSCHEDDETAIL && opts.act) global.DSSCHEDDETAIL.fill(d, c, opts, function () { d.close(); });
     if (!(c.best || []).length && !c.pencil) d.appendChild(U.node('p', 'meta', 'No free time in the next two weeks: check My hours.'));
@@ -79,7 +85,9 @@
     row.appendChild(how); row.appendChild(said);
     row.appendChild(btn('Log', 'btn btn--sm', async function () { await opts.act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }, 'Logged on ' + (c.name || 'the card') + '.'); said.value = ''; history(c, list); }));
     d.appendChild(row);
-    var list = U.node('ol', 'scc-list'); d.appendChild(list);
+    var past = document.createElement('details'); past.className = 'sheet-fold';
+    past.appendChild(U.node('summary', null, 'Everything so far'));
+    var list = U.node('ol', 'scc-list'); past.appendChild(list); d.appendChild(past);
     var fold = global.DSSCHEDDETAIL && global.DSSCHEDDETAIL.closeBox();
     if (fold) d.appendChild(fold);
     d.showModal();

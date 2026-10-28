@@ -76,6 +76,31 @@
     return col;
   }
 
+  /* Needs you now: the few customers who cannot wait, first on the page.
+     A time picked online to confirm, a hold about to lapse, or a new
+     enquiry nobody has touched for two hours. Tap one to open its card. */
+  function urgent() {
+    var box = el('urgent'); box.textContent = '';
+    var now = Date.now(), list = [];
+    data.cards.forEach(function (c) {
+      if (c.stage === 'cold') return;
+      var touched = c.log && c.log.length;
+      if (c.pencil && c.pencil.by === 'Website') list.push([0, c, 'Picked ' + day(c.pencil.date) + ' ' + c.pencil.time + ' online: confirm it']);
+      else if (c.pencil && c.pencil.until && new Date(c.pencil.until).getTime() - now < 12 * 3600000) list.push([1, c, 'Hold ends in ' + Math.max(1, Math.round((new Date(c.pencil.until).getTime() - now) / 3600000)) + 'h: confirm or let go']);
+      else if (!touched && now - new Date(c.since).getTime() > 2 * 3600000) list.push([2, c, 'Nobody in touch, ' + ago(c.since).replace(' ago', '') + ' waiting']);
+    });
+    box.hidden = !list.length;
+    if (!list.length) return;
+    box.appendChild(U.node('h2', null, 'Needs you now (' + list.length + ')'));
+    list.sort(function (a, b) { return a[0] - b[0]; }).slice(0, 8).forEach(function (u) {
+      var b = U.node('button', 'sched-urgent-row'); b.type = 'button';
+      b.appendChild(U.node('b', null, (u[1].name || 'No name') + (u[1].postcode ? ', ' + u[1].postcode : '')));
+      b.appendChild(U.node('span', null, u[2]));
+      b.addEventListener('click', function () { global.DSSCHEDCARD.open(u[1], { act: act, book: openBook }); });
+      box.appendChild(b);
+    });
+  }
+
   function render() {
     var b = el('board'); b.textContent = '';
     COLS.forEach(function (k) { b.appendChild(column(k[0], k[1], data.cards.filter(function (c) { return c.stage === k[0]; }))); });
@@ -191,6 +216,7 @@
       var t = el('b-type');
       if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label + (r.pricePence ? ', £' + Math.round(r.pricePence / 100) : ''); t.appendChild(o); });
       render();
+      urgent();
       renderFree();
       search.refresh();
       global.DSDISPATCH.render(el('dispatch'), data.dispatch, dispatchOpts);

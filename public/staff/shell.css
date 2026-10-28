@@ -191,3 +191,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 .sheet-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--accent)}
 .sheet-sec:has(> .sheet-fold){padding:2px 0}
 .sheet .meta,.scc .meta{font-size:13px;color:var(--muted);margin:2px 0 6px}
+/* The job sheet's one next step, first thing in view. */
+.sheet-next{margin:6px 0 8px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--warn,#e3b341) 20%,transparent);border:1px solid var(--warn,#e3b341);font-weight:700}
+details.sheet-sec.sheet-fold{padding:0}
+.sheet-row input{font:inherit;font-size:16px;min-height:44px;background:var(--navy-2);color:var(--text);border:1px solid var(--line-strong);border-radius:10px;padding:0 10px;color-scheme:dark}

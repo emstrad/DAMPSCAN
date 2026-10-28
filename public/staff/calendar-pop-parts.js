@@ -155,5 +155,23 @@
     s.appendChild(status);
   }
 
-  global.DSPOPX = { where: where, facts: facts, agentLine: agentLine, pictures: pictures, big: big };
+  /* The one next step for a damp survey, in a line at the top of the sheet,
+     so the urgent thing is the first thing read. Nothing when all is done. */
+  function next(j, into) {
+    if (j.quoted || ['cancelled', 'declined'].indexOf(j.status) !== -1) return;
+    var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+    var done = j.dateSet && j.date && (j.status === 'completed' || j.date < today);
+    var m = j.money;
+    var say = !j.dateSet ? (j.awaitingAgent ? 'Waiting on the estate agent for a time.' : 'Not booked in: pick a day below.')
+      : !j.time ? 'Time to confirm with the customer.'
+      : done && !j.reportSent ? 'Report to send.'
+      : done && m && !j.paid ? 'Balance to collect.'
+      : !done && m && !j.depositPaid ? 'Deposit to collect (' + U.money(m.depositPence) + ').'
+      : null;
+    if (!say) return;
+    var p = U.node('p', 'sheet-next', say);
+    into.appendChild(p);
+  }
+
+  global.DSPOPX = { where: where, facts: facts, agentLine: agentLine, pictures: pictures, big: big, next: next };
 })(window);

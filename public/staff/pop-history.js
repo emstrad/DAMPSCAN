@@ -21,7 +21,7 @@
 
   function render(j, section) {
     if (DAMP.indexOf(j.site) === -1 || !global.DSSCHEDCARD) return;
-    var box = section('Everything so far');
+    var box = section('History', 'closed');
     box.hidden = true;
     var row = U.node('div', 'sched-row scc');
     var how = document.createElement('select'); how.setAttribute('aria-label', 'What happened');

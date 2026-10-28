@@ -280,6 +280,11 @@ enforces the mechanical ones in CI.
 - Kept uncluttered (the owner's choice): contacts and maps are one row of
   small chips, empty sections say nothing, ready messages and extra times
   are folded, and the Scheduling page has no explaining paragraphs.
+  Urgent first: Scheduling opens with "Needs you now" (a time picked online
+  to confirm, a hold about to lapse, a new enquiry untouched two hours); the
+  job pop-up opens with its one next step (book, confirm the time, deposit,
+  report, balance) and folds Notes, Enquiry, Photos, Messages, a changed date
+  and History; the customer card leads with "Nobody in touch yet".
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
   Search. No Money button (the owner's choice); the bank stays in the

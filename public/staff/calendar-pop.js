@@ -40,9 +40,12 @@
   /* The page behind stays put while the sheet scrolls. */
   dlg.addEventListener('close', function () { document.documentElement.classList.remove('is-locked'); });
 
-  function section(title) {
-    var s = U.node('section', 'sheet-sec');
-    if (title) s.appendChild(U.node('h3', null, title));
+  /* fold 'open' or 'closed' makes the section one tap-to-open line: what
+     is urgent stays in view, the rest waits folded (the owners' choice). */
+  function section(title, fold) {
+    var s;
+    if (fold) { s = U.node('details', 'sheet-sec sheet-fold'); s.open = fold === 'open'; s.appendChild(U.node('summary', null, title)); }
+    else { s = U.node('section', 'sheet-sec'); if (title) s.appendChild(U.node('h3', null, title)); }
     body.appendChild(s);
     return s;
   }
@@ -77,7 +80,7 @@
   }
 
   function dateForm(j) {
-    var s = section(j.dateSet ? 'Date' : 'Book it in');
+    var s = section(j.dateSet ? 'Change the date' : 'Book it in', j.dateSet ? 'closed' : null);
     var f = U.node('form', 'sheet-row');
     var d = document.createElement('input'); d.type = 'date'; d.required = true; d.value = j.dateSet ? j.date : ''; d.setAttribute('aria-label', 'Date');
     var t = document.createElement('input'); t.type = 'time'; t.value = j.time || ''; t.setAttribute('aria-label', 'Time');
@@ -111,7 +114,7 @@
   }
 
   function notes(j) {
-    var s = section('Notes');
+    var s = section('Notes' + (j.note ? '' : ' (none)'), 'closed');
     if (j.quoted && !j.money) { s.appendChild(U.node('p', 'sheet-note', j.note || 'No notes.')); return; }
     var f = U.node('form', 'sheet-notes');
     var ta = document.createElement('textarea');
@@ -166,7 +169,7 @@
   }
 
   function todos(j) {
-    var td = section('To-dos');
+    var td = section('To-dos' + ((j.todos || []).length ? ' (' + j.todos.length + ')' : ''), (j.todos || []).length || (j.maybeDone || []).length ? 'open' : 'closed');
     /* What has happened (deposit, booking, report, payment) may have done
        some to-dos; the owners chose to be asked rather than have them cleared. */
     var maybe = j.maybeDone || [];
@@ -207,8 +210,11 @@
     sub.appendChild(U.node('span', 'sheet-status', j.stage || (j.status === 'quoted' && j.accepted ? 'accepted' : j.status)));
     sub.appendChild(U.node('span', 'sheet-when', !j.dateSet ? 'Not booked in yet' : shortDate(j.date) + (j.time ? ', ' + j.time : ', time to confirm')));
 
+    /* Most urgent first: the one next step, what needs doing, then how to reach them. */
+    if (X.next) X.next(j, body);
     outstanding(j);
     X.where(j, section('Where'));
+    if (!j.dateSet && j.status !== 'paid') dateForm(j);
 
     var js = section('Job');
     if (!j.quoted) {
@@ -229,15 +235,15 @@
 
     notes(j);
     if (j.lead && (j.lead.notes || j.lead.issues.length)) {
-      var en = section('Their enquiry');
+      var en = section('Their enquiry', 'closed');
       if (j.lead.issues.length) en.appendChild(U.node('p', 'sheet-note', j.lead.issues.join(', ')));
       if (j.lead.notes) en.appendChild(U.node('p', 'sheet-note', j.lead.notes));
     }
-    X.pictures(j, section('Photos'), changed);
-    /* Ready messages folded: one line until someone wants to send one. */
-    if (!j.quoted) { var ms = section(''); var mf = document.createElement('details'); mf.className = 'sheet-fold'; mf.appendChild(U.node('summary', null, 'Messages to send')); ms.appendChild(mf); dampMessages(j, mf); }
-    if (j.status !== 'paid') dateForm(j);
     todos(j);
+    var pics = (j.files || []).length + (j.photos || []).length;
+    X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
+    if (!j.quoted) dampMessages(j, section('Messages to send', 'closed'));
+    if (j.dateSet && j.status !== 'paid') dateForm(j);
     if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));

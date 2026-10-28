@@ -101,3 +101,8 @@
 .scc .sched-pencil { margin: 8px 0; }
 /* Gone cold: folded at the end of the board so it never crowds the live columns. */
 .sched-coldfold > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--muted); font-weight: 600; }
+/* Needs you now: first on the page, one tappable line per customer. */
+.sched-urgent { margin: 10px 0 14px; padding: 10px 12px; border: 1px solid var(--warn, #e3b341); border-radius: 12px; background: color-mix(in srgb, var(--warn, #e3b341) 12%, transparent); }
+.sched-urgent h2 { font-size: 1rem; margin: 0 0 6px; }
+.sched-urgent-row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 44px; padding: 8px 4px; background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.sched-urgent-row span { font-size: .88rem; color: var(--muted); }

@@ -62,11 +62,11 @@
   </div>
   <p><button class="btn" type="button" id="newc-open">+ New customer</button></p>
   <p class="panel-note" id="note" role="status"></p>
+  <section class="sched-urgent" id="urgent" aria-label="Needs you now" hidden></section>
   <div class="dsp" id="dispatch"></div>
   <details class="sched-fold" id="free-fold"><summary>Who's free over the next two weeks</summary>
   <section class="sched-free" id="free" aria-labelledby="free-h">
     <h2 id="free-h">Who's free</h2>
-    <p class="panel-note">On the phone? Every surveyor's open times for the next two weeks, from their own hours, with booked and pencilled surveys taken out. Tap a time to pencil it or book it for someone on the board.</p>
     <div class="ranges"><label for="free-who">Show</label> <select id="free-who"><option value="">Everyone</option><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select>
       <label for="free-pc">Caller's postcode</label> <input id="free-pc" autocomplete="off" placeholder="e.g. SE15 4AB" /> <button class="btn btn--ghost btn--sm" id="free-go" type="button">Check travel</button></div>
     <p class="panel-note">With a postcode, times are worked out with the real drive from and to each surveyor's other surveys that day.</p>
