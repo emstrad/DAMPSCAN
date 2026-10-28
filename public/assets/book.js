@@ -479,7 +479,7 @@
     if (result.id && !viaAgent()) {
       const s = document.createElement('script');
       /* Assets are cached for a year: bump the v when book-times.js changes. */
-      s.src = '/assets/book-times.js?v=6';
+      s.src = '/assets/book-times.js?v=7';
       s.onload = () => window.dispatchEvent(new CustomEvent('lead:sent', { detail: { id: result.id, sessionId: DS.id } }));
       document.head.appendChild(s);
     }

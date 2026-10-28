@@ -157,7 +157,8 @@ enforces the mechanical ones in CI.
   districts are London, Dartford's are Kent); a time goes to the patch
   surveyor first, then whoever else can reach it, else it is not offered.
   Brands do not matter. The day's limit is only hours, survey length and
-  drive. Picks stay requests; the team confirms, decides who goes and sends
+  drive. Picks stay requests (the customer is told it is not booked until we
+  call to confirm); the team confirms, decides who goes and sends
   the deposit by hand. The Lab shows the same. The form is saved before any
   of this, so leaving part way loses nothing and makes no second enquiry.
   Time first (least friction), then, with the Lab's survey quiz switch on,
