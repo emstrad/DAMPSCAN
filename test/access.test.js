@@ -133,14 +133,9 @@ test('Steve, roofing only, sees roofing and nothing else on every list route', a
   assert.equal(who.isAdmin, false);
   assert.deepEqual(who.businesses.map((b) => b.slug), ['roofing']);
 
-  const leads = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=all', headers: { cookie } })).json();
-  assert.deepEqual(leads.leads.map((l) => l.site), ['roofing']);
-
-  /* Asking for a business outside the scope by URL yields nothing, not an
-     error, and never the rows. */
-  const sneaky = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=all&site=dampscan', headers: { cookie } })).json();
-  assert.equal(sneaky.leads.length, 0);
-  assert.equal(sneaky.total, 0);
+  /* Leads is the managers' marketing view: a work login is refused outright. */
+  assert.equal((await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=all', headers: { cookie } })).statusCode, 403);
+  assert.equal((await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=all&site=dampscan', headers: { cookie } })).statusCode, 403);
 
   const cards = (await call(clientsRoute, { method: 'GET', url: '/api/admin/clients?view=all', headers: { cookie } })).json();
   assert.deepEqual(cards.clients.map((c) => c.site), ['roofing']);
@@ -228,7 +223,6 @@ test('an area is its businesses within the scope: damp is both damp brands, and 
 test('an area cannot widen a scope: roofing-only Steve asking for the damp area sees nothing', async () => {
   await person('Steve', 'steve-passcode', ['roofing']);
   const cookie = await signIn('steve-passcode');
-  const leads = (await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=all&area=damp', headers: { cookie } })).json();
-  assert.deepEqual(leads.leads, []);
-  assert.equal(leads.total, 0);
+  const res = await call(leadsRoute, { method: 'GET', url: '/api/admin/leads?range=all&area=damp', headers: { cookie } });
+  assert.equal(res.statusCode, 403);
 });

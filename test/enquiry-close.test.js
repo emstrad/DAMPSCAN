@@ -51,7 +51,8 @@ beforeEach(async () => { await pool.query('truncate leads, jobs, people, audit, 
 after(async () => { await pool.end(); });
 
 test('close with a reason, filter by status, reopen; all audited with who', async () => {
-  const tom = await person('Tom', 'work');
+  /* Leads lists only for managers: a work login is refused (lib/routes/admin/leads.js). */
+  const tom = await person('Tom', 'manage');
   const id = await lead();
   const other = await lead({ name: 'Ola', email: 'o@x.com' });
   const closed = await post(tom, { op: 'close', id, reason: 'booked elsewhere' });
