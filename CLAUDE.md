@@ -150,7 +150,8 @@ checks the mechanical ones.
   the customer), the old Stage column is "Form" (Sent or Partial), and "What
   enquiries turned into" (`lib/lead-outcomes.js`) gives enquiries, booked,
   paid and (managers) money by landing page and by source, phone callers
-  apart.
+  apart. A part-finished ATi or DampScan form has "Book them": it becomes a
+  full enquiry in New on Scheduling (noted in its history) and its card opens.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).

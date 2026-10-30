@@ -58,6 +58,16 @@
     var status = lead.status || 'open';
     var label = status === 'closed' ? 'Closed' + (lead.closedReason ? ': ' + lead.closedReason : '') : status === 'converted' ? 'Job made' : 'Open';
     wrap.appendChild(node('span', 'tag ' + (status === 'converted' ? 'tag--good' : status === 'closed' ? 'tag--muted' : 'tag--accent'), label));
+    /* A part-finished damp form can still become a booking: onto Scheduling, its card opened. */
+    if (status === 'open' && lead.stage === 'partial' && /^(dampscan|ati-london)$/.test(lead.site)) {
+      wrap.appendChild(button('Book them', 'btn--primary', async function(b){
+        b.disabled = true;
+        var res = await fetch('/api/admin/leads', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ op: 'schedule', id: lead.id }) });
+        var data = await res.json().catch(function(){ return null; });
+        if (!res.ok || !data || !data.ok) { b.disabled = false; alert((data && data.error) || 'That did not save. Try again.'); return; }
+        location.href = '/staff/schedule.html?area=damp#lead-' + data.id;
+      }));
+    }
     if (status === 'open') wrap.appendChild(button('Close', 'btn--ghost', function(){ picker(wrap, lead); }));
     if (status === 'closed') wrap.appendChild(button('Reopen', 'btn--ghost', function(){ change({ op: 'reopen', id: lead.id }); }));
     if (status !== 'converted' && (admin || manages[lead.site])) {

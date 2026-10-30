@@ -165,3 +165,16 @@ test('an enquiry keeps its estate agent (from the form or added) and the job get
   const a = (await pool.query('select a.name from jobs j join estate_agents a on a.id = j.estate_agent_id where j.lead_id = $1', [kim])).rows[0];
   assert.equal(a.name, 'Savills');
 });
+
+test('a part-finished damp form can be put on Scheduling and booked', async () => {
+  const { scheduleLead } = await import('../lib/lead-status.js');
+  const { board } = await import('../lib/scheduling.js');
+  const id = Number((await pool.query(`insert into leads (site, stage, first_name, postcode, phone, email, session_id)
+    values ('dampscan', 'partial', 'Pat', 'ME19 4AA', '07700900123', 'pat@example.com', gen_random_uuid()) returning id`)).rows[0].id);
+  assert.ok(!(await board(['dampscan'], '2030-05-20')).cards.some((c) => c.id === id), 'a partial is not on the board');
+  const out = await scheduleLead(await owners(), id);
+  assert.equal(out.id, id);
+  const card = (await board(['dampscan'], '2030-05-20')).cards.find((c) => c.kind === 'lead' && c.id === id);
+  assert.equal(card.stage, 'new');
+  assert.match(card.log.at(-1).note, /part-finished form/);
+});
