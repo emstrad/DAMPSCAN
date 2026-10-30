@@ -275,6 +275,8 @@ checks the mechanical ones.
   grey on Today and the week, is off the free list and lapses after 48 hours
   back to Waiting with a to-do. Two customers may hold the same time; both
   show, flagged, and the first booked bumps the other back with a to-do.
+  Book it in (and Move to: Booked) on a pencilled card starts with the
+  pencilled day, time and surveyor filled in.
 - Who's free (top of Scheduling, "Who's free?" on Today for managers):
   every surveyor's open starts for two weeks, grouped by day and person, for
   answering the phone. Same rules as the free list, booked and pencilled out;

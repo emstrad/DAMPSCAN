@@ -157,6 +157,8 @@
       f.onchange = function () { booking = data.cards[Number(f.value)]; };
     }
     booking = c;
+    /* A pencilled time (picked online or offered) fills the form, so booking it is one tap. */
+    if (!slot && c.pencil) slot = { date: c.pencil.date, time: String(c.pencil.time).slice(0, 5), surveyor: c.pencil.surveyor };
     el('book-title').textContent = 'Book ' + (c.name || 'survey') + (c.postcode ? ', ' + c.postcode : '');
     el('b-date').value = slot ? slot.date : '';
     el('b-time').value = slot ? slot.time : '';
