@@ -10,20 +10,22 @@
 <title>Your survey</title>
 <link rel="stylesheet" href="/assets/motion.css?v=165b6b47" />
 <link rel="stylesheet" href="/assets/fit.css?v=3ce5e305" />
-<link rel="stylesheet" href="/assets/portal.css?v=6b89b80a" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/assets/portal.css?v=8b802bf9" />
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to your survey</a>
+<header class="pt-band"><div class="pt-band-in"><span class="pt-logo" id="brand"></span><a class="pt-call" id="call" href="#">Call us</a></div></header>
 <main class="pt" id="main">
-  <p class="pt-state" id="state">Loading…</p>
+  <p class="pt-state" id="state">Loading your survey…</p>
   <div id="doc" hidden>
-    <header class="pt-top"><span class="pt-brand" id="brand"></span><a class="pt-call" id="call" href="#">Call us</a></header>
     <h1 class="pt-hi" id="hi"></h1>
+    <p class="pt-sub" id="sub"></p>
     <section class="pt-next" id="next" aria-live="polite"></section>
     <ol class="pt-steps" id="steps" aria-label="Progress"></ol>
-    <div id="folds"></div>
+    <div id="cards"></div>
   </div>
 </main>
-<script src="/assets/portal.js?v=187a950a"></script>
+<script src="/assets/portal.js?v=94e9a873"></script>
 </body>
 </html>
