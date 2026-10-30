@@ -8,17 +8,17 @@
 <meta name="referrer" content="no-referrer" />
 <meta name="theme-color" content="#0c1a2b" />
 <title>Your survey</title>
-<link rel="stylesheet" href="/assets/motion.css?v=165b6b47" />
+<link rel="stylesheet" href="/assets/motion.css?v=cc9e5252" />
 <link rel="stylesheet" href="/assets/fit.css?v=3ce5e305" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
-<link rel="stylesheet" href="/assets/portal.css?v=8b802bf9" />
+<link rel="stylesheet" href="/assets/portal.css?v=21896d34" />
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to your survey</a>
 <header class="pt-band"><div class="pt-band-in"><span class="pt-logo" id="brand"></span><a class="pt-call" id="call" href="#">Call us</a></div></header>
 <main class="pt" id="main">
-  <p class="pt-state" id="state">Loading your survey…</p>
-  <div id="doc" hidden>
+  <div class="pt-skel" id="state" aria-label="Loading your survey"><i class="ms-shimmer w40"></i><i class="ms-shimmer w70"></i><i class="ms-shimmer big"></i><i class="ms-shimmer row"></i><i class="ms-shimmer row"></i></div>
+  <div id="doc" class="ms-stagger" hidden>
     <h1 class="pt-hi" id="hi"></h1>
     <p class="pt-sub" id="sub"></p>
     <section class="pt-next" id="next" aria-live="polite"></section>
@@ -26,6 +26,6 @@
     <div id="cards"></div>
   </div>
 </main>
-<script src="/assets/portal.js?v=94e9a873"></script>
+<script src="/assets/portal.js?v=398f07aa"></script>
 </body>
 </html>

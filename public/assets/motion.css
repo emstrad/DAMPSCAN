@@ -6,9 +6,9 @@
 :root{--ms-out:cubic-bezier(.22,1,.36,1);--ms-spring:cubic-bezier(.34,1.56,.64,1);--ms-fast:.16s;--ms-med:.28s}
 
 /* Taps answer the finger: a slight press, released with a spring. */
-button,.btn,.pill,.chip,.bt-time,.bt-survey,.bt-info,.quiz-opt,.cal-day,.tag,a.btn{
+button,.btn,.pill,.chip,.bt-time,.bt-survey,.bt-info,.quiz-opt,.cal-day,.tag,a.btn,.ms-press{
   transition:transform var(--ms-fast) var(--ms-out),background-color .18s,border-color .18s,box-shadow .18s,color .18s,opacity .18s}
-button:active:not(:disabled),.btn:active,a.btn:active,.bt-survey:active,.quiz-opt:active,.cal-day:active{transform:scale(.97);transition-duration:.08s}
+.ms-press:active,button:active:not(:disabled),.btn:active,a.btn:active,.bt-survey:active,.quiz-opt:active,.cal-day:active{transform:scale(.97);transition-duration:.08s}
 
 /* A choice just made settles into place. */
 [aria-pressed="true"]{animation:ms-settle .34s var(--ms-spring)}
@@ -38,6 +38,17 @@ summary{transition:color .18s}
 .ms-tick path{stroke-dasharray:30;stroke-dashoffset:30;animation:ms-draw .5s .12s var(--ms-out) forwards}
 @keyframes ms-draw{to{stroke-dashoffset:0}}
 
+/* A bar or line fills to its value on arrival (set --ms-to, e.g. 50%). */
+.ms-fill{animation:ms-fill .6s .15s var(--ms-out) both}
+@keyframes ms-fill{from{width:0}to{width:var(--ms-to,100%)}}
+
+/* A placeholder shimmers while its content loads. */
+.ms-shimmer{background:linear-gradient(90deg,rgba(128,140,155,.12) 25%,rgba(128,140,155,.24) 50%,rgba(128,140,155,.12) 75%);background-size:200% 100%;animation:ms-shimmer 1.2s linear infinite}
+@keyframes ms-shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* A label swapping to its done word (Copy to Copied) settles in. */
+.ms-swap{animation:ms-settle .3s var(--ms-spring)}
+
 /* Cards lift a hair under a mouse (never on touch, where hover sticks). */
 @media (hover:hover){
   .sched-card,.band,.bt-survey,.quiz-opt,.cal-day:not(:disabled){transition:transform .2s var(--ms-out),box-shadow .2s,border-color .18s,background-color .18s}
@@ -54,4 +65,5 @@ html{scroll-behavior:smooth}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
   .ms-tick path{stroke-dashoffset:0}
+  .ms-fill{width:var(--ms-to,100%)}
 }

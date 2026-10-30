@@ -16,8 +16,20 @@
   var PHONE = ICON + '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>';
   var LOCK = ICON + '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
-  function row(box, label, value) { var r = node('div', 'pt-row'); r.appendChild(node('span', null, label)); r.appendChild(node('b', null, value)); box.appendChild(r); }
-  function button(box, text, href, cls) { var a = node('a', 'pt-btn' + (cls ? ' ' + cls : ''), text); a.href = href; box.appendChild(a); return a; }
+  function row(box, label, value) { var r = node('div', 'pt-row'); r.appendChild(node('span', null, label)); var b = node('b', 'pt-val', value); r.appendChild(b); box.appendChild(r); return b; }
+  /* Copy a reference or bank detail in one tap; the label settles to Copied. */
+  function copyBtn(box, text) {
+    if (!navigator.clipboard) return;
+    var c = node('button', 'pt-copy', 'Copy'); c.type = 'button';
+    c.addEventListener('click', function () {
+      navigator.clipboard.writeText(text).then(function () {
+        c.textContent = 'Copied'; c.classList.add('done', 'ms-swap');
+        setTimeout(function () { c.textContent = 'Copy'; c.classList.remove('done', 'ms-swap'); }, 1800);
+      });
+    });
+    box.appendChild(c);
+  }
+  function button(box, text, href, cls) { var a = node('a', 'pt-btn ms-press' + (cls ? ' ' + cls : ''), text); a.href = href; box.appendChild(a); return a; }
   function card(title, fill, open) {
     var d = node('details', 'pt-card'); if (open) d.open = true;
     d.appendChild(node('summary', null, title));
@@ -29,8 +41,8 @@
   function payBox(box, p, amount) {
     box.appendChild(node('div', 'pt-big', pounds(amount)));
     var bank = node('div', 'pt-bank');
-    if (p.payTo) bank.appendChild(node('pre', null, p.payTo));
-    row(bank, 'Reference', p.reference);
+    if (p.payTo) { var pre = node('div', 'pt-row'); pre.appendChild(node('pre', null, p.payTo)); copyBtn(pre, p.payTo); bank.appendChild(pre); }
+    copyBtn(row(bank, 'Reference', p.reference), p.reference);
     box.appendChild(bank);
     var c = button(box, 'Pay by card over the phone', 'tel:' + p.brand.phone, 'ghost'); c.insertAdjacentHTML('afterbegin', PHONE);
   }
@@ -38,6 +50,7 @@
   var TAG = { deposit: ['Action needed', 'act'], balance: ['Action needed', 'act'], report: ['Complete', 'ok'], visit: ['All set', 'ok'] };
   function next(p) {
     var n = el('next'), k = p.next.kind, tag = TAG[k] || ['In progress', ''];
+    if (k === 'report') n.insertAdjacentHTML('beforeend', '<span class="ms-tick pt-done-tick"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>');
     n.appendChild(node('span', 'pt-tag ' + tag[1], tag[0]));
     if (k === 'deposit') {
       n.appendChild(node('h2', null, 'Pay your deposit to secure your survey'));
@@ -70,7 +83,7 @@
     var words = p.brand.name.split(' ');
     var logo = el('brand'); logo.textContent = p.site === 'dampscan' ? 'Damp' : words[0] + ' ';
     logo.appendChild(node('b', null, p.site === 'dampscan' ? 'Scan' : words.slice(1).join(' ')));
-    var call = el('call'); call.href = 'tel:' + p.brand.phone; call.insertAdjacentHTML('afterbegin', PHONE);
+    var call = el('call'); call.classList.add('ms-press'); call.href = 'tel:' + p.brand.phone; call.insertAdjacentHTML('afterbegin', PHONE);
     el('hi').textContent = p.firstName ? 'Hi ' + p.firstName : 'Your survey';
     el('sub').textContent = [p.survey, [p.address, p.postcode].filter(Boolean).join(', ')].filter(Boolean).join(' at ');
     next(p);
@@ -86,7 +99,7 @@
       if (p.agent) row(b, 'Estate agent', p.agent);
     });
     if (p.money.pricePence) card('Payments', function (b) {
-      var bar = node('div', 'pt-bar'), fill = node('i'); fill.style.width = Math.round(100 * p.money.paidPence / p.money.pricePence) + '%'; bar.appendChild(fill); b.appendChild(bar);
+      var bar = node('div', 'pt-bar'), fill = node('i', 'ms-fill'); fill.style.setProperty('--ms-to', Math.round(100 * p.money.paidPence / p.money.pricePence) + '%'); bar.appendChild(fill); b.appendChild(bar);
       row(b, 'Survey fee', pounds(p.money.pricePence));
       row(b, 'Paid so far', pounds(p.money.paidPence));
       row(b, 'Left to pay', p.money.balancePence ? pounds(p.money.balancePence) : 'Nothing, thank you');
@@ -101,11 +114,13 @@
       b.appendChild(node('p', 'pt-small', 'This page is private to you and works until ' + when(p.expiresOn + 'T12:00:00Z') + '.'));
     });
     el('state').hidden = true; el('doc').hidden = false;
+    /* The payment bar fills only once its card is opened, so the motion is seen. */
+    document.querySelectorAll('.pt-card').forEach(function (d) { d.addEventListener('toggle', function () { var f = d.querySelector('.ms-fill'); if (f && d.open) { f.classList.remove('ms-fill'); void f.offsetWidth; f.classList.add('ms-fill'); } }); });
   }
 
   fetch(api).then(function (res) {
     if (res.status === 410) throw new Error('This link has run out. Give us a call and we will send you a new one.');
     if (!res.ok) throw new Error('This link is not working. It may have been replaced by a newer one.');
     return res.json();
-  }).then(function (d) { draw(d.portal); }).catch(function (e) { el('state').textContent = e.message; });
+  }).then(function (d) { draw(d.portal); }).catch(function (e) { var s = el('state'); s.textContent = ''; s.appendChild(node('p', 'pt-msg', e.message)); });
 })();
