@@ -43,7 +43,7 @@
 @media (min-width: 800px) { .tc-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1200px) { .tc-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tc-card { border: 1px solid var(--line-strong); border-radius: 12px; padding: 10px; background: var(--navy-2); min-width: 0; overflow-wrap: anywhere; }
-.tc-card.is-late { border-left: 4px solid var(--warn); }
+.tc-card.is-late { border-color: var(--warn); }
 .tc-biz { display: block; font-size: .8rem; color: var(--muted); }
 .tc-things { margin: 6px 0; padding-left: 18px; font-size: .9rem; }
 .tc-row { display: flex; gap: 6px; flex-wrap: wrap; }

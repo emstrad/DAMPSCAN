@@ -61,7 +61,7 @@
 .dsp-main { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
 .dsp-title { font-weight: 600; }
 .dsp-sub { font-size: .8rem; color: var(--muted); }
-.dsp-item.is-survey { border-left: 4px solid var(--accent); }
+.dsp-item.is-survey { border-color: var(--accent); }
 .dsp-item.is-owed { border-left-color: var(--warn); }
 .dsp-item.is-paid { border-left-color: #e3b341; }
 .dsp-item.is-done { border-left-color: var(--good); opacity: .75; }

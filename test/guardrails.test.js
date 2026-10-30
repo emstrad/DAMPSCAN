@@ -79,3 +79,13 @@ test('staff pages carry no explaining paragraphs under their headings', async ()
   }
   assert.ok(plain <= KEPT, `${plain} explaining paragraphs on staff pages (at most ${KEPT})`);
 });
+
+/* The owner's hard no: a coloured stripe along one edge of a card. */
+test('no card has a coloured stripe on one edge', async () => {
+  for (const f of await files('public', (p) => /\.(css|html|js)$/.test(p))) {
+    const text = await readFile(join(root, f), 'utf8');
+    for (const m of text.matchAll(/border-(top|left|right|bottom)(-width)?\s*:\s*([3-9]|\d\d)px[^;}]*/g)) {
+      assert.ok(/transparent/.test(m[0]), `${f}: "${m[0]}" is an edge stripe`);
+    }
+  }
+});

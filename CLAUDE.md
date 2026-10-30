@@ -98,6 +98,9 @@ checks the mechanical ones.
   their history. A new feature joins this journey rather than starting its own.
 - One card per customer everywhere (the job pop-up and the Scheduling card),
   never a new kind of card.
+- Never a coloured stripe on one edge of a card or box (a thick top or side
+  border in an accent colour), anywhere on the sites or the staff area (the
+  owner's hard no). Flag a card with its whole outline or a small tag.
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
   visible screen; checked at phone size before shipping.
