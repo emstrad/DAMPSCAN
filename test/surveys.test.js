@@ -136,3 +136,31 @@ test('the day sheet is one surveyor\'s day in time order, and other businesses s
   const id = day.surveys[0].id;
   assert.equal((await op(roofer, { op: 'move', id, to: 'surveyed' })).statusCode, 404);
 });
+
+test('a report sent before the money stays on After the visit, and can be unticked back to Surveyed', async () => {
+  const boss = await person('Scott', 'boss-code', ['dampscan']);
+  const id = (await book(boss, { jobDate: D.past, jobTime: '10:00' })).job.id;
+  await pool.query('update jobs set survey_sent_at = now() where id = $1', [id]);
+  const s = (await boardOf(boss)).surveys.find((x) => x.id === id);
+  assert.deepEqual([s.stage, s.paid], ['sent', false], 'report sent, not paid');
+  assert.equal((await op(boss, { op: 'move', id, to: 'paid' })).statusCode, 400, 'not paid, so it does not go back to Paid');
+  const back = (await op(boss, { op: 'move', id, to: 'surveyed' })).json();
+  assert.equal(back.survey.stage, 'surveyed');
+});
+
+test('one report deadline: 24 hours after the survey ends, from the rate card minutes; today\'s survey waits until done', async () => {
+  const boss = await person('Scott', 'boss-code', ['dampscan']);
+  await pool.query(`update job_rates set duration_min = 120 where key = 'localised'`);
+  const id = (await book(boss, { jobDate: D.past, jobTime: '10:00' })).job.id;
+  const s = (await boardOf(boss)).surveys.find((x) => x.id === id);
+  const want = (await pool.query(`select ((($1::date + time '12:00') at time zone 'Europe/London') + interval '24 hours') as d`, [D.past])).rows[0].d;
+  assert.equal(s.reportDeadline, new Date(want).toISOString(), 'start plus two hours on site, plus 24 hours');
+  const untimed = (await book(boss, { customerName: 'No Time', jobDate: D.past })).job.id;
+  const u = (await boardOf(boss)).surveys.find((x) => x.id === untimed);
+  const end = (await pool.query(`select ((($1::date + 1)::timestamp at time zone 'Europe/London') + interval '24 hours') as d`, [D.past])).rows[0].d;
+  assert.equal(u.reportDeadline, new Date(end).toISOString(), 'an untimed survey ends with its day');
+  await book(boss, { customerName: 'Later Today', jobDate: D.today, jobTime: '23:30' });
+  const owed = (await api(boss, 'GET', '/api/admin/surveys?view=reports')).json().surveys.map((x) => x.name);
+  assert.ok(!owed.includes('Later Today'), 'a survey still to happen today is not owed a report');
+  await pool.query(`update job_rates set duration_min = 60 where key = 'localised'`);
+});

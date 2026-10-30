@@ -41,6 +41,7 @@ async function findJob(token) {
   if (!TOKEN_RE.test(token || '')) return null;
   return queryOne(
     `select j.id, j.site, j.status, j.customer_name, j.customer_postcode, j.markup_bp, j.invoice_net_pence, j.created_at,
+            coalesce(j.quote_sent_at, j.created_at) as issued_at,
             j.quote_accepted_at, j.quote_accepted_name, j.price_fixed, j.lead_id, j.invoice_number, j.invoiced_at, j.invoice_due_on::text as invoice_due_on,
             b.vat_bp, b.vat_registered, b.vat_number, b.trading_address, b.company_number, b.payment_details
        from jobs j join businesses b on b.slug = j.site where j.quote_token = $1`, [token]);
@@ -64,7 +65,8 @@ async function figures(job) {
   return { lines, netPence, vatBp: totals.vatBp, vatPence: bpOf(netPence, totals.vatBp) };
 }
 
-const expired = (job) => Date.now() - new Date(job.created_at).getTime() > (VALID_DAYS + 1) * 86400000;
+/* Counted from when the quote went out, not when the card was first made. */
+const expired = (job) => Date.now() - new Date(job.issued_at).getTime() > (VALID_DAYS + 1) * 86400000;
 
 /* The invoice: the agreed lines, any VAT, and what has been paid against it.
    Nothing until one has been issued, and nothing while the business's
@@ -148,7 +150,7 @@ export default async function handler(req, res) {
       brand: { name: brand.name, phone: brand.phone, phoneLabel: brand.phoneLabel, email: brand.email, origin: brand.origin },
       quote: {
         number: `Q-${job.id}`,
-        issuedOn: isoDay(job.created_at),
+        issuedOn: isoDay(job.issued_at),
         validDays: VALID_DAYS,
         withdrawn,
         accepted,

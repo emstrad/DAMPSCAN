@@ -113,7 +113,7 @@ test('a declined, expired, unpriced or unknown quote cannot be accepted', async 
   assert.equal((await accept({ t: declined.token, name: 'Anita Patel', agree: true })).statusCode, 409);
 
   const old = await openQuote(cookie);
-  await pool.query(`update jobs set created_at = now() - interval '40 days' where id = $1`, [old.id]);
+  await pool.query(`update jobs set created_at = now() - interval '40 days', quote_sent_at = now() - interval '40 days' where id = $1`, [old.id]);
   assert.equal((await view(old.token)).json().quote.expired, true);
   assert.equal((await accept({ t: old.token, name: 'Anita Patel', agree: true })).statusCode, 409);
 

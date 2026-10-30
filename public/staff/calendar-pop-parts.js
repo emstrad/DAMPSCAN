@@ -183,6 +183,8 @@
       section('Not going ahead').appendChild(back);
       return;
     }
+    /* A lost Verge or CoolRight job has no date to set. */
+    if (j.status === 'declined' || (j.quoted && j.status === 'cancelled')) return;
     var s = section(j.dateSet ? 'Change the date' : 'Book it in', j.dateSet ? 'closed' : null);
     var f = U.node('form', 'sheet-row');
     var pc = !j.dateSet && j.pencil ? j.pencil : null;
@@ -213,7 +215,7 @@
       var r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, d.value, t.value));
       /* Inside the drive to or from another survey: say so, and only go ahead if asked. */
       if (!r.ok && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?')) r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), Object.assign(W.moveBody(it, d.value, t.value), { force: true }));
-      if (!r.ok) { note.textContent = (r.data && (r.data.message || JSON.stringify(r.data.errors || {}))) || 'Not saved'; return; }
+      if (!r.ok) { note.textContent = (r.data && (r.data.message || Object.values(r.data.errors || {})[0])) || 'Not saved'; return; }
       if (j.dateSet) W.offerUndo('Moved. Remember to let the customer know.', function () { return U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, j.date, j.time)); }, changed);
       changed();
     });

@@ -85,9 +85,14 @@ test('a contract starts from the install job, is due an interval later, and a se
 
   const reminded = (await post(cookie, { op: 'contacted', id: c.id, on: '2027-05-20' })).json().contract;
   assert.equal(reminded.lastContactedOn, '2027-05-20');
-  const serviced = (await post(cookie, { op: 'serviced', id: c.id, on: '2027-06-25' })).json().contract;
+  const done = (await post(cookie, { op: 'serviced', id: c.id, on: '2027-06-25' })).json();
+  const serviced = done.contract;
   assert.equal(serviced.lastServicedOn, '2027-06-25');
   assert.equal(serviced.nextDueOn, '2028-06-25', 'a service done late is still a service: the next one is a year from the day it was done');
+  assert.equal(done.undo.op, 'unserviced');
+  const undone = (await post(cookie, done.undo)).json().contract;
+  assert.deepEqual([undone.lastServicedOn, undone.nextDueOn], [reminded.lastServicedOn, reminded.nextDueOn], 'Undo puts the service back as it was');
+  await post(cookie, { op: 'serviced', id: c.id, on: '2027-06-25' });
 
   const byJob = (await get(cookie, `?jobId=${j.id}`)).json().contracts;
   assert.equal(byJob.length, 1);

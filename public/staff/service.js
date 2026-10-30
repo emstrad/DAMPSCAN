@@ -17,6 +17,23 @@
 
   function link(text, href) { var a = U.node('a', 'pill act', text); a.href = href; if (/^https:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
   function btn(text, fn, cls) { var b = U.node('button', 'pill act ' + (cls || ''), text); b.type = 'button'; b.addEventListener('click', fn); return b; }
+  /* Serviced moves the due date on and clears a booked visit, so it gets the
+     same five seconds to take it back as every other one-tap action. */
+  function undoToast(words, undo, done) {
+    var old = document.querySelector('.undo-toast'); if (old) old.remove();
+    var box = U.node('div', 'undo-toast'); box.setAttribute('role', 'status');
+    box.appendChild(U.node('span', null, words));
+    var timer = setTimeout(function () { box.remove(); }, 5000);
+    var b = U.node('button', null, 'Undo'); b.type = 'button';
+    b.addEventListener('click', async function () {
+      clearTimeout(timer); box.remove();
+      try { await U.send('/api/admin/contracts', undo); } catch (e) { /* the refresh shows the truth */ }
+      done();
+    });
+    box.appendChild(b);
+    (document.querySelector('dialog[open]') || document.body).appendChild(box);
+  }
+
   async function act(fn) { try { await fn(); } catch (e) { global.alert(e.message); } load(); }
 
   /* A plan typed in by hand has no job, so its message is sent from plain links and the reminder recorded on the plan. */
@@ -62,7 +79,11 @@
     }, 'act-main'));
     row.appendChild(btn('Serviced', function () {
       if (!global.confirm('Record a service today and move the next one on by ' + s.intervalMonths + ' months?')) return;
-      act(async function () { var r = await U.send('/api/admin/contracts', { op: 'serviced', id: s.id }); if (!r.ok) throw new Error('Could not record the service.'); });
+      act(async function () {
+        var r = await U.send('/api/admin/contracts', { op: 'serviced', id: s.id });
+        if (!r.ok) throw new Error('Could not record the service.');
+        if (r.data.undo) undoToast('Service recorded.', r.data.undo, load);
+      });
     }));
     if (s.jobId) row.appendChild(link('Open', A.jobHref(s.jobId)));
     box.appendChild(row);

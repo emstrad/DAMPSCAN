@@ -7,7 +7,10 @@ test('each customer is at one stage, worked out the same way everywhere', () => 
   assert.equal(jobStage({ status: 'booked', date_set: true, job_date: '2026-10-30', job_time: '09:00' }, t), 'Booked');
   assert.equal(jobStage({ status: 'booked', date_set: true, job_date: '2026-10-20', job_time: '09:00' }, t), 'Surveyed');
   assert.equal(jobStage({ status: 'booked', date_set: true, job_date: '2026-10-20', survey_sent_at: 'x' }, t), 'Report sent');
-  assert.equal(jobStage({ status: 'booked', paid_at: 'x' }, t), 'Paid');
+  assert.equal(jobStage({ status: 'booked', paid_at: 'x', survey_sent_at: 'x' }, t), 'Paid');
+  assert.equal(jobStage({ status: 'completed', paid_at: 'x' }, t), 'Report to send', 'paid with the report owed is not finished');
+  assert.equal(jobStage({ status: 'booked', date_set: true, job_date: '2026-10-20', job_time: '09:00', awaiting_agent: true }, t), 'Waiting on agent',
+    'a survey waiting on the agent has not happened');
   assert.equal(jobStage({ status: 'cancelled', paid_at: 'x' }, t), 'Cancelled');
   assert.equal(jobStage({ status: 'booked', date_set: false }, t), 'Waiting for time');
   assert.equal(jobStage({ status: 'booked', date_set: false, pencil_date: '2026-11-01', pencil_until: null }, t), 'Pencilled');

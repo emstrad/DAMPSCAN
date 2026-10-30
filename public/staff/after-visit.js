@@ -1,12 +1,17 @@
-/* After the visit, on the Scheduling page: the two Surveys board columns that
-   need someone (surveyed and not paid; paid with the report still to send),
+/* After the visit, on the Scheduling page: every survey that still needs
+   someone (surveyed and not paid; paid with the report still to send; the
+   report sent but the money not in yet, which stays until paid in full),
    from the same /api/admin/surveys data, so the page shows a survey's whole
    life in one place. A card opens the full job, where it is marked paid or
    the report sent, exactly as on Today and the Surveys board. */
 (function (global) {
   'use strict';
   var U = global.DSUI;
-  var LANES = [['surveyed', 'Surveyed, not paid'], ['paid', 'Paid, report to send']];
+  var LANES = [
+    ['Surveyed, not paid', function (s) { return s.stage === 'surveyed'; }],
+    ['Paid, report to send', function (s) { return s.stage === 'paid'; }],
+    ['Report sent, not paid', function (s) { return s.stage === 'sent' && !s.paid; }]
+  ];
 
   function card(s, reload) {
     var b = U.node('button', 'dsp-item is-survey ' + (s.stage === 'paid' ? 'is-paid' : 'is-owed')); b.type = 'button';
@@ -15,7 +20,7 @@
     m.appendChild(U.node('span', 'dsp-title', (s.name || 'No name') + (s.postcode ? ', ' + s.postcode : '')));
     var sub = [s.surveyor ? s.surveyor.charAt(0).toUpperCase() + s.surveyor.slice(1) : null, s.surveyLabel];
     if (s.stage === 'paid' && s.reportDays != null) sub.push(s.reportLate ? 'report late, ' + s.reportDays + ' days' : 'report owed ' + s.reportDays + ' days');
-    if (s.stage === 'surveyed') sub.push(s.deposit ? 'deposit paid, balance owed' : 'nothing paid yet');
+    if (s.stage === 'surveyed' || s.stage === 'sent') sub.push(s.deposit ? 'deposit paid, balance owed' : 'nothing paid yet');
     m.appendChild(U.node('span', 'dsp-sub' + (s.reportLate ? ' tl-clash' : ''), sub.filter(Boolean).join(' · ')));
     b.appendChild(m);
     b.addEventListener('click', function () { if (global.DSPOP) global.DSPOP.open(s.id, { onChange: reload }); });
@@ -27,9 +32,9 @@
       var d = await U.get('/api/admin/surveys');
       mount.textContent = '';
       LANES.forEach(function (l) {
-        var items = (d.surveys || []).filter(function (s) { return s.stage === l[0]; });
+        var items = (d.surveys || []).filter(l[1]);
         var col = U.node('section', 'sched-col');
-        var h = U.node('h2', null, l[1]); h.appendChild(U.node('span', 'tag', String(items.length)));
+        var h = U.node('h2', null, l[0]); h.appendChild(U.node('span', 'tag', String(items.length)));
         col.appendChild(h);
         items.forEach(function (s) { col.appendChild(card(s, reload)); });
         if (!items.length) col.appendChild(U.node('p', 'panel-note', 'Nothing here.'));

@@ -99,6 +99,23 @@
     if (current.job === job) render();
   }
 
+  /* Serviced moves the due date on and clears a booked visit, so it gets the
+     same five seconds to take it back as every other one-tap action. */
+  function undoToast(words, undo, done) {
+    var old = document.querySelector('.undo-toast'); if (old) old.remove();
+    var box = U.node('div', 'undo-toast'); box.setAttribute('role', 'status');
+    box.appendChild(U.node('span', null, words));
+    var timer = setTimeout(function () { box.remove(); }, 5000);
+    var b = U.node('button', null, 'Undo'); b.type = 'button';
+    b.addEventListener('click', async function () {
+      clearTimeout(timer); box.remove();
+      try { await U.send('/api/admin/contracts', undo); } catch (e) { /* the refresh shows the truth */ }
+      done();
+    });
+    box.appendChild(b);
+    (document.querySelector('dialog[open]') || document.body).appendChild(box);
+  }
+
   async function send(body, fallback) {
     var res;
     try { res = await U.send('/api/admin/contracts', body); } catch (e) { fail(e.message || fallback); return; }
@@ -111,6 +128,7 @@
     current.contract = res.data.contract || null;
     render();
     el('w-contract-saved').textContent = 'Saved';
+    if (res.data.undo) undoToast('Service recorded.', res.data.undo, function () { fill(current.job); });
   }
 
   el('w-contract-form').addEventListener('submit', function (e) {
