@@ -13,11 +13,16 @@
   var clock = function (t) { var h = Number(t.slice(0, 2)); return (h % 12 || 12) + (t.slice(3) === '00' ? '' : ':' + t.slice(3)) + (h < 12 ? 'am' : 'pm'); };
   var money = function (n, from) { return (from ? 'from ' : '') + '£' + n; };
   function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; }
+  /* A dropped connection answers status 0 rather than throwing, so no step is left stuck. */
   async function post(body) {
-    var r = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    var d = await r.json().catch(function () { return {}; });
-    return { status: r.status, data: d };
+    try {
+      var r = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      var d = await r.json().catch(function () { return {}; });
+      return { status: r.status, data: d };
+    } catch (e) { return { status: 0, data: {} }; }
   }
+  /* One request at a time: a second tap mid-request would ask for two times. */
+  function lock(box, on) { box.querySelectorAll('button').forEach(function (b) { if (on) { b.dataset.was = b.disabled ? '1' : ''; b.disabled = true; } else b.disabled = b.dataset.was === '1'; }); }
   /* Each step slides in (motion.css), cross-fading where the browser can. */
   function swap(fn) {
     if (document.startViewTransition && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) document.startViewTransition(fn);
@@ -58,10 +63,11 @@
         d.times.forEach(function (t) {
           var tb = el('button', 'bt-time', clock(t.time)); tb.type = 'button';
           tb.addEventListener('click', async function () {
-            tb.disabled = true;
+            lock(box, true);
             var p = await post({ op: 'pick', leadId: lead.id, sessionId: lead.sessionId, date: t.date, time: t.time, ticket: t.ticket });
             if (p.data && p.data.ok) next(nice(t.date) + ' at ' + clock(t.time) + ' requested. We will call to confirm.');
-            else start(box, lead, 'Sorry, that time has just gone. Here are the times still free.');
+            else if (p.data && p.data.error === 'taken') start(box, lead, 'Sorry, that time has just gone. Here are the times still free.');
+            else next("Something went wrong, we'll call you to arrange a time.");
           });
           row.appendChild(tb);
         });
@@ -151,6 +157,7 @@
       return row;
     }
     async function send() {
+      lock(box, true);
       /* The staff Lab previews this with no enquiry: priced here, nothing saved. */
       var c = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}).chose : preview(P, pick);
       done(box, 'Thanks, all noted', (said ? said + ' ' : '') + (pick.service !== 'unsure' && c && c.price

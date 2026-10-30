@@ -326,13 +326,22 @@
             <div class="form-row">
               <label class="check" for="f-agent-on"><input type="checkbox" id="f-agent-on" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>The estate agent needs to be contacted to arrange access</label>
             </div>
-            <div class="form-row agent-fields" id="f-agent-fields" hidden>
-              <label for="f-agent">Estate agent's name or branch</label>
-              <input id="f-agent" type="text" autocomplete="off" />
-              <label for="f-agent-phone">Agent's phone</label>
-              <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
-              <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
-              <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
+            <div class="agent-fields" id="f-agent-fields" hidden>
+              <div class="form-row">
+                <label for="f-agent">Estate agent's name or branch</label>
+                <input id="f-agent" type="text" autocomplete="off" />
+                <span class="err">Please enter the estate agent's name or branch.</span>
+              </div>
+              <div class="form-row">
+                <label for="f-agent-phone">Agent's phone</label>
+                <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
+                <span class="err">Please enter the agent's phone number.</span>
+              </div>
+              <div class="form-row">
+                <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
+                <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
+                <span class="err">Please enter a valid email address.</span>
+              </div>
             </div>
             <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
@@ -374,7 +383,7 @@
         <div class="check-ring" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h3>Got it, you're booked in.</h3>
+        <h3>Got it, we'll call to confirm a time.</h3>
         <p>One of our surveyors will contact you today to confirm a time. Nothing else to do for now.</p>
       </div>
     </div>
@@ -420,7 +429,7 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js?v=13847a87"></script>
 <script src="/assets/partial.js?v=032c2447"></script>
-<script src="/assets/book.js?v=5d0767fa"></script>
+<script src="/assets/book.js?v=f4e023e8"></script>
 <script src="/assets/address.js?v=bf5b6e92" defer></script>
 <script src="/assets/upload.js?v=cd55909c" defer></script>
 <script src="/assets/menu.js?v=adadb473" defer></script>

@@ -24,7 +24,7 @@ const COPY = {
     previous: "I've had a damp survey on this property before",
     submit: 'Book My Survey',
     foot: 'We only use your details to arrange your survey. No marketing lists, no third parties.',
-    doneTitle: "Got it, you're booked in.",
+    doneTitle: "Got it, we'll call to confirm a time.",
     doneBody: 'One of our surveyors will contact you today to confirm a time. Nothing else to do for now.',
     issueLabel: 'What are you dealing with? Tick anything that applies.',
     addressLabel: 'Address for the survey',
@@ -213,13 +213,22 @@ ${t.agent ? `            <!-- Buyers whose visit the estate agent arranges: the 
             <div class="form-row">
               <label class="check" for="f-agent-on"><input type="checkbox" id="f-agent-on" /><span class="box">${TICK}</span>The estate agent needs to be contacted to arrange access</label>
             </div>
-            <div class="form-row agent-fields" id="f-agent-fields" hidden>
-              <label for="f-agent">Estate agent's name or branch</label>
-              <input id="f-agent" type="text" autocomplete="off" />
-              <label for="f-agent-phone">Agent's phone</label>
-              <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
-              <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
-              <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
+            <div class="agent-fields" id="f-agent-fields" hidden>
+              <div class="form-row">
+                <label for="f-agent">Estate agent's name or branch</label>
+                <input id="f-agent" type="text" autocomplete="off" />
+                <span class="err">Please enter the estate agent's name or branch.</span>
+              </div>
+              <div class="form-row">
+                <label for="f-agent-phone">Agent's phone</label>
+                <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
+                <span class="err">Please enter the agent's phone number.</span>
+              </div>
+              <div class="form-row">
+                <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
+                <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
+                <span class="err">Please enter a valid email address.</span>
+              </div>
             </div>
 ` : ''}            <div class="form-row">
               <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>

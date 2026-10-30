@@ -73,6 +73,8 @@
     if (!v) return false;
     if (field.type === 'tel') return v.replace(/\D/g, '').length < 9;
     if (field.type === 'email') return !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    /* The same full-postcode rule as the server (lib/validate.js). */
+    if (field.id === 'f-postcode') return !/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(v.replace(/\s+/g, ' '));
     return false;
   }
 
@@ -87,6 +89,8 @@
       if (field) {
         const bad = (field.required && !field.value.trim()) || formatBad(field);
         setError(row, bad);
+        const err = field.id === 'f-postcode' && row.querySelector('.err');
+        if (err) err.textContent = field.value.trim() ? 'Please enter your full postcode, e.g. ME19 6AB' : 'Please enter your postcode.';
         if (bad) { ok = false; track('form_error', { field: (field.id || 'field').replace(/^f-/, '') }); if (!step.querySelector('[aria-invalid="true"]:focus')) focusField(field); }
         return;
       }
@@ -132,7 +136,12 @@
   /* Damp sites: the estate agent arranges access, so their details ride in
      the notes where the Scheduling card and ChatGPT see them. */
   const agentBox = document.getElementById('f-agent-on');
-  if (agentBox) agentBox.addEventListener('change', () => { document.getElementById('f-agent-fields').hidden = !agentBox.checked; });
+  /* Ticked, the agent's name and phone are needed to arrange access, so the
+     step's own required check covers them; unticked, they drop out. */
+  if (agentBox) agentBox.addEventListener('change', () => {
+    document.getElementById('f-agent-fields').hidden = !agentBox.checked;
+    ['f-agent', 'f-agent-phone'].forEach(id => { const f = document.getElementById(id); f.required = agentBox.checked; if (!agentBox.checked) setError(f.closest('.form-row'), false); });
+  });
   const viaAgent = () => Boolean(agentBox && agentBox.checked);
   function withAgent(notes) {
     if (!viaAgent()) return notes;
@@ -302,17 +311,12 @@
     catch (e) { return false; }
   }
 
-  /* Returns { ok, errors }. A network failure resolves ok, so the visitor is
-     never trapped by something that is not their fault. A 400 does not, because
-     the fields genuinely need fixing. */
+  /* Returns { ok, errors, failed }. Only a 2xx means the server has it: a
+     400 names fields to fix, and anything else (a 500, a 429, no network)
+     is `failed`, so the visitor keeps what they typed and can try again
+     rather than being told they are booked when nothing arrived. */
   async function sendLead(stage){
     pushLeadToCRM(collect(), stage);
-    /* `stored` is what the server actually took, as distinct from what the
-       visitor sees. The catch below still reports ok, because a network they
-       cannot control must not leave them staring at a broken form, but a lead
-       that never arrived is not a conversion and must not be counted as one. */
-    let stored = false;
-    let id = null;
     try {
       const res = await fetch(LEAD_ENDPOINT, {
         method: 'POST',
@@ -323,17 +327,17 @@
         const body = await res.json().catch(function(){ return null; });
         return { ok: false, errors: (body && body.errors) || {}, stored: false, id: null };
       }
+      if (!res.ok) return { ok: false, failed: true, errors: {}, stored: false, id: null };
       const saved = await res.json().catch(function(){ return null; });
-      stored = true;
-      id = saved && saved.id;
+      const id = saved && saved.id;
       /* The server sends the email itself as the lead lands. Only when it
          could not does this page send it. */
       if (!(saved && saved.emailed)) emailNotification(stage, id);
+      return { ok: true, errors: {}, stored: true, id };
     } catch (err) {
-      /* Offline/preview or network blocked: the UI still advances so the visitor is never stuck */
       console.warn('Lead POST failed (stage: ' + stage + ')', err);
+      return { ok: false, failed: true, errors: {}, stored: false, id: null };
     }
-    return { ok: true, errors: {}, stored, id };
   }
 
   /* Google Ads counts a booking.
@@ -448,12 +452,23 @@
     const result = await sendLead('complete');
     submitting = false;
     announce('');
+    let failNote = form.querySelector('.send-fail');
+    if (failNote) failNote.remove();
     if (!result.ok) {
-      /* Server rejected a field, so nothing was written. Put the partial back
-         on hold as a fallback, then point at the problem. */
+      /* Nothing was written. Put the partial back on hold as a fallback,
+         then point at the problem, or say it did not go. */
       partial.rearm();
       btn.disabled = false;
       btn.style.opacity = '';
+      if (result.failed) {
+        failNote = document.createElement('p');
+        failNote.className = 'err send-fail';
+        failNote.setAttribute('role', 'alert');
+        failNote.style.display = 'block';
+        failNote.textContent = 'Not sent, please try again.';
+        btn.insertAdjacentElement('afterend', failNote);
+        return;
+      }
       showServerErrors(result.errors);
       return;
     }
@@ -468,8 +483,8 @@
       const note = document.createElement('p');
       note.className = 'note';
       note.textContent = filesFailed === 1
-        ? 'One of your files did not come through. Reply to your confirmation email with it and we will add it to the job.'
-        : `${filesFailed} of your files did not come through. Reply to your confirmation email with them and we will add them to the job.`;
+        ? 'One of your files did not come through. Send it to us by email or WhatsApp, or show us when we call.'
+        : `${filesFailed} of your files did not come through. Send them to us by email or WhatsApp, or show us when we call.`;
       card.querySelector('.book-success').appendChild(note);
     }
     if (viaAgent()) card.querySelector('.book-success p').textContent = 'We will contact the estate agent to arrange access and confirm the time with you.';
@@ -479,7 +494,7 @@
     if (result.id && !viaAgent()) {
       const s = document.createElement('script');
       /* Assets are cached for a year: bump the v when book-times.js changes. */
-      s.src = '/assets/book-times.js?v=8';
+      s.src = '/assets/book-times.js?v=9';
       s.onload = () => window.dispatchEvent(new CustomEvent('lead:sent', { detail: { id: result.id, sessionId: DS.id } }));
       document.head.appendChild(s);
     }
