@@ -162,7 +162,7 @@
     var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
     var done = j.dateSet && j.date && (j.status === 'completed' || j.date < today);
     var m = j.money;
-    var say = !j.dateSet ? (j.awaitingAgent ? 'Waiting on the estate agent for a time.' : 'Not booked in: pick a day below.')
+    var say = !j.dateSet ? (j.awaitingAgent ? 'Waiting on the estate agent for a time.' : j.pencil ? 'Pencilled for ' + j.pencil.date.split('-').reverse().slice(0, 2).join('/') + ' ' + j.pencil.time + ': confirm it below.' : 'Not booked in: pick a day below.')
       : !j.time ? 'Time to confirm with the customer.'
       : done && !j.reportSent ? 'Report to send.'
       : done && m && !j.paid ? 'Balance to collect.'
@@ -173,5 +173,65 @@
     into.appendChild(p);
   }
 
-  global.DSPOPX = { where: where, facts: facts, agentLine: agentLine, pictures: pictures, big: big, next: next };
+  /* The date part of the job sheet: book a survey with no date the Scheduling
+     way, move a booked one, Unbook it, or bring a cancelled one back. */
+  function dateForm(j, section, changed) {
+    var W = global.DSWORK;
+    if (j.status === 'cancelled' && !j.quoted) {
+      var back = U.node('button', 'pill', 'Bring back to Scheduling'); back.type = 'button';
+      back.addEventListener('click', async function () { var r = await U.send('/api/admin/scheduling', { op: 'move', kind: 'job', id: j.id, to: 'waiting' }); if (r.ok) changed(); });
+      section('Not going ahead').appendChild(back);
+      return;
+    }
+    var s = section(j.dateSet ? 'Change the date' : 'Book it in', j.dateSet ? 'closed' : null);
+    var f = U.node('form', 'sheet-row');
+    var pc = !j.dateSet && j.pencil ? j.pencil : null;
+    var d = document.createElement('input'); d.type = 'date'; d.required = true; d.value = j.dateSet ? j.date : pc ? pc.date : ''; d.setAttribute('aria-label', 'Date');
+    var t = document.createElement('input'); t.type = 'time'; t.value = j.time || (pc ? pc.time : ''); t.setAttribute('aria-label', 'Time');
+    /* A damp survey with no date books the Scheduling way: who is going, My hours, holds and bumps. */
+    var viaSched = !j.dateSet && !j.quoted;
+    var who = null;
+    if (viaSched) {
+      who = document.createElement('select'); who.setAttribute('aria-label', 'Who is going'); t.required = true;
+      [['', 'Who is going'], ['tom', 'Tom'], ['ben', 'Ben'], ['ronnie', 'Ronnie'], ['scott', 'Scott']].forEach(function (o) { var x = document.createElement('option'); x.value = o[0]; x.textContent = o[1]; who.appendChild(x); });
+      who.value = (pc && pc.surveyor) || j.surveyor || ''; who.required = true;
+    }
+    var save = U.node('button', 'btn btn--primary btn--sm', j.dateSet ? 'Move' : 'Book it');
+    save.type = 'submit';
+    f.appendChild(d); f.appendChild(t); if (who) f.appendChild(who); f.appendChild(save);
+    var note = U.node('p', 'panel-note');
+    f.addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      if (viaSched) {
+        var b = { op: 'book', kind: 'job', id: j.id, date: d.value, time: t.value, surveyor: who.value };
+        var rb = await U.send('/api/admin/scheduling', b);
+        if (!rb.ok && rb.data && rb.data.clash && global.confirm(rb.data.clash + ' Book it anyway?')) rb = await U.send('/api/admin/scheduling', Object.assign(b, { force: true }));
+        if (!rb.ok) { note.textContent = (rb.data && rb.data.error) || 'Not saved'; return; }
+        changed(); return;
+      }
+      var it = { jobId: j.id, quoted: j.quoted, status: j.status };
+      var r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, d.value, t.value));
+      /* Inside the drive to or from another survey: say so, and only go ahead if asked. */
+      if (!r.ok && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?')) r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), Object.assign(W.moveBody(it, d.value, t.value), { force: true }));
+      if (!r.ok) { note.textContent = (r.data && (r.data.message || JSON.stringify(r.data.errors || {}))) || 'Not saved'; return; }
+      if (j.dateSet) W.offerUndo('Moved. Remember to let the customer know.', function () { return U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, j.date, j.time)); }, changed);
+      changed();
+    });
+    s.appendChild(f);
+    s.appendChild(note);
+    /* Taking a booking off the diary keeps the customer: back to Waiting for time on Scheduling. */
+    if (j.dateSet && !j.quoted && j.status === 'booked') {
+      var off = U.node('button', 'pill', 'Unbook'); off.type = 'button';
+      off.addEventListener('click', async function () {
+        if (!global.confirm('Take ' + (j.customerName || 'this survey') + ' off the diary? Their card goes back to Scheduling, waiting for a new time.')) return;
+        var r = await U.send('/api/admin/scheduling', { op: 'unbook', kind: 'job', id: j.id });
+        if (!r.ok) { note.textContent = (r.data && r.data.error) || 'Could not unbook.'; return; }
+        changed();
+      });
+      s.appendChild(off);
+    }
+  }
+
+
+  global.DSPOPX = { where: where, facts: facts, agentLine: agentLine, pictures: pictures, big: big, next: next, dateForm: dateForm };
 })(window);

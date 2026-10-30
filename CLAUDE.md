@@ -310,6 +310,15 @@ checks the mechanical ones.
   shows the agent with Call agent and Email agent, and a folded box to add,
   change or remove one; booking carries the agent onto the job; the board
   card flags "Agent: name".
+- One carry-over for every way of booking an enquiry (`lib/lead-booked.js`:
+  Scheduling, the job pop-up, ChatGPT): the estate agent, the price of extras
+  chosen online, the hold taken off, others on that time bumped. The job
+  pop-up books an undated survey the Scheduling way (who is going, My hours,
+  the pencilled time filled in). Enquiries being worked (Contacted, Waiting,
+  Gone cold, held, or just put back) never age off the board; new ones after
+  60 days. A repeat form carries the agent, survey choice and photos, and
+  folds into an undated job card instead of making a second card. Not going
+  ahead can be undone (Bring back to Scheduling). Unbook clears an old hold.
 - A booked survey can be unbooked from the job pop-up (Unbook, under the date):
   off the diary but never deleted; the card goes back to Scheduling, Waiting
   for time, with a note, and the surveyor and the gap are told.
@@ -336,7 +345,10 @@ checks the mechanical ones.
 - Every answer about an ATi or DampScan customer carries `scheduler` (stage
   and where it sits on Scheduling, `whereNow` in lib/journey.js), and a
   change's sentence ends "Now: ..."; move_on_board puts an unbooked customer
-  in New, Contacted, Waiting for time or Gone cold.
+  in New, Contacted, Waiting for time or Gone cold, unbooks a booked survey,
+  or closes a customer as not going ahead (through the Scheduling route, so
+  ChatGPT and the page always do the same thing); set_estate_agent takes an
+  enquiry too. create_job with a lead_id runs the same carry-over as Scheduling.
 - Changes read back and wait for a yes. A failed change goes on the caller's
   to-do list.
 

@@ -162,8 +162,9 @@
     el('book-title').textContent = 'Book ' + (c.name || 'survey') + (c.postcode ? ', ' + c.postcode : '');
     el('b-date').value = slot ? slot.date : '';
     el('b-time').value = slot ? slot.time : '';
-    if (slot || c.surveyor) el('b-who').value = slot ? slot.surveyor : c.surveyor;
-    if (c.surveyType) el('b-type').value = c.surveyType;
+    /* Always this customer's own choices, never the last card's. */
+    el('b-who').value = slot ? slot.surveyor : (c.surveyor || '');
+    el('b-type').value = c.surveyType || '';
     el('b-type').disabled = c.kind === 'job';
     el('b-note').textContent = ''; el('b-hours').hidden = true;
     el('b-go').textContent = 'Book it';
@@ -217,7 +218,7 @@
       if (pcode) q.push('postcode=' + encodeURIComponent(pcode));
       data = await U.get('/api/admin/scheduling' + (q.length ? '?' + q.join('&') : ''));
       var t = el('b-type');
-      if (!t.options.length) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label + (r.pricePence ? ', £' + Math.round(r.pricePence / 100) : ''); t.appendChild(o); });
+      if (t.options.length < 2) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label + (r.pricePence ? ', £' + Math.round(r.pricePence / 100) : ''); t.appendChild(o); });
       render();
       urgent();
       renderFree();

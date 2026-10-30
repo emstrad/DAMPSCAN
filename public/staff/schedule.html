@@ -84,8 +84,8 @@
       <label>Day <input type="date" id="b-date" required /></label>
       <div class="sched-row"><button class="btn btn--ghost btn--sm" type="button" id="b-today">Today</button><button class="btn btn--ghost btn--sm" type="button" id="b-tomorrow">Tomorrow</button></div>
       <label>Time <input type="time" id="b-time" step="900" required /></label>
-      <label>Who is going <select id="b-who"><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></label>
-      <label>Survey <select id="b-type"></select></label>
+      <label>Who is going <select id="b-who" required><option value="">Pick who is going</option><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></label>
+      <label>Survey <select id="b-type"><option value="">Pick the survey</option></select></label>
       <p class="panel-note" id="b-note" role="status"></p>
       <a class="btn btn--ghost btn--sm" id="b-hours" hidden href="/staff/hours.html?area=damp">Set their hours</a>
       <div class="top-end"><button class="btn btn--ghost" value="cancel" type="button" id="b-cancel">Cancel</button><button class="btn btn--ghost" type="button" id="b-pencil">Pencil in (48h)</button><button class="btn" type="submit" id="b-go">Book it</button></div>

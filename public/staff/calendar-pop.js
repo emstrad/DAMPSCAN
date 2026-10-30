@@ -79,40 +79,6 @@
     return l;
   }
 
-  function dateForm(j) {
-    var s = section(j.dateSet ? 'Change the date' : 'Book it in', j.dateSet ? 'closed' : null);
-    var f = U.node('form', 'sheet-row');
-    var d = document.createElement('input'); d.type = 'date'; d.required = true; d.value = j.dateSet ? j.date : ''; d.setAttribute('aria-label', 'Date');
-    var t = document.createElement('input'); t.type = 'time'; t.value = j.time || ''; t.setAttribute('aria-label', 'Time');
-    var save = U.node('button', 'btn btn--primary btn--sm', j.dateSet ? 'Move' : 'Set date');
-    save.type = 'submit';
-    f.appendChild(d); f.appendChild(t); f.appendChild(save);
-    var note = U.node('p', 'panel-note');
-    f.addEventListener('submit', async function (ev) {
-      ev.preventDefault();
-      var it = { jobId: j.id, quoted: j.quoted, status: j.status };
-      var r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, d.value, t.value));
-      /* Inside the drive to or from another survey: say so, and only go ahead if asked. */
-      if (!r.ok && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?')) r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), Object.assign(W.moveBody(it, d.value, t.value), { force: true }));
-      if (!r.ok) { note.textContent = (r.data && (r.data.message || JSON.stringify(r.data.errors || {}))) || 'Not saved'; return; }
-      if (j.dateSet) W.offerUndo('Moved. Remember to let the customer know.', function () { return U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, j.date, j.time)); }, changed);
-      changed();
-    });
-    s.appendChild(f);
-    s.appendChild(note);
-    /* Taking a booking off the diary keeps the customer: back to Waiting for time on Scheduling. */
-    if (j.dateSet && !j.quoted && j.status === 'booked') {
-      var off = U.node('button', 'pill', 'Unbook'); off.type = 'button';
-      off.addEventListener('click', async function () {
-        if (!global.confirm('Take ' + (j.customerName || 'this survey') + ' off the diary? Their card goes back to Scheduling, waiting for a new time.')) return;
-        var r = await U.send('/api/admin/scheduling', { op: 'unbook', kind: 'job', id: j.id });
-        if (!r.ok) { note.textContent = (r.data && r.data.error) || 'Could not unbook.'; return; }
-        changed();
-      });
-      s.appendChild(off);
-    }
-  }
-
   function notes(j) {
     var s = section('Notes' + (j.note ? '' : ' (none)'), 'closed');
     if (j.quoted && !j.money) { s.appendChild(U.node('p', 'sheet-note', j.note || 'No notes.')); return; }
@@ -214,7 +180,7 @@
     if (X.next) X.next(j, body);
     outstanding(j);
     X.where(j, section('Where'));
-    if (!j.dateSet && j.status !== 'paid') dateForm(j);
+    if (!j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
 
     var js = section('Job');
     if (!j.quoted) {
@@ -243,7 +209,7 @@
     var pics = (j.files || []).length + (j.photos || []).length;
     X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
     if (!j.quoted) dampMessages(j, section('Messages to send', 'closed'));
-    if (j.dateSet && j.status !== 'paid') dateForm(j);
+    if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
     if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
