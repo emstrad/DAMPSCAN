@@ -34,7 +34,7 @@ before(async () => {
 });
 beforeEach(async () => {
   sent.length = 0;
-  await pool.query('truncate jobs, leads, notifications, surveyor_hours, surveyor_usual, surveyor_day_set restart identity cascade');
+  await pool.query('truncate jobs, leads, notifications, surveyor_hours, surveyor_usual, surveyor_day_set, route_sent restart identity cascade');
   process.env.NTFY_TOPIC = 'owners'; process.env.NTFY_TOPIC_BEN = 'ben';
 });
 after(async () => { for (const k of ['NTFY_TOPIC', 'NTFY_TOPIC_BEN', 'SMS_AUTO', 'TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM']) delete process.env[k]; await pool.query('truncate surveyor_usual'); await pool.end(); });
