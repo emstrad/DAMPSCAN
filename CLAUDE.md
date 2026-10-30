@@ -138,7 +138,9 @@ checks the mechanical ones.
   everything outstanding from lib/work.js gathered into one card per
   customer, late first, with Call and Open.
 - Survey cards show a small report countdown (24h from survey end, red when
-  over) until the report is ticked sent.
+  over) until the report is ticked sent. Survey end is the start plus the rate
+  card's minutes on site (an untimed survey ends with its day); the board,
+  Today, Reports and the overdue alert all use this one deadline (lib/surveys.js).
 - Jobs page: totals are ATi and DampScan surveys only; earnings count surveys
   whose day has come; booked ahead, paid and still to pay shown apart. The
   hand form and the plain list of every job are folded away (ChatGPT books
@@ -238,7 +240,8 @@ checks the mechanical ones.
   Leads figures, and their channel reads "Phone call". The booking form has Today and Tomorrow, and a clash
   about missing hours links to that surveyor's My hours.
 - One stage per damp customer (`lib/journey.js`): New, Contacted, Waiting for
-  time, Pencilled, Booked, Surveyed, Report sent, Paid (or Closed, Cancelled),
+  time, Pencilled, Booked, Surveyed, Report to send (paid, report owed), Report sent
+  (not paid yet, on After the visit until paid in full), Paid (or Closed, Cancelled),
   worked out one way for every page; the job pop-up shows it. To-dos that the
   facts look to have overtaken (deposit, booking, report, payment) are never
   cleared on their own: the job pop-up asks "These look done now. Clear them?"
