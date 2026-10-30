@@ -74,6 +74,27 @@
       box.disabled = false;
     });
   });
+  /* The customer portal, before it goes to customers: a fresh link for any survey, opened here. */
+  async function portalFind() {
+    var box = el('pt-found'); box.textContent = '';
+    var q = el('pt-q').value.trim(); if (q.length < 2) return;
+    try {
+      var data = await U.get('/api/admin/hours?view=portal&q=' + encodeURIComponent(q));
+      if (!data.found.length) { box.appendChild(U.node('p', 'panel-note', 'No surveys found.')); return; }
+      data.found.forEach(function (j) {
+        var b = U.node('button', 'link-btn', j.name + (j.postcode ? ', ' + j.postcode : '') + (j.date ? ', ' + short(j.date) : ''));
+        b.type = 'button';
+        b.addEventListener('click', async function () {
+          var res = await U.send('/api/admin/hours', { op: 'portal', id: j.id });
+          if (res.ok) window.open(res.data.url, '_blank', 'noopener'); else b.textContent = (res.data && res.data.error) || 'That did not work.';
+        });
+        box.appendChild(b);
+      });
+    } catch (e) { box.textContent = 'The Lab is for the owners.'; }
+  }
+  el('pt-go').addEventListener('click', portalFind);
+  el('pt-q').addEventListener('keydown', function (e) { if (e.key === 'Enter') portalFind(); });
+
   var r = el('refresh'); if (r) r.addEventListener('click', load);
   if (el('lab-pc-go')) el('lab-pc-go').addEventListener('click', load);
   var o = el('logout'); if (o) o.addEventListener('click', async function () { await fetch('/api/auth/logout', { method: 'POST' }); location.replace('/staff'); });

@@ -342,6 +342,17 @@ checks the mechanical ones.
   job pop-up opens with its one next step (book, confirm the time, deposit,
   report, balance) and folds Notes, Enquiry, Photos, Messages, a changed date
   and History; the customer card leads with "Nobody in touch yet".
+- Customer portal (`lib/portal.js`, `public/my.html`, through `api/quote.js`
+  doc=portal), ATi and DampScan: one private link per survey, 12 months from
+  when it was made, a new one replacing the old. The one next step first
+  (deposit, the visit, report being written, balance, report, review), the
+  progress line, then Your survey, Payments, History, Need anything? folded.
+  The report unlocks only when paid in full; the Google review link
+  (REVIEW_URL_DAMPSCAN, REVIEW_URL_ATI) only once paid and reported. Never
+  staff notes, to-dos, pay or anyone else's diary. In the Lab (owners make a
+  link for any survey) until Twilio and Revolut are set up; then come
+  messages, photo uploads through the booking path, and the estate agent's
+  own view (an agent already on the enquiry filled in, one tap to invite).
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
   Search. No Money button (the owner's choice); the bank stays in the

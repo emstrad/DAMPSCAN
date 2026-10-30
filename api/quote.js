@@ -3,6 +3,7 @@
  * GET  /api/quote?t=<token>&doc=invoice   the invoice, once one is issued
  * POST /api/quote  {t, name, agree}     the customer accepts the quote
  * GET  /api/quote?doc=rate&t=<rating token>          the "how did we do" page
+ * GET  /api/quote?doc=portal&t=<portal token>[&file=report]   the customer portal (lib/portal.js)
  * POST /api/quote  {doc: 'rate', t, stars, comment?} its answer (lib/rating.js)
  *
  * The customer's view of one quote, found by the random token in the link
@@ -28,6 +29,7 @@ import { brandFor } from '../lib/brands.js';
 import { effectiveVatBp, canInvoice } from '../lib/business-details.js';
 import { invoiceNumber } from '../lib/quote-store.js';
 import { ratingPage, rate } from '../lib/rating.js';
+import { findPortal, portalView, portalReport } from '../lib/portal.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -124,6 +126,14 @@ async function accept(req, res) {
   json(res, 200, { ok: true });
 }
 
+async function portal(req, res) {
+  const params = new URL(req.url, 'http://localhost').searchParams;
+  const found = await findPortal(params.get('t') || '');
+  if (found.gone) { json(res, found.gone === 'expired' ? 410 : 404, { ok: false, error: found.gone }); return; }
+  if (params.get('file') === 'report') return portalReport(res, found.job);
+  json(res, 200, { ok: true, portal: await portalView(found.job) });
+}
+
 export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST'])) return;
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
@@ -136,6 +146,7 @@ export default async function handler(req, res) {
     const limit = await rateLimit({ ...LIMITS.quote, ipHash: ipHash(req) });
     if (!limit.ok) { json(res, 429, { ok: false, error: 'too_many_requests' }); return; }
     if (new URL(req.url, 'http://localhost').searchParams.get('doc') === 'rate') return await ratingPage(req, res);
+    if (new URL(req.url, 'http://localhost').searchParams.get('doc') === 'portal') return await portal(req, res);
 
     const job = await findJob(new URL(req.url, 'http://localhost').searchParams.get('t') || '');
     const brand = job && brandFor(job.site);

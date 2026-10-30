@@ -1382,3 +1382,10 @@ create table if not exists route_sent (
   sent_at  timestamptz not null default now(),
   primary key (surveyor, day)
 );
+
+-- The customer portal (lib/portal.js): one private link per survey, made in
+-- the Lab for now, lasting 12 months from when it was made.
+alter table jobs add column if not exists portal_token text;
+alter table jobs add column if not exists portal_issued_at timestamptz;
+alter table jobs add column if not exists portal_opened_at timestamptz;
+create unique index if not exists jobs_portal_token_idx on jobs (portal_token) where portal_token is not null;
