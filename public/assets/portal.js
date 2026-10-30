@@ -17,17 +17,31 @@
   var LOCK = ICON + '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
   function row(box, label, value) { var r = node('div', 'pt-row'); r.appendChild(node('span', null, label)); var b = node('b', 'pt-val', value); r.appendChild(b); box.appendChild(r); return b; }
-  /* Copy a reference or bank detail in one tap; the label settles to Copied. */
+  /* Copy a detail in one tap; phones that block the clipboard get the old way. */
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    var ta = node('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    var ok = document.execCommand('copy'); ta.remove();
+    return ok ? Promise.resolve() : Promise.reject();
+  }
   function copyBtn(box, text) {
-    if (!navigator.clipboard) return;
-    var c = node('button', 'pt-copy', 'Copy'); c.type = 'button';
+    var c = node('button', 'pt-copy ms-press', 'Copy'); c.type = 'button'; c.setAttribute('aria-label', 'Copy ' + text);
     c.addEventListener('click', function () {
-      navigator.clipboard.writeText(text).then(function () {
+      copyText(text).then(function () {
         c.textContent = 'Copied'; c.classList.add('done', 'ms-swap');
         setTimeout(function () { c.textContent = 'Copy'; c.classList.remove('done', 'ms-swap'); }, 1800);
-      });
+      }, function () { c.textContent = 'Press and hold to copy'; });
     });
     box.appendChild(c);
+  }
+  /* The business's bank details, one row per line ("Sort code: 00-00-00" or "Sort code 00-00-00"). */
+  function bankRows(text) {
+    return String(text).split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
+      var m = l.match(/^([^:]+):\s*(.+)$/) || l.match(/^(sort code|account(?: number| no\.?)?|iban|bic|swift)\s+(.+)$/i);
+      if (!m) return { label: 'Account name', value: l };
+      return { label: m[1].charAt(0).toUpperCase() + m[1].slice(1), value: m[2] };
+    });
   }
   function button(box, text, href, cls) { var a = node('a', 'pt-btn ms-press' + (cls ? ' ' + cls : ''), text); a.href = href; box.appendChild(a); return a; }
   function card(title, fill, open) {
@@ -41,10 +55,15 @@
   function payBox(box, p, amount) {
     box.appendChild(node('div', 'pt-big', pounds(amount)));
     var bank = node('div', 'pt-bank');
-    if (p.payTo) { var pre = node('div', 'pt-row'); pre.appendChild(node('pre', null, p.payTo)); copyBtn(pre, p.payTo); bank.appendChild(pre); }
-    copyBtn(row(bank, 'Reference', p.reference), p.reference);
+    var line = function (label, value) {
+      var r = node('div', 'pt-brow'), t = node('div');
+      t.appendChild(node('small', null, label)); t.appendChild(node('b', null, value)); r.appendChild(t);
+      copyBtn(r, value.replace(/^(\d{2})[ -]?(\d{2})[ -]?(\d{2})$/, '$1$2$3')); bank.appendChild(r);
+    };
+    if (p.payTo) bankRows(p.payTo).forEach(function (r) { line(r.label, r.value); });
+    line('Reference', p.reference);
     box.appendChild(bank);
-    var c = button(box, 'Pay by card over the phone', 'tel:' + p.brand.phone, 'ghost'); c.insertAdjacentHTML('afterbegin', PHONE);
+    var c = button(box, 'Pay by card: call us', 'tel:' + p.brand.phone, 'ghost'); c.insertAdjacentHTML('afterbegin', PHONE);
   }
 
   var TAG = { deposit: ['Action needed', 'act'], balance: ['Action needed', 'act'], report: ['Complete', 'ok'], visit: ['All set', 'ok'] };
@@ -88,7 +107,16 @@
     el('sub').textContent = [p.survey, [p.address, p.postcode].filter(Boolean).join(', ')].filter(Boolean).join(' at ');
     next(p);
 
-    if (p.next.kind !== 'cancelled') p.steps.forEach(function (s, i) { el('steps').appendChild(node('li', i < p.step || p.next.kind === 'report' ? 'done' : i === p.step ? 'now' : null, s)); });
+    if (p.next.kind !== 'cancelled') p.steps.forEach(function (s, i) {
+      var done = i < p.step || p.next.kind === 'report', now = !done && i === p.step;
+      var li = node('li', done ? 'done' : now ? 'now' : null);
+      if (now) li.setAttribute('aria-current', 'step');
+      if (i) li.appendChild(node('span', 'pt-line'));
+      var dot = node('span', 'pt-dot' + (now ? ' now' : ''));
+      if (done) { dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'; dot.style.animationDelay = (i * 60) + 'ms'; }
+      li.appendChild(dot); li.appendChild(node('span', null, s));
+      el('steps').appendChild(li);
+    });
 
     if (p.visit) card('Your survey', function (b) {
       row(b, 'Date', longDay(p.visit.date));

@@ -28,21 +28,10 @@ body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 'Plus Jak
 .pt-bank { border:1px solid var(--line); border-radius:14px; padding:4px 14px; margin:10px 0 6px; }
 .pt-bank .pt-row { border-top:0; border-bottom:1px solid var(--line); }
 .pt-bank .pt-row:last-child { border-bottom:0; }
-.pt-bank pre { margin:10px 0; font:inherit; white-space:pre-wrap; }
 .pt-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:52px; border:0; border-radius:14px; background:var(--accent); color:var(--accent-ink); font:inherit; font-weight:700; font-size:17px; text-decoration:none; cursor:pointer; margin-top:10px; }
 .pt-btn.ghost { background:transparent; color:var(--ink); border:1.5px solid var(--line); }
 .pt-btn[aria-disabled="true"] { background:var(--bg); color:var(--muted); cursor:default; }
 .pt-lock { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); margin-top:10px; }
-.pt-steps { display:flex; list-style:none; padding:0; margin:24px 4px; }
-.pt-steps li { flex:1; position:relative; text-align:center; font-size:12px; font-weight:600; color:var(--muted); padding-top:30px; }
-.pt-steps li::before { content:""; position:absolute; top:6px; left:50%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:var(--card); border:2px solid var(--line); z-index:1; }
-.pt-steps li::after { content:""; position:absolute; top:14px; left:-50%; width:100%; height:2px; background:var(--line); }
-.pt-steps li:first-child::after { display:none; }
-.pt-steps li.done { color:var(--ink); }
-.pt-steps li.done::before { background:var(--ok); border-color:var(--ok); }
-.pt-steps li.done::after, .pt-steps li.now::after { background:var(--ok); }
-.pt-steps li.now { color:var(--ink); }
-.pt-steps li.now::before { border-color:var(--accent); border-width:5px; }
 .pt-card { background:var(--card); border-radius:18px; padding:6px 18px 10px; margin:0 0 12px; box-shadow:0 1px 2px rgba(16,32,48,.05); }
 .pt-card summary { display:flex; align-items:center; justify-content:space-between; min-height:54px; cursor:pointer; font-weight:700; font-size:17px; list-style:none; }
 .pt-card summary::-webkit-details-marker { display:none; }
@@ -70,15 +59,30 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline:3px solid
 .pt-skel .w40 { width:40%; height:30px; } .pt-skel .w70 { width:70%; }
 .pt-skel .big { height:260px; border-radius:20px; } .pt-skel .row { height:56px; border-radius:18px; }
 .pt-msg { text-align:center; color:var(--muted); padding:60px 0; }
-.pt-copy { min-height:36px; min-width:72px; padding:0 12px; margin-left:8px; border:1.5px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+.pt-copy { min-height:36px; min-width:76px; padding:0 12px; border:1.5px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
 .pt-copy.done { border-color:var(--ok); color:var(--ok); }
 .pt-row .pt-val { display:flex; align-items:center; }
-.pt-steps li::before { transition:background-color .2s, border-color .2s; }
-.pt-steps li { animation:ms-in .28s var(--ms-out) both; }
-.pt-steps li:nth-child(2) { animation-delay:60ms } .pt-steps li:nth-child(3) { animation-delay:120ms }
-.pt-steps li:nth-child(4) { animation-delay:180ms } .pt-steps li:nth-child(5) { animation-delay:240ms }
-.pt-steps li.now::before { animation:pt-pulse 2s ease-out infinite; }
 @keyframes pt-pulse { 0% { box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 70%,100% { box-shadow:0 0 0 10px transparent; } }
 .pt-done-tick { --accent-soft:#e5f6ee; --accent:var(--ok); margin:0 0 10px; width:44px; height:44px; }
 @media (hover:hover) { .pt-btn:hover { filter:brightness(1.05); } .pt-card summary:hover { color:var(--accent); } }
-@media (prefers-reduced-motion:reduce) { .pt-steps li.now::before { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .pt-dot.now { animation:none; } }
+/* The step tracker: each step is a dot over its label; the line between two
+   dots stops short of both, so nothing ever crosses a dot or a word. */
+.pt-steps { display:grid; grid-template-columns:repeat(5, 1fr); list-style:none; padding:18px 8px 14px; margin:16px 0; background:var(--card); border-radius:18px; box-shadow:0 1px 2px rgba(16,32,48,.05); }
+.pt-steps li { position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; min-width:0; font-size:12px; font-weight:600; color:var(--muted); text-align:center; }
+.pt-steps li > span:last-child { white-space:nowrap; }
+.pt-dot { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--card); border:2px solid var(--line); color:#fff; transition:background-color .2s, border-color .2s; }
+.pt-dot svg { width:13px; height:13px; }
+.pt-line { position:absolute; top:11px; height:2px; left:calc(-50% + 18px); right:calc(50% + 18px); background:var(--line); border-radius:1px; }
+.pt-steps li.done, .pt-steps li.now { color:var(--ink); }
+.pt-steps li.done .pt-dot { background:var(--ok); border-color:var(--ok); animation:ms-settle .34s var(--ms-spring) both; }
+.pt-steps li.done .pt-line, .pt-steps li.now .pt-line { background:var(--ok); }
+.pt-dot.now { border:7px solid var(--accent); animation:pt-pulse 2s ease-out infinite; }
+@media (max-width:360px) { .pt-steps { padding-left:2px; padding-right:2px; } .pt-steps li { font-size:11px; } }
+/* Bank details: one row each, the value selectable, a Copy beside it. */
+.pt-brow { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+.pt-brow:last-child { border-bottom:0; }
+.pt-brow > div { min-width:0; }
+.pt-brow small { display:block; font-size:13px; color:var(--muted); }
+.pt-brow b { display:block; font-size:17px; font-weight:700; overflow-wrap:anywhere; user-select:all; -webkit-user-select:all; font-variant-numeric:tabular-nums; letter-spacing:.01em; }
+.pt-copy { flex:none; min-height:40px; }
