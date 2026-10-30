@@ -142,11 +142,19 @@
       "schedule": "0 4 1 * *"
     },
     {
-      "path": "/api/cron/digest",
+      "path": "/api/cron/digest?utc=5",
+      "schedule": "30 5 * * *"
+    },
+    {
+      "path": "/api/cron/digest?utc=6",
       "schedule": "30 6 * * *"
     },
     {
-      "path": "/api/cron/evening",
+      "path": "/api/cron/evening?utc=16",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/cron/evening?utc=17",
       "schedule": "0 17 * * *"
     }
   ]

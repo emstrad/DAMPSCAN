@@ -43,7 +43,11 @@ enforces the mechanical ones in CI.
 ## Hard technical limits
 - Vercel Hobby: at most 12 files under `api/`. New endpoints go into an
   existing dispatcher (`api/admin/[action].js`, `api/cron/[task].js`).
-- Vercel crons run once a day only (06:30 digest run, 17:00 evening run).
+- Vercel crons run once a day only (06:30 digest run, 17:00 evening run,
+  London time all year). Each is listed twice in vercel.json, once per UTC
+  hour (05:30 and 06:30, 16:00 and 17:00, with ?utc=H on the path), and the
+  handler skips the one that is not London's hour (`lib/routes/cron/london-hour.js`).
+  The evening route check is sent once per surveyor and day (route_sent).
   Anything hourly goes through `.github/workflows/report-due.yml`, which runs
   only in the VERTISE-DEV/DAMPSCAN mirror, where CRON_SECRET is kept.
 - `db/schema.sql` is re-applied on every merge: every statement idempotent
@@ -108,6 +112,10 @@ checks the mechanical ones.
   09:00."); title is the business, plus a colleague's first name when it was
   them. Never "Owners", never "via ChatGPT". Changes to one job within a
   minute are one alert (per-job ntfy sequence id, 1 minute delay).
+- Change alerts are kept in the app (the notifications row, for catch-up and
+  the digest) and only pushed to ntfy with ACTIVITY_PUSH=on, to protect the
+  ntfy daily limit for enquiries. After a 429, pushes below priority 4 are
+  skipped for a minute; priority 4 and up are always tried.
 - On: new enquiries (a damp one opens its Scheduling card; one untouched two
   hours in working hours is nudged once, `lib/enquiry-nudge.js`), report overdue (24h after survey end, with Report sent
   button), survey not paid in full (morning after, with Paid/Deposit

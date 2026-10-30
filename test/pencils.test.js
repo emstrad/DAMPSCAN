@@ -81,6 +81,17 @@ test('a hold past its 48 hours lapses back to Waiting with a to-do', async () =>
   assert.match((await pool.query('select text from todos')).rows[0].text, /lapsed/);
 });
 
+test('a hold lapses at its own time, not that morning, and one kept by hand never lapses', async () => {
+  const kim = await lead('Kim', 'kim@example.com');
+  const sam = await lead('Sam', 'sam@example.com');
+  const today = (await pool.query(`select (now() at time zone 'Europe/London')::date::text as d`)).rows[0].d;
+  await pool.query(`insert into surveyor_hours (surveyor, on_date, start_time, end_time) values ('tom', $1, '00:00', '23:59')`, [today]);
+  await pool.query(`update leads set pencil_date = $1::date, pencil_time = '23:59', pencil_surveyor = 'tom', pencil_forced = true, pencil_until = now() + interval '1 hour' where id = $2`, [today, kim]);
+  await pool.query(`update leads set pencil_date = '2020-01-01', pencil_time = '10:00', pencil_surveyor = 'tom', pencil_forced = true, pencil_until = null where id = $1`, [sam]);
+  assert.equal(await expirePencils(), 0);
+  assert.equal((await pool.query('select count(*)::int as n from leads where pencil_date is not null')).rows[0].n, 2);
+});
+
 test('the inbox scan logs a reply and an incoming email on the card, once', async () => {
   Object.assign(process.env, { M365_TENANT_ID: 't', M365_CLIENT_ID: 'c', M365_CLIENT_SECRET: 's', M365_MAILBOX: 'office@dampscan.co.uk' });
   const kim = await lead('Kim', 'kim@example.com');

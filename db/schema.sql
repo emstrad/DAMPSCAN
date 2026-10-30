@@ -853,7 +853,7 @@ create unique index if not exists jobs_invoice_number_idx on jobs (site, invoice
 -- ---------------------------------------------------------------------------
 alter table service_contracts add column if not exists price_pence integer check (price_pence >= 0);
 alter table job_messages drop constraint if exists job_messages_kind_check;
-alter table job_messages add constraint job_messages_kind_check check (kind in ('quote', 'followup', 'reminder', 'review', 'invoice', 'service', 'rating', 'yearly', 'onmyway', 'summer'));
+alter table job_messages add constraint job_messages_kind_check check (kind in ('quote', 'followup', 'reminder', 'review', 'invoice', 'service', 'rating', 'yearly', 'onmyway', 'summer', 'confirm'));
 
 -- ---------------------------------------------------------------------------
 -- VAT registration and the details an invoice prints
@@ -1374,3 +1374,11 @@ insert into job_rates (key, label, price_pence, surveyor_fee_pence, position, du
   ('dt-large-property', 'Damp and timber, large property', 52500, 16000, 7, 150),
   ('dt-premium',        'Damp and timber, very large',     60000, 19000, 8, 180)
 on conflict (key) do nothing;
+
+-- One evening route check per surveyor and day: a second cron run says nothing (lib/route-check.js).
+create table if not exists route_sent (
+  surveyor text not null,
+  day      date not null,
+  sent_at  timestamptz not null default now(),
+  primary key (surveyor, day)
+);

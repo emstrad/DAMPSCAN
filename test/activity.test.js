@@ -17,6 +17,8 @@ process.env.SESSION_SECRET = 'activity-test-secret-long-enough-xx';
 process.env.IP_SALT = 'notify-test-salt';
 process.env.STAFF_ACCESS_CODE = '1290';
 process.env.CRON_SECRET = 'a-cron-secret-that-is-long-enough';
+/* Change alerts reach ntfy only when switched on; these tests check what they say. */
+process.env.ACTIVITY_PUSH = 'on';
 
 const pool = new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 4 });
 mock.module('../lib/db.js', {
