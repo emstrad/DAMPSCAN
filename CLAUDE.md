@@ -366,6 +366,9 @@ checks the mechanical ones.
 - The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
   Search. No Money button (the owner's choice); the bank stays in the
   Companies tabs.
+  Settings is in the Companies sheet (the cog at the end of the company row
+  runs off a phone's screen), and Settings opens with Notifications, where
+  "Turn on notifications" lives (or says the server's push keys are missing).
 
 ## ChatGPT connector (`/api/admin/mcp`)
 - "Strictly ChatGPT, no extra parts on the site" for assistant features.

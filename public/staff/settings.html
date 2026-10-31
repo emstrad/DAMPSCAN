@@ -54,6 +54,20 @@
 
 <main class="wrap">
   <h1>Settings</h1>
+
+    <section class="panel" aria-labelledby="h-notify">
+      <h2 id="h-notify">Notifications</h2>
+      <p class="panel-note">On a phone, open the staff area from its home screen icon first; each phone is turned on separately (<a href="https://github.com/emstrad/DAMPSCAN/blob/main/docs/notifications.md" target="_blank" rel="noopener">the alerts guide</a>).</p>
+      <div id="push-here" class="push-here"></div>
+      <p class="panel-note" id="push-state"></p>
+      <h3>Phones with staff app notifications on</h3>
+      <ul id="push-phones"></ul>
+      <h3>Are alerts getting through?</h3>
+      <p class="panel-note" id="push-ntfy"></p>
+      <ul id="push-recent"></ul>
+      <button class="btn btn--ghost btn--sm" type="button" id="push-test">Send a test alert</button>
+      <p class="panel-note" id="push-test-out" role="status"></p>
+    </section>
   <div class="settings-grid">
     <section class="panel" aria-labelledby="h-people">
       <h2 id="h-people">People</h2>
@@ -83,19 +97,6 @@
         <li><a href="/staff/insights.html?area=roofing#p-business">Verge Roofing</a></li>
         <li><a href="/staff/insights.html?area=ac#p-business">CoolRight</a></li>
       </ul>
-    </section>
-    <section class="panel" aria-labelledby="h-notify">
-      <h2 id="h-notify">Notifications</h2>
-      <p class="panel-note">On a phone, add the staff area to the home screen, then tap "Turn on notifications" at the top of any staff page. Each phone is turned on separately. Which alerts go, and when, is set out in
-        <a href="https://github.com/emstrad/DAMPSCAN/blob/main/docs/notifications.md" target="_blank" rel="noopener">the alerts guide</a>.</p>
-      <p class="panel-note" id="push-state"></p>
-      <h3>Phones with staff app notifications on</h3>
-      <ul id="push-phones"></ul>
-      <h3>Are alerts getting through?</h3>
-      <p class="panel-note" id="push-ntfy"></p>
-      <ul id="push-recent"></ul>
-      <button class="btn btn--ghost btn--sm" type="button" id="push-test">Send a test alert</button>
-      <p class="panel-note" id="push-test-out" role="status"></p>
     </section>
     <section class="panel" aria-labelledby="h-gpt">
       <h2 id="h-gpt">ChatGPT and Claude</h2>

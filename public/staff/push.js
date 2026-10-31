@@ -26,11 +26,13 @@
   }
 
   async function start() {
-    var header = document.querySelector('header.top');
+    /* Settings keeps its own place for it, so it is never squeezed off a phone's header. */
+    var slot = document.getElementById('push-here');
+    var header = slot || document.querySelector('header.top');
     if (!header) return;
     var cfg;
     try { cfg = await (await fetch('/api/admin/push', { headers: { Accept: 'application/json' } })).json(); } catch (e) { return; }
-    if (!cfg || !cfg.publicKey) return;
+    if (!cfg || !cfg.publicKey) { if (slot) slot.textContent = 'Staff app alerts are not set up on the server yet (the VAPID keys in Vercel).'; return; }
     var reg = await nav.serviceWorker.register('/staff/sw.js', { scope: '/staff/' });
     var existing = await reg.pushManager.getSubscription();
 

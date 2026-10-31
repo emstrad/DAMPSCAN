@@ -180,6 +180,13 @@
       link.setAttribute('role', 'menuitem');
       sheet.appendChild(link);
     });
+    /* Settings lives here on a phone: the cog at the end of the company row runs off the screen. */
+    if (A.rights && A.rights.settings) {
+      var cog = U.node('a', 'shell-item', 'Settings');
+      cog.href = '/staff/settings.html';
+      cog.setAttribute('role', 'menuitem');
+      sheet.appendChild(cog);
+    }
   }
   document.addEventListener('click', function (ev) {
     if (sheet.hidden || sheet.contains(ev.target) || ev.target.closest('[data-shell]')) return;
