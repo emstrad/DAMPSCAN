@@ -97,9 +97,21 @@
 .act-item .msg{margin-bottom:8px}
 .cal-main{min-width:0}
 .cal-filters{display:flex;gap:6px;flex-wrap:wrap}
-.cal-bar .pills{display:flex;gap:6px}
-.cal-bar .pill{padding:7px 12px}
-.cal-nav{display:flex;gap:6px}
+.cal-title{display:flex;align-items:baseline;gap:12px;margin-right:auto;min-width:0}
+.cal-title h2{margin:0}
+.cal-free{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap}
+/* One joined control for the week: back, This week, on. */
+.cal-nav{display:inline-flex;align-items:stretch;border:1px solid var(--line-strong);border-radius:999px;background:var(--navy-2);overflow:hidden}
+.cal-seg{min-height:44px;padding:0 16px;border:0;background:none;color:var(--text);font:inherit;font-weight:600;font-size:14.5px;cursor:pointer;transition:background-color .18s}
+.cal-seg:hover{background:var(--accent-soft)}
+.cal-arrow{width:46px;padding:0;display:grid;place-items:center;color:var(--muted)}
+#today{border-inline:1px solid var(--line)}
+/* Week or Month: a two-way switch whose highlight slides across. */
+.cal-switch{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;padding:3px;border:1px solid var(--line-strong);border-radius:999px;background:var(--navy-2)}
+.cal-switch::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--accent);transition:transform .25s var(--ms-out,ease-out)}
+.cal-switch:has([data-view="month"][aria-pressed="true"])::before{transform:translateX(100%)}
+.cal-switch .pill{position:relative;z-index:1;min-height:38px;padding:0 16px;border:0;background:none;color:var(--muted);font-weight:600;animation:none}
+.cal-switch .pill[aria-pressed="true"]{color:#06121f;background:none}
 .strip{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;background:var(--slate)}
 .strip--overdue{border-color:var(--warn)}
 .strip summary{cursor:pointer;font-weight:700}
@@ -123,7 +135,7 @@
   .cal-num{text-align:center;width:100%}
   .cal-count{display:block;font-size:11px;font-weight:700;color:var(--text);background:var(--accent-soft);border-radius:999px;padding:1px 7px}
   .cal-day.has-flags .cal-count{background:var(--warn);color:#06121f}
-  .cal-bar h2{flex-basis:100%}
+  .cal-title{flex-basis:100%;justify-content:space-between}
 }
 
 /* ---------- price book, inside the job's Quote block ---------- */
@@ -241,7 +253,8 @@
   .cal-filters .pill{flex:none}
   .cal-bar{margin-top:8px;gap:8px}
   .cal-bar h2{font-size:19px}
-  .cal-bar .pills{margin-left:auto}
+  .cal-bar .cal-switch{margin-left:auto}
+  .cal-seg{padding:0 14px}.cal-arrow{width:42px}.cal-switch .pill{padding:0 13px}
   .wrap.work{padding-top:12px}
 }
 /* Pencilled, not booked: grey and dashed; red words when the time is shared. */

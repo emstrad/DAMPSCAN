@@ -64,14 +64,16 @@
         <button type="button" class="pill" data-area-filter="ac">CoolRight</button>
       </div>
       <div class="cal-bar">
-        <h2 id="title" aria-live="polite"></h2>
-        <div class="cal-nav">
-          <button class="btn btn--ghost btn--sm" id="prev" aria-label="Previous">&larr;</button>
-          <button class="btn btn--ghost btn--sm" id="today">This week</button>
-          <button class="btn btn--ghost btn--sm" id="next" aria-label="Next">&rarr;</button>
+        <div class="cal-title">
+          <h2 id="title" aria-live="polite"></h2>
+          <a class="cal-free" id="who-free" href="/staff/schedule.html#free" hidden>Who's free?</a>
         </div>
-        <a class="btn btn--sm" id="who-free" href="/staff/schedule.html#free" hidden>Who's free?</a>
-        <div class="pills" role="group" aria-label="View">
+        <div class="cal-nav" role="group" aria-label="Move through the diary">
+          <button class="cal-seg cal-arrow" id="prev" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="cal-seg" id="today">Today</button>
+          <button class="cal-seg cal-arrow" id="next" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <div class="pills cal-switch" role="group" aria-label="View">
           <button type="button" class="pill" data-view="week">Week</button>
           <button type="button" class="pill" data-view="month">Month</button>
         </div>
