@@ -187,3 +187,18 @@ test('a damp-only surveyor asking for a roofing job gets nothing', async () => {
   assert.ok([403, 404].includes(res.statusCode) || !JSON.stringify(res.json()).includes('Roy'));
   assert.equal((await tool('get_job').run(await scopeOf(ronnie), { id: roof })).status, 404);
 });
+
+test('a work surveyor sets his own hours on the My hours calendar, and nobody else\'s', async () => {
+  const ronnie = await person('Ronnie', 'ron-4', ['dampscan', 'ati-london']);
+  await pool.query("delete from surveyor_hours where surveyor in ('ronnie', 'tom')");
+  const days = ['2030-03-04', '2030-03-05'];
+  const mine = await api(ronnie, 'POST', '/api/admin/hours', { op: 'bulk', action: 'replace', dates: days, start: '09:00', end: '17:00' });
+  assert.equal(mine.statusCode, 200, JSON.stringify(mine.json()));
+  assert.equal(Number((await pool.query("select count(*) from surveyor_hours where surveyor = 'ronnie' and on_date = any($1::date[])", [days])).rows[0].count), 2);
+  for (const op of [{ op: 'remove_window', date: days[0], start: '09:00', end: '17:00' }, { op: 'set_usual', weekdays: [1], windows: [{ start: '09:00', end: '13:00' }] }]) {
+    assert.equal((await api(ronnie, 'POST', '/api/admin/hours', op)).statusCode, 200, op.op);
+  }
+  const theirs = await api(ronnie, 'POST', '/api/admin/hours', { op: 'bulk', action: 'replace', dates: days, start: '09:00', end: '17:00', surveyor: 'tom' });
+  assert.notEqual(theirs.statusCode, 200);
+  assert.equal((await api(ronnie, 'POST', '/api/admin/hours', { op: 'flag', key: 'booking_slots', enabled: true })).statusCode, 403);
+});
