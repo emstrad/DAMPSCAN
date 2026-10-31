@@ -202,3 +202,17 @@ test('a work surveyor sets his own hours on the My hours calendar, and nobody el
   assert.notEqual(theirs.statusCode, 200);
   assert.equal((await api(ronnie, 'POST', '/api/admin/hours', { op: 'flag', key: 'booking_slots', enabled: true })).statusCode, 403);
 });
+
+test('Ben and Tom, managers, set their own hours on the calendar and can set a surveyor\'s', async () => {
+  const ben = await person('Ben', 'ben-1', ['dampscan', 'ati-london', 'roofing'], { level: 'manage' });
+  const tom = await person('Tom', 'tom-1', ['dampscan', 'ati-london'], { level: 'manage' });
+  await pool.query("delete from surveyor_hours where surveyor in ('ben', 'tom', 'ronnie')");
+  const days = ['2030-04-01'];
+  for (const [who, name] of [[ben, 'ben'], [tom, 'tom']]) {
+    const r = await api(who, 'POST', '/api/admin/hours', { op: 'bulk', action: 'replace', dates: days, start: '10:00', end: '16:00' });
+    assert.equal(r.statusCode, 200, JSON.stringify(r.json()));
+    assert.equal(Number((await pool.query('select count(*) from surveyor_hours where surveyor = $1', [name])).rows[0].count), 1, name);
+    assert.equal((await api(who, 'POST', '/api/admin/hours', { op: 'set_usual', weekdays: [2], windows: [{ start: '09:00', end: '17:00' }] })).statusCode, 200);
+  }
+  assert.equal((await api(ben, 'POST', '/api/admin/hours', { op: 'bulk', action: 'replace', dates: days, start: '09:00', end: '12:00', surveyor: 'ronnie' })).statusCode, 200);
+});
