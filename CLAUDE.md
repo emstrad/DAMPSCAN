@@ -18,7 +18,9 @@ enforces the mechanical ones in CI.
   nothing here sends email through it unless the owner says otherwise.
 - Enquiry alerts are ntfy plus the installed staff app's own notification
   (both for every enquiry; Settings lists whose phones have it on). The email
-  is only a backup copy through FormSubmit. Microsoft 365 sending
+  is only a backup copy through FormSubmit: everything on the form (the
+  agent on its own lines), then a short UPDATE email for a time picked or a
+  survey chosen after Book. Microsoft 365 sending
   (`lib/m365-email.js`) is off because the GoDaddy-run tenant refuses it;
   LEAD_EMAIL_M365=on turns it back on.
 - Nothing is ever sent to a customer automatically: messages are words with

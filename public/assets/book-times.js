@@ -65,7 +65,10 @@
           tb.addEventListener('click', async function () {
             lock(box, true);
             var p = await post({ op: 'pick', leadId: lead.id, sessionId: lead.sessionId, date: t.date, time: t.time, ticket: t.ticket });
-            if (p.data && p.data.ok) next(nice(t.date) + ' at ' + clock(t.time) + ' requested. We will call to confirm.');
+            if (p.data && p.data.ok) {
+              if (window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('time requested', { 'Time requested': nice(t.date) + ' at ' + clock(t.time) + ' (a request, not booked: call to confirm)' }, lead.id);
+              next(nice(t.date) + ' at ' + clock(t.time) + ' requested. We will call to confirm.');
+            }
             else if (p.data && p.data.error === 'taken') start(box, lead, 'Sorry, that time has just gone. Here are the times still free.');
             else next("Something went wrong, we'll call you to arrange a time.");
           });
@@ -160,9 +163,10 @@
       lock(box, true);
       /* The staff Lab previews this with no enquiry: priced here, nothing saved. */
       var c = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}).chose : preview(P, pick);
-      done(box, 'Thanks, all noted', (said ? said + ' ' : '') + (pick.service !== 'unsure' && c && c.price
-        ? c.name + ', ' + money(c.price, c.from) + ((c.addOns || []).length ? ', with ' + c.addOns.map(function (a) { return a.name.toLowerCase() + ' ' + money(a.price, a.from); }).join(' and ') : '') + '. We confirm the fee before we come.'
-        : 'We will help you choose the right survey when we call.'));
+      var chosen = pick.service !== 'unsure' && c && c.price
+        ? c.name + ', ' + money(c.price, c.from) + ((c.addOns || []).length ? ', with ' + c.addOns.map(function (a) { return a.name.toLowerCase() + ' ' + money(a.price, a.from); }).join(' and ') : '') : null;
+      if (lead && window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('survey chosen', { 'Survey chosen': chosen || 'Not sure, wants help choosing' }, lead.id);
+      done(box, 'Thanks, all noted', (said ? said + ' ' : '') + (chosen ? chosen + '. We confirm the fee before we come.' : 'We will help you choose the right survey when we call.'));
     }
   }
 

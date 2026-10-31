@@ -274,7 +274,10 @@
         : { Attachments: 'None' }),
       Issue: issues.length ? issues.join(', ') : 'Not given yet',
       'Previous survey': stage === 'complete' ? (document.getElementById('f-prev').checked ? 'Yes' : 'No') : 'Not asked yet',
-      Notes: withAgent(val('f-notes')) || 'None',
+      /* Who lets the surveyor in, with the agent's details on their own lines. */
+      ...(agentBox ? { 'Who lets us in': stage === 'complete' ? (viaAgent() ? 'The estate agent' : 'The customer') : 'Not asked yet' } : {}),
+      ...(viaAgent() ? { 'Estate agent': val('f-agent') || 'Not given', 'Agent phone': val('f-agent-phone') || 'Not given', 'Agent email': val('f-agent-email') || 'Not given' } : {}),
+      Notes: val('f-notes') || 'None',
       'Lead stage': stage,
       Submitted: new Date().toLocaleString('en-GB'),
       'Lead ID': id ? String(id) : 'Saved as they left the page'
@@ -316,6 +319,22 @@
       report(false, String(e && e.message || e));
     }
   }
+
+  /* What they do after Book (a time picked, the survey chosen) follows in a
+     short second email, so the backup copy is never missing the end of it. */
+  window.DS_EMAIL_UPDATE = function (what, fields, id) {
+    if (!NOTIFY_ENDPOINT) return;
+    const who = val('f-name') || 'unknown';
+    try {
+      fetch(NOTIFY_ENDPOINT, { method: 'POST', keepalive: true, headers: { Accept: 'application/json' },
+        body: new URLSearchParams(Object.assign({
+          _subject: (DS_CFG.subjectPrefix || '') + 'UPDATE, ' + what + ', ' + who + ', ' + (surveyPostcode() || 'no postcode'),
+          _captcha: 'false', _template: 'table',
+          'First name': who, Email: val('f-email'), Phone: val('f-phone') || 'Not given',
+          Address: [val('f-addr1'), val('f-town'), surveyPostcode()].filter(Boolean).join(', ') || 'Not given'
+        }, fields, { 'Lead ID': id ? String(id) : 'Not known', Sent: new Date().toLocaleString('en-GB') })) }).catch(function(){});
+    } catch (e) {}
+  };
 
   /* A step 1 dropout's email, sent as the page closes. Nothing can wait for
      FormSubmit's answer then, so it goes as a beacon, and the lead records
