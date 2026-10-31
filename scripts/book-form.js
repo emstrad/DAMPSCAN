@@ -115,9 +115,9 @@ export function bookForm(site) {
           <h2>${t.heading}</h2>${t.sub ? `
           <p>${t.sub}</p>` : ''}
         </div>
-        <div class="dots" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" id="dots">
-          <span class="is-done"></span><span></span><span></span>
-          <span class="step-label" id="step-label">Step 1 of 3</span>
+        <div class="dots" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="${t.agent ? 5 : 4}" aria-valuenow="1" id="dots">
+          <span class="is-done"></span><span></span><span></span><span></span>${t.agent ? '<span></span>' : ''}
+          <span class="step-label" id="step-label">Step 1 of ${t.agent ? 5 : 4}</span>
         </div>
 
         <form id="book-form" novalidate>
@@ -171,47 +171,45 @@ export function bookForm(site) {
             </div>
           </div>
 
-          <!-- STEP 3, qualify + optional detail -->
+          <!-- STEP 3, the property and how to reach them. Typed by hand: there is
+               no address finder, so nothing loads and falls back. -->
           <div class="fstep" data-step="3">
             <div class="form-row addr">
               <label for="f-addr1">${t.addressLabel}</label>
-              <div class="addr-find">
-                <input id="f-addr-pc" name="Lookup postcode" type="text" autocomplete="postal-code"
-                  aria-label="Postcode to look up" placeholder="Postcode" />
-                <button type="button" class="btn addr-btn" id="f-addr-find">Find address</button>
-              </div>
-              <p class="addr-status" id="f-addr-status" role="status"></p>
-              <div class="form-row addr-pick" id="f-addr-pick" hidden>
-                <label for="f-addr-select">Pick your address</label>
-                <select id="f-addr-select"></select>
-              </div>
-              <!-- Shown instead of the three fields once the picker has filled them,
-                   so a found address is one line rather than three boxes. -->
-              <p class="addr-chosen" id="f-addr-chosen" tabindex="-1" hidden>
-                <span id="f-addr-chosen-text"></span>
-                <button type="button" class="link-btn" id="f-addr-change">Change</button>
-              </p>
               <div class="addr-fields" id="f-addr-fields">
                 <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
                   placeholder="House number and street" required />
                 <span class="err">${t.addressErr}</span>
                 <input id="f-town" name="Town" type="text" autocomplete="address-level2"
                   placeholder="Town or city" />
-                <!-- Asked again here, below the town, because this is the postcode of
-                     the property being surveyed and the one on step 1 is whatever they
-                     typed to get started. Prefilled from it, so for almost everybody it
-                     is already right and there is nothing to do. -->
+                <!-- The postcode of the property, prefilled from step 1 (book.js). -->
                 <input id="f-addr-postcode" name="Address postcode" type="text"
                   autocomplete="postal-code" aria-label="Postcode" placeholder="Postcode" />
               </div>
             </div>
             <div class="form-row">
-              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>${t.previous}</label>
+              <label for="f-phone">Your mobile <span class="opt">(optional, so we can confirm your time)</span></label>
+              <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" />
+              <span class="err">Please enter a UK number, 11 digits, e.g. 07700 900123.</span>
             </div>
-${t.agent ? `            <!-- Buyers whose visit the estate agent arranges: the time is settled
-                 with the agent, so a ticked box skips the time picker (book.js). -->
+            <div class="fnav">
+              <button type="button" class="back-link" data-back>← Back</button>
+              <button type="button" class="btn btn--primary btn--lg" data-next>
+                Continue
+                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+
+${t.agent ? `          <!-- STEP 4, who lets the surveyor in. The agent's details only when
+               it is the agent, and then the time is settled with them (book.js). -->
+          <div class="fstep" data-step="4">
             <div class="form-row">
-              <label class="check" for="f-agent-on"><input type="checkbox" id="f-agent-on" /><span class="box">${TICK}</span>The estate agent needs to be contacted to arrange access</label>
+              <label id="access-label">Who will let us in?</label>
+              <div class="access-pick" role="radiogroup" aria-labelledby="access-label">
+                <label class="check access-opt"><input type="radio" name="Access" value="Me" id="f-access-me" checked />Me</label>
+                <label class="check access-opt"><input type="radio" name="Access" value="The estate agent" id="f-agent-on" />The estate agent</label>
+              </div>
             </div>
             <div class="agent-fields" id="f-agent-fields" hidden>
               <div class="form-row">
@@ -219,20 +217,32 @@ ${t.agent ? `            <!-- Buyers whose visit the estate agent arranges: the 
                 <input id="f-agent" type="text" autocomplete="off" />
                 <span class="err">Please enter the estate agent's name or branch.</span>
               </div>
-              <div class="form-row">
-                <label for="f-agent-phone">Agent's phone</label>
-                <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" />
-                <span class="err">Please enter the agent's phone number.</span>
-              </div>
-              <div class="form-row">
-                <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
-                <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
-                <span class="err">Please enter a valid email address.</span>
+              <div class="two-col">
+                <div class="form-row">
+                  <label for="f-agent-phone">Agent's phone</label>
+                  <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" maxlength="16" />
+                  <span class="err">Please enter a UK number, 11 digits, e.g. 01732 123456.</span>
+                </div>
+                <div class="form-row">
+                  <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
+                  <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
+                  <span class="err">Please enter a valid email address.</span>
+                </div>
               </div>
             </div>
-` : ''}            <div class="form-row">
-              <label for="f-phone">Phone number <span class="opt">(optional, quickest way to confirm a time)</span></label>
-              <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" />
+            <div class="fnav">
+              <button type="button" class="back-link" data-back>← Back</button>
+              <button type="button" class="btn btn--primary btn--lg" data-next>
+                Continue
+                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+
+` : ''}          <!-- LAST STEP, anything to add, all optional. -->
+          <div class="fstep" data-step="${t.agent ? 5 : 4}">
+            <div class="form-row">
+              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>${t.previous}</label>
             </div>
             <details class="fold"${t.filesOpen ? ' open' : ''}>
               <summary>${t.filesSummary} <span class="opt">(optional)</span></summary>

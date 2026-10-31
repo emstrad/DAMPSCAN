@@ -218,3 +218,11 @@
 .bt-info{width:44px;height:44px;border-radius:50%;border:1px solid var(--accent-ring,#4fa8e8);background:transparent;color:inherit;font:inherit;font-style:italic;font-weight:700;cursor:pointer}
 .bt-price{font-weight:700}
 .bt-said{margin:0 0 10px;font-weight:600}
+/* Who will let us in: two big choices side by side. */
+.access-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.access-opt{justify-content:center;text-align:center;font-weight:600;min-height:56px}
+.access-opt input:focus-visible+*,.access-opt:has(input:focus-visible){outline:2px solid var(--accent-hi);outline-offset:2px}
+/* Each step slides in as it arrives (motion.css). */
+.fstep.is-active{animation:ms-in var(--ms-med,.28s) var(--ms-out,ease-out) both}
+.access-opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
+.access-opt:has(input:checked)::before{content:"";width:9px;height:15px;margin:-4px 10px 0 0;border:solid var(--accent);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);animation:ms-settle .3s var(--ms-spring,ease-out)}
