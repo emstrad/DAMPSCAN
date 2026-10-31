@@ -5,6 +5,12 @@ quotes and ratings also go to the installed staff app (Web Push) for whoever
 holds that business. Alerts are written to be understood from a lock screen
 at a glance.
 
+New website enquiries and times picked online are also texted to the owners
+through Twilio (`lib/staff-sms.js`) once `TWILIO_ACCOUNT_SID`,
+`TWILIO_AUTH_TOKEN`, `TWILIO_FROM` and `ALERT_SMS_TO` (the owners' mobiles,
+comma separated) are set. Those texts carry the customer's number to tap, by
+the owner's choice, since a text is not a shared topic.
+
 ## The rules
 
 - The job is named the way staff talk about it: the customer's first name and

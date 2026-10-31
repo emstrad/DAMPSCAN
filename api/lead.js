@@ -12,6 +12,7 @@ import { siteFor } from '../lib/site.js';
 import { sendLeadEmail } from '../lib/lead-email.js';
 import { notify } from '../lib/notify.js';
 import { enquiryAlert } from '../lib/alert-enquiry.js';
+import { textOwners, enquiryText } from '../lib/staff-sms.js';
 import { alertPartials } from '../lib/daily-alerts.js';
 import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
@@ -189,6 +190,8 @@ export default async function handler(req, res) {
     /* Through notify, so ntfy buzzes as well as the staff app: the one alert
        that does not depend on the enquiry email arriving. */
     await notify(enquiryAlert(site, id, row));
+    /* And a text to the owners, which arrives whatever ntfy's limit (lib/staff-sms.js). */
+    await textOwners(enquiryText(site, id, row));
   }
 
   /* There is no frequent schedule to catch a form left half done, so a new

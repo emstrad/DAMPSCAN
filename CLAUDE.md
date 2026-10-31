@@ -113,6 +113,11 @@ checks the mechanical ones.
 - Nothing reaches a customer by itself (see The businesses).
 
 ## Alerts (ntfy)
+- Alert texts to the owners (`lib/staff-sms.js`, Scott and Tom, ALERT_SMS_TO
+  with the Twilio details): a new website enquiry and a time picked online
+  only, with the customer's number to tap (the owner's choice) and a link to
+  their Scheduling card; never a street. ntfy and the app still go too.
+  Everything else stays in the app and the morning summary.
 - Customer details in alert text: first name and postcode district only.
 - Off by the owner's choice: the 06:30 "Good morning" digest push
   (`MORNING_DIGEST=on` restores) and the evening "Tomorrow" push
