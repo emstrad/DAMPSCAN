@@ -172,6 +172,15 @@
     item('New to-do', function () { openTodo(true); });
     item('To-do list', function () { openTodo(false); });
     item('Add a cost to a job', function () { openSearch(true); });
+    /* What used to crowd the header: alerts on this phone, a fresh look, sign out. */
+    sheet.appendChild(U.node('hr', 'shell-sep'));
+    var P = global.DSPUSH;
+    if (P && P.available) item(P.on ? 'Notifications on: tap to stop' : 'Turn on notifications', function () {
+      P.toggle().then(function (r) { global.alert(r === 'on' ? 'Notifications are on for this device.' : r === 'off' ? 'Notifications are off for this device.' : 'Notifications are blocked in this phone\'s settings.'); document.dispatchEvent(new CustomEvent('ds:push')); },
+        function () { global.alert('That did not work. Try again.'); });
+    });
+    item('Refresh', function () { global.location.reload(); });
+    item('Sign out', function () { fetch('/api/auth/logout', { method: 'POST' }).finally(function () { global.location.replace('/staff'); }); });
   }
   function companiesMenu() {
     (A.held || []).forEach(function (a) {

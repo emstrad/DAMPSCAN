@@ -195,3 +195,6 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 .sheet-next{margin:6px 0 8px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--warn,#e3b341) 20%,transparent);border:1px solid var(--warn,#e3b341);font-weight:700}
 details.sheet-sec.sheet-fold{padding:0}
 .sheet-row input{font:inherit;font-size:16px;min-height:44px;background:var(--navy-2);color:var(--text);border:1px solid var(--line-strong);border-radius:10px;padding:0 10px;color-scheme:dark}
+/* Refresh, Sign out and the notifications switch live in the + menu (shell.js). */
+.has-shell .top #refresh,.has-shell .top #logout,.has-shell .top .push-toggle{display:none}
+.shell-sep{border:0;border-top:1px solid var(--line);margin:6px 4px}
