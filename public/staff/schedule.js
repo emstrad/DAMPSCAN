@@ -166,6 +166,8 @@
     el('b-who').value = slot ? slot.surveyor : (c.surveyor || '');
     el('b-type').value = c.surveyType || '';
     el('b-type').disabled = c.kind === 'job';
+    /* An enquiry's survey sets its price: Book it waits for one (Pencil in does not need it). */
+    el('b-type').required = c.kind !== 'job';
     el('b-note').textContent = ''; el('b-hours').hidden = true;
     el('b-go').textContent = 'Book it';
     el('b-pencil').textContent = 'Pencil in (48h)';
@@ -188,7 +190,7 @@
       load(); return;
     }
     if (r.data && r.data.clash) { global.DSSCHEDNEW.clash(r.data.clash); el('b-note').textContent = r.data.clash + ' Go ahead anyway?'; el('b-go').textContent = 'Book anyway'; el('b-pencil').textContent = 'Pencil anyway'; el('b-go').dataset.force = '1'; return; }
-    el('b-note').textContent = (r.data && r.data.error) || 'That did not save.';
+    el('b-note').textContent = (r.data && (r.data.error || Object.values(r.data.errors || {})[0])) || 'That did not save.';
   }
   el('book-form').addEventListener('submit', function (e) { e.preventDefault(); submit('book'); });
   el('b-pencil').addEventListener('click', function () { submit('pencil'); });
