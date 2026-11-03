@@ -106,3 +106,16 @@ test('ChatGPT can unbook, close and bring back through the same route', async ()
   await run({ id: job, to: 'cold' });
   assert.deepEqual([(await jobOf(kim)).status, (await jobOf(kim)).sched_stage], ['booked', 'cold']);
 });
+
+test('booking an enquiry with no survey picked says so in words, and a pencilled time books once it is picked', async () => {
+  const mike = await lead('Mike', 'mike@example.com');
+  await post({ op: 'pencil', kind: 'lead', id: mike, date: DATE, time: '16:00', surveyor: 'tom', force: true });
+  const none = await post({ op: 'book', kind: 'lead', id: mike, date: DATE, time: '16:00', surveyor: 'tom', surveyType: '', force: true });
+  assert.equal(none.status, 400);
+  assert.match(none.data.error, /Pick the survey/);
+  const ok = await post({ op: 'book', kind: 'lead', id: mike, date: DATE, time: '16:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  assert.equal(ok.status, 200, JSON.stringify(ok.data));
+  const job = await jobOf(mike);
+  assert.equal(String(job.job_time).slice(0, 5), '16:00');
+  assert.equal(job.pencil_date, null);
+});
