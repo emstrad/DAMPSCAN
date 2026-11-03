@@ -82,9 +82,9 @@ beforeEach(async () => {
 });
 after(async () => { globalThis.fetch = realFetch; await pool.end(); });
 
-async function person(name, grants) {
+async function person(name, grants, level = 'manage') {
   const { rows } = await pool.query("insert into people (name, passcode_hash) values ($1, 'x') returning id", [name]);
-  for (const g of grants) await pool.query("insert into grants (person_id, business_slug, level) values ($1, $2, 'work')", [rows[0].id, g]);
+  for (const g of grants) await pool.query("insert into grants (person_id, business_slug, level) values ($1, $2, $3)", [rows[0].id, g, level]);
   return scopeFor({ person: true, sub: Number(rows[0].id) });
 }
 
@@ -139,16 +139,16 @@ test('each person hears only about their businesses, the owners hear everything,
   assert.deepEqual((await pool.query('select endpoint from push_subscriptions order by id')).rows.map((x) => x.endpoint.split('/').pop()), ['rob', 'cat', 'gus'], 'the 410 phone is gone');
 });
 
-test('ratings and accepted quotes buzz the phone through notify; routine changes do not', async () => {
+test('every alert ntfy gets buzzes the app through notify; quiet routine changes do not', async () => {
   setKeys();
   const roofer = await person('Rob', ['roofing']);
   const p = phone('rob');
   await saveSubscription(roofer, p.sub);
-  await notify({ business: 'roofing', kind: 'payment', ref: 1, title: 'paid', message: 'x' });
+  await notify({ business: 'roofing', kind: 'payment', ref: 1, title: 'paid', message: 'x', quiet: true });
   assert.equal(sent.length, 0);
   await notify({ business: 'roofing', kind: 'rating_low', ref: 7, title: 'Verge Roofing: 2 stars', message: 'Job #7 was rated 2 out of 5.' });
-  await notify({ business: 'roofing', kind: 'quote_accepted', ref: 8, title: 'Verge Roofing: quote accepted', message: 'Job #8.' });
-  assert.deepEqual(sent.map((s) => p.open(Buffer.from(s.init.body)).title), ['Verge Roofing: 2 stars', 'Verge Roofing: quote accepted']);
+  await notify({ business: 'roofing', kind: 'overdue', ref: 8, title: 'Report overdue', message: 'Sam in BR6.' });
+  assert.deepEqual(sent.map((s) => p.open(Buffer.from(s.init.body)).title), ['Verge Roofing: 2 stars', 'Report overdue']);
 });
 
 test('the route keeps a subscription for the signed-in person and forgets it again', async () => {
@@ -168,4 +168,22 @@ test('the route keeps a subscription for the signed-in person and forgets it aga
   assert.equal((await call('POST', { subscription: { endpoint: 'nope' } })).status, 400);
   assert.equal((await call('DELETE', { endpoint: p.sub.endpoint })).status, 200);
   assert.equal((await pool.query('select count(*) from push_subscriptions')).rows[0].count, '0');
+});
+
+test('owners\' alerts reach managers only (never a work surveyor or a diary-only owner); each surveyor hears their own diary', async () => {
+  setKeys();
+  const { pushToSurveyor } = await import('../lib/push.js');
+  const tom = await person('Tom', ['dampscan']);
+  const ben = await person('Ben', ['dampscan']);
+  const ronnie = await person('Ronnie', ['dampscan'], 'work');
+  const phones = { tom: phone('tom'), ben: phone('ben'), ronnie: phone('ronnie') };
+  for (const [who, sc] of [['tom', tom], ['ben', ben], ['ronnie', ronnie]]) assert.ok(await saveSubscription(sc, phones[who].sub));
+  answer = () => 201;
+  sent.length = 0;
+  await pushToStaff({ business: 'dampscan', title: 'Report overdue', message: 'Kim in ME19.' });
+  assert.deepEqual(sent.map((s) => s.url.split('/').pop()), ['tom']);
+  sent.length = 0;
+  await pushToSurveyor('ronnie', { title: 'Survey booked for you', message: 'Kim in ME19, Fri 6 Nov at 16:00.' });
+  await pushToSurveyor('ben', { title: 'Survey moved', message: 'Sam in DA1.' });
+  assert.deepEqual(sent.map((s) => s.url.split('/').pop()).sort(), ['ben', 'ronnie']);
 });
