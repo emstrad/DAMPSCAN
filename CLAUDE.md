@@ -112,7 +112,16 @@ checks the mechanical ones.
   visible screen; checked at phone size before shipping.
 - Nothing reaches a customer by itself (see The businesses).
 
-## Alerts (ntfy)
+## Alerts (staff app, texts, ntfy being retired)
+- The owner is retiring ntfy (31 Oct 2026). Every alert ntfy got goes to the
+  installed staff app too (`lib/notify.js`): to the owners' code and the
+  managers of that business only, never a work-level person; an owner in
+  APP_DIARY_ONLY (default Ben) hears only their own diary. Each surveyor's
+  diary (booked, moved, taken off, cancelled, pencilled or requested, and the
+  evening route check) goes to whoever signs in under that first name
+  (`pushToSurveyor`, lib/push.js). Routine staff changes stay quiet. A to-do
+  set for one person buzzes only them. Removing NTFY_TOPIC (and the
+  NTFY_TOPIC_<NAME> feeds) in Vercel switches ntfy off; nothing else changes.
 - Alert texts to the owners (`lib/staff-sms.js`, Scott and Tom, ALERT_SMS_TO
   with the Twilio details): a new website enquiry and a time picked online
   only, with the customer's number to tap (the owner's choice) and a link to

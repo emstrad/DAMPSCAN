@@ -29,7 +29,7 @@
     var list = el('push-phones'); list.textContent = '';
     (d.phones || []).forEach(function (p) { list.appendChild(U.node('li', null, p.name + ': ' + p.phones + (p.phones === 1 ? ' phone' : ' phones'))); });
     if (!list.children.length) list.appendChild(U.node('li', null, 'No phone has staff app notifications on yet. Only ntfy will buzz.'));
-    el('push-ntfy').textContent = d.ntfy ? 'ntfy is set up. The last enquiry alerts:' : 'ntfy is not set up: NTFY_TOPIC is missing in Vercel, so no ntfy alerts go.';
+    el('push-ntfy').textContent = d.ntfy ? 'ntfy is still on as well (remove NTFY_TOPIC in Vercel to stop it). The last enquiry alerts:' : 'Alerts go to the staff app (and enquiry texts to the owners). ntfy is off.';
     var rec = el('push-recent'); rec.textContent = '';
     (d.recent || []).forEach(function (r) {
       rec.appendChild(U.node('li', null, new Date(r.at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ', ' + r.title + ': ' + (r.sent ? 'ntfy took it' : 'ntfy refused it' + (r.error ? ' (' + (/^429/.test(r.error) ? 'daily limit reached' : r.error) + ')' : ''))));
