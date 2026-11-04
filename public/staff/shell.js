@@ -255,6 +255,17 @@
   schedFor();
   document.addEventListener('ds:me', schedFor);
   document.body.appendChild(bar);
+  /* iPhones can leave a fixed bar floating mid-screen when the screen you see drifts from the layout; keep it glued to the visible bottom. */
+  var vv = global.visualViewport;
+  if (vv) {
+    var glue = function () {
+      var gap = Math.round(vv.height + vv.offsetTop - global.innerHeight);
+      bar.style.transform = gap ? 'translate3d(0,' + gap + 'px,0)' : '';
+    };
+    ['resize', 'scroll'].forEach(function (e) { vv.addEventListener(e, glue); });
+    ['scroll', 'pageshow'].forEach(function (e) { global.addEventListener(e, glue, { passive: true }); });
+    glue();
+  }
   document.documentElement.classList.add('has-shell');
 
   /* While any dialog or the To-do drawer is open the page behind it stays
