@@ -51,6 +51,9 @@
   /* The bar is 60px and the + rises above it: the last card must clear both
      with room to tap, on every page. */
   html.has-shell body{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+  /* No rubber-band past the ends, which is what shakes the fixed bar loose on iPhone. */
+  html.has-shell,html.has-shell body{overscroll-behavior-y:none}
+  .bottom-bar{will-change:transform}
   html.has-shell main{scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .section-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .section-tab{flex:none}
