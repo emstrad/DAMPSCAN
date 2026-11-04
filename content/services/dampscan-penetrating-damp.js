@@ -44,7 +44,7 @@ export default {
   ],
   ctaHeading: 'Find the defect, not just the damp patch',
   ctaBody:
-    'Internal readings, a full external inspection including the parts that cannot be seen from the ground, and a written report within 24 hours of the visit.',
+    'Internal readings, a full external inspection including the parts that cannot be seen from the ground, and a written report the day after the visit.',
   faq: [
     {
       q: 'Why is the damp patch nowhere near the leak?',

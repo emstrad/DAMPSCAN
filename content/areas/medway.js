@@ -5,7 +5,7 @@ export default {
   site: 'dampscan',
   name: 'Medway',
   metaDescription:
-    'Damp, mould and timber surveys across Rochester, Chatham, Gillingham and Strood, ME1 to ME8. Cause diagnosed before a quote, written report in 24 hours.',
+    'Damp, mould and timber surveys across Rochester, Chatham, Gillingham and Strood, ME1 to ME8. Cause diagnosed before a quote, written report the next day.',
   h1: 'Damp and mould surveys across Medway',
   intro:
     'Medway packs Georgian Rochester, Victorian naval terraces and a lot of post-war and later housing into a few miles of riverside, much of it on chalk and much of it on a slope down to the water. The stock is more varied than anywhere else in north Kent and the diagnoses vary with it.',

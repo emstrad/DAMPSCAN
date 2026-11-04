@@ -43,7 +43,7 @@ export default {
   ],
   ctaHeading: 'Find out whether it is active before you treat it',
   ctaBody:
-    'Moisture readings on the affected timber, identification of what is present, and a written report within 24 hours of the visit setting out what actually needs doing.',
+    'Moisture readings on the affected timber, identification of what is present, and a written report the day after the visit setting out what actually needs doing.',
   faq: [
     {
       q: 'Does the whole house need treating?',

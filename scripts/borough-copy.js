@@ -50,7 +50,7 @@ const covers = [
 const report = [
   (a) => ({
     h: 'The report',
-    lead: `Written within 24 hours of the visit, and structured for the people who will act on it in ${a.name}: you, your solicitor, a freeholder, a contractor.`,
+    lead: `Written the day after the visit, and structured for the people who will act on it in ${a.name}: you, your solicitor, a freeholder, a contractor.`,
     list: [
       'A summary of the cause and urgency on the first page',
       'Photographs and readings, located on the building',
@@ -62,7 +62,7 @@ const report = [
   }),
   (a) => ({
     h: 'What you receive',
-    lead: `A written report with photographs within 24 hours, in plain English, that stands on its own whoever reads it.`,
+    lead: `A written report with photographs the next day, in plain English, that stands on its own whoever reads it.`,
     list: [
       'Findings by room and by elevation',
       'Readings and the pattern they form',
@@ -93,7 +93,7 @@ const process = [
       `Send the request form or call. We reply the same day with the fee in writing.`,
       `We agree a visit, including evenings and weekends, and arrange access to any communal areas if needed.`,
       `The surveyor spends as long as the ${a.name} property needs.`,
-      `The written report follows within 24 hours.`
+      `The written report follows the next day.`
     ]
   }),
   (a) => ({
@@ -111,7 +111,7 @@ const process = [
       `A same day reply, with the fee and our first available times in ${a.name}.`,
       `One surveyor, no sales visit to follow, because there is nothing to sell.`,
       `A visit of one to two hours for most flats and houses.`,
-      `A written report with readings and photographs within 24 hours.`
+      `A written report with readings and photographs the next day.`
     ]
   })
 ];
@@ -148,12 +148,12 @@ const kinds = [
 
 const tenure = [
   (a) => `Leaseholders in ${a.name} often discover that the cause of their damp sits in a part of the building they do not own. Our report says where the water is coming from and which element of the building it passes through, which is the evidence a freeholder or managing agent needs under the lease. For landlords, damp and mould are hazards under the Housing Health and Safety Rating System, and social landlords in England now work to the fixed timescales of Awaab's Law. Our <a href="/guides/awaabs-law-damp-and-mould">guide to Awaab's Law</a> explains what that means.`,
-  (a) => `Buying in ${a.name}? A homebuyer or building survey that recommends a damp specialist should be followed by somebody with nothing to sell. Our report arrives within 24 hours of the visit, in time to negotiate, and it separates what is wrong from what simply needs maintaining. Landlords and tenants use the same report to settle what is a building defect and what is condensation; see our <a href="/guides/awaabs-law-damp-and-mould">note on Awaab's Law and landlord duties</a>.`,
+  (a) => `Buying in ${a.name}? A homebuyer or building survey that recommends a damp specialist should be followed by somebody with nothing to sell. Our report arrives the day after the visit, in time to negotiate, and it separates what is wrong from what simply needs maintaining. Landlords and tenants use the same report to settle what is a building defect and what is condensation; see our <a href="/guides/awaabs-law-damp-and-mould">note on Awaab's Law and landlord duties</a>.`,
   (a) => `Much of ${a.name} is let or leasehold, and damp disputes turn on two questions: what is causing it, and whose responsibility that cause is. A report from a practice that carries out no remedial work answers both without an interest in the outcome, which is why solicitors, managing agents and tenants' advisers use them. More on landlord duties in our <a href="/guides/awaabs-law-damp-and-mould">Awaab's Law guide</a>.`
 ];
 
 const cta = [
-  (a) => `Independent, survey only, and in writing within 24 hours. Request a survey anywhere in ${a.name}.`,
+  (a) => `Independent, survey only, and in writing the next day. Request a survey anywhere in ${a.name}.`,
   (a) => `Same day reply, a fixed fee, and a report with nothing to sell. We cover every ${a.name} postcode.`,
   (a) => `Request an independent damp survey in ${a.name}. We do no remedial work, so the report has no other purpose.`
 ];

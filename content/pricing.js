@@ -25,7 +25,7 @@ const ati = {
   slug: 'pricing',
   title: 'Damp Survey Prices in London | ATi Damp Survey',
   metaDescription:
-    'What an independent damp survey costs in London: four fixed price bands, what each includes, and what is never added afterwards. Report in 24 hours.',
+    'What an independent damp survey costs in London: four fixed price bands, what each includes, and what is never added afterwards. Next-day report.',
   h1: 'What a survey costs, and what decides it',
   intro:
     'Most damp surveys in London are free, and that is the problem with them. A free survey is paid for by the work it recommends, which is why so many of them recommend work. We sell no remedial work at all, so the survey is the whole transaction and the price can simply be published.',
@@ -85,7 +85,7 @@ const ati = {
     'Calibrated moisture readings taken to depth, not surface readings from a pin meter',
     'Surface temperature and humidity readings where condensation has to be excluded rather than assumed',
     'External inspection: ground levels, drainage, gutters, pointing, roof junctions and anything else feeding water into the building',
-    'A written report within 24 hours of the visit, with photographs and the readings behind every conclusion',
+    'A written report the day after the visit, with photographs and the readings behind every conclusion',
     'A clear statement of what does not need doing, and where a quote you are holding goes beyond the defect',
     'A specification detailed enough for you to obtain competitive quotes, which we will never bid for'
   ],
@@ -187,7 +187,7 @@ const dampscan = {
     'Calibrated moisture readings taken to depth, not surface readings from a pin meter',
     'Surface temperature and humidity readings where condensation has to be excluded rather than assumed',
     'External inspection: ground levels, drainage, gutters, pointing, roof junctions and anything else feeding water into the building',
-    'A written report within 24 hours of the visit, with photographs and the readings behind every conclusion',
+    'A written report the day after the visit, with photographs and the readings behind every conclusion',
     'A clear statement of what does not need doing, and where a quote you are holding goes beyond the defect',
     'A specification detailed enough for contractors to price like for like. We never bid for the work ourselves'
   ],

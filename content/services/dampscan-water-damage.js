@@ -61,7 +61,7 @@ export default {
   ],
   ctaHeading: 'Get it measured before it gets decorated',
   ctaBody:
-    'A survey, a moisture map and a written report within 24 hours of the visit, with a scope you can hand to your insurer. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'A survey, a moisture map and a written report the day after the visit, with a scope you can hand to your insurer. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'How long does drying actually take?',

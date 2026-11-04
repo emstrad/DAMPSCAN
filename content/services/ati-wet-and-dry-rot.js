@@ -43,7 +43,7 @@ export default {
   ],
   ctaHeading: 'Establish the extent independently',
   ctaBody:
-    'Identification, moisture mapping, the extent so far as it can be determined without unnecessary opening up, and a written report within 24 hours of the visit.',
+    'Identification, moisture mapping, the extent so far as it can be determined without unnecessary opening up, and a written report the day after the visit.',
   faq: [
     {
       q: 'We have two quotes for dry rot that differ by a factor of four. Why?',

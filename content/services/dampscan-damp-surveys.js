@@ -4,9 +4,9 @@ export default {
   slug: 'damp-surveys',
   site: 'dampscan',
   name: 'Damp Surveys',
-  title: 'Damp Surveys in Kent | Report in 24 Hours | DampScan',
+  title: 'Damp Surveys in Kent | Next-Day Report | DampScan',
   metaDescription:
-    'Damp survey by a qualified surveyor: calibrated readings, full external inspection and a written report in 24 hours. No sales reps. 5-star Google reviews.',
+    'Damp survey by a qualified surveyor: calibrated readings, full external inspection and a written report the next day. No sales reps. 5-star Google reviews.',
   h1: 'Independent damp surveys: the diagnosis, with nothing to sell',
   intro:
     'A damp survey should tell you what is wrong, why, and what to do about it, in enough detail that you could take the report to anybody. Most of what gets called a damp survey is an inspection carried out by a firm that sells the remedy, which is a different thing with a different incentive. We carry out no treatment of any kind, so the report is the whole of what we sell.',
@@ -30,7 +30,7 @@ export default {
     {
       h2: 'What you get',
       paras: [
-        'A written report within 24 hours of the visit. Photographs, the readings and where they were taken, the diagnosed cause, and what should be done in order of priority. Where we have not been able to establish something without opening up, the report says so and says exactly where to open, rather than leaving it vague.',
+        'A written report the day after the visit. Photographs, the readings and where they were taken, the diagnosed cause, and what should be done in order of priority. Where we have not been able to establish something without opening up, the report says so and says exactly where to open, rather than leaving it vague.',
         'Where work is needed, it is written as a specification any competent contractor can price, so the quotes you collect are for the same job. Where it is not needed, the report says that just as clearly, and a survey concluding that no damp proofing is required is a routine outcome here.',
       ]
     },
@@ -44,7 +44,7 @@ export default {
   ],
   ctaHeading: 'Book a survey',
   ctaBody:
-    'Same day response to every enquiry, a visit arranged around you, and a written report within 24 hours of that visit. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'Same day response to every enquiry, a visit arranged around you, and a written report the day after that visit. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'What does a damp survey cost?',
@@ -59,7 +59,7 @@ export default {
     {
       q: 'How long does the visit take and when do I get the report?',
       a:
-        'A typical survey takes between one and two hours on site depending on the size of the property and the extent of the problem, longer where a full timber inspection or underfloor access is involved. The written report follows within 24 hours of the visit. We respond to every enquiry the same day and arrange the visit around you, including evenings and weekends where that is what works.'
+        'A typical survey takes between one and two hours on site depending on the size of the property and the extent of the problem, longer where a full timber inspection or underfloor access is involved. The written report follows the day after the visit. We respond to every enquiry the same day and arrange the visit around you, including evenings and weekends where that is what works.'
     },
   ],
   related: ['rising-damp', 'condensation-and-mould', 'penetrating-damp', 'water-damage']

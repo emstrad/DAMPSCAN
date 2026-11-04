@@ -64,7 +64,7 @@ export default {
     { q: 'Can condensation and rising damp happen together?', a: 'Yes, and in lower ground flats it is common. The survey separates them so each is dealt with properly.' },
     { q: 'Is injection ever right in a London flat?', a: 'Occasionally, in a ground floor wall with no working course and no external cause. That is uncommon, and the report says so when it is the case.' },
     { q: 'Do you survey for tenants?', a: 'Yes. Tenants, landlords, leaseholders and managing agents all commission our reports.' },
-    { q: 'How quickly do I get the report?', a: 'Within 24 hours of the visit.' }
+    { q: 'How quickly do I get the report?', a: 'The day after the visit.' }
   ],
   related: ['condensation-and-mould', 'rising-damp', 'penetrating-damp']
 };

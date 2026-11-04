@@ -41,13 +41,13 @@ export default {
     {
       h2: 'Using the report',
       paras: [
-        'The report arrives within 24 hours of the visit. It can support a price renegotiation, a request for specific works before completion, a retention, or enquiries through your solicitor to the freeholder. It can also give you confidence to proceed when the damp flagged by a general survey turns out to be minor.',
+        'The report arrives the day after the visit. It can support a price renegotiation, a request for specific works before completion, a retention, or enquiries through your solicitor to the freeholder. It can also give you confidence to proceed when the damp flagged by a general survey turns out to be minor.',
         'ATi carries out no remedial work, so we have no interest in what the report concludes. That independence is what makes it useful to a buyer, a lender and a seller alike.'
       ]
     }
   ],
   faq: [
-    { q: 'How fast can you survey before exchange?', a: 'We reply the same day, usually visit within a few days, and the report follows within 24 hours of the visit.' },
+    { q: 'How fast can you survey before exchange?', a: 'We reply the same day, usually visit within a few days, and the report follows the day after the visit.' },
     { q: 'Do I need access to communal areas?', a: 'It helps. We arrange it through the agent where possible, and the report notes anything that could not be inspected.' },
     { q: 'Is a damp proofing guarantee from the seller worth anything?', a: 'Only if the treatment addressed the actual cause, the guarantee is transferable and someone still stands behind it. The survey can tell you whether the treatment matched the problem.' },
     { q: 'Can my solicitor use your report?', a: 'Yes. It is written so that a solicitor can raise specific enquiries from it.' },

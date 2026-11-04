@@ -154,7 +154,7 @@ ${near.length ? `
   const aside = `
     <div class="booking">
       <h2>Survey before damp proofing</h2>
-      <p>Same day response, and a written report within 24 hours of the visit.${orCall(site)}</p>
+      <p>Same day response, and a written report the day after the visit.${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

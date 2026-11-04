@@ -61,7 +61,7 @@ export default {
     {
       h2: 'When to get a survey',
       paras: [
-        'If the damp persists after the simple fixes, if you are being quoted for injection or tanking, or if you are buying a house and the homebuyer report flags damp, an independent survey is worth having. We take readings at depth, measure humidity and surface temperatures, inspect outside, and say which kind of damp it is, in writing, within 24 hours. We sell no treatment, so the answer is not shaped by a sale.'
+        'If the damp persists after the simple fixes, if you are being quoted for injection or tanking, or if you are buying a house and the homebuyer report flags damp, an independent survey is worth having. We take readings at depth, measure humidity and surface temperatures, inspect outside, and say which kind of damp it is, in writing, the next day. We sell no treatment, so the answer is not shaped by a sale.'
       ]
     }
   ],

@@ -45,14 +45,14 @@ export default {
     {
       h2: 'What happens after the survey',
       paras: [
-        'You get the written report within 24 hours of the survey, with photographs, readings and the cause. Where work is needed, the report sets it out as a plain specification that contractors can price like for like, so you are comparing quotes for the same job rather than three different diagnoses.',
+        'You get the written report the day after the survey, with photographs, readings and the cause. Where work is needed, the report sets it out as a plain specification that contractors can price like for like, so you are comparing quotes for the same job rather than three different diagnoses.',
         'We do not take commission from contractors and we do not bid for the work. If a quote you receive goes beyond what the report found, we will say so.',
       ]
     },
   ],
   ctaHeading: 'Book an independent survey before the work',
   ctaBody:
-    'Same day response to every enquiry and a written report within 24 hours of the visit. If damp proofing is needed the report specifies it; if it is not, the report says that.',
+    'Same day response to every enquiry and a written report the day after the visit. If damp proofing is needed the report specifies it; if it is not, the report says that.',
   faq: [
     {
       q: 'Do you carry out damp proofing or just surveys?',

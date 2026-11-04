@@ -128,7 +128,7 @@ const dampscan = {
     (t) => `We are not against damp proofing. We are against it being the default. When a ${t.name} wall has no working course, sits on damp ground and stays wet after the outside has been put right, a damp proof course and suitable replastering is the right job, and the report will say that and specify it.`
   ],
   cta: [
-    (t) => `An independent survey before you pay for damp proofing in ${t.name}. Fixed fee, same day reply, written report within 24 hours.`,
+    (t) => `An independent survey before you pay for damp proofing in ${t.name}. Fixed fee, same day reply, written report the next day.`,
     (t) => `Get the cause in writing before anyone drills a wall. We sell no treatment and cover ${t.name} and the villages around it.`,
     (t) => `Holding a damp proofing quote? Book a survey and we will tell you whether it matches what is actually wrong with your ${t.name} home.`
   ]
@@ -220,7 +220,7 @@ const ati = {
     (t) => `We are not opposed to damp proofing, only to it being sold as the answer before the question has been asked. Where the readings, the pattern and the building all point to a missing or failed course in a ${t.name} property, the report recommends one and says how it should be done.`
   ],
   cta: [
-    (t) => `An independent survey before any damp proofing in ${t.name}. We do no remedial work. Written report within 24 hours.`,
+    (t) => `An independent survey before any damp proofing in ${t.name}. We do no remedial work. Written report the next day.`,
     (t) => `Get the cause, and who is responsible for it, in writing before you pay for damp proofing in ${t.name}.`
   ]
 };

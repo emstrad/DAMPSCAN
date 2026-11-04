@@ -38,14 +38,14 @@ export default {
     {
       h2: 'What you receive',
       paras: [
-        'A written report within 24 hours of the visit, with photographs, the recorded readings and their locations, the diagnosed cause, and what should be done about it in order of priority. Where we conclude no damp proof course is needed, the report says so in terms you can put in front of the firm that quoted for one.',
+        'A written report the day after the visit, with photographs, the recorded readings and their locations, the diagnosed cause, and what should be done about it in order of priority. Where we conclude no damp proof course is needed, the report says so in terms you can put in front of the firm that quoted for one.',
         'Where the correct answer is remedial work, we say what and where, and you are free to obtain that from whoever you choose. We do not recommend contractors and we take nothing from anyone you instruct.',
       ]
     },
   ],
   ctaHeading: 'Get an independent view before you commit',
   ctaBody:
-    'A survey by a practice with nothing to sell, and a written report within 24 hours of the visit. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'A survey by a practice with nothing to sell, and a written report the day after the visit. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'Our surveyor recommended a damp and timber specialist. Is that a diagnosis?',

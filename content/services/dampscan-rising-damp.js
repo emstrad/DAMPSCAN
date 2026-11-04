@@ -45,7 +45,7 @@ export default {
   ],
   ctaHeading: 'Get it diagnosed before you pay to treat it',
   ctaBody:
-    'A survey with calibrated readings, a full external inspection and a written report within 24 hours of the visit. If your wall does not need a damp proof course, the report will say so.',
+    'A survey with calibrated readings, a full external inspection and a written report the day after the visit. If your wall does not need a damp proof course, the report will say so.',
   faq: [
     {
       q: 'Does rising damp exist?',
