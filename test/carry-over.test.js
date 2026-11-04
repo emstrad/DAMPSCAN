@@ -119,3 +119,17 @@ test('booking an enquiry with no survey picked says so in words, and a pencilled
   assert.equal(String(job.job_time).slice(0, 5), '16:00');
   assert.equal(job.pencil_date, null);
 });
+
+test('a booked survey\'s type and price can be changed after booking, and the change is in its history', async () => {
+  const ed = await lead('Edwards', 'ed@example.com');
+  await post({ op: 'book', kind: 'lead', id: ed, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  const job = Number((await jobOf(ed)).id);
+  const r = await post({ op: 'survey', kind: 'job', id: job, pricePounds: 495 });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(Number((await jobOf(ed)).survey_price_pence), 49500);
+  assert.match(r.data.said, /Localised at £495 \(was Localised at £\d+\)/);
+  const bad = await post({ op: 'survey', kind: 'job', id: job, surveyType: 'castle' });
+  assert.equal(bad.status, 400);
+  const said = (await pool.query("select after_json->>'said' as s from audit where entity = 'job' and entity_id = $1 and action = 'survey_change'", [job])).rows[0].s;
+  assert.match(said, /Survey changed to/);
+});
