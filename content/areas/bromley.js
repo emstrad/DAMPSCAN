@@ -53,7 +53,7 @@ export default {
     },
     { q: 'Our Beckenham flat is damp on the top floor. Who fixes the roof?', a: 'In converted houses the roof is usually a common part and the freeholder\'s responsibility. The report identifies the source.' },
     { q: 'Do trees cause damp in Bromley houses?', a: 'Indirectly. Leaves block gutters and valleys, and large trees on clay can affect drains. Both are common sources of damp here.' },
-    { q: 'Do you survey for buyers in Bromley?', a: 'Yes. The report is ready within 24 hours of the visit, in time to inform negotiations.' }
+    { q: 'Do you survey for buyers in Bromley?', a: 'Yes. The report is ready the day after the visit, in time to inform negotiations.' }
   ],
   nearby: ['croydon', 'lewisham']
 };

@@ -34,5 +34,5 @@ export default {
   related: ['condensation-and-mould', 'ventilation', 'damp-surveys', 'penetrating-damp'],
   guides: [],
   ctaHeading: 'Not sure it is condensation?',
-  ctaBody: 'Book a survey and find out what is causing it before you spend money treating it. Written report within 24 hours of the visit.'
+  ctaBody: 'Book a survey and find out what is causing it before you spend money treating it. Written report the day after the visit.'
 };

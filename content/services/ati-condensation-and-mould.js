@@ -43,7 +43,7 @@ export default {
   ],
   ctaHeading: 'Get it measured rather than argued about',
   ctaBody:
-    'Surface temperatures, humidity, calibrated moisture readings and measured ventilation performance, in a written report within 24 hours of the visit.',
+    'Surface temperatures, humidity, calibrated moisture readings and measured ventilation performance, in a written report the day after the visit.',
   faq: [
     {
       q: 'Our landlord says the mould is our lifestyle. Is that a defence?',

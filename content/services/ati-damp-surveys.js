@@ -43,7 +43,7 @@ export default {
   ],
   ctaHeading: 'Book an independent survey',
   ctaBody:
-    'Same day response to every enquiry, and a written, evidence-based report within 24 hours of the visit. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'Same day response to every enquiry, and a written, evidence-based report the day after the visit. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'Why does it matter that you do no remedial work?',

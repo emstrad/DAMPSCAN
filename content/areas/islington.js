@@ -43,7 +43,7 @@ export default {
         'It limits what can be done to the outside, not what can be diagnosed. Most of Islington is covered, so external wall insulation, replacement windows and visible external work will often need consent or be refused outright. We write the report knowing that, and concentrate on what can actually be delivered: drainage and ground levels, internal ventilation, breathable finishes, and heating that keeps surfaces above dew point.'
     },
     { q: 'Is the damp in our lower ground flat our problem or the freeholder\'s?', a: 'It depends on the source and the lease. Water coming through the external walls, the front area, the vaults or the structure is often the freeholder\'s responsibility. Water from a neighbouring garden may be a matter between neighbours. The report identifies the source so the right person can act.' },
-    { q: 'Can you survey a flat during a purchase in Islington?', a: 'Yes. We often survey for buyers whose homebuyer report has flagged damp. The report is ready within 24 hours of the visit, so it can inform negotiations or a retention before exchange.' },
+    { q: 'Can you survey a flat during a purchase in Islington?', a: 'Yes. We often survey for buyers whose homebuyer report has flagged damp. The report is ready the day after the visit, so it can inform negotiations or a retention before exchange.' },
     { q: 'Is black mould in a converted flat a building issue?', a: 'Often partly. Converted flats frequently have bathrooms without windows, extract fans ducted into voids, and cold external walls. We measure humidity, surface temperature and extraction so the report shows what is a building issue and what is not.' }
   ],
   nearby: ['hackney', 'camden']

@@ -164,7 +164,7 @@ function ctaSection(area, site) {
   return `
   <section class="sec">
     <h2>Book a damp survey in ${esc(area.name)}</h2>
-    <p>${what} Same day response to every enquiry, and a written report with photographs within 24 hours of the visit.</p>
+    <p>${what} Same day response to every enquiry, and a written report with photographs the day after the visit.</p>
     <p><a class="btn btn--primary" href="#book">Book a survey</a>${call}</p>
   </section>
 `;

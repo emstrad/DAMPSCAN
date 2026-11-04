@@ -73,7 +73,7 @@ export default {
       { q: 'Is chemical injection right for stock brick?', a: 'Occasionally, where there is no working course and nothing external explains the damp. In most Sittingbourne terraces we survey, the course still works and the damp has another cause.' },
       { q: 'Why does sand and cement plaster make things worse?', a: 'It is dense and impermeable. On a solid wall it stops moisture leaving through the inner face, so it moves higher and salts collect at the plaster line. Lime and breathable plasters let the wall dry.' },
       { q: 'How much damp proofing is normal for a Sittingbourne terrace?', a: 'There is no normal amount. The right amount is what the cause requires, which may be none. The report specifies exactly what, if anything, is needed.' },
-      { q: 'We have a quote and a deadline to exchange. Can you help quickly?', a: 'Yes. We reply the same day and can often visit within days. The report follows within 24 hours of the visit.' },
+      { q: 'We have a quote and a deadline to exchange. Can you help quickly?', a: 'Yes. We reply the same day and can often visit within days. The report follows the day after the visit.' },
       { q: 'Does the survey cover woodworm too?', a: 'Yes. Accessible timbers are checked for decay and beetle activity, with moisture readings to show whether any activity is current.' },
       { q: 'What if a damp proofing firm disagrees with your report?', a: 'Ask them to explain their evidence against the readings and photographs in the report. A diagnosis based on measurements is much easier to test than one based on a single meter reading.' }
     ]

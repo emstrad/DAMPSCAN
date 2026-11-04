@@ -113,7 +113,7 @@ ${related.length || more.length ? `
   const aside = `
     <div class="booking">
       <h2>${esc(guide.ctaHeading || (site.enquiryCta ? site.enquiryCta.heading : 'Get the answer before you spend'))}</h2>
-      <p>${guide.ctaBody || (site.enquiryCta ? esc(site.enquiryCta.body) : 'A survey establishes what is there and what, if anything, needs doing, with a written report within 24 hours of the visit.')}${orCall(site)}</p>
+      <p>${guide.ctaBody || (site.enquiryCta ? esc(site.enquiryCta.body) : 'A survey establishes what is there and what, if anything, needs doing, with a written report the day after the visit.')}${orCall(site)}</p>
       ${bookForm(site.key)}
       ${verifiedBadge(site)}
     </div>`;

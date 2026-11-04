@@ -44,7 +44,7 @@ export default {
   ],
   ctaHeading: 'Find out what the water is doing before you specify a system',
   ctaBody:
-    'A survey of the below ground structure and the ground outside it, and a written report within 24 hours setting out what is actually needed.',
+    'A survey of the below ground structure and the ground outside it, and a written report the next day setting out what is actually needed.',
   faq: [
     {
       q: 'Our cellar has started leaking. Does the whole system need replacing?',

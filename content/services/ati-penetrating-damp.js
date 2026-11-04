@@ -44,7 +44,7 @@ export default {
   ],
   ctaHeading: 'Establish where the water is getting in',
   ctaBody:
-    'An independent survey and a written report within 24 hours of the visit, with the readings, photographs and the entry point recorded. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'An independent survey and a written report the day after the visit, with the readings, photographs and the entry point recorded. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'Water is coming into our flat from the common parts. What do we do?',

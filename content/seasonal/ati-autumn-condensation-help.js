@@ -24,7 +24,7 @@ export default {
     'Our reports are written to be read by tenants, landlords, agents, solicitors and councils. They separate what is down to the building from what is down to how the home is used, which is usually the question everybody is really asking.'
   ],
   price:
-    'Our survey fees are fixed and published on our prices page, with no remedial quote attached, because we do not carry out remedial work. You get a written report within 24 hours of the visit.',
+    'Our survey fees are fixed and published on our prices page, with no remedial quote attached, because we do not carry out remedial work. You get a written report the day after the visit.',
   faq: [
     { q: 'Is condensation the tenant\'s fault?', a: 'Not necessarily. Lifestyle plays a part, but missing ventilation, cold bridging and leaks are the landlord\'s responsibility, and the Awaab\'s Law rules on damp and mould in social housing reflect that. A survey sets out which applies.' },
     { q: 'What should I record before a survey?', a: 'Photographs with dates, when the mould appears, how the home is heated and ventilated, and any repairs that have been reported. It helps the survey and any later dispute.' },
@@ -33,5 +33,5 @@ export default {
   related: ['condensation-and-mould', 'ventilation', 'damp-surveys', 'penetrating-damp'],
   guides: [],
   ctaHeading: 'Find out what is causing it',
-  ctaBody: 'An independent survey, with no treatment to sell, and a written report within 24 hours of the visit.'
+  ctaBody: 'An independent survey, with no treatment to sell, and a written report the day after the visit.'
 };

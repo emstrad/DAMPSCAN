@@ -45,7 +45,7 @@ export default {
   ],
   ctaHeading: 'Have the ventilation measured, not assumed',
   ctaBody:
-    'Measured flow rates against requirement, humidity and surface temperature readings, and a written report within 24 hours of the visit.',
+    'Measured flow rates against requirement, humidity and surface temperature readings, and a written report the day after the visit.',
   faq: [
     {
       q: 'How do I know if my extract fan is working?',

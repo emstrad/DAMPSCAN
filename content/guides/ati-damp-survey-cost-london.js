@@ -38,7 +38,7 @@ export default {
         'Moisture readings across and up each affected wall, at depth as well as the surface',
         'Humidity and surface temperature readings where mould or condensation is involved',
         'For basements, the drainage system: channels, sump, pumps and alarms',
-        'A written report within 24 hours, with photographs, the cause and who is likely responsible',
+        'A written report the next day, with photographs, the cause and who is likely responsible',
         'A specification for contractors to price, and an indication of what that work should cost'
       ],
       paras: [

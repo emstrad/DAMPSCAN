@@ -22,7 +22,7 @@ export const SIZES = [
 ];
 
 export const SERVICES = {
-  damp: { name: 'Damp survey', info: 'Readings, inspection and photographs to find the cause, with a written report and recommendations within 24 hours.' },
+  damp: { name: 'Damp survey', info: 'Readings, inspection and photographs to find the cause, with a written report and recommendations the next day.' },
   timber: { name: 'Damp and timber survey', info: 'The damp survey plus accessible timbers checked for decay, fungal growth and wood-boring insects, with timber moisture readings.' }
 };
 

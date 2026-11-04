@@ -41,7 +41,7 @@ const TITLES = {
     `Damp Surveys in ${n} | DampScan`
   ],
   ati: (n) => [
-    `Damp Survey in ${n} | Independent, 24h Report | ATi Damp Survey`,
+    `Damp Survey in ${n} | Independent, Next-Day Report | ATi Damp Survey`,
     `Independent Damp Survey in ${n} | ATi Damp Survey`,
     `Damp Survey in ${n} | ATi Damp Survey`
   ]
@@ -58,8 +58,8 @@ export function areaTitle(area) {
 }
 
 const LEADS = {
-  dampscan: (n) => `Damp and mould surveys across ${n} by an independent Kent surveyor. No treatment sold, report in 24h.`,
-  ati: (n) => `Independent damp and mould survey in ${n}. We sell no treatment, so no hard sell. Written report in 24h.`
+  dampscan: (n) => `Damp and mould surveys across ${n} by an independent Kent surveyor. No treatment sold, report the next day.`,
+  ati: (n) => `Independent damp and mould survey in ${n}. We sell no treatment, so no hard sell. Next-day written report.`
 };
 
 /**
@@ -103,7 +103,7 @@ function withPlaces(out, places, name) {
 }
 
 export function townDescription(t) {
-  let out = `Damp survey in ${t.name} by an independent surveyor: cause found with readings, no treatment sold, written report in 24h.`;
+  let out = `Damp survey in ${t.name} by an independent surveyor: cause found with readings, no treatment sold, next-day written report.`;
   if (fiveStar('dampscan') && (out + ' 5-star Google reviews.').length <= DESC_MAX) out += ' 5-star Google reviews.';
   return withPlaces(out, t.places, t.name);
 }
@@ -120,7 +120,7 @@ export function proofingTitle(p) {
 
 export function proofingDescription(p) {
   const out = p.site === 'ati'
-    ? `Quoted for damp proofing in ${p.name}? An independent London survey finds the cause first. We do no remedial work. Report in 24h.`
+    ? `Quoted for damp proofing in ${p.name}? An independent London survey finds the cause first. We do no remedial work. Report the next day.`
     : `Thinking of damp proofing in ${p.name}? Get an independent survey first. We sell no treatment, so you only pay for what the wall needs.`;
   return withPlaces(out, p.places, p.name);
 }

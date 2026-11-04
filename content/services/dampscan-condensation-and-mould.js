@@ -44,7 +44,7 @@ export default {
   ],
   ctaHeading: 'Get the mould diagnosed rather than wiped off',
   ctaBody:
-    'Surface temperature and humidity readings, measured ventilation performance, and a written report within 24 hours of the visit setting out what is actually driving it.',
+    'Surface temperature and humidity readings, measured ventilation performance, and a written report the day after the visit setting out what is actually driving it.',
   faq: [
     {
       q: 'We have been told to open the windows more. Is that the answer?',

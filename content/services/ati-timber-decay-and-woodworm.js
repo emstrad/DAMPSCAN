@@ -36,14 +36,14 @@ export default {
     {
       h2: 'What you get',
       paras: [
-        'A written report within 24 hours of the visit identifying what is present, whether it is active, the moisture conditions supporting it or not, and any loss of structural section, with photographs and readings. Where treatment is warranted we say which timbers and why. Where it is not, the report says so in terms you can put in front of whoever quoted for it.',
+        'A written report the day after the visit identifying what is present, whether it is active, the moisture conditions supporting it or not, and any loss of structural section, with photographs and readings. Where treatment is warranted we say which timbers and why. Where it is not, the report says so in terms you can put in front of whoever quoted for it.',
         'We carry out no treatment, take no commission and recommend no contractors. If work is needed you instruct whoever you choose, and nothing about the conclusion is influenced by who that turns out to be.',
       ]
     },
   ],
   ctaHeading: 'Get a second opinion before treating',
   ctaBody:
-    'An independent inspection with moisture readings and species identification, and a written report within 24 hours of the visit.',
+    'An independent inspection with moisture readings and species identification, and a written report the day after the visit.',
   faq: [
     {
       q: 'We have been quoted for a full woodworm treatment. Should we get it checked?',

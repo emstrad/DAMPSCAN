@@ -43,7 +43,7 @@ export default {
   ],
   ctaHeading: 'Get a second opinion before committing five figures',
   ctaBody:
-    'An independent survey of the below ground structure, the system if there is one, and the ground outside, with a written report within 24 hours of the visit.',
+    'An independent survey of the below ground structure, the system if there is one, and the ground outside, with a written report the day after the visit.',
   faq: [
     {
       q: 'We have been quoted to re-waterproof the whole basement. Is that likely to be necessary?',

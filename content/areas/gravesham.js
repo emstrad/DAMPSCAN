@@ -5,7 +5,7 @@ export default {
   site: 'dampscan',
   name: 'Gravesham',
   metaDescription:
-    'Damp, mould and timber surveys across Gravesham, DA11, DA12 and DA13. Written report within 24 hours of the visit.',
+    'Damp, mould and timber surveys across Gravesham, DA11, DA12 and DA13. Written report the day after the visit.',
   h1: 'Damp and mould surveys in Gravesham',
   intro:
     'Gravesham runs from the Thames at Gravesend up onto the North Downs, so a property here is either on low riverside ground or on chalk several hundred feet above it. The riverside town is largely Georgian and Victorian; the villages on the downs are older and built of very different material.',

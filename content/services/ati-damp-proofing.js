@@ -9,7 +9,7 @@ export default {
   name: 'Damp Proofing Advice',
   title: 'Damp Proofing in London? Survey First | ATi Damp Survey',
   metaDescription:
-    'Quoted for damp proofing in London? An independent survey first, from a firm that sells no treatment. The real cause and what work is justified, in 24h.',
+    'Quoted for damp proofing in London? An independent survey first, from a firm that sells no treatment. The real cause and what work is justified, the next day.',
   h1: 'Damp proofing in London: an independent survey before you pay',
   intro:
     'If you are looking for damp proofing, you have probably been told, or suspect, that a wall needs treating. We do not carry out damp proofing. We survey and write reports, and we sell no treatment, which is exactly why a report from us is worth having before you commit to one. It tells you why the wall is wet and what work, if any, is justified.',
@@ -32,7 +32,7 @@ export default {
     {
       h2: 'What the report gives you',
       paras: [
-        'A written report within 24 hours of the visit, with photographs, calibrated readings and where they were taken, the diagnosed cause, and the work that would actually fix it, in order of priority.',
+        'A written report the day after the visit, with photographs, calibrated readings and where they were taken, the diagnosed cause, and the work that would actually fix it, in order of priority.',
       ],
       list: [
         'A clear answer on whether a damp proof course is needed at all',
@@ -44,7 +44,7 @@ export default {
   ],
   ctaHeading: 'Book an independent survey',
   ctaBody:
-    'Same day response to every enquiry and a written report within 24 hours of the visit. We carry out no remedial work, so the report has nothing to sell you.',
+    'Same day response to every enquiry and a written report the day after the visit. We carry out no remedial work, so the report has nothing to sell you.',
   faq: [
     {
       q: 'Do you do damp proofing?',

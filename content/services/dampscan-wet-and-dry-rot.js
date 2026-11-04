@@ -43,7 +43,7 @@ export default {
   ],
   ctaHeading: 'Get the extent established before the scope is set',
   ctaBody:
-    'Identification, extent so far as it can be determined, the moisture source behind it, and a written report within 24 hours of the visit.',
+    'Identification, extent so far as it can be determined, the moisture source behind it, and a written report the day after the visit.',
   faq: [
     {
       q: 'How do I know if it is dry rot or wet rot?',

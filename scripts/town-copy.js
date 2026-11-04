@@ -56,7 +56,7 @@ const covers = [
 const report = [
   (t) => ({
     h: 'What the written report contains',
-    lead: `Your report arrives within 24 hours of the visit. A typical one for a ${t.name} house sets out:`,
+    lead: `Your report arrives the day after the visit. A typical one for a ${t.name} house sets out:`,
     list: [
       'A plain English summary on the first page: what is wrong, why, and how urgent it is',
       'Photographs of each defect, with where it is on the building',
@@ -80,7 +80,7 @@ const report = [
   }),
   (t) => ({
     h: 'The report, and what you can do with it',
-    lead: `You get it in writing within 24 hours. It is built so you can use it, whether you are living in ${t.name}, letting there or buying there:`,
+    lead: `You get it in writing the next day. It is built so you can use it, whether you are living in ${t.name}, letting there or buying there:`,
     list: [
       'Hand it to two or three contractors and compare prices for the same job',
       'Put it to a seller or agent during a purchase, with the evidence attached',
@@ -99,7 +99,7 @@ const process = [
       `You send the form or call. We reply the same day and confirm the fee in writing.`,
       `A qualified surveyor comes to your ${t.name} address at a time that suits you, including evenings and weekends.`,
       `The survey takes one to two hours for most homes, longer for large or period buildings.`,
-      `Your written report follows within 24 hours, and we are on the phone if anything in it needs explaining.`
+      `Your written report follows the next day, and we are on the phone if anything in it needs explaining.`
     ]
   }),
   (t) => ({
@@ -108,7 +108,7 @@ const process = [
       `Tell us the postcode and what you have noticed. Photos help but are not needed.`,
       `We agree a fixed fee and a slot. Nothing changes once agreed, whatever we find.`,
       `On the day we inspect outside first, then inside, and talk you through what we see before we leave.`,
-      `The report lands in your inbox within 24 hours, ready to share.`
+      `The report lands in your inbox the next day, ready to share.`
     ]
   }),
   (t) => ({
@@ -117,7 +117,7 @@ const process = [
       `Same day reply to every ${t.name} enquiry, with the fee confirmed before we book.`,
       `One surveyor, on site for as long as the house needs, not a fixed slot.`,
       `Findings explained on the doorstep in plain words.`,
-      `A written report with photographs and readings within 24 hours of the visit.`
+      `A written report with photographs and readings the day after the visit.`
     ]
   })
 ];
@@ -159,7 +159,7 @@ const landlords = [
 ];
 
 const cta = [
-  (t) => `Same day reply to every enquiry, a fixed fee agreed before we come, and a written report within 24 hours of the visit to your ${t.name} home.`,
+  (t) => `Same day reply to every enquiry, a fixed fee agreed before we come, and a written report the day after the visit to your ${t.name} home.`,
   (t) => `Tell us your postcode and what you have noticed. We confirm the fee the same day and arrange a visit around you, anywhere in and around ${t.name}.`,
   (t) => `One qualified surveyor, nothing to sell, and the report in writing within a day. Book online or call, and we will confirm cover for your ${t.name} postcode straight away.`
 ];

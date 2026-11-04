@@ -43,7 +43,7 @@ const COPY = {
     submit: 'Request My Survey',
     foot: 'Your details arrange your survey and nothing else. No marketing lists, no contractor referrals.',
     doneTitle: "Received. We're on it.",
-    doneBody: 'A surveyor will reply today to arrange the inspection. Your written report follows within 24 hours of that visit.',
+    doneBody: 'A surveyor will reply today to arrange the inspection. Your written report follows the day after that visit.',
     issueLabel: 'What are you dealing with? Tick anything that applies.',
     addressLabel: 'Address for the survey',
     addressErr: 'Please give the address for the survey.',

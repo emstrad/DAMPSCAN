@@ -36,7 +36,7 @@ export default {
       h2: 'What an independent damp survey adds',
       paras: [
         'It identifies the cause, rather than recording that a wall is damp. It separates live problems from historic ones, such as old woodworm or salts left by a long fixed leak. It tells you which repairs are maintenance, which are urgent, and which are not needed at all. And it does that without a sales motive, because we carry out no remedial work.',
-        'The report arrives within 24 hours of the visit, which matters when you are working to an exchange date.'
+        'The report arrives the day after the visit, which matters when you are working to an exchange date.'
       ]
     },
     {
@@ -54,7 +54,7 @@ export default {
     }
   ],
   faq: [
-    { q: 'How soon can you survey before exchange?', a: 'We reply to every enquiry the same day and usually visit within a few days. The report follows within 24 hours of the visit.' },
+    { q: 'How soon can you survey before exchange?', a: 'We reply to every enquiry the same day and usually visit within a few days. The report follows the day after the visit.' },
     { q: 'Do I need the seller\'s permission?', a: 'You need access, which is usually arranged through the estate agent. Our survey is non invasive by default, so nothing is disturbed without the owner\'s agreement.' },
     { q: 'Will my lender accept your report?', a: 'Lenders deal with specialist reports routinely. If the valuer has asked for a damp report, ours gives the cause and the recommended work in a form they can use.' },
     { q: 'Should I ask the seller to do the damp proofing?', a: 'Only if it is the right work. It is often better to agree a price reduction and arrange the proportionate repair yourself, so it is done properly.' },

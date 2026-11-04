@@ -44,7 +44,7 @@ export default {
     },
     { q: 'Our Carshalton cottage is near the ponds and damp. Is it groundwater?', a: 'Possibly. Carshalton\'s ponds are spring fed, and the water table on low ground can be high. The survey separates groundwater from rainwater and building defects.' },
     { q: 'Does a 1930s house in Cheam need a damp proof course?', a: 'Rarely. The original course usually works; bridging by drives and patios is the common cause.' },
-    { q: 'Do you survey for buyers in Sutton?', a: 'Yes. The report is ready within 24 hours of the visit.' }
+    { q: 'Do you survey for buyers in Sutton?', a: 'Yes. The report is ready the day after the visit.' }
   ],
   nearby: ['merton', 'kingston-upon-thames']
 };

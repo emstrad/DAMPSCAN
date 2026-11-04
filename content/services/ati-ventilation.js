@@ -45,7 +45,7 @@ export default {
   ],
   ctaHeading: 'Get the ventilation measured',
   ctaBody:
-    'Measured flow rates against requirement, duct routes traced, and a written report within 24 hours of the visit. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'Measured flow rates against requirement, duct routes traced, and a written report the day after the visit. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'What flow rate should a bathroom fan achieve?',

@@ -54,13 +54,13 @@ export default {
       paras: [
         'A drying company or a restoration contractor who would carry out the works has an obvious interest in the scope being large, and insurers treat their reports accordingly. A loss adjuster is appointed and paid by the insurer. Between those two positions there is often nobody looking at the building on its own terms.',
         'ATi carries out no remedial work of any kind, takes no commission, recommends no contractors and has no relationship with any insurer. There is nothing in the conclusion for us either way, which is the only reason the conclusion carries weight with the party being asked to pay.',
-        'Fixed fee agreed before we attend, and the written report within 24 hours of the inspection. The fee is payable by whoever instructs us. If you intend to put it to your insurer, that is a conversation to have with them first, and it does not change what you owe us.',
+        'Fixed fee agreed before we attend, and the written report the day after the inspection. The fee is payable by whoever instructs us. If you intend to put it to your insurer, that is a conversation to have with them first, and it does not change what you owe us.',
       ]
     },
   ],
   ctaHeading: 'Get the water damage established properly',
   ctaBody:
-    'An independent inspection and a written report within 24 hours, with readings taken to depth, the source identified and a clear opinion on timing. Put your postcode in the form and we will confirm cover and fee the same day.',
+    'An independent inspection and a written report the next day, with readings taken to depth, the source identified and a clear opinion on timing. Put your postcode in the form and we will confirm cover and fee the same day.',
   faq: [
     {
       q: 'My insurer says the damage is gradual, not a sudden escape. Can that be challenged?',
