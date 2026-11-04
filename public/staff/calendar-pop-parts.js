@@ -235,5 +235,31 @@
   }
 
 
-  global.DSPOPX = { where: where, facts: facts, agentLine: agentLine, pictures: pictures, big: big, next: next, dateForm: dateForm };
+  /* A booked survey booked as the wrong survey or price: change it here (managers; lib/survey-change.js). */
+  function surveyEdit(box, j, changed) {
+    var d = document.createElement('details'); d.className = 'sheet-fold';
+    d.appendChild(U.node('summary', null, 'Change survey or price'));
+    var f = document.createElement('form'); f.className = 'pop-date';
+    var t = document.createElement('select'); t.setAttribute('aria-label', 'Survey');
+    var p = document.createElement('input'); p.type = 'number'; p.min = '0'; p.step = '0.01'; p.inputMode = 'decimal'; p.placeholder = 'Price £ (optional)'; p.setAttribute('aria-label', 'Price in pounds');
+    var go = U.node('button', 'btn btn--primary btn--sm', 'Save'); go.type = 'submit';
+    var note = U.node('p', 'panel-note');
+    d.addEventListener('toggle', function () {
+      if (!d.open || t.options.length) return;
+      U.get('/api/admin/rates').then(function (r) {
+        (r.rates || []).filter(function (x) { return x.active !== false; }).forEach(function (x) { var o = document.createElement('option'); o.value = x.key; o.textContent = x.label + ', £' + Math.round(x.pricePence / 100); t.appendChild(o); });
+        if (j.surveyKey) t.value = j.surveyKey;
+      }).catch(function () {});
+    });
+    f.addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      var r = await U.send('/api/admin/scheduling', { op: 'survey', kind: 'job', id: j.id, surveyType: t.value, pricePounds: p.value });
+      if (!r.ok) { note.textContent = (r.data && r.data.error) || 'Not saved'; return; }
+      changed();
+    });
+    f.appendChild(t); f.appendChild(p); f.appendChild(go);
+    d.appendChild(f); d.appendChild(note); box.appendChild(d);
+  }
+
+  global.DSPOPX = { where: where, facts: facts, agentLine: agentLine, pictures: pictures, big: big, next: next, dateForm: dateForm, surveyEdit: surveyEdit };
 })(window);

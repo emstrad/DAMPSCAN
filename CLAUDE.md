@@ -353,6 +353,11 @@ checks the mechanical ones.
   60 days. A repeat form carries the agent, survey choice and photos, and
   folds into an undated job card instead of making a second card. Not going
   ahead can be undone (Bring back to Scheduling). Unbook clears an old hold.
+- A booked survey's type and price can be changed after booking
+  (`lib/survey-change.js`, managers): the job pop-up's folded "Change survey
+  or price" and ChatGPT's set_survey. A rate card survey sets its price and
+  the surveyor's fee; a price in pounds overrides the price alone. Logged in
+  the customer's history with what it was before.
 - A booked survey can be unbooked from the job pop-up (Unbook, under the date):
   off the diary but never deleted; the card goes back to Scheduling, Waiting
   for time, with a note, and the surveyor and the gap are told.
