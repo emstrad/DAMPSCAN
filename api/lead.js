@@ -16,6 +16,7 @@ import { textOwners, enquiryText } from '../lib/staff-sms.js';
 import { alertPartials } from '../lib/daily-alerts.js';
 import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
+import { agentFromLead } from '../lib/estate-agents.js';
 import { londonToday } from '../lib/pipeline.js';
 
 export const config = { runtime: 'nodejs' };
@@ -183,6 +184,8 @@ export default async function handler(req, res) {
      the Call button's tel: link and is never shown as text. */
   /* The same person's earlier open enquiry folds into this one (lib/merge-dupes.js). */
   if (value.stage === 'complete' && row.inserted) {
+    /* The agent typed on the form becomes the enquiry's agent at once (Scheduling's Agent section). */
+    try { await agentFromLead(id); } catch (err) { console.warn('agent from form failed:', err.message); }
     try { await mergeDuplicates(id); } catch (err) { console.warn('duplicate merge failed:', err.message); }
   }
 

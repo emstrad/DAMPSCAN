@@ -133,3 +133,15 @@ test('a booked survey\'s type and price can be changed after booking, and the ch
   const said = (await pool.query("select after_json->>'said' as s from audit where entity = 'job' and entity_id = $1 and action = 'survey_change'", [job])).rows[0].s;
   assert.match(said, /Survey changed to/);
 });
+
+test('the website form\'s agent becomes the enquiry\'s agent: names with commas, emails with dots, and older enquiries on the next board load', async () => {
+  const { agentFromNotes } = await import('../lib/estate-agents.js');
+  assert.deepEqual(agentFromNotes('Estate agent to be contacted to arrange access: Smith & Co, West Malling, 01732 123456, J.Smith@smith.co.uk. Back door sticks.'),
+    { name: 'Smith & Co', branch: 'West Malling', phone: '01732 123456', email: 'J.Smith@smith.co.uk' });
+  const kim = await lead('Kim', 'kim@example.com');
+  await pool.query("update leads set notes = 'Estate agent to be contacted to arrange access: Foxtons, Bexley, 02081234567.' where id = $1", [kim]);
+  const { board } = await import('../lib/scheduling.js');
+  await board(['dampscan'], DATE);
+  const a = (await pool.query('select a.name, a.branch, a.phone from leads l join estate_agents a on a.id = l.estate_agent_id where l.id = $1', [kim])).rows[0];
+  assert.deepEqual(a, { name: 'Foxtons', branch: 'Bexley', phone: '02081234567' });
+});
