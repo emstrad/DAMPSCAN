@@ -75,8 +75,9 @@ enforces the mechanical ones in CI.
   The booking form has no buyer box and no "report needed by" (removed by the
   owner). It is one small question per screen, nothing to scroll: you (name,
   email, postcode), the problem, the property (address typed by hand, no
-  address finder, then "Your mobile", optional), "Who will let us in?" (damp
-  sites: Me or The estate agent; the agent's name, phone and optional email
+  address finder, then "Phone number", optional with no hint text), "Who will
+  let us in?" (damp sites: Me or The estate agent, a sliding two-way switch;
+  the agent's name, phone and optional email
   only for the agent, kept in the enquiry notes, and the time picker skipped
   since the time is confirmed with the agent), then photos, a note and a
   previous survey, all optional. Phone boxes take only digits, spaces and a

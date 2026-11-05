@@ -219,10 +219,13 @@
 .bt-price{font-weight:700}
 .bt-said{margin:0 0 10px;font-weight:600}
 /* Who will let us in: two big choices side by side. */
-.access-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.access-opt{justify-content:center;text-align:center;font-weight:600;min-height:56px}
+.access-pick{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border:1px solid var(--line-strong);border-radius:14px;background:rgba(127,127,127,.06)}
+/* The highlight slides to whichever answer is picked, like the staff area's Week and Month switch. */
+.access-pick::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);transition:transform .25s var(--ms-out,ease-out)}
+.access-pick:has(#f-agent-on:checked)::before{transform:translateX(100%)}
+.access-opt{position:relative;z-index:1;justify-content:center;text-align:center;font-weight:600;min-height:52px;border:0;background:none;color:var(--muted,inherit);transition:color .2s}
+.access-opt:has(input:checked){color:var(--text);background:none;border:0}
+@media (prefers-reduced-motion:reduce){.access-pick::before{transition:none}}
 .access-opt input:focus-visible+*,.access-opt:has(input:focus-visible){outline:2px solid var(--accent-hi);outline-offset:2px}
 /* Each step slides in as it arrives (motion.css). */
 .fstep.is-active{animation:ms-in var(--ms-med,.28s) var(--ms-out,ease-out) both}
-.access-opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
-.access-opt:has(input:checked)::before{content:"";width:9px;height:15px;margin:-4px 10px 0 0;border:solid var(--accent);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);animation:ms-settle .3s var(--ms-spring,ease-out)}
