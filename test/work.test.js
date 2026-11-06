@@ -121,8 +121,10 @@ test('the owner sees every action, grouped in order, with badges on the calendar
   assert.equal(group(d.work, 'enquiries')[0].whatsapp, 'https://wa.me/447700900111');
 });
 
-test('a worker sees the work on their business and none of its money', async () => {
+test('a worker sees the work on their own jobs only, and none of its money', async () => {
   const w = await world();
+  /* Today lists a surveyor's own jobs only (lib/worker-view.js): give him the roof. */
+  await pool.query("update jobs set assigned_person_id = (select id from people where name = 'Steve') where id = $1", [w.tomorrow.id]);
   const d = await work(w.steve);
   assert.equal(d.work.money, false);
   for (const k of ['deposits', 'payments', 'invoices', 'budget']) assert.deepEqual(group(d.work, k), [], `${k} is money`);

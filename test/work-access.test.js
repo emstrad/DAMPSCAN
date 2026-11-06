@@ -158,25 +158,17 @@ test('a work surveyor\'s ChatGPT lists only reads (and mark_report_sent) and ref
   assert.equal(TOOLS.filter((t) => toolAllowed({ isAdmin: true }, t)).length, TOOLS.length);
 });
 
-test('contact details only on the surveyor\'s own or assigned jobs; others show a first name and district', async () => {
+test('a surveyor sees every customer\'s contact details (a handover may come at short notice), and never money', async () => {
   const ben = await person('Ben Hart', 'ben-1', ['dampscan', 'ati-london']);
-  const own = await book('ben', 'Sam Lee', 'ME14 2AB', '07700 900111');
   const other = await book('tom', 'Ann Bell', 'ME15 6XY', '07700 900333');
-  const handed = await book('tom', 'Cal Dee', 'ME16 1AA', '07700 900444');
-  await pool.query('update jobs set assigned_person_id = $2 where id = $1', [handed, ben.id]);
   const cards = (await api(ben, 'GET', '/api/admin/clients?view=all')).json().clients;
-  const byId = (i) => cards.find((c) => c.id === i);
-  assert.equal(byId(own).phone, '07700 900111', 'surveyor key "ben" matches "Ben Hart"');
-  assert.equal(byId(own).name, 'Sam Lee');
-  assert.equal(byId(handed).phone, '07700 900444', 'an assigned job shows its contacts');
-  assert.equal(byId(other).phone, undefined);
-  assert.equal(byId(other).email, undefined);
-  assert.equal(byId(other).name, 'Ann');
-  assert.equal(byId(other).address.postcode, 'ME15');
+  const card = cards.find((c) => c.id === other);
+  assert.equal(card.phone, '07700 900333');
+  assert.equal(card.name, 'Ann Bell');
   const found = JSON.stringify((await api(ben, 'GET', '/api/admin/search?q=Bell')).json());
-  assert.ok(!found.includes('900333') && !found.includes('Bell"'), found);
+  assert.ok(found.includes('900333'), found);
   const viaTool = JSON.stringify((await tool('get_job').run(await scopeOf(ben), { id: other })).data);
-  assert.ok(!viaTool.includes('900333'), viaTool);
+  assert.ok(viaTool.includes('900333'), viaTool);
   assert.ok(!/Pence":[1-9]/.test(viaTool), 'no figures through the assistant either');
 });
 

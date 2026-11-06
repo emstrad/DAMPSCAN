@@ -168,10 +168,13 @@
   }
   if (/^#todo/.test(global.location.hash) && !document.querySelector('script[src="/staff/today-todo.js"]')) openTodo(global.location.hash === '#todo-add');
   function plusMenu() {
-    (A.held || []).forEach(function (a) { item('New enquiry or job: ' + A.names[a], function () { go(newWork(a)); }); });
-    item('New to-do', function () { openTodo(true); });
-    item('To-do list', function () { openTodo(false); });
-    item('Add a cost to a job', function () { openSearch(true); });
+    /* A surveyor's + is only notifications, Refresh and Sign out (worker.js). */
+    if (!(A.rights && A.rights.worker)) {
+      (A.held || []).forEach(function (a) { item('New enquiry or job: ' + A.names[a], function () { go(newWork(a)); }); });
+      item('New to-do', function () { openTodo(true); });
+      item('To-do list', function () { openTodo(false); });
+      item('Add a cost to a job', function () { openSearch(true); });
+    }
     /* What used to crowd the header: alerts on this phone, a fresh look, sign out. */
     sheet.appendChild(U.node('hr', 'shell-sep'));
     var P = global.DSPUSH;
@@ -237,7 +240,6 @@
   barLink('Today', '/staff/calendar.html', todayPages.indexOf(A.page) !== -1);
   /* The owners' bar: Scheduling where Search was, Search where Money was. */
   barLink('Scheduling', '/staff/schedule.html?area=damp', A.page === 'schedule.html');
-  var sched = bar.lastChild;
   var bPlus = button('', 'plus-bar', 'bb-item bb-plus', 'Add new');
   bPlus.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
   bPlus.setAttribute('aria-expanded', 'false');
@@ -250,10 +252,6 @@
   var sBtn = button('Search', 'search', 'bb-item');
   sBtn.addEventListener('click', function () { openSearch(false); });
   bar.appendChild(sBtn);
-  /* Scheduling is for managers (the server says so too): hidden from the rest. */
-  function schedFor() { var r = A.rights; if (r && r.known && !Object.keys(r.manages || {}).some(function (k) { return r.manages[k]; })) sched.hidden = true; }
-  schedFor();
-  document.addEventListener('ds:me', schedFor);
   document.body.appendChild(bar);
   /* iPhones can leave a fixed bar floating mid-screen when the screen you see drifts from the layout; keep it glued to the visible bottom. */
   var vv = global.visualViewport;
