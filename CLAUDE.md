@@ -32,13 +32,19 @@ enforces the mechanical ones in CI.
   only) gets no text; the owners get one to-do to email or call them instead.
 
 ## People and access (enforced on the server)
-- Owners: Scott, Tom, Ben. Tom (manages ATi, DampScan) and Ben (manages
-  ATi, DampScan, Verge) have their own logins; Scott uses the owners' code.
-  Surveyors: scott, tom, ben, ronnie.
-- Work level (Ronnie): sees all jobs in his businesses, never any money;
-  may only mark Surveyed and Report sent and attach a report; contact details
-  only on jobs he surveys or is assigned; ChatGPT read-only plus those marks;
-  no owners' ntfy, only his own diary feed (below).
+- Managers: Scott and Tom. Tom (manages ATi, DampScan) has his own login;
+  Scott uses the owners' code. Surveyors: scott, tom, ben, ronnie.
+- Work level, everywhere (Ronnie and Ben, the owner's choice 6 Nov 2026):
+  the surveyors' staff area (`public/staff/worker.js`, `lib/worker-view.js`).
+  Today lists only their own jobs (surveyed by them or assigned to them),
+  their holds and their to-dos, never the company's money sections; the
+  phone's bottom bar is Today, My hours, + (centred) and Search; the +
+  menu is only Turn on notifications, Refresh and Sign out; no company
+  tabs or pages (anything else sends them to Today). They never see money,
+  but every customer's contact details are open to them, so a survey handed
+  over at short notice can be reached before it is reassigned. They may
+  only mark Surveyed and Report sent and attach a report; ChatGPT read-only
+  plus those marks; no owners' alerts, only their own diary (below).
 - Every filter lives on the server (`lib/figures.js`, `lib/work-only.js`),
   never only in the page.
 
@@ -384,8 +390,8 @@ checks the mechanical ones.
   messages, photo uploads through the booking path, and the estate agent's
   own view (an agent already on the enquiry filled in, one tap to invite).
 - Ronnie alone gets the Send to car button.
-- The phone's bottom bar: Today, Scheduling (managers only), +, Companies,
-  Search. No Money button (the owner's choice); the bank stays in the
+- The phone's bottom bar: Today, Scheduling (damp managers only), +, Companies,
+  Search (surveyors have their own, above). No Money button (the owner's choice); the bank stays in the
   Companies tabs.
   Settings is in the Companies sheet (the cog at the end of the company row
   runs off a phone's screen), and Settings opens with Notifications. The header

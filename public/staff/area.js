@@ -204,10 +204,11 @@
   /* Phone notifications and the shared shell (search, the + button, the
      phone's bottom bar and the page-view count): their own files, loaded
      after the page so neither holds it up. */
-  ['/staff/push.js', '/staff/shell.js'].forEach(function (src) {
+  ['/staff/push.js', '/staff/shell.js', '/staff/worker.js'].forEach(function (src) {
     var tag = document.createElement('script');
     tag.src = src;
-    tag.defer = true;
+    /* In order: worker.js reshapes the bar shell.js has just built. */
+    tag.async = false;
     document.head.appendChild(tag);
   });
 
