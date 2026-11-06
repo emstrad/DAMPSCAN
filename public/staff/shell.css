@@ -203,6 +203,7 @@ details.sheet-sec.sheet-fold{padding:0}
 .shell-sep{border:0;border-top:1px solid var(--line);margin:6px 4px}
 /* A surveyor's bar: Today, My hours, the + centred, Search (worker.js). */
 @media (max-width:759px){
-  .bottom-bar.bb-worker{grid-auto-flow:row;grid-template-columns:1fr 1fr 76px 2fr}
+  .bottom-bar.bb-worker{grid-auto-flow:row;grid-template-columns:1fr 1fr 76px 1fr 1fr}
 }
 html.is-worker .top nav.tabs,html.is-worker nav.section-tabs,html.is-worker .cal-filters,html.is-worker .shell-plus,html.is-worker a[href^="/staff/schedule.html"]{display:none}
+html.is-worker #day-surveyor{display:none}
