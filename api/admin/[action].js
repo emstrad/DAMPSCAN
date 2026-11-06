@@ -16,7 +16,7 @@
  */
 import { json, requireMethod, actionFrom, readJson } from '../../lib/http.js';
 import { requireScope } from '../../lib/access.js';
-import { workOnly, allowedWrite, REFUSED } from '../../lib/work-only.js';
+import { workOnly, allowedWrite, allowedRead, REFUSED } from '../../lib/work-only.js';
 import { withActivity } from '../../lib/activity.js';
 import { withFigures } from '../../lib/figures.js';
 import scheduling from '../../lib/routes/admin/scheduling.js';
@@ -77,6 +77,11 @@ export default async function handler(req, res) {
      steps (lib/work-only.js), refused here whatever the screen offered. The
      body is read once and left on the request for the route to read again. */
   const action = actionFrom(req.url);
+  if (req.method === 'GET' && !['mcp', 'oauth', 'push', 'usage', 'quick'].includes(action)) {
+    const scope = await requireScope(req, res);
+    if (!scope) return;
+    if (workOnly(scope) && !allowedRead(action, req.url)) return json(res, 403, { ok: false, error: 'forbidden', message: 'This is for whoever manages the business.' });
+  }
   if (req.method !== 'GET' && !['mcp', 'oauth', 'push', 'usage', 'quick'].includes(action)) {
     const scope = await requireScope(req, res);
     if (!scope) return;

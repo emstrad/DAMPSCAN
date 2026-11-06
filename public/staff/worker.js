@@ -45,6 +45,18 @@
     }
   }
 
+  /* A search hit for a surveyor: no company pages, so the way to reach the
+     customer (a survey handed over at short notice). */
+  function hit(c, box) {
+    var links = document.createElement('div'); links.className = 'gs-links';
+    function chip(text, href) { var a = document.createElement('a'); a.className = 'pill'; a.textContent = text; a.href = href; links.appendChild(a); }
+    if (c.phone) chip('Call', 'tel:' + String(c.phone).replace(/[^\d+]/g, ''));
+    if (c.email) chip('Email', 'mailto:' + c.email);
+    if (!links.children.length) return null;
+    box.appendChild(links);
+    return box;
+  }
+  global.DSWORKER = { hit: hit };
   if (A && A.rights && A.rights.known) apply();
   document.addEventListener('ds:me', apply);
 })(window);

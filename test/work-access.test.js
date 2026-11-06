@@ -161,10 +161,7 @@ test('a work surveyor\'s ChatGPT lists only reads (and mark_report_sent) and ref
 test('a surveyor sees every customer\'s contact details (a handover may come at short notice), and never money', async () => {
   const ben = await person('Ben Hart', 'ben-1', ['dampscan', 'ati-london']);
   const other = await book('tom', 'Ann Bell', 'ME15 6XY', '07700 900333');
-  const cards = (await api(ben, 'GET', '/api/admin/clients?view=all')).json().clients;
-  const card = cards.find((c) => c.id === other);
-  assert.equal(card.phone, '07700 900333');
-  assert.equal(card.name, 'Ann Bell');
+  assert.equal((await api(ben, 'GET', '/api/admin/clients?view=all')).statusCode, 403, 'the customer list is the company\'s; search reaches them');
   const found = JSON.stringify((await api(ben, 'GET', '/api/admin/search?q=Bell')).json());
   assert.ok(found.includes('900333'), found);
   const viaTool = JSON.stringify((await tool('get_job').run(await scopeOf(ben), { id: other })).data);

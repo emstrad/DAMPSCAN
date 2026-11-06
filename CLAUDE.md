@@ -48,7 +48,10 @@ enforces the mechanical ones in CI.
   only mark Surveyed and Report sent and attach a report; ChatGPT read-only
   plus those marks; no owners' alerts, only their own diary (below).
 - Every filter lives on the server (`lib/figures.js`, `lib/work-only.js`),
-  never only in the page.
+  never only in the page. A work-level person reads only what their own pages
+  use (`allowedRead`): every company route (money and rates, customers,
+  enquiries, insights, Scheduling, the bank) refuses them. Their search hits
+  are Call and Email chips, since they have no company pages.
 
 ## Hard technical limits
 - Vercel Hobby: at most 12 files under `api/`. New endpoints go into an

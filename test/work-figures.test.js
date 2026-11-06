@@ -112,14 +112,12 @@ test('the owner still sees the figures the work person does not', async () => {
   assert.ok(ron, 'Ronnie is a surveyor');
 });
 
-test('the work is still there: the board, the day sheet and Today show the survey, its ticks and no amounts', async () => {
-  const board = (await api(ronnie, 'GET', '/api/admin/surveys?area=damp')).json();
-  const sam = board.surveys.find((s) => s.name === 'Sam Lee' || s.customerName === 'Sam Lee' || JSON.stringify(s).includes('Sam Lee'));
-  assert.ok(sam, 'the survey is on the board');
-  assert.equal(sam.surveyor, 'ronnie');
-  assert.equal(sam.pricePence, undefined);
+test('the work is still there: the day sheet and Today show the survey and no amounts; the company board is refused', async () => {
+  assert.equal((await api(ronnie, 'GET', '/api/admin/surveys?area=damp')).statusCode, 403, 'the survey board is the company\'s');
   const day = (await api(ronnie, 'GET', `/api/admin/surveys?view=day&date=${D.today}&surveyor=ronnie`)).json();
   assert.equal(day.surveys.length, 1);
+  assert.equal(day.surveys[0].surveyor, 'ronnie');
+  assert.equal(day.surveys[0].pricePence, undefined);
   const cal = (await api(ronnie, 'GET', `/api/admin/calendar?view=work&from=${D.today}&to=${D.tomorrow}`)).json();
   assert.ok(JSON.stringify(cal).includes('Sam'), 'Today lists the visit');
 });
