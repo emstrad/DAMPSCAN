@@ -107,6 +107,8 @@ function issueBoxes(site) {
 
 export function bookForm(site) {
   const brand = site === 'ati' ? ' is-brand' : '';
+  /* Each site's example landline is its own area's: London's on ATi. */
+  const landline = site === 'ati' ? '020 7946 0123' : '01732 123456';
   const t = COPY[site];
   if (!t) throw new Error(`book form: no wording for site "${site}"`);
   return `    <div class="book-card${brand}" id="book">
@@ -221,7 +223,7 @@ ${t.agent ? `          <!-- STEP 4, who lets the surveyor in. The agent's detail
                 <div class="form-row">
                   <label for="f-agent-phone">Agent's phone</label>
                   <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" maxlength="16" />
-                  <span class="err">Please enter a UK number, 11 digits, e.g. 01732 123456.</span>
+                  <span class="err">Please enter a UK number, 11 digits, e.g. ${landline}.</span>
                 </div>
                 <div class="form-row">
                   <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
