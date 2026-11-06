@@ -11,6 +11,12 @@ enforces the mechanical ones in CI.
   independent, no remedial work sold. Public address is "East Malling, Kent
   ME19" only; never publish the street (service-area Google profile).
 - **ATi Damp Survey** (atidampsurvey.co.uk, London). Runs Google Ads.
+- Neither damp site mentions or links to the other (the owner's choice,
+  6 Nov 2026: a caller doubted they were separate). No "sister practice",
+  no shared email (DampScan shows none; its contact is a "Send us a message"
+  link to the form, and its backup email goes from the server only), page
+  roots carry a code (data-site s1, s2) so the shared files name neither
+  brand, and on each host the other's raw files are not found (middleware.js).
 - **Verge Roofing** (vergeroofing.com) and **CoolRight** (coolright.co.uk):
   quoted trades, their own pipelines. Each business keeps its own workflow;
   never merge pipelines.

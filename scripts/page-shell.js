@@ -95,7 +95,7 @@ function footCall(site) {
    are generated once and served for months. */
 export function shell({ site, url, title, metaDescription, schemas = [], body, aside, scripts, ownFaq = true, styles = [], month = buildMonth() }) {
   return `<!DOCTYPE html>
-<html lang="en-GB" class="no-js" data-site="${site.key}">
+<html lang="en-GB" class="no-js" data-site="${site.code || site.key}">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -160,7 +160,7 @@ ${whatsappButton(site)}<footer class="afoot">
   <div class="wrap">
 ${footerAreas(site.key) ? `  ${footerAreas(site.key)}
 ` : ''}    <span>${esc(site.brand)}. ${esc(site.strap)}.</span>
-    <span><a href="/">Home</a>${(site.footerLinks || []).map((l) => ` &middot; <a href="${l.href}">${esc(l.label)}</a>`).join('')}${(site.socials || []).map((l) => ` &middot; <a href="${l.href}" rel="noopener me" target="_blank">${esc(l.label)}</a>`).join('')}${footCall(site)}${site.locality ? ` &middot; ${esc(site.locality)}` : ''} &middot; <a href="mailto:${site.email}">${esc(site.email)}</a></span>
+    <span><a href="/">Home</a>${(site.footerLinks || []).map((l) => ` &middot; <a href="${l.href}">${esc(l.label)}</a>`).join('')}${(site.socials || []).map((l) => ` &middot; <a href="${l.href}" rel="noopener me" target="_blank">${esc(l.label)}</a>`).join('')}${footCall(site)}${site.locality ? ` &middot; ${esc(site.locality)}` : ''} &middot; ${site.email ? `<a href="mailto:${site.email}">${esc(site.email)}</a>` : '<a href="#book">Send us a message</a>'}</span>
   </div>
 </footer>
 ${scripts}

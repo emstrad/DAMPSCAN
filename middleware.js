@@ -39,9 +39,25 @@ export const config = {
     '/seasonal', '/seasonal/', '/seasonal/:slug',
     '/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/:path*',
     '/.well-known/oauth-authorization-server', '/.well-known/oauth-authorization-server/:path*',
-    '/.well-known/openid-configuration'
+    '/.well-known/openid-configuration',
+    '/areas/:path*', '/hubs/:path*', '/service-pages/:path*', '/guide-pages/:path*',
+    '/proofing-pages/:path*', '/seasonal-pages/:path*', '/pricing/:path*',
+    '/robots-london.txt', '/sitemap-london.xml', '/llms-london.txt'
   ]
 };
+
+/* The two damp brands never lead to each other (the owner's choice, 6 Nov
+   2026): on either host, the other's raw files are simply not there, rather
+   than redirected across, which would itself show the link. */
+const OTHER_DAMP = { dampscan: 'ati', ati: 'dampscan' };
+const ROOT_FILES = { ati: ['/london.html', '/robots-london.txt', '/sitemap-london.xml', '/llms-london.txt'], dampscan: [] };
+function otherBrandsFile(key, path) {
+  const other = OTHER_DAMP[key];
+  if (!other) return false;
+  if (ROOT_FILES[other].includes(path)) return true;
+  if (path === `/pricing/${other}.html`) return true;
+  return new RegExp(`^/(areas|hubs|service-pages|guide-pages|proofing-pages|seasonal-pages)/${other}(/|$)`).test(path);
+}
 
 const LONDON_HOST = /^(www\.)?atidampsurvey\.co\.uk$/i;
 const KENT_HOST = /^(www\.)?dampscan\.co\.uk$/i;
@@ -150,6 +166,10 @@ export default function middleware(request) {
   const key = siteFor(host);
   const site = SITES[key];
 
+  if (knownHost(host) && otherBrandsFile(key, path)) {
+    return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain' } });
+  }
+
   /* A brand whose home page has not been written does not borrow another's. */
   if (path === '/' && site.home === false) {
     return new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain' } });
@@ -157,7 +177,7 @@ export default function middleware(request) {
 
   // index.html is the same document as "/", on every host including previews.
   if (path === '/index.html') {
-    return Response.redirect(new URL(london ? 'https://dampscan.co.uk/' : '/', url), 301);
+    return Response.redirect(new URL('/', url), 301);
   }
 
   // A brand's home file belongs on that brand's domain. On its own host it is

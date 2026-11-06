@@ -164,7 +164,7 @@ ${near.length ? `
     serviceType: 'Damp survey',
     url,
     description,
-    provider: { '@type': site.schemaType, name: site.brand, url: site.origin + '/', telephone: site.phone, email: site.email },
+    provider: { '@type': site.schemaType, name: site.brand, url: site.origin + '/', telephone: site.phone, email: site.email || undefined },
     areaServed: [{ '@type': page.site === 'ati' ? 'AdministrativeArea' : 'City', name: page.name }]
   });
 

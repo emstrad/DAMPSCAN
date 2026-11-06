@@ -97,11 +97,14 @@
   }
 
   function draw(p) {
-    document.documentElement.setAttribute('data-site', p.site);
+    /* The look comes from the server as a tone, so this file names no brand. */
+    if (p.brand.tone) document.documentElement.setAttribute('data-tone', p.brand.tone);
     document.title = 'Your survey | ' + p.brand.name;
-    var words = p.brand.name.split(' ');
-    var logo = el('brand'); logo.textContent = p.site === 'dampscan' ? 'Damp' : words[0] + ' ';
-    logo.appendChild(node('b', null, p.site === 'dampscan' ? 'Scan' : words.slice(1).join(' ')));
+    /* A one-word name splits at its second capital (the bold half). */
+    var camel = p.brand.name.match(/^([A-Z][a-z]+)([A-Z]\w+)$/);
+    var words = camel ? [camel[1], camel[2]] : p.brand.name.split(' ');
+    var logo = el('brand'); logo.textContent = words[0] + (camel ? '' : ' ');
+    logo.appendChild(node('b', null, words.slice(1).join(' ')));
     var call = el('call'); call.classList.add('ms-press'); call.href = 'tel:' + p.brand.phone; call.insertAdjacentHTML('afterbegin', PHONE);
     el('hi').textContent = p.firstName ? 'Hi ' + p.firstName : 'Your survey';
     el('sub').textContent = [p.survey, [p.address, p.postcode].filter(Boolean).join(', ')].filter(Boolean).join(' at ');

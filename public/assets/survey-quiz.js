@@ -1,5 +1,5 @@
 /* "Which survey do I need?": four taps, then the survey and any add-ons that
-   fit, with prices from the ATi and DampScan price list (13 Sept 2026). Plain
+   fit, with prices from the one price list (13 Sept 2026). Plain
    script so it can sit on the public sites once it leaves the staff Lab.
    window.SurveyQuiz.mount(element, { onChoose(result) }) */
 (function (global) {

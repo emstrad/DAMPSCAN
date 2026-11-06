@@ -195,7 +195,7 @@ const dampscan = {
   notIncluded: [
     {
       h: 'Nothing is added for travel',
-      p: 'Anywhere across our Kent and South East coverage, the agreed fee is the fee. Fuel, tolls and parking are our problem, not a line on your invoice. Properties inside London are surveyed by our sister practice, ATi Damp Survey, and priced the same way.'
+      p: 'Anywhere across our Kent and South East coverage, the agreed fee is the fee. Fuel, tolls and parking are our problem, not a line on your invoice.'
     },
     {
       h: 'Evenings and weekends cost no more',

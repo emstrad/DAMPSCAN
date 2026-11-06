@@ -10,12 +10,16 @@ import { BRANDS } from '../lib/brands.js';
 export const SITES = {
   dampscan: {
     key: 'dampscan',
+    /* The page root's data-site: a code, not a name, so the stylesheets both
+       sites share never spell out the other brand (the owner's choice). */
+    code: 's1',
     brand: 'DampScan',
     origin: 'https://dampscan.co.uk',
     logo: null,
     phone: '+447386225526',
     phoneLabel: '07386 225526',
-    email: 'tom@atidampsurvey.co.uk',
+    /* No email shown: the address is on the ATi domain. Contact opens the form. */
+    email: null,
     schemaType: 'LocalBusiness',
     served: 'Kent and the South East of England',
     strap: 'Independent damp, mould and timber surveys across Kent and the South East',
@@ -58,13 +62,16 @@ export const SITES = {
     book: {
       sessionKey: 'dampscan-session',
       attrKey: 'dampscan-attr',
-      notify: formSubmitUrl('dampscan'),
+      /* The server sends DampScan's backup email (lib/lead-email.js), so its
+         FormSubmit address is never written into the page. */
+      notify: '',
       subjectPrefix: leadEmailFor('dampscan').subjectPrefix,
       dataLayerEvent: 'dampscan'
     }
   },
   ati: {
     key: 'ati',
+    code: 's2',
     brand: 'ATi Damp Survey',
     origin: 'https://atidampsurvey.co.uk',
     logo: '/assets/ati-mark.png',

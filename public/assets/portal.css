@@ -3,8 +3,8 @@
    and plain cards for the rest. Each brand brings its own accent. */
 @font-face { font-family:'Plus Jakarta Sans'; src:url('/assets/fonts/plus-jakarta-sans-var.woff2') format('woff2'); font-weight:400 800; font-display:swap; }
 :root { --navy:#0c1a2b; --bg:#f3f5f8; --card:#fff; --line:#e2e7ee; --ink:#14202e; --muted:#5d6b7c; --accent:#2f8fd8; --accent-ink:#fff; --ok:#1f9d63; --warn:#d9822b; }
-[data-site="ati-london"] { --accent:#d9822b; }
-[data-site="ati-london"] .pt-logo { text-transform:none; }
+[data-tone="warm"] { --accent:#d9822b; }
+[data-tone="warm"] .pt-logo { text-transform:none; }
 * { box-sizing:border-box; }
 body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 'Plus Jakarta Sans', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing:antialiased; }
 .pt-band { background:var(--navy); color:#fff; padding:calc(10px + env(safe-area-inset-top)) 16px 10px; }

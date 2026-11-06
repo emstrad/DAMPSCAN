@@ -99,8 +99,7 @@ export const hubs = {
       intro:
         'A damp survey is mostly a question about a building, and buildings in one place have more in common with each other than with buildings anywhere else. Ragstone in the Weald, chalk under the Downs, brick earth along the Thames, and estates thrown up in every decade since.',
       body: [
-        'Each page below is about a town or district rather than about us: what was built there and when, what that construction does when it gets wet, and the failures we are called out to most often within it.',
-        'Properties inside Greater London are surveyed by our sister practice, ATi Damp Survey, which, like us, carries out no remedial work. If your postcode falls inside London we will say so and pass you across rather than travel to it.'
+        'Each page below is about a town or district rather than about us: what was built there and when, what that construction does when it gets wet, and the failures we are called out to most often within it.'
       ]
     },
     guides: {

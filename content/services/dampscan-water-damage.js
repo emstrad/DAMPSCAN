@@ -55,7 +55,7 @@ export default {
       paras: [
         'Most escape of water damage is covered by household buildings insurance, and your insurer will usually want evidence of the extent before authorising work. Our report gives that, with the survey findings, photographs and moisture readings behind it, in a form a loss adjuster can assess.',
         'We do not inflate a scope to fill a claim, and we have no repair work to gain from one. If half the room is dry the report says which half and why. That is the same principle as the rest of what we do: the diagnosis is the product, and nothing gets recommended because it happens to be profitable.',
-        'If a claim has already been declined, a clear independent record of cause and extent is what the challenge rests on. Inside London our sister practice ATi Damp Survey writes those reports; across Kent we do.',
+        'If a claim has already been declined, a clear independent record of cause and extent is what the challenge rests on. Across Kent and the South East, we write them.',
       ]
     },
   ],

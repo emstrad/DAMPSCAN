@@ -55,18 +55,21 @@ test('index.html redirects to the root it duplicates', () => {
   });
 });
 
-test('index.html on the London host goes to the site it actually belongs to', () => {
+test('index.html on the London host stays on the London host', () => {
   assert.deepEqual(redirect(call(LONDON, '/index.html')), {
-    status: 301,
-    to: 'https://dampscan.co.uk/'
-  });
-});
-
-test('london.html on the Kent host goes to the London domain', () => {
-  assert.deepEqual(redirect(call(KENT, '/london.html')), {
     status: 301,
     to: 'https://atidampsurvey.co.uk/'
   });
+});
+
+test('neither damp site leads to the other: the other brand\'s files are not found', () => {
+  for (const path of ['/london.html', '/llms-london.txt', '/pricing/ati.html', '/areas/ati/camden.html', '/hubs/ati/areas.html']) {
+    assert.equal(call(KENT, path).status, 404, `${path} on DampScan`);
+  }
+  for (const path of ['/pricing/dampscan.html', '/areas/dampscan/maidstone.html', '/service-pages/dampscan/rising-damp.html']) {
+    assert.equal(call(LONDON, path).status, 404, `${path} on ATi`);
+  }
+  assert.notEqual(call(KENT, '/areas/dampscan/maidstone.html').status, 404, 'its own raw files still serve');
 });
 
 test('london.html on the London host collapses to the root', () => {

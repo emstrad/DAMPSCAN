@@ -138,7 +138,7 @@
      Fires twice per lead: stage 'partial' (after step 1) and 'complete'. */
   function pushLeadToCRM(payload, stage){
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: (DS_CFG.dataLayerEvent || 'dampscan') + '_lead', stage, ...payload });
+    window.dataLayer.push({ event: (DS_CFG.dataLayerEvent || 'site') + '_lead', stage, ...payload });
     /* e.g. fetch('https://your-crm.example/webhook', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({stage, ...payload})}); */
   }
 
@@ -289,6 +289,8 @@
      email even starts, and some browsers refuse that check on a request meant
      to outlive the page. A form post needs none. */
   function emailNotification(stage, id){
+    /* A site whose backup email goes only from the server has no endpoint here. */
+    if (!NOTIFY_ENDPOINT) return;
     const payload = notifyPayload(stage, id);
 
     /* Tell our API what happened, so the dashboard shows the truth rather than
@@ -385,7 +387,7 @@
    * server then rejected.
    *
    * Only where a conversion action is configured for the site, which is what
-   * keeps this off DampScan, and only once: a conversion counted twice is
+   * keeps this off a site without one, and only once: a conversion counted twice is
    * worse than one counted late, because it bids real money on a fiction. */
   let converted = false;
   function adsConversion(id){
