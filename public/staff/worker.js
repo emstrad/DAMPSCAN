@@ -35,6 +35,14 @@
     hours.href = '/staff/hours.html?area=damp';
     if (A.page === 'hours.html') hours.setAttribute('aria-current', 'page');
     bar.insertBefore(hours, bar.querySelector('.bb-plus'));
+    /* Route, after the +: their day in order with the drives (day.html). */
+    var route = document.createElement('a'); route.className = 'bb-item'; route.textContent = 'Route'; route.href = '/staff/day.html?area=damp';
+    if (A.page === 'day.html') route.setAttribute('aria-current', 'page');
+    bar.insertBefore(route, bar.querySelector('.bb-plus').nextSibling);
+    if (A.page === 'day.html') {
+      var h = document.querySelector('h1'); if (h) h.textContent = 'My route';
+      document.title = 'My route';
+    }
   }
 
   if (A && A.rights && A.rights.known) apply();

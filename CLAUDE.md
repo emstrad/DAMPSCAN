@@ -38,7 +38,9 @@ enforces the mechanical ones in CI.
   the surveyors' staff area (`public/staff/worker.js`, `lib/worker-view.js`).
   Today lists only their own jobs (surveyed by them or assigned to them),
   their holds and their to-dos, never the company's money sections; the
-  phone's bottom bar is Today, My hours, + (centred) and Search; the +
+  phone's bottom bar is Today, My hours, + (centred), Route and Search
+  (Route is `day.html` as "My route": their own surveys in order with the
+  drive from home, between each and home again, `lib/day-route.js`); the +
   menu is only Turn on notifications, Refresh and Sign out; no company
   tabs or pages (anything else sends them to Today). They never see money,
   but every customer's contact details are open to them, so a survey handed

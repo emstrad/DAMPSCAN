@@ -50,7 +50,9 @@
 .sv-agent-box[open] summary{margin-bottom:8px}
 .sv-actions{margin-top:14px}
 .day-list{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-@media (min-width:1000px){.day-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1000px){.day-list{max-width:720px}}
+.day-drive{color:var(--muted);font-size:13px;padding:0 4px 0 14px;display:flex;align-items:center;gap:8px}
+.day-drive::before{content:"";width:2px;height:18px;background:var(--line);border-radius:2px}
 .day-item{background:var(--slate);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .day-time{font-size:20px;font-weight:800}
 .day-address{font-size:15px;overflow-wrap:anywhere}

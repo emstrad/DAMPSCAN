@@ -8,6 +8,7 @@
   var S = global.DSSV;
   var el = function (id) { return document.getElementById(id); };
   var KEY = 'ds_day_surveyor';
+  var worker = function () { return Boolean(global.DSAREA && global.DSAREA.rights && global.DSAREA.rights.worker); };
   var FULL = 1600;
   var THUMB = 400;
 
@@ -70,7 +71,8 @@
     li.appendChild(U.node('p', 'card-name', s.name || 'No name'));
     li.appendChild(U.node('p', 'day-address', s.address || s.postcode || 'No address yet'));
     li.appendChild(U.node('p', 'card-meta', [s.surveyLabel, S.cap(s.surveyor)].filter(Boolean).join(' · ')));
-    li.appendChild(U.node('p', 'sv-badge' + (s.deposit || s.paid ? ' sv-badge--ok' : ' sv-badge--late'),
+    /* Surveyors never see who owes what (the server strips the sums too). */
+    if (!worker()) li.appendChild(U.node('p', 'sv-badge' + (s.deposit || s.paid ? ' sv-badge--ok' : ' sv-badge--late'),
       s.paid ? 'Paid in full' : s.deposit ? (s.pricePence == null ? 'Deposit paid' : 'Deposit paid, ' + U.money(s.pricePence - s.depositPence) + ' to come') : 'No deposit yet'));
     if (s.awaitingAgent) li.appendChild(U.node('p', 'sv-badge sv-badge--agent', 'Time not yet confirmed by the agent'));
     var notes = [s.note, s.leadNotes].filter(Boolean).join('\n');
@@ -79,8 +81,7 @@
     if (s.address || s.postcode) bar.appendChild(S.link('Navigate', S.maps(s.address || s.postcode), 'act-main'));
     if (s.phone) bar.appendChild(S.link('Call ' + (s.firstName || 'customer'), S.tel(s.phone)));
     if (s.agent && s.agent.phone) bar.appendChild(S.link('Call agent (' + s.agent.name + ')', S.tel(s.agent.phone)));
-    var open = S.link('Open on board', '/staff/surveys.html?area=damp#job-' + s.id);
-    bar.appendChild(open);
+    if (!worker()) bar.appendChild(S.link('Open on board', '/staff/surveys.html?area=damp#job-' + s.id));
     li.appendChild(bar);
     li.appendChild(photos(s));
     return li;
@@ -96,7 +97,11 @@
     try {
       var data = await U.get('/api/admin/surveys?view=day&date=' + date + (who ? '&surveyor=' + who : ''));
       list.textContent = '';
-      data.surveys.forEach(function (s, i) { list.appendChild(item(s, i + 1)); });
+      data.surveys.forEach(function (s, i) {
+        if (s.driveMin != null) list.appendChild(U.node('li', 'day-drive', (s.fromHome ? 'From home, ' : '') + s.driveMin + ' min drive'));
+        list.appendChild(item(s, i + 1));
+      });
+      if (data.homeBy) list.appendChild(U.node('li', 'day-drive', 'Home about ' + data.homeBy));
       el('state').textContent = data.surveys.length ? '' : 'No surveys ' + (who ? 'for ' + S.cap(who) + ' ' : '') + 'on ' + S.shortDate(date) + '.';
       el('state').hidden = Boolean(data.surveys.length);
     } catch (e) { el('state').textContent = 'Could not load the day. ' + e.message; }
