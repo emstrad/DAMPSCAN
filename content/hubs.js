@@ -138,7 +138,7 @@ export const hubs = {
         'London is not one building stock. A Camden stucco terrace, a Barking interwar semi, a Southwark postwar slab and a Richmond riverside cottage fail in entirely different ways, and the ground under them differs almost as much.',
       body: [
         'Each page below is about the borough itself: the eras it was built in, the details that fail in those eras, the postcode districts we work across, and the ground conditions underneath.',
-        'We attend every borough in Greater London including the City. Outside the M25 our sister practice DampScan covers Kent and the wider South East.'
+        'We attend every borough in Greater London including the City.'
       ]
     },
     guides: {
