@@ -239,7 +239,7 @@ ${townLinks(t, allTowns)}
     serviceType: 'Damp survey',
     url,
     description,
-    provider: { '@type': site.schemaType, name: site.brand, url: site.origin + '/', telephone: site.phone, email: site.email },
+    provider: { '@type': site.schemaType, name: site.brand, url: site.origin + '/', telephone: site.phone, email: site.email || undefined },
     areaServed: [{ '@type': 'City', name: t.name }, ...t.places.filter((p) => p !== t.name).map((name) => ({ '@type': 'Place', name }))]
   });
 

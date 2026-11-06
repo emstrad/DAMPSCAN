@@ -77,7 +77,7 @@ export function render(page, kind, links) {
     mainEntity: page.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
   });
   const businessSchema = schema(site.schemaType, {
-    name: site.brand, url: `${site.origin}/`, telephone: site.phone || undefined, email: site.email,
+    name: site.brand, url: `${site.origin}/`, telephone: site.phone || undefined, email: site.email || undefined,
     areaServed: site.served, description: page.metaDescription
   });
 

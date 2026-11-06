@@ -126,7 +126,7 @@ function serviceSchema(area, site, url, description) {
       name: site.brand,
       url: site.origin + '/',
       telephone: site.phone || undefined,
-      email: site.email
+      email: site.email || undefined
     },
     areaServed: [{ '@type': 'AdministrativeArea', name: area.name },
       ...area.places.filter((p) => p !== area.name).map((name) => ({ '@type': 'Place', name }))]

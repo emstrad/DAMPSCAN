@@ -162,7 +162,7 @@ export function render(home, services) {
   const business = schema(site.schemaType, {
     name: site.brand,
     url,
-    email: site.email,
+    email: site.email || undefined,
     telephone: site.phone || undefined,
     areaServed: areaServed(site),
     sameAs: [site.profileUrl, ...(site.socials || []).map((x) => x.href)].filter(Boolean).length

@@ -33,7 +33,9 @@ async function htmlFiles(dir) {
    and the two home pages carry the same attribute. */
 function siteOf(html) {
   const m = /<html[^>]*data-site="([^"]+)"/.exec(html);
-  return m ? m[1] : null;
+  /* The damp pages carry a code, not a name (scripts/sites.js). */
+  const codes = { s1: 'dampscan', s2: 'ati' };
+  return m ? codes[m[1]] || m[1] : null;
 }
 
 test('a site with no tag configured gets no markup at all', () => {

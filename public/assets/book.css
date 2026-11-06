@@ -2,17 +2,17 @@
 
    The home pages and the generated pages use different token names for the same
    roles, so each colour here falls back: --card then --slate, --bg then --navy.
-   That way one stylesheet serves the dark DampScan home page, the light ATi one,
+   That way one stylesheet serves the dark home page, the light one,
    and the area and service pages, without a second copy. */
 /* ---------- Multi-step form ---------- */
 .book-card{background:var(--card-2, var(--card, var(--slate)));
   border:1px solid var(--line-strong);border-radius:18px;padding:clamp(22px,2.4vw,30px);
   box-shadow:0 30px 70px -30px var(--card-shadow,rgba(0,0,0,.85))}
 
-/* ATi's card sits on the brand blue rather than the page background, so the
+/* The light site's card sits on the brand blue rather than the page background, so the
    whole thing flips to light on dark. The overrides live on the card itself,
    as custom properties, so the page palette around it is untouched and the
-   shared rules below need no ATi specific copies. The inputs are the one
+   shared rules below need no site specific copies. The inputs are the one
    exception: they stay white with dark text, because a form field that matches
    its card does not read as a field. */
 .book-card.is-brand{
@@ -82,8 +82,8 @@
 .addr{gap:10px}
 .addr-find{display:grid;grid-template-columns:1fr auto;gap:10px}
 /* Its own class rather than .btn--ghost: both home pages already define that
-   one for their own page background, and on the dark booking card the ATi
-   version came out white on white. */
+   one for their own page background, and on the dark booking card the light
+   site's version came out white on white. */
 .addr-find .addr-btn{min-height:50px;padding:0 18px;font-size:14px;white-space:nowrap;
   background:transparent;border:1px solid var(--line-strong);color:var(--text)}
 .addr-find .addr-btn:hover{background:var(--accent-soft);border-color:var(--accent-ring);color:var(--text)}
@@ -126,7 +126,7 @@
   border-color:color-mix(in srgb, currentColor 40%, transparent);
   border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
 /* currentColor again: the accent tokens are tuned for the card, and the file
-   input is white on ATi, where an accent hover is invisible. */
+   input is white on the light site, where an accent hover is invisible. */
 .form-row input[type="file"]::file-selector-button:hover{border-color:currentColor;
   background:color-mix(in srgb, currentColor 10%, transparent)}
 .file-hint{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted-2)}
@@ -161,7 +161,7 @@
 /* The button and helper styles the form depends on. The home pages define these
    inline for the rest of the page, and a duplicate definition there is harmless
    because it is identical. The generated pages have no other source for them.
-   --on-accent lets the light ATi palette use white text where the dark DampScan
+   --on-accent lets the light palette use white text where the dark
    one uses near black. */
 
 /* The home pages reset button chrome for the whole page in their inline CSS;

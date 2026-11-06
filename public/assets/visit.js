@@ -20,8 +20,8 @@ const NOTIFY_ENDPOINT = DS_CFG.notify || '';
    Referrer and utm_* are captured on first load and kept for the whole visit, so
    an event fired later still knows where the visitor came from. */
 const DS = (function visitContext(){
-  const KEY = DS_CFG.sessionKey || 'dampscan-session';
-  const ATTR = DS_CFG.attrKey || 'dampscan-attr';
+  const KEY = DS_CFG.sessionKey || 'site-session';
+  const ATTR = DS_CFG.attrKey || 'site-attr';
   const newId = () => {
     try { return crypto.randomUUID(); } catch (e) {}
     return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>

@@ -70,11 +70,11 @@ p a:not(.btn),.note a{text-decoration:underline;text-underline-offset:2px}
    loaded after this one. Generated pages have no such rule and take these. */
 .logo{display:inline-flex;align-items:center;line-height:1;color:var(--text)}
 
-[data-site="dampscan"] .logo{--logo-size:22px}
-[data-site="dampscan"] .logo-type{display:flex;flex-direction:column;gap:calc(var(--logo-size) * .2)}
-[data-site="dampscan"] .logo-word{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:var(--logo-size);letter-spacing:-.035em;text-transform:uppercase;white-space:nowrap}
-[data-site="dampscan"] .logo-word .scan{color:var(--accent)}
-[data-site="dampscan"] .logo-tag{font-size:max(9px,calc(var(--logo-size) * .365));letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);font-weight:600;white-space:nowrap}
+[data-site="s1"] .logo{--logo-size:22px}
+[data-site="s1"] .logo-type{display:flex;flex-direction:column;gap:calc(var(--logo-size) * .2)}
+[data-site="s1"] .logo-word{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:var(--logo-size);letter-spacing:-.035em;text-transform:uppercase;white-space:nowrap}
+[data-site="s1"] .logo-word .scan{color:var(--accent)}
+[data-site="s1"] .logo-tag{font-size:max(9px,calc(var(--logo-size) * .365));letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);font-weight:600;white-space:nowrap}
 
 /* Verge's own logo artwork, with its tag set the way its old site set it. */
 [data-site="roofing"] .logo{--logo-h:32px;flex-direction:column;align-items:flex-start;gap:8px}
@@ -88,13 +88,13 @@ p a:not(.btn),.note a{text-decoration:underline;text-underline-offset:2px}
 [data-site="ac"] .logo-word .scan{color:var(--accent)}
 [data-site="ac"] .logo-tag{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}
 
-[data-site="ati"] .logo{--logo-size:23px;gap:.62em}
-[data-site="ati"] .logo img{width:auto;height:calc(var(--logo-size) * 1.85);display:block}
-[data-site="ati"] .logo-tag{font-size:max(9.5px,calc(var(--logo-size) * .4));letter-spacing:.02em;color:var(--muted);font-weight:600;max-width:11ch;line-height:1.25;border-left:1px solid var(--line-strong);padding-left:.7em;text-transform:none}
+[data-site="s2"] .logo{--logo-size:23px;gap:.62em}
+[data-site="s2"] .logo img{width:auto;height:calc(var(--logo-size) * 1.85);display:block}
+[data-site="s2"] .logo-tag{font-size:max(9.5px,calc(var(--logo-size) * .4));letter-spacing:.02em;color:var(--muted);font-weight:600;max-width:11ch;line-height:1.25;border-left:1px solid var(--line-strong);padding-left:.7em;text-transform:none}
 
 /* ---------- mobile menu ----------
    At 1140px and below the links become a panel under the header. The point
-   was measured, not guessed: the widest bar (ATi, with its long lockup and a
+   was measured, not guessed: the widest bar (the long lockup and a
    seasonal link) needs about 1100px, so anything narrower gets the menu. The no-js guard is
    the whole reason this degrades safely: the links are ordinary links, and
    they are only hidden once an inline script has confirmed scripting runs. */

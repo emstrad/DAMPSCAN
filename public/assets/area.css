@@ -21,12 +21,12 @@
   font-display:swap;src:url(/assets/fonts/manrope.woff2) format('woff2')}
 
 /* Area pages. One stylesheet, two brands: the generator stamps data-site on the
-   root element, so the same markup wears the DampScan dark palette or the ATi
+   root element, so the same markup wears the dark palette or the
    light one. Deliberately compact rather than a copy of the home page CSS,
    which is inline there and would otherwise be duplicated on every area page. */
 *,*::before,*::after{box-sizing:border-box}
 
-:root[data-site="dampscan"]{
+:root[data-site="s1"]{
   --bg:#0c1a2b;--bg-2:#081321;--card:#14243a;
   --line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.15);
   --accent:#4fa8e8;--accent-hi:#7cc3f5;--accent-soft:rgba(79,168,232,.12);
@@ -59,7 +59,7 @@
   --head-bg:rgba(15,23,42,.88);--head-solid:#0f172a;
 }
 
-:root[data-site="ati"]{
+:root[data-site="s2"]{
   --bg:#f5f5f3;--bg-2:#ebebe8;--card:#ffffff;
   --line:rgba(17,33,60,.13);--line-strong:rgba(17,33,60,.24);
   --accent:#17325a;--accent-hi:#2a5591;--accent-soft:rgba(23,50,90,.08);

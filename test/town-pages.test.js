@@ -165,7 +165,7 @@ test('every page on the two damp sites lists every area page in its footer', () 
   const samples = ['index.html', 'london.html', townFile(towns[0]), proofFile(proofingPages[0]), 'areas/ati/camden.html', 'guide-pages/dampscan/damp-survey-cost-kent.html'];
   for (const f of samples) {
     const html = read(f);
-    const site = html.includes('data-site="ati"') ? 'ati' : 'dampscan';
+    const site = html.includes('data-site="s2"') ? 'ati' : 'dampscan';
     const nav = html.match(/<nav class="foot-areas"[\s\S]*?<\/nav>/);
     assert.ok(nav, `${f} has no footer area list`);
     for (const a of [...areas, ...towns].filter((x) => x.site === site)) {
