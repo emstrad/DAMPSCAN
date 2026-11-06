@@ -64,6 +64,7 @@
     box.appendChild(U.node('p', 'gs-who', [c.name || 'No name', c.postcode].filter(Boolean).join(', ')));
     var sub = [c.phone, c.email].filter(Boolean).join(' · ');
     if (sub) box.appendChild(U.node('p', 'gs-sub', sub));
+    if (A.rights && A.rights.worker && global.DSWORKER) return global.DSWORKER.hit(c, box);
     var links = U.node('div', 'gs-links');
     c.jobs.filter(function (j) { return !mode.cost || AREA_OF[j.site] !== 'damp'; }).forEach(function (j) {
       var a = U.node('a', 'pill', SHORT[j.site] + ': ' + j.status + (j.date ? ', ' + j.date : ''));
