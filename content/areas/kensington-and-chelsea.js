@@ -46,5 +46,5 @@ export default {
     { q: 'Our neighbour is digging a basement. Could it cause damp in our house?', a: 'Excavation next door can change how water moves around the party wall and foundations. If damp appears during or after the works, the report records it with readings and photographs, which is useful evidence under a party wall award.' },
     { q: 'Do you survey for buyers of basement flats?', a: 'Yes. The report covers the condition of the system, servicing records to ask for and any evidence of past water entry, which a buyer needs before exchange.' }
   ],
-  nearby: ['westminster', 'hammersmith-and-fulham']
+  nearby: ['chelsea', 'westminster', 'hammersmith-and-fulham']
 };

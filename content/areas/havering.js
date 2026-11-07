@@ -6,7 +6,7 @@ export default {
   name: 'Havering',
   metaDescription:
     'Independent damp and timber surveys across Romford, Hornchurch, Upminster and the rest of Havering, RM1 to RM14. Written, evidence-based reports for owners, buyers and landlords.',
-  h1: 'Independent damp surveys in Romford, Hornchurch and Upminster',
+  h1: 'Independent damp surveys in Havering: Hornchurch, Upminster and Rainham',
   intro:
     'Havering is outer London in character and largely interwar and post-war in construction, with a rural fringe that most of the capital does not have. Romford and Hornchurch are suburb; out towards Upminster and the Essex boundary there are older cottages, weatherboarding and buildings that predate anything else in the borough by two centuries.',
   stock: [
@@ -55,5 +55,5 @@ export default {
     { q: 'Our Romford semi has damp after a new drive. Is that connected?', a: 'Very likely, if the drive sits less than about two courses below the damp proof course. It is fixed at the drive, not in the wall.' },
     { q: 'Do you survey for landlords in Havering?', a: 'Yes. The report separates building defects from condensation, which is what landlords and tenants need to agree what to do.' }
   ],
-  nearby: ['redbridge', 'barking-and-dagenham']
+  nearby: ['romford', 'redbridge', 'barking-and-dagenham']
 };
