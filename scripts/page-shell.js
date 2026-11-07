@@ -108,6 +108,7 @@ ${adsTag(site.key)}
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(metaDescription)}" />
 <meta property="og:locale" content="en_GB" />
+<meta property="og:site_name" content="${esc(site.brand)}" />
 ${site.og ? `<meta property="og:image" content="${site.origin}${site.og}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />` : ''}
