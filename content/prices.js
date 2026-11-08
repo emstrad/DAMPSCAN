@@ -40,6 +40,10 @@ export const EXTRAS = [
     info: 'Checks for rubble or mortar in the bottom of a cavity wall bridging damp across.' }
 ];
 
+/* Each extra on a survey adds this much time on site (the owners' choice,
+   8 Nov 2026), so the diary leaves room for it. */
+export const EXTRA_MINUTES = 30;
+
 export const pounds = (n, from = false) => `${from ? 'From ' : ''}£${n}`;
 
 /** Everything the website's survey step needs, in one plain object. */

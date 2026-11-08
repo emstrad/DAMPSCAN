@@ -20,7 +20,9 @@ test('the prices pages and the Lab quiz show the same figures', async () => {
   for (const site of ['ati', 'dampscan']) {
     const html = await readFile(new URL(`../public/pricing/${site}.html`, import.meta.url), 'utf8');
     for (const x of SIZES) assert.ok(html.includes(`£${x.damp}`) && html.includes(`£${x.damp + x.timber}`), `${site}: ${x.key}`);
-    for (const x of EXTRAS) assert.ok(html.includes(`£${x.alone}`) && html.includes(`£${x.withSurvey}`), `${site}: ${x.key}`);
+    for (const x of EXTRAS.filter((e) => e.addable)) assert.ok(html.includes(`£${x.withSurvey}`), `${site}: ${x.key}`);
+    /* A damp survey always; checks are only added to one (the owners' choice, 8 Nov 2026). */
+    assert.equal(/On its own/.test(html), false, `${site}: no on-its-own prices`);
   }
   const box = { window: {} };
   vm.runInNewContext(await readFile(new URL('../public/assets/survey-quiz.js', import.meta.url), 'utf8'), box);

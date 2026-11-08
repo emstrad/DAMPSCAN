@@ -62,7 +62,12 @@ test('the survey is asked first, kept on the enquiry, and a longer one gets fewe
   assert.equal((await W.saveSurvey({ ...t, choice: { service: 'timber', size: 'premium', extras: [] } })).chose.price, 600);
   const s = await lead();
   const alone = await W.saveSurvey({ ...s, choice: { service: 'alone', extras: ['camera', 'cavity'] } });
-  assert.equal(alone.chose.price, 305, 'camera £145 and cavity £160 on their own');
+  assert.equal(alone.error, 'bad_choice', 'no check on its own: a damp survey is always booked');
+  const two = await lead();
+  const both = await W.saveSurvey({ ...two, choice: { service: 'damp', size: 'full-house', extras: ['camera', 'cavity'] } });
+  assert.equal(both.chose.price, 295);
+  const kept = (await pool.query('select survey_choice from leads where id = $1', [two.leadId])).rows[0].survey_choice;
+  assert.equal(kept.minutes, 120 + 2 * 30, 'each extra adds half an hour on site');
 
   const c = await lead();
   await W.saveSurvey({ ...c, choice: { unsure: true } });

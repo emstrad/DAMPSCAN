@@ -242,17 +242,18 @@ checks the mechanical ones.
   the deposit by hand. The Lab shows the same. The form is saved before any
   of this, so leaving part way loses nothing and makes no second enquiry.
   Time first (least friction), then, with the Lab's survey quiz switch on,
-  "What do you need?": damp survey, damp and timber, a check on its own, or
-  not sure; then the size and add-ons, each with a small (i) saying what it
-  is. Priced on the server from the one list, kept on the enquiry
+  "What do you need?": damp survey, damp and timber, or not sure; then the
+  size and add-ons, each with a small (i) saying what it is. A damp survey is
+  always booked and checks are only ever added to one, never sold on their
+  own (the owners' choice, 8 Nov 2026). Priced on the server from the one list, kept on the enquiry
   (survey_choice), shown on the Scheduling card and preselected when booking.
 - One price list (`content/prices.js`, the owners' 13 Sept 2026 list with the
   size bands): damp £215, £295, from £375, from £450; damp and timber £310,
-  £445 (the two larger bands assume +£150, "from"); timber, invasive, camera
-  and cavity on their own or with a survey. The prices pages, the website's
+  £445 (the two larger bands assume +£150, "from"); invasive, camera and
+  cavity checks added to a survey. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table
-  of extra checks (with a survey, on its own), and everything wordy folded
+  of extra checks added to a survey, and everything wordy folded
   away in tap-to-open sections. Minutes on
   site: 60, 120, 150, 180, set once on the rate card. The rate card also has
   damp and timber at each size (dt- keys), and the Scheduling booking form's
@@ -375,8 +376,12 @@ checks the mechanical ones.
 - The Scheduling booking form shows the extras from the one price list
   (`public/staff/sched-extras.js`, `lib/book-extras.js`), ticked with what the
   customer chose online, and the total (survey plus extras), which can be
-  typed over. Ticked extras go on the job's note ("Extras: ...") so the
-  surveyor sees them on Route and the job pop-up.
+  typed over. However a survey is booked, its extras are kept on the job
+  (jobs.extras), written on its note ("Extras: ...") for the surveyor, and
+  add 30 minutes on site each (EXTRA_MINUTES, jobs.extra_minutes) to every
+  drive check, free time, day lane, route and report deadline. Changing the
+  survey's size keeps the extras on top. The surveyor's fee stays the
+  survey's (the owners' choice).
 - A booked survey's type and price can be changed after booking
   (`lib/survey-change.js`, managers): the job pop-up's folded "Change survey
   or price" and ChatGPT's set_survey. A rate card survey sets its price and
