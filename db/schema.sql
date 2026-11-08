@@ -1389,3 +1389,8 @@ alter table jobs add column if not exists portal_token text;
 alter table jobs add column if not exists portal_issued_at timestamptz;
 alter table jobs add column if not exists portal_opened_at timestamptz;
 create unique index if not exists jobs_portal_token_idx on jobs (portal_token) where portal_token is not null;
+
+-- Extras on a booked survey (the owners' choice, 8 Nov 2026): which add-ons
+-- from the one price list, and the time on site they add (lib/book-extras.js).
+alter table jobs add column if not exists extras text[];
+alter table jobs add column if not exists extra_minutes integer not null default 0;

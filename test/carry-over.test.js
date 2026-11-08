@@ -45,10 +45,14 @@ const lead = async (name, email, extra = {}) => Number((await pool.query(`insert
 const jobOf = async (leadId) => (await pool.query('select * from jobs where lead_id = $1', [leadId])).rows[0];
 
 test('booking an enquiry prices the extras chosen online', async () => {
-  const kim = await lead('Kim', 'kim@example.com', { choice: { service: 'damp', name: 'Damp survey', price: 215, key: 'localised', addOns: [{ name: 'Camera check', price: 85 }] } });
+  const kim = await lead('Kim', 'kim@example.com', { choice: { service: 'damp', name: 'Damp survey', price: 215, key: 'localised', addOns: [{ key: 'camera', name: 'Camera check', price: 85 }] } });
   const r = await post({ op: 'book', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
   assert.equal(r.status, 200, JSON.stringify(r.data));
   assert.equal(Number((await jobOf(kim)).survey_price_pence), 30000);
+  /* Booked any way, the surveyor is told about the extras and the diary allows for them. */
+  const j = await jobOf(kim);
+  assert.match(j.note || '', /Extras: underfloor camera check/);
+  assert.equal(j.extra_minutes, 30);
 });
 
 test('the booking form\'s ticked extras set the price and go on the job for the surveyor', async () => {
@@ -59,6 +63,15 @@ test('the booking form\'s ticked extras set the price and go on the job for the 
   const rate = Number((await pool.query("select price_pence from job_rates where key = 'localised'")).rows[0].price_pence);
   assert.equal(Number(job.survey_price_pence), rate + 8500 + 9500, 'the rate card survey plus each ticked extra, unknown keys ignored');
   assert.match(job.note, /Extras: underfloor camera check, low-level cavity bridging check/);
+  assert.deepEqual([job.extras, job.extra_minutes], [['camera', 'cavity'], 60], 'kept on the job, half an hour each');
+  /* A new size keeps the extras on top, and the surveyor's fee stays the survey's. */
+  const { changeSurvey } = await import('../lib/survey-change.js');
+  await pool.query(`insert into job_rates (key, label, price_pence, surveyor_fee_pence, position) values ('full-house', 'Full House', 29500, 13000, 2) on conflict (key) do nothing`);
+  const full = Number((await pool.query("select price_pence from job_rates where key = 'full-house'")).rows[0].price_pence);
+  await changeSurvey(await owners(), Number(job.id), { surveyType: 'full-house' });
+  const after = await jobOf(lana);
+  assert.equal(Number(after.survey_price_pence), full + 8500 + 9500);
+  assert.equal(Number(after.surveyor_fee_pence), Number((await pool.query("select surveyor_fee_pence from job_rates where key = 'full-house'")).rows[0].surveyor_fee_pence));
   const typed = await lead('Tess', 'tess@example.com');
   await post({ op: 'book', kind: 'lead', id: typed, date: DATE, time: '13:00', surveyor: 'tom', surveyType: 'localised', extras: [], pricePounds: 395, force: true });
   assert.equal(Number((await jobOf(typed)).survey_price_pence), 39500, 'a typed price wins');

@@ -114,7 +114,6 @@
       pick = { service: null, size: null, extras: [] };
       list = el('div', 'bt-surveys ms-stagger'); rest = el('div');
       [['damp', P.services.damp.name, P.services.damp.info], ['timber', P.services.timber.name, P.services.timber.info],
-        ['alone', 'Just a timber, camera or cavity check', 'One of our checks on its own, without a damp survey.'],
         ['unsure', 'Not sure, help me choose', 'Tell us on the phone what you are seeing and we will recommend the right one.']].forEach(function (s) {
         list.appendChild(choice(s[1], null, s[2], function (b) { only(list, b); pick = { service: s[0], size: null, extras: [] }; draw(); }));
       });
@@ -124,21 +123,17 @@
     function draw() {
       rest.textContent = '';
       if (pick.service === 'unsure') return send();
-      if (pick.service === 'alone') {
-        rest.appendChild(el('p', 'bt-day', 'Which one? Pick any'));
-        P.extras.forEach(function (x) { rest.appendChild(tick(x.name, money(x.alone, x.from), x.scope + '. ' + x.info, x.key)); });
-      } else {
-        rest.appendChild(el('p', 'bt-day', 'How much of the home?'));
-        var sizes = el('div', 'bt-surveys ms-stagger');
-        P.sizes.forEach(function (z) {
-          var price = z.damp + (pick.service === 'timber' ? z.timber : 0);
-          sizes.appendChild(choice(z.name + ': ' + z.scope, money(price, z.from), z.info, function (b) { only(sizes, b); pick.size = z.key; go.disabled = false; }));
-        });
-        rest.appendChild(sizes);
-        rest.appendChild(el('p', 'bt-day', 'Add on the same visit (optional)'));
-        P.extras.filter(function (x) { return x.addable; }).forEach(function (x) { rest.appendChild(tick(x.name, money(x.withSurvey, x.from), x.scope + '. ' + x.info, x.key)); });
-      }
-      var go = el('button', 'bt-time bt-go', 'Done'); go.type = 'button'; go.disabled = pick.service !== 'alone' || !pick.extras.length;
+      /* A damp survey always, extras only on top of one (the owners' choice). */
+      rest.appendChild(el('p', 'bt-day', 'How much of the home?'));
+      var sizes = el('div', 'bt-surveys ms-stagger');
+      P.sizes.forEach(function (z) {
+        var price = z.damp + (pick.service === 'timber' ? z.timber : 0);
+        sizes.appendChild(choice(z.name + ': ' + z.scope, money(price, z.from), z.info, function (b) { only(sizes, b); pick.size = z.key; go.disabled = false; }));
+      });
+      rest.appendChild(sizes);
+      rest.appendChild(el('p', 'bt-day', 'Add on the same visit (optional)'));
+      P.extras.filter(function (x) { return x.addable; }).forEach(function (x) { rest.appendChild(tick(x.name, money(x.withSurvey, x.from), x.scope + '. ' + x.info, x.key)); });
+      var go = el('button', 'bt-time bt-go', 'Done'); go.type = 'button'; go.disabled = true;
       go.addEventListener('click', send);
       rest.appendChild(go);
       rest.go = go;
@@ -150,7 +145,6 @@
       var l = el('label', 'bt-add'), c = document.createElement('input'); c.type = 'checkbox';
       c.addEventListener('change', function () {
         pick.extras = pick.extras.filter(function (k) { return k !== key; }); if (c.checked) pick.extras.push(key);
-        if (pick.service === 'alone' && rest.go) rest.go.disabled = !pick.extras.length;
       });
       l.appendChild(c); l.appendChild(document.createTextNode(' ' + name + ', ' + price)); row.appendChild(l);
       var i = el('button', 'bt-info', 'i'); i.type = 'button'; i.setAttribute('aria-label', 'What is ' + name + '?');
@@ -172,10 +166,6 @@
 
   function preview(P, pick) {
     var picked = function (e) { return pick.extras.indexOf(e.key) !== -1; };
-    if (pick.service === 'alone') {
-      var a = P.extras.filter(picked);
-      return { name: a.map(function (e) { return e.name; }).join(' and '), price: a.reduce(function (t, e) { return t + e.alone; }, 0), from: a.some(function (e) { return e.from; }), addOns: [] };
-    }
     var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
     if (!z) return null;
     return { name: z.name + (pick.service === 'timber' ? ' damp and timber' : ' damp') + ' survey', price: z.damp + (pick.service === 'timber' ? z.timber : 0), from: z.from,

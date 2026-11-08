@@ -97,9 +97,9 @@ ${pricing.bands.map((b) => `        <tr><th scope="row">${esc(b.scope)}</th><td>
 
     <h3 class="extras-h">Extra checks</h3>
     <div class="extras-wrap"><table class="extras">
-      <thead><tr><th scope="col">Check</th><th scope="col">With a survey</th><th scope="col">On its own</th></tr></thead>
+      <thead><tr><th scope="col">Added to a survey</th><th scope="col">Price</th></tr></thead>
       <tbody>
-${EXTRAS.map((x) => `        <tr><th scope="row">${esc(x.name)}<small>${esc(x.scope)}</small></th><td>${esc(pounds(x.withSurvey, x.from))}</td><td>${esc(pounds(x.alone, x.from))}</td></tr>`).join('\n')}
+${EXTRAS.filter((x) => x.addable).map((x) => `        <tr><th scope="row">${esc(x.name)}<small>${esc(x.scope)}</small></th><td>${esc(pounds(x.withSurvey, x.from))}</td></tr>`).join('\n')}
       </tbody>
     </table></div>
     <p class="band-foot">Not sure which you need? Book and tell us what you are
