@@ -168,6 +168,7 @@
     el('b-type').disabled = c.kind === 'job';
     /* An enquiry's survey sets its price: Book it waits for one (Pencil in does not need it). */
     el('b-type').required = c.kind !== 'job';
+    global.DSSCHEDX.fill(c, data);
     el('b-note').textContent = ''; el('b-hours').hidden = true;
     el('b-go').textContent = 'Book it';
     el('b-pencil').textContent = 'Pencil in (48h)';
@@ -177,7 +178,7 @@
 
   async function submit(op) {
     var force = el('b-go').dataset.force === '1';
-    var r = await U.send('/api/admin/scheduling', { op: op, kind: booking.kind, id: booking.id, date: el('b-date').value, time: el('b-time').value, surveyor: el('b-who').value, surveyType: el('b-type').value, force: force });
+    var r = await U.send('/api/admin/scheduling', Object.assign({ op: op, kind: booking.kind, id: booking.id, date: el('b-date').value, time: el('b-time').value, surveyor: el('b-who').value, surveyType: el('b-type').value, force: force }, op === 'book' ? global.DSSCHEDX.values() : {}));
     el('b-go').dataset.force = '';
     if (r.ok) {
       el('book').close();

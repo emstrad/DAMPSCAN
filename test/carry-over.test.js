@@ -51,6 +51,19 @@ test('booking an enquiry prices the extras chosen online', async () => {
   assert.equal(Number((await jobOf(kim)).survey_price_pence), 30000);
 });
 
+test('the booking form\'s ticked extras set the price and go on the job for the surveyor', async () => {
+  const lana = await lead('Lana', 'lana@example.com', { choice: { service: 'damp', name: 'Damp survey', price: 215, key: 'localised', addOns: [{ key: 'camera', name: 'Underfloor camera check', price: 85 }] } });
+  const r = await post({ op: 'book', kind: 'lead', id: lana, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', extras: ['camera', 'cavity', 'nonsense'], force: true });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const job = await jobOf(lana);
+  const rate = Number((await pool.query("select price_pence from job_rates where key = 'localised'")).rows[0].price_pence);
+  assert.equal(Number(job.survey_price_pence), rate + 8500 + 9500, 'the rate card survey plus each ticked extra, unknown keys ignored');
+  assert.match(job.note, /Extras: underfloor camera check, low-level cavity bridging check/);
+  const typed = await lead('Tess', 'tess@example.com');
+  await post({ op: 'book', kind: 'lead', id: typed, date: DATE, time: '13:00', surveyor: 'tom', surveyType: 'localised', extras: [], pricePounds: 395, force: true });
+  assert.equal(Number((await jobOf(typed)).survey_price_pence), 39500, 'a typed price wins');
+});
+
 test('unbook clears an old hold, and not going ahead can be undone', async () => {
   const kim = await lead('Kim', 'kim@example.com');
   await post({ op: 'book', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });

@@ -372,6 +372,11 @@ checks the mechanical ones.
   60 days. A repeat form carries the agent, survey choice and photos, and
   folds into an undated job card instead of making a second card. Not going
   ahead can be undone (Bring back to Scheduling). Unbook clears an old hold.
+- The Scheduling booking form shows the extras from the one price list
+  (`public/staff/sched-extras.js`, `lib/book-extras.js`), ticked with what the
+  customer chose online, and the total (survey plus extras), which can be
+  typed over. Ticked extras go on the job's note ("Extras: ...") so the
+  surveyor sees them on Route and the job pop-up.
 - A booked survey's type and price can be changed after booking
   (`lib/survey-change.js`, managers): the job pop-up's folded "Change survey
   or price" and ChatGPT's set_survey. A rate card survey sets its price and
