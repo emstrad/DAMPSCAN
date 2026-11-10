@@ -219,7 +219,7 @@ checks the mechanical ones.
   `lib/next-contact.js`): every call, email or text logged (Scheduling card,
   ChatGPT's log_call, filed emails, the inbox scan) sets when to get back to
   them: two working days by default, or Tomorrow, Next week, a date or No
-  follow-up (chips under the log box). An email from them is "Reply to their
+  follow-up (the Chase choice beside the log box). An email from them is "Reply to their
   email", due today; one from us waits two working days. Due ones are the "Get
   back to" group in lib/work.js (so the To-do list, "Customers who need
   something" and Today), Scheduling's "Needs you now" and a board flag. Booking
@@ -331,10 +331,16 @@ checks the mechanical ones.
 - Scheduling's board cards are compact: name, address, phone (tap to call),
   one status line (brand and the latest contact, or how long nobody has been in
   touch) and short flags (pencilled, best time, times wanted, agent, deadline).
-  Everything else is in the card that opens on tap (`public/staff/sched-detail.js`
-  adds a big "Book it in", Move to (including Booked, which opens the booking
-  form), the hold, photos and times wanted; Close enquiry is folded away at
-  the very end so it is never tapped by mistake).
+  Everything else is in the card that opens on tap, kept clean and simple
+  (the owner's choice, 10 Nov 2026): the name with brand, stage and times
+  wanted beneath, a close cross; the one next step (or a quiet "Next contact"
+  line); a hold or same-person to decide; Call, Text, WhatsApp and Email
+  chips; a big "Book it in" with the best three times (why given once); one
+  log box (what happened, when to chase, what was said); the to-dos (add box
+  folded); then three folded lines: Their details (address, choice, problem,
+  message, photos, times wanted, estate agent), Move or close (Move to,
+  including Booked, then Not going ahead with a reason, never by mistake)
+  and Everything so far (`public/staff/sched-card.js`, `sched-detail.js`).
 - Tapping a Scheduling card opens the customer card (`public/staff/sched-card.js`):
   the basic details, times to offer, an add-to-history box, and everything so
   far newest first (`lib/correspondence.js`): calls, texts, notes, times
