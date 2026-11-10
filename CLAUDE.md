@@ -434,7 +434,18 @@ checks the mechanical ones.
   ChatGPT and the page always do the same thing); set_estate_agent takes an
   enquiry too. create_job with a lead_id runs the same carry-over as Scheduling.
 - Changes read back and wait for a yes. A failed change goes on the caller's
-  to-do list.
+  to-do list. The owners' exception (10 Nov 2026): in an inbox sweep, filing a
+  customer's email (log_email) and adding anyone new as a Scheduling card
+  (add_enquiry, `lib/mcp/add-enquiry.js`) happen straight away, at all costs:
+  no surveyor needed (chosen when a time is booked), the brand from the
+  postcode's patch, a card from an email even with no postcode yet. create_job
+  for a damp survey with no surveyor or day makes the card instead of failing,
+  and update_client corrects an enquiry with no job.
+- Finding a customer is forgiving everywhere (`lib/find-words.js`: the phone's
+  Search, ChatGPT, the enquiry finder): each word in the name, email, phone
+  (+44 or spaces), postcode or address, best match wins, a surname an enquiry
+  never stored forgiven. Every search hit has Call and Email; an enquiry hit
+  opens its Scheduling card.
 
 ## SEO
 - Town pages use the place names people type, for both "damp survey" and

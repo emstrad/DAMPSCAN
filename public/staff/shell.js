@@ -73,9 +73,10 @@
     });
     if (!mode.cost) c.enquiries.forEach(function (e) {
       var a = U.node('a', 'pill', SHORT[e.site] + (e.closed ? ': closed enquiry' : ': enquiry'));
-      a.href = '/staff/dashboard.html?area=' + AREA_OF[e.site];
+      a.href = AREA_OF[e.site] === 'damp' && !e.closed ? '/staff/schedule.html?area=damp#lead-' + e.id : '/staff/dashboard.html?area=' + AREA_OF[e.site];
       links.appendChild(a);
     });
+    if (global.DSWORKER) global.DSWORKER.chips(c, links);
     if (!links.children.length) return null;
     box.appendChild(links);
     return box;

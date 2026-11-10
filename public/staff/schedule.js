@@ -214,6 +214,7 @@
     }
   };
   var search = global.DSSCHEDSEARCH.wire(el('ss-q'), el('ss-list'), { cards: function () { return data && data.cards; }, open: function (c) { global.DSSCHEDCARD.open(c, { act: act, book: openBook }); } });
+  var opened = false;
   async function load() {
     try {
       var pcode = el('free-pc').value.trim();
@@ -231,6 +232,9 @@
       var hit = (focusAfter && document.getElementById(focusAfter)) || (location.hash && document.getElementById(location.hash.slice(1)));
       focusAfter = null;
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
+      /* From Search: the customer's card opens straight away, once. */
+      var want = !opened && location.hash && data.cards.find(function (x) { return '#' + x.kind + '-' + x.id === location.hash; });
+      if (want) { opened = true; global.DSSCHEDCARD.open(want, { act: act, book: openBook }); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }
   }
   /* A caller just added: reload, then open their card with the times to offer. */

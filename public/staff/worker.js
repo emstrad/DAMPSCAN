@@ -47,16 +47,20 @@
 
   /* A search hit for a surveyor: no company pages, so the way to reach the
      customer (a survey handed over at short notice). */
-  function hit(c, box) {
-    var links = document.createElement('div'); links.className = 'gs-links';
+  /* Call and Email on every search hit: whoever rang is reached in one tap. */
+  function chips(c, links) {
     function chip(text, href) { var a = document.createElement('a'); a.className = 'pill'; a.textContent = text; a.href = href; links.appendChild(a); }
     if (c.phone) chip('Call', 'tel:' + String(c.phone).replace(/[^\d+]/g, ''));
     if (c.email) chip('Email', 'mailto:' + c.email);
+  }
+  function hit(c, box) {
+    var links = document.createElement('div'); links.className = 'gs-links';
+    chips(c, links);
     if (!links.children.length) return null;
     box.appendChild(links);
     return box;
   }
-  global.DSWORKER = { hit: hit };
+  global.DSWORKER = { hit: hit, chips: chips };
   if (A && A.rights && A.rights.known) apply();
   document.addEventListener('ds:me', apply);
 })(window);
