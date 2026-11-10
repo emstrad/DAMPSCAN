@@ -10,6 +10,7 @@
   var data = null;
   var booking = null;
   var cap = function (s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; };
+  function todayIso() { return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' }); }
   function day(d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
   function ago(iso) {
     var m = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000)), h = Math.round(m / 60);
@@ -50,6 +51,7 @@
     else if (c.agent) flags.push('Agent: ' + c.agent);
     if (c.deadline) flags.push('Report by ' + c.deadline);
     if (c.partial) flags.push('Didn\'t finish the form');
+    if (c.next) flags.push(c.next.on <= todayIso() ? (c.next.why || 'Follow up') + ' now' : 'Next contact ' + day(c.next.on));
     if (c.chose) flags.push(c.chose.unsure ? 'Not sure which survey' : c.chose.name);
     if (c.wanted) flags.push('Wants ' + c.wanted);
     if (c.pencil) flags.push('Pencilled ' + day(c.pencil.date) + ' ' + c.pencil.time);
@@ -90,6 +92,7 @@
       if (c.pencil && c.pencil.by === 'Website') list.push([0, c, 'Picked ' + day(c.pencil.date) + ' ' + c.pencil.time + ' online: confirm it']);
       else if (c.pencil && c.pencil.until && new Date(c.pencil.until).getTime() - now < 12 * 3600000) list.push([1, c, 'Hold ends in ' + Math.max(1, Math.round((new Date(c.pencil.until).getTime() - now) / 3600000)) + 'h: confirm or let go']);
       else if (!touched && now - new Date(c.since).getTime() > 2 * 3600000) list.push([2, c, 'Nobody in touch, ' + ago(c.since).replace(' ago', '') + ' waiting']);
+      else if (c.next && c.next.on <= todayIso()) list.push([c.next.why === 'Follow up' ? 4 : 3, c, (c.next.why || 'Follow up') + (c.next.on < todayIso() ? ', due ' + day(c.next.on) : ', due today')]);
     });
     box.hidden = !list.length;
     if (!list.length) return;

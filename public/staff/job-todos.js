@@ -1,11 +1,13 @@
-/* A job's to-dos, the same in the Today pop-up and the client card: each
+/* A customer's to-dos, the same in the Today pop-up, the client card and the Scheduling card: each
    open one with a tick box (Undo through the caller's changed()), and a box
    to add one for this customer without going through ChatGPT. */
 (function (global) {
   'use strict';
   var U = global.DSUI;
 
+  /* jobId is a job's id, or {leadId} for an enquiry not booked yet (the Scheduling card). */
   function render(mount, jobId, todos, changed) {
+    var ref = jobId && typeof jobId === 'object' ? jobId : { jobId: jobId };
     mount.textContent = '';
     (todos || []).forEach(function (x) {
       var l = U.node('label', 'sheet-tick');
@@ -40,7 +42,7 @@
       if (!input.value.trim()) return;
       add.disabled = true;
       try {
-        var r = await U.send('/api/admin/todos', { op: 'add', text: input.value.trim(), jobId: jobId, forPersonId: who.value || null });
+        var r = await U.send('/api/admin/todos', Object.assign({ op: 'add', text: input.value.trim(), forPersonId: who.value || null }, ref));
         if (!r.ok) throw new Error((r.data && r.data.error) || 'Could not add it.');
         input.value = '';
         changed();

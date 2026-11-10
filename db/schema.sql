@@ -1397,3 +1397,14 @@ alter table jobs add column if not exists extra_minutes integer not null default
 
 -- A half-finished form turned into a Scheduling card by itself (lib/partial-cards.js).
 alter table leads add column if not exists from_partial boolean not null default false;
+
+-- When to get back to a customer next (lib/next-contact.js): set by every call,
+-- email or text logged, due ones on the one to-do list.
+alter table leads add column if not exists next_contact_on date;
+alter table leads add column if not exists next_contact_why text;
+alter table jobs add column if not exists next_contact_on date;
+alter table jobs add column if not exists next_contact_why text;
+create index if not exists leads_next_contact_idx on leads (next_contact_on) where next_contact_on is not null and closed_at is null;
+-- A to-do can be about an enquiry not booked yet; it moves to the job when booked.
+alter table todos add column if not exists lead_id bigint references leads (id) on delete set null;
+create index if not exists todos_lead_idx on todos (lead_id) where done_at is null;

@@ -215,6 +215,18 @@ checks the mechanical ones.
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).
 - Records page celebrates all-time damp stats; money only for managers.
+- One list, one next step per customer (the owners' choice, 10 Nov 2026,
+  `lib/next-contact.js`): every call, email or text logged (Scheduling card,
+  ChatGPT's log_call, filed emails, the inbox scan) sets when to get back to
+  them: two working days by default, or Tomorrow, Next week, a date or No
+  follow-up (chips under the log box). An email from them is "Reply to their
+  email", due today; one from us waits two working days. Due ones are the "Get
+  back to" group in lib/work.js (so the To-do list, "Customers who need
+  something" and Today), Scheduling's "Needs you now" and a board flag. Booking
+  clears it. A to-do can sit on an enquiry (todos.lead_id): shown on its
+  Scheduling card with tick boxes and an add box, found by ChatGPT's add_todo
+  from the customer's words, and moved onto the job when booked. Owners see
+  every follow-up.
 - To-dos linked to a customer show as a small "N to-dos" tag on the timeline
   and board cards, and as a list with tick boxes and an add box in the Today
   pop-up and the client card (`public/staff/job-todos.js`).

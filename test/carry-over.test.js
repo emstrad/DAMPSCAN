@@ -55,6 +55,20 @@ test('booking an enquiry prices the extras chosen online', async () => {
   assert.equal(j.extra_minutes, 30);
 });
 
+test('an enquiry\'s to-dos move to the job when it is booked, and its follow-up is done with', async () => {
+  const ann = await lead('Ann', 'ann@example.com');
+  const log = await post({ op: 'log', kind: 'lead', id: ann, how: 'call', note: 'Rang, wants Saturday', next: 'week' });
+  assert.equal(log.status, 200, JSON.stringify(log.data));
+  assert.ok((await pool.query('select next_contact_on from leads where id = $1', [ann])).rows[0].next_contact_on);
+  await pool.query("insert into todos (site, lead_id, text, source) values ('dampscan', $1, 'Check access with Ann', 'manual')", [ann]);
+  const r = await post({ op: 'book', kind: 'lead', id: ann, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const t = (await pool.query('select job_id from todos where lead_id = $1', [ann])).rows[0];
+  assert.equal(Number(t.job_id), Number((await jobOf(ann)).id));
+  assert.equal((await pool.query('select next_contact_on from leads where id = $1', [ann])).rows[0].next_contact_on, null);
+  assert.equal((await post({ op: 'log', kind: 'lead', id: ann, how: 'call', next: 'whenever' })).status, 400, 'a next contact it cannot read is refused');
+});
+
 test('the booking form\'s ticked extras set the price and go on the job for the surveyor', async () => {
   const lana = await lead('Lana', 'lana@example.com', { choice: { service: 'damp', name: 'Damp survey', price: 215, key: 'localised', addOns: [{ key: 'camera', name: 'Underfloor camera check', price: 85 }] } });
   const r = await post({ op: 'book', kind: 'lead', id: lana, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', extras: ['camera', 'cavity', 'nonsense'], force: true });
