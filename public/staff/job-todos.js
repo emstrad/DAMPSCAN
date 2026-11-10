@@ -6,7 +6,7 @@
   var U = global.DSUI;
 
   /* jobId is a job's id, or {leadId} for an enquiry not booked yet (the Scheduling card). */
-  function render(mount, jobId, todos, changed) {
+  function render(mount, jobId, todos, changed, opts) {
     var ref = jobId && typeof jobId === 'object' ? jobId : { jobId: jobId };
     mount.textContent = '';
     (todos || []).forEach(function (x) {
@@ -52,7 +52,12 @@
       }
       add.disabled = false;
     });
-    mount.appendChild(form);
+    /* On the Scheduling card the add box is one tap away, so the card stays calm. */
+    if (opts && opts.fold) {
+      var f = document.createElement('details'); f.className = 'todo-addfold';
+      f.appendChild(U.node('summary', null, '+ Add a to-do'));
+      f.appendChild(form); mount.appendChild(f);
+    } else mount.appendChild(form);
   }
 
   /* A small "1 to-do" tag for a card. */
