@@ -108,7 +108,7 @@
     var bar = U.node('div', 'act-bar');
     var add = function (n) { if (n) bar.appendChild(n); };
     it.actions.forEach(function (a) {
-      if (a === 'open') add(it.jobId ? linkBtn('Open', jobHref(it.site, it.jobId, it.quoted)) : null);
+      if (a === 'open') add(it.jobId ? linkBtn('Open', jobHref(it.site, it.jobId, it.quoted)) : it.leadId ? linkBtn('Open', '/staff/schedule.html?area=damp#lead-' + it.leadId) : null);
       if (a === 'leads') add(linkBtn('Open', '/staff/dashboard.html?area=' + AREA_OF[it.site]));
       if (a === 'call' && it.phone) {
         add(linkBtn('Call', 'tel:' + String(it.phone).replace(/[^\d+]/g, '')));

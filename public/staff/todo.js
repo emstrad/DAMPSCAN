@@ -61,6 +61,10 @@
       a.href = '/staff/quoted.html#job-' + t.jobId;
       if (t.site === 'dampscan' || t.site === 'ati-london') a.href = '/staff/jobs.html#job-' + t.jobId;
       body.appendChild(a);
+    } else if (t.leadId) {
+      var e = U.node('a', 'todo-meta', 'Open ' + (t.customer || 'their card'));
+      e.href = '/staff/schedule.html?area=damp#lead-' + t.leadId;
+      body.appendChild(e);
     }
     li.appendChild(box);
     li.appendChild(body);

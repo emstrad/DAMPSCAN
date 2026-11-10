@@ -9,6 +9,7 @@
   var NAMES = { dampscan: 'DampScan', 'ati-london': 'ATi', roofing: 'Verge Roofing', ac: 'CoolRight' };
 
   function open(i) {
+    if (!i.jobId && i.leadId) { location.href = '/staff/schedule.html?area=damp#lead-' + i.leadId; return; }
     if (!i.jobId) { location.href = '/staff/' + ((i.site === 'dampscan' || i.site === 'ati-london') ? 'schedule.html#lead-' + i.id : 'dashboard.html'); return; }
     if (global.DSPOP) global.DSPOP.open(i.jobId, { onChange: function () { render(document.getElementById('clients')); } });
   }
@@ -21,7 +22,7 @@
       ((d.work && d.work.groups) || []).forEach(function (g) {
         if (g.key === 'todos' || g.key === 'payouts' || g.key === 'budget') return;
         g.items.forEach(function (i) {
-          var key = i.jobId ? 'job-' + i.jobId : 'lead-' + i.id;
+          var key = i.jobId ? 'job-' + i.jobId : 'lead-' + (i.leadId || i.id);
           if (!byWho.has(key)) byWho.set(key, { first: i, things: [] });
           var c = byWho.get(key);
           c.things.push({ what: i.what, overdue: i.overdue });

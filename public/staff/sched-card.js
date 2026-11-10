@@ -44,6 +44,9 @@
     d.appendChild(top);
     d.appendChild(U.node('p', 'meta', (c.site === 'ati-london' ? 'ATi' : 'DampScan') + ' · ' + ({ new: 'New enquiry', contacted: 'Contacted', waiting: 'Waiting for time', cold: 'Gone cold' }[c.stage] || '')));
     if (!(c.log || []).length) d.appendChild(U.node('p', 'sheet-next', 'Nobody in touch yet: call them.'));
+    var N = global.DSSCHEDNEXT;
+    var nextLine = N && opts.act && N.status(c, opts.act, function () { d.close(); });
+    if (nextLine) d.appendChild(nextLine);
     /* One row of quick contacts, then the facts; the number stays readable underneath. */
     var tel = c.phone ? String(c.phone).replace(/[^\d+]/g, '') : '';
     var acts = U.node('div', 'sheet-grid');
@@ -83,15 +86,29 @@
     [['call', 'Called'], ['email', 'Emailed'], ['text', 'Texted'], ['note', 'Note']].forEach(function (h) { var o = document.createElement('option'); o.value = h[0]; o.textContent = h[1]; how.appendChild(o); });
     var said = document.createElement('input'); said.placeholder = 'What was said'; said.setAttribute('aria-label', 'What was said');
     row.appendChild(how); row.appendChild(said);
-    row.appendChild(btn('Log', 'btn btn--sm', async function () { await opts.act({ op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value }, 'Logged on ' + (c.name || 'the card') + '.'); said.value = ''; history(c, list); }));
     d.appendChild(row);
+    /* Each call, email or text sets when to get back to them (chips below what was said); a plain note leaves it. */
+    var next = N && N.chips();
+    var logRow = next ? U.node('div', 'sched-row') : row;
+    logRow.appendChild(btn('Log', 'btn btn--sm', async function () {
+      var body = { op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value };
+      if (next && how.value !== 'note') body.next = next.value();
+      await opts.act(body, 'Logged on ' + (c.name || 'the card') + '.'); said.value = ''; history(c, list, todoBox);
+    }));
+    if (next) {
+      d.appendChild(next.node); d.appendChild(logRow);
+      how.addEventListener('change', function () { next.node.hidden = how.value === 'note'; });
+    }
+    /* The customer's to-dos, ticked or added here (job-todos.js), the same list as To-do. */
+    var todoBox = U.node('div', 'sheet-todos');
+    d.appendChild(todoBox);
     var past = document.createElement('details'); past.className = 'sheet-fold';
     past.appendChild(U.node('summary', null, 'Everything so far'));
     var list = U.node('ol', 'scc-list'); past.appendChild(list); d.appendChild(past);
     var fold = global.DSSCHEDDETAIL && global.DSSCHEDDETAIL.closeBox();
     if (fold) d.appendChild(fold);
     d.showModal();
-    history(c, list);
+    history(c, list, todoBox);
   }
 
   /* The estate agent: who, with a call and email chip, and a folded editor to add or change them. */
@@ -119,12 +136,18 @@
     d.appendChild(f);
   }
 
-  async function history(c, list) {
+  async function history(c, list, todoBox) {
     list.textContent = '';
     list.appendChild(U.node('li', 'panel-note', 'Loading.'));
     try {
       var r = await U.get('/api/admin/scheduling?card=' + c.kind + ':' + c.id);
       list.textContent = '';
+      if (todoBox && global.DSTODOS) {
+        todoBox.textContent = '';
+        if ((r.todos || []).length) todoBox.appendChild(U.node('h3', null, 'To-dos (' + r.todos.length + ')'));
+        var mount = U.node('div'); todoBox.appendChild(mount);
+        global.DSTODOS.render(mount, c.kind === 'job' ? c.id : { leadId: c.id }, r.todos || [], function () { history(c, list, todoBox); });
+      }
       if (!r.entries.length) list.appendChild(U.node('li', 'meta', 'Nothing logged yet.'));
       r.entries.forEach(function (e) { list.appendChild(entry(e)); });
     } catch (e) { list.textContent = 'Could not load the history.'; }
