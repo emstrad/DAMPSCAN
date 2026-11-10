@@ -105,10 +105,12 @@ test('a person connects, sees only their business, and a code and a refresh toke
   assert.equal(init.serverInfo.name, 'staff-area');
   const tools = (await rpc(t.access_token, 'tools/list')).json().result.tools;
   const writes = tools.filter((x) => x.annotations.readOnlyHint === false).map((x) => x.name).sort();
-  assert.deepEqual(writes, ['add_cost', 'add_note', 'add_person', 'add_quote_line', 'add_todo', 'attach_report', 'book_job', 'build_quote_from_words', 'close_enquiry', 'complete_todo', 'coolright_commissioning', 'coolright_service_plan', 'coolright_unit', 'create_client', 'create_invoice', 'create_job', 'create_quote_from_template', 'deactivate_person', 'delete_enquiry',
+  assert.deepEqual(writes, ['add_cost', 'add_enquiry', 'add_note', 'add_person', 'add_quote_line', 'add_todo', 'attach_report', 'book_job', 'build_quote_from_words', 'close_enquiry', 'complete_todo', 'coolright_commissioning', 'coolright_service_plan', 'coolright_unit', 'create_client', 'create_invoice', 'create_job', 'create_quote_from_template', 'deactivate_person', 'delete_enquiry',
     'get_quote_link', 'handover_job', 'job_done', 'log_call', 'log_email', 'log_miles', 'log_time', 'mark_deposit_paid', 'mark_message_sent', 'mark_paid_in_full', 'mark_report_sent', 'match_payment', 'move_job', 'move_on_board', 'pencil_in', 'remove_playbook_note', 'remove_quote_line', 'reopen_enquiry', 'reopen_todo', 'reset_passcode',
     'save_playbook_note', 'save_report_draft', 'set_awaiting_agent', 'set_estate_agent', 'set_person_access', 'set_project_page', 'set_remedial_status', 'set_roofing_stage', 'set_survey', 'update_client', 'update_job_status', 'update_roofing_plan', 'use_quote_lines_as_price']);
-  assert.ok(tools.filter((x) => x.annotations.readOnlyHint === false).every((x) => /wait for the person to say yes/.test(x.description)), 'every change asks first');
+  /* Every change asks first, bar the two the owners chose to run straight away in an inbox sweep: they only record. */
+  assert.ok(tools.filter((x) => x.annotations.readOnlyHint === false && !['log_email', 'add_enquiry'].includes(x.name)).every((x) => /wait for the person to say yes/.test(x.description)), 'every change asks first');
+  assert.ok(tools.filter((x) => ['log_email', 'add_enquiry'].includes(x.name)).every((x) => /without asking first/.test(x.description)), 'filing and adding run straight away');
   assert.ok(tools.every((x) => !('run' in x)));
   assert.ok(tools.some((x) => x.name === 'catch_up' && x.annotations.readOnlyHint), 'catch_up is listed as a read');
   assert.match(init.instructions, /catch_up/);

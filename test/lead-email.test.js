@@ -187,6 +187,20 @@ test('no second copy: not for a dropout whose page emailed, nor for a lead alrea
   assert.equal(sends.length, 1, 'a resubmission of a sent lead is not emailed twice');
 });
 
+test('step 1 is saved quietly at once, and the finished form replaces that draft', async () => {
+  const sid = '77777777-7777-4777-8777-777777777777';
+  await call(lead, { body: partial({ sessionId: sid, quiet: true }) });
+  assert.equal(sends.length, 0, 'nobody is emailed for the quiet save');
+  assert.ok(await beacon(sid), 'but the name and contact are kept');
+  await call(lead, { body: partial({ sessionId: sid }) });
+  assert.equal(sends.length, 1, 'leaving afterwards still sends the dropout email');
+  const done = '88888888-8888-4888-8888-888888888888';
+  await call(lead, { body: partial({ sessionId: done, quiet: true }) });
+  await call(lead, { body: { ...partial({ sessionId: done }), stage: 'complete', addressLine1: '1 High St', town: 'Maidstone', issues: ['Damp'], phone: '07700 900123' } });
+  const stages = (await pool.query('select stage from leads where session_id = $1 order by stage', [done])).rows.map((r) => r.stage);
+  assert.deepEqual(stages, ['complete'], 'the quiet draft of a finished form is gone, so it never reads as a failed form');
+});
+
 test('each brand emails its own address with its own wording', async () => {
   const value = { firstName: 'Sam', email: 's@example.com', postcode: 'N1 3GZ', issues: ['Flat roof'], files: ['leads/a.jpg'] };
   assert.equal(formSubmitUrl('ati'), 'https://formsubmit.co/ajax/team@atidampsurvey.co.uk');

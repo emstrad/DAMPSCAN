@@ -203,6 +203,14 @@ checks the mechanical ones.
   paid and (managers) money by landing page and by source, phone callers
   apart. A part-finished ATi or DampScan form has "Book them": it becomes a
   full enquiry in New on Scheduling (noted in its history) and its card opens.
+  It no longer waits for anyone (the owners' choice, 10 Nov 2026): step 1 is
+  saved quietly on the server the moment it is filled in (no email, no alert;
+  the finished form replaces that draft), and a form left half done for half
+  an hour becomes a Scheduling card in New by itself, flagged "Didn't finish
+  the form", with one alert (`lib/partial-cards.js`: when Scheduling loads,
+  hourly, on each new form and the daily runs). Not when the same visit, email
+  or phone finished the form or is already booked. Leads still reads it as
+  Partial, and it never counts as a website booking.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).
@@ -262,9 +270,17 @@ checks the mechanical ones.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a
   buyer's deadline are marked and listed last.
-- A second form from the same email or phone folds the earlier open enquiry
-  into the new one (`lib/merge-dupes.js`): its history, times wanted and
-  hold move over; the old one closes as a duplicate.
+- Never two cards for one customer (the owners' choice, 10 Nov 2026). One
+  rule, `lib/same-person.js`, for every way in (website form, half-finished
+  form, + New customer, ChatGPT): the same email, the same phone (spaces, +44
+  ignored), or, on half the details, the same first name at the same
+  postcode, within one business. A second form folds the earlier open
+  enquiry into the new one (`lib/merge-dupes.js`): its history, times wanted
+  and hold move over, and any detail the new one lacks (phone, email,
+  postcode, address) is filled in; the old one closes as a duplicate. A
+  half-finished form, or a customer ChatGPT finds again, is merged into the
+  existing card the same way (missing details filled, the history says so),
+  or noted on their job card.
 - Scheduling is the one overview for ATi and DampScan (Today and Surveys stay
   as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
   hours, surveys with the drive to the next, holds, free starts to tap or drop
@@ -434,7 +450,18 @@ checks the mechanical ones.
   ChatGPT and the page always do the same thing); set_estate_agent takes an
   enquiry too. create_job with a lead_id runs the same carry-over as Scheduling.
 - Changes read back and wait for a yes. A failed change goes on the caller's
-  to-do list.
+  to-do list. The owners' exception (10 Nov 2026): in an inbox sweep, filing a
+  customer's email (log_email) and adding anyone new as a Scheduling card
+  (add_enquiry, `lib/mcp/add-enquiry.js`) happen straight away, at all costs:
+  no surveyor needed (chosen when a time is booked), the brand from the
+  postcode's patch, a card from an email even with no postcode yet. create_job
+  for a damp survey with no surveyor or day makes the card instead of failing,
+  and update_client corrects an enquiry with no job.
+- Finding a customer is forgiving everywhere (`lib/find-words.js`: the phone's
+  Search, ChatGPT, the enquiry finder): each word in the name, email, phone
+  (+44 or spaces), postcode or address, best match wins, a surname an enquiry
+  never stored forgiven. Every search hit has Call and Email; an enquiry hit
+  opens its Scheduling card.
 
 ## SEO
 - Town pages use the place names people type, for both "damp survey" and

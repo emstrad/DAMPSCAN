@@ -50,10 +50,20 @@ window.DS_HELD_PARTIAL = function heldPartial({ payload, send, email, endpoint }
     send();
   }
 
+  /* Step 1 is also saved quietly on the server at once (no email, no alert),
+     so a phone that kills the page before it can say goodbye still leaves the
+     name and contact behind: half an hour on, it becomes a Scheduling card. */
+  let saved = false;
   function arm(){
     if (done) return;
     armed = true;
     bump();
+    if (saved || !window.fetch) return;
+    saved = true;
+    try {
+      fetch(endpoint, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload(), quiet: true }) }).catch(function(){});
+    } catch (e) {}
   }
 
   function cancel(){
