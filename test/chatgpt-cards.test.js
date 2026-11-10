@@ -48,8 +48,15 @@ test('ChatGPT adds a customer from an email with no surveyor or postcode, and ne
   const row = (await pool.query('select * from leads where id = $1', [r.data.card.id])).rows[0];
   assert.deepEqual([row.sched_stage, row.source_path, row.postcode], ['new', 'email', '']);
   assert.equal(row.sched_log[0].how, 'email');
-  const again = await tool('add_enquiry').run(s, { site: 'dampscan', name: 'Sam Neter', email: 'SAM@example.com' });
-  assert.equal(again.data.existing, true, 'the same email is offered back');
+  const again = await tool('add_enquiry').run(s, { site: 'dampscan', name: 'Sam Neter', email: 'SAM@example.com', phone: '07700 900333', said: 'Can you do Friday?' });
+  assert.equal(again.data.merged, true, 'the same email is merged into the card');
+  const merged = (await pool.query('select * from leads where id = $1', [r.data.card.id])).rows[0];
+  assert.equal(merged.phone, '07700 900333', 'the phone it lacked is filled in');
+  assert.ok(merged.sched_log.some((e) => /Can you do Friday/.test(e.note)));
+  assert.equal((await pool.query('select count(*)::int as n from leads')).rows[0].n, 1, 'never a second card');
+  const half = await tool('add_enquiry').run(s, { site: 'ati-london', name: 'Hannah', postcode: 'SE5 9NU', email: 'h1@example.com' });
+  const halfAgain = await tool('add_enquiry').run(s, { site: 'ati-london', name: 'Hannah Brunton', postcode: 'se59nu', email: 'h2@example.com' });
+  assert.equal(halfAgain.data.card.id, half.data.card.id, 'same first name and postcode is the same person');
   const byPatch = await tool('add_enquiry').run(s, { name: 'Richard', postcode: 'W5 4AS', phone: '07123456789' });
   assert.equal((await pool.query('select site from leads where id = $1', [byPatch.data.card.id])).rows[0].site, 'ati-london', 'a London postcode is ATi');
 });

@@ -270,9 +270,17 @@ checks the mechanical ones.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a
   buyer's deadline are marked and listed last.
-- A second form from the same email or phone folds the earlier open enquiry
-  into the new one (`lib/merge-dupes.js`): its history, times wanted and
-  hold move over; the old one closes as a duplicate.
+- Never two cards for one customer (the owners' choice, 10 Nov 2026). One
+  rule, `lib/same-person.js`, for every way in (website form, half-finished
+  form, + New customer, ChatGPT): the same email, the same phone (spaces, +44
+  ignored), or, on half the details, the same first name at the same
+  postcode, within one business. A second form folds the earlier open
+  enquiry into the new one (`lib/merge-dupes.js`): its history, times wanted
+  and hold move over, and any detail the new one lacks (phone, email,
+  postcode, address) is filled in; the old one closes as a duplicate. A
+  half-finished form, or a customer ChatGPT finds again, is merged into the
+  existing card the same way (missing details filled, the history says so),
+  or noted on their job card.
 - Scheduling is the one overview for ATi and DampScan (Today and Surveys stay
   as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
   hours, surveys with the drive to the next, holds, free starts to tap or drop
