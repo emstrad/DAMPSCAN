@@ -49,6 +49,7 @@
     if (c.awaitingAgent) flags.push('Waiting on ' + (c.agent || 'the agent'));
     else if (c.agent) flags.push('Agent: ' + c.agent);
     if (c.deadline) flags.push('Report by ' + c.deadline);
+    if (c.partial) flags.push('Didn\'t finish the form');
     if (c.chose) flags.push(c.chose.unsure ? 'Not sure which survey' : c.chose.name);
     if (c.wanted) flags.push('Wants ' + c.wanted);
     if (c.pencil) flags.push('Pencilled ' + day(c.pencil.date) + ' ' + c.pencil.time);

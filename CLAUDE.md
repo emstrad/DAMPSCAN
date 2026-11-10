@@ -203,6 +203,14 @@ checks the mechanical ones.
   paid and (managers) money by landing page and by source, phone callers
   apart. A part-finished ATi or DampScan form has "Book them": it becomes a
   full enquiry in New on Scheduling (noted in its history) and its card opens.
+  It no longer waits for anyone (the owners' choice, 10 Nov 2026): step 1 is
+  saved quietly on the server the moment it is filled in (no email, no alert;
+  the finished form replaces that draft), and a form left half done for half
+  an hour becomes a Scheduling card in New by itself, flagged "Didn't finish
+  the form", with one alert (`lib/partial-cards.js`: when Scheduling loads,
+  hourly, on each new form and the daily runs). Not when the same visit, email
+  or phone finished the form or is already booked. Leads still reads it as
+  Partial, and it never counts as a website booking.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).

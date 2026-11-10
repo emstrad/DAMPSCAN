@@ -1394,3 +1394,6 @@ create unique index if not exists jobs_portal_token_idx on jobs (portal_token) w
 -- from the one price list, and the time on site they add (lib/book-extras.js).
 alter table jobs add column if not exists extras text[];
 alter table jobs add column if not exists extra_minutes integer not null default 0;
+
+-- A half-finished form turned into a Scheduling card by itself (lib/partial-cards.js).
+alter table leads add column if not exists from_partial boolean not null default false;

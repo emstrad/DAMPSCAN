@@ -162,8 +162,10 @@ export default async function handler(req, res) {
   // overwrites the reason with the outcome. Skipped when the lead was already
   // emailed, and for a dropout whose page fired its own email as it closed,
   // because either would be a second copy of the same email.
+  /* The quiet save of step 1 (public/assets/partial.js): kept, nobody told yet. */
+  const quiet = body.quiet === true && value.stage === 'partial';
   let emailed = false;
-  if (!row.notified_at && body.emailedOnLeave !== true) {
+  if (!quiet && !row.notified_at && body.emailedOnLeave !== true) {
     const sent = await sendLeadEmail({ site, stage: value.stage, value, id });
     emailed = sent.ok;
     try {
@@ -201,7 +203,12 @@ export default async function handler(req, res) {
      partial is the moment to tell the owner about this business's earlier
      ones that have sat over an hour unfinished. Never blocks the reply on
      failure; the daily run catches whatever this misses. */
-  if (value.stage === 'partial' && row.inserted) {
+  /* The finished form replaces its own quiet draft, which was never a dropout. */
+  if (value.stage === 'complete') {
+    try { await query(`delete from leads where session_id = $1::uuid and stage = 'partial' and notified_at is null`, [value.sessionId]); }
+    catch (err) { console.warn('draft tidy failed:', err.message); }
+  }
+  if (value.stage === 'partial' && row.inserted && !quiet) {
     try { await alertPartials(site); } catch (err) { console.warn('partial alerts failed:', err.message); }
   }
 
