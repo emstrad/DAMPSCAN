@@ -50,7 +50,11 @@ enforces the mechanical ones in CI.
   send now, stop), what went and whether it arrived (Twilio's signed receipts;
   a failure is a to-do), and the wording per kind and brand. A customer with
   no mobile (a landline or email only) gets no text; the owners get one to-do
-  to email or call them instead.
+  to email or call them instead. Every starting wording fits one text (160
+  characters) for either brand with a long name, and gives our number; the
+  page link in a text is the short form (/m/<token>, middleware.js rewrites it
+  to my.html). test/journey-dryrun.test.js runs one customer from booking to
+  report with a pretend Revolut and Twilio; keep it passing.
 
 ## People and access (enforced on the server)
 - Managers: Scott and Tom. Tom (manages ATi, DampScan) has his own login;
@@ -535,6 +539,9 @@ checks the mechanical ones.
   end of the + menu (and the switch also in Settings, which says when the
   server's push keys are missing).
 
+- Settings, "Ready to switch on" (owners, `lib/readiness.js`): each thing
+  the texts, online payments, bank feed, receipts, reviews and alerts still
+  need, as done, to do or worth a look (test mode on); set or not, never a value.
 - Company details (Settings, owners only, `lib/company-details.js`): Damp
   Surveying Limited's company number, registered office, directors, HMRC
   references, Government Gateway user ID, filing dates, bank and insurance,

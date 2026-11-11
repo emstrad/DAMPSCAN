@@ -5,7 +5,8 @@
 (function () {
   'use strict';
   var P = window.PT, I = P.I, h = P.h, t = P.t, btn = P.btn, money = P.money;
-  var token = new URLSearchParams(location.search).get('t') || '';
+  /* The short link (/m/<token>) from a text, or the long one (?t=). */
+  var token = new URLSearchParams(location.search).get('t') || (/^\/m\/([A-Za-z0-9_-]+)$/.exec(location.pathname) || [])[1] || '';
   var api = '/api/quote?doc=portal&t=' + encodeURIComponent(token);
   var main = document.getElementById('main');
   var shortDay = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };

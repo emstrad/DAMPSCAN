@@ -297,3 +297,10 @@ test('the bare damp proofing path goes to the damp proofing service page', () =>
 test('a damp proofing path on the roofing site is not routed', () => {
   assert.equal(rewrittenTo(call('vergeroofing.com', '/damp-proofing/sevenoaks')), null);
 });
+
+test('a customer\'s short link from a text opens their page on either host', () => {
+  const t = 'r6s7Z0GCG-293fvGfDBEVnfJx9c_N-Sr';
+  assert.equal(rewrittenTo(call(KENT, '/m/' + t)), '/my.html');
+  assert.equal(rewrittenTo(call(LONDON, '/m/' + t)), '/my.html');
+  assert.notEqual(rewrittenTo(call(KENT, '/m/short')), '/my.html', 'not a token');
+});
