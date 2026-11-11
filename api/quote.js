@@ -31,6 +31,8 @@ import { invoiceNumber } from '../lib/quote-store.js';
 import { ratingPage, rate } from '../lib/rating.js';
 import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } from '../lib/portal.js';
 import { brandOf, codeOf } from '../lib/portal-view.js';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { deliveryReceipt } from '../lib/texts.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -127,6 +129,26 @@ async function accept(req, res) {
   json(res, 200, { ok: true });
 }
 
+/* Twilio's delivery receipt for one customer text, signed with our auth token
+   (X-Twilio-Signature: HMAC-SHA1 of the full address and the sorted form). */
+async function smsStatus(req, res) {
+  /* Vercel hands a form over already parsed; locally it is a string or the stream. */
+  let form = req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body) ? { ...req.body } : null;
+  if (!form) {
+    let raw = typeof req.body === 'string' ? req.body : Buffer.isBuffer(req.body) ? req.body.toString('utf8') : null;
+    if (raw == null) { const chunks = []; for await (const c of req) chunks.push(c); raw = Buffer.concat(chunks).toString('utf8'); }
+    form = Object.fromEntries(new URLSearchParams(raw));
+  }
+  const url = `${process.env.STATUS_BASE || 'https://dampscan.co.uk'}${req.url}`;
+  const signed = url + Object.keys(form).sort().map((k) => k + form[k]).join('');
+  const want = createHmac('sha1', process.env.TWILIO_AUTH_TOKEN || '').update(signed).digest('base64');
+  const got = String(req.headers['x-twilio-signature'] || '');
+  if (!process.env.TWILIO_AUTH_TOKEN || got.length !== want.length || !timingSafeEqual(Buffer.from(got), Buffer.from(want))) { json(res, 403, { ok: false }); return; }
+  const id = Number(new URL(req.url, 'http://localhost').searchParams.get('id'));
+  if (id) await deliveryReceipt(id, String(form.MessageStatus || ''), form.ErrorCode || null);
+  json(res, 200, { ok: true });
+}
+
 async function portal(req, res) {
   const params = new URL(req.url, 'http://localhost').searchParams;
   const found = await findPortal(params.get('t') || '');
@@ -151,6 +173,7 @@ export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST'])) return;
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   try {
+    if (req.method === 'POST' && new URL(req.url, 'http://localhost').searchParams.get('doc') === 'sms-status') return await smsStatus(req, res);
     if (req.method === 'POST') {
       const body = await readJson(req);
       req.body = body;

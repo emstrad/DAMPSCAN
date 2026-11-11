@@ -13,6 +13,7 @@ import { sendLeadEmail } from '../lib/lead-email.js';
 import { notify } from '../lib/notify.js';
 import { enquiryAlert } from '../lib/alert-enquiry.js';
 import { textOwners, enquiryText } from '../lib/staff-sms.js';
+import { queueText, flushDue } from '../lib/texts.js';
 import { alertPartials } from '../lib/daily-alerts.js';
 import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
@@ -197,6 +198,8 @@ export default async function handler(req, res) {
     await notify(enquiryAlert(site, id, row));
     /* And a text to the owners, which arrives whatever ntfy's limit (lib/staff-sms.js). */
     await textOwners(enquiryText(site, id, row));
+    /* And the customer's own "thanks, we'll call" text (lib/texts.js), once texts are on. */
+    try { await queueText({ kind: 'enquiry', site, leadId: id, key: 'enquiry' }); await flushDue({ limit: 3 }); } catch (err) { console.warn('enquiry text failed:', err.message); }
   }
 
   /* There is no frequent schedule to catch a form left half done, so a new

@@ -207,3 +207,13 @@ details.sheet-sec.sheet-fold{padding:0}
 }
 html.is-worker .top nav.tabs,html.is-worker nav.section-tabs,html.is-worker .cal-filters,html.is-worker .shell-plus,html.is-worker a[href^="/staff/schedule.html"]{display:none}
 html.is-worker #day-surveyor{display:none}
+/* The Texts page (texts.js). */
+.tx-live{color:var(--muted-2);font-size:14px;margin:6px 0 14px}
+.tx-ul{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px}
+.tx-card{background:var(--slate);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:8px;min-width:0}
+.tx-card.is-bad{border-color:var(--warn,#e3b341)}
+.tx-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center}
+.tx-card textarea{width:100%;font-size:16px;min-height:88px;background:var(--navy-2,#101f33);color:var(--text);border:1px solid var(--line-strong);border-radius:10px;padding:10px;resize:vertical}
+.tx-row{display:flex;flex-wrap:wrap;gap:8px}
+.tx-row .btn{min-height:44px}
+.tx-words{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;margin:0;color:var(--text)}

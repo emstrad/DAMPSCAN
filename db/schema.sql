@@ -1434,3 +1434,42 @@ create table if not exists portal_events (
 );
 create index if not exists portal_events_job_idx on portal_events (job_id, at desc);
 alter table jobs add column if not exists report_downloaded_at timestamptz;
+
+-- Customer texts (lib/texts.js): one outbox for every kind, each checked again
+-- and worded just before it goes; a staff change waits two minutes first.
+create table if not exists sms_outbox (
+  id          bigserial primary key,
+  site        text not null references businesses (slug),
+  job_id      bigint references jobs (id) on delete cascade,
+  lead_id     bigint references leads (id) on delete cascade,
+  kind        text not null,
+  dedupe      text not null default '',
+  status      text not null default 'waiting',
+  send_after  timestamptz not null default now(),
+  body        text,
+  to_phone    text,
+  sid         text,
+  error       text,
+  delivery    text,
+  payload     jsonb,
+  created_by  text,
+  created_at  timestamptz not null default now(),
+  sent_at     timestamptz,
+  delivered_at timestamptz
+);
+-- Once per survey, kind and moment; a cancelled one can be queued again.
+create unique index if not exists sms_outbox_once_idx on sms_outbox (coalesce(job_id, 0), coalesce(lead_id, 0), kind, dedupe) where status <> 'cancelled';
+create index if not exists sms_outbox_due_idx on sms_outbox (send_after) where status = 'waiting';
+create index if not exists sms_outbox_job_idx on sms_outbox (job_id, created_at desc);
+-- The owners' own wording per text and brand (the Texts page).
+create table if not exists sms_templates (
+  kind        text not null,
+  site        text not null references businesses (slug),
+  body        text not null,
+  updated_by  text,
+  updated_at  timestamptz not null default now(),
+  primary key (kind, site)
+);
+-- What a customer's texts already covered, so the same payment is texted once.
+alter table jobs add column if not exists texted_paid_pence bigint not null default 0;
+alter table jobs add column if not exists report_ready_at timestamptz;

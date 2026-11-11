@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Texts | DampScan</title>
+<meta name="theme-color" content="#0c1a2b" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="manifest" href="/staff/manifest.webmanifest" /><link rel="apple-touch-icon" href="/staff/icon-180.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" />
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
+<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" />
+<script>
+/* Both sites share this staff area, so the hostname decides whose name is on
+   it. This runs in the head, before anything is painted, so neither brand ever
+   flashes the other's. The markup carries both lockups; staff.css hides one. */
+(function brand(){
+  var ati = /(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname);
+  if (!ati) return;
+  document.documentElement.setAttribute('data-brand', 'ati');
+  document.title = document.title.replace('DampScan', 'ATi Damp Survey');
+  var icon = document.querySelector('link[rel="icon"]');
+  if (icon) { icon.type = 'image/png'; icon.href = '/assets/ati-mark.png'; }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a href="/" class="logo brand-dampscan" aria-label="DampScan home">
+    <span class="logo-type">
+      <span class="logo-word">Damp<span class="scan">Scan</span></span>
+      <span class="logo-tag">Survey Specialists</span>
+    </span>
+  </a>
+  <a href="/" class="logo brand-ati" aria-label="ATi Damp Survey home">
+    <span class="logo-type">
+      <span class="logo-word">ATi <span class="scan">Damp</span></span>
+      <span class="logo-tag">Survey Practice</span>
+    </span>
+  </a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/staff/due.html">Due</a>
+    <a href="/staff/dashboard.html">Dashboard</a>
+    <a href="/staff/jobs.html">Jobs</a>
+    <a href="/staff/quoted.html">Quotes</a>
+    <a href="/staff/clients.html">Clients</a>
+    <a href="/staff/bank.html">Bank</a>
+  </nav>
+  <div class="top-end">
+    <button class="btn btn--ghost btn--sm" id="refresh">Refresh</button>
+    <button class="btn btn--ghost btn--sm" id="logout">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="sv-h1">Texts</h1>
+  <p class="tx-live" id="live"></p>
+  <div class="state" id="state">Loading…</div>
+  <div id="content" hidden>
+    <div class="pills" role="group" aria-label="Show">
+      <button class="pill" type="button" data-tab="waiting" aria-pressed="true">Waiting</button>
+      <button class="pill" type="button" data-tab="sent" aria-pressed="false">Sent</button>
+      <button class="pill" type="button" data-tab="wording" aria-pressed="false">Wording</button>
+    </div>
+    <div id="list" class="tx-list"></div>
+  </div>
+</main>
+
+<script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
+<script src="/staff/texts.js"></script>
+</body>
+</html>

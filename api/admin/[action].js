@@ -18,6 +18,7 @@ import { json, requireMethod, actionFrom, readJson } from '../../lib/http.js';
 import { requireScope } from '../../lib/access.js';
 import { workOnly, allowedWrite, allowedRead, REFUSED } from '../../lib/work-only.js';
 import { withActivity } from '../../lib/activity.js';
+import { flushDue } from '../../lib/texts.js';
 import { withFigures } from '../../lib/figures.js';
 import scheduling from '../../lib/routes/admin/scheduling.js';
 import hours from '../../lib/routes/admin/hours.js';
@@ -49,11 +50,12 @@ import snooze from '../../lib/routes/admin/snooze.js';
 import surveys from '../../lib/routes/admin/surveys.js';
 import summary from '../../lib/routes/admin/summary.js';
 import todos from '../../lib/routes/admin/todos.js';
+import texts from '../../lib/routes/admin/texts.js';
 import usage from '../../lib/routes/admin/usage.js';
 
 export const config = { runtime: 'nodejs' };
 
-const ROUTES = { quick, conversions, hours, scheduling, attachment, bank, business, calendar, clients, contracts, coolright, due, insights, jobs, leads, mcp, me, oauth, people, photos, pricebook, push, quoted, rates, roofing, search, snooze, summary, surveys, todos, usage };
+const ROUTES = { quick, conversions, hours, scheduling, attachment, bank, business, calendar, clients, contracts, coolright, due, insights, jobs, leads, mcp, me, oauth, people, photos, pricebook, push, quoted, rates, roofing, search, snooze, summary, surveys, texts, todos, usage };
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST', 'DELETE'])) return;
@@ -92,5 +94,8 @@ export default async function handler(req, res) {
   }
   /* Each change made here is one phone alert, see lib/activity.js. Figures
      are taken out for anyone who only works on a business, lib/figures.js. */
-  return withActivity(withFigures(route))(req, res);
+  await withActivity(withFigures(route))(req, res);
+  /* Any customer text whose two minutes are up goes now (lib/texts.js): staff
+     requests are the steadiest clock there is between the hourly runs. */
+  if (req.method !== 'GET' && action !== 'texts') await flushDue({ limit: 5 }).catch((err) => console.warn('text flush failed:', err.message));
 }

@@ -31,11 +31,26 @@ enforces the mechanical ones in CI.
   LEAD_EMAIL_M365=on turns it back on.
 - Nothing is ever sent to a customer automatically: messages are words with
   tap-to-send links, emails are drafts the person checks and sends.
-  The one exception the owners chose: survey texts through Twilio
-  (`lib/sms.js`), a booking confirmation and the evening-before reminder,
-  built and off until SMS_AUTO=on with TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
-  and TWILIO_FROM set. A customer with no mobile (a landline or email
-  only) gets no text; the owners get one to-do to email or call them instead.
+  The one exception the owners chose (11 Nov 2026): customer texts through
+  Twilio (`lib/texts.js`, `lib/text-words.js`), seven kinds: 1 enquiry
+  received, 2 booked with the deposit link, 3 payment received (from Revolut,
+  a matched transfer or a tick by hand), 4 the survey morning at 7 (asking for
+  the deposit when unpaid; no evening-before text), 5 report ready (balance
+  due, or ready to view when paid), 6 your report once paid, 7 survey moved.
+  Never on a cancellation, never to an estate agent. One outbox: a text from a
+  staff change waits two minutes (an undo or second change cancels or
+  replaces it), one the customer caused goes at once; each is checked again
+  and worded just before it goes, once per survey, kind and moment; a change
+  to a payment or report more than two days old never texts. Sent from the
+  brand name (TWILIO_FROM_ATI, TWILIO_FROM_DAMPSCAN); customers cannot reply,
+  so each text gives the phone number. Off until SMS_AUTO=on with
+  TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN; while off the outbox keeps what
+  would have gone, and SMS_TEST_TO sends everything to one test number. The
+  Texts page (managers, in the Companies sheet) shows what is waiting (edit,
+  send now, stop), what went and whether it arrived (Twilio's signed receipts;
+  a failure is a to-do), and the wording per kind and brand. A customer with
+  no mobile (a landline or email only) gets no text; the owners get one to-do
+  to email or call them instead.
 
 ## People and access (enforced on the server)
 - Managers: Scott and Tom. Tom (manages ATi, DampScan) has his own login;
