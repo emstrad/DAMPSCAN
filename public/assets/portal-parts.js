@@ -17,6 +17,7 @@
     info: S.replace(/18/g, '16') + '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
     tick: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
   };
+  var APPLE = '<svg width="15" height="18" viewBox="0 0 17 20" fill="currentColor" aria-label="Apple"><path d="M14.1 10.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-3.9zM11.7 3.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>';
   function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function t(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function btn(cls, html, fn) { var b = h('button', cls, html); b.type = 'button'; if (fn) b.addEventListener('click', fn); return b; }
@@ -84,7 +85,7 @@
    * balance unlocks the report. Otherwise the deposit (or what is left of
    * it), in full, or any amount from the deposit up.
    */
-  function payCard(p, balanceOnly) {
+  function payCard(p, balanceOnly, startPay) {
     var m = p.money, card = h('div', 'pt-card');
     var least = balanceOnly ? m.balancePence : m.minNowPence, most = m.balancePence;
     var pick = 'deposit', other = '';
@@ -106,10 +107,23 @@
       inp.addEventListener('blur', function () { if (other !== '' && !ok(amount())) { field.classList.remove('bad'); void field.offsetWidth; field.classList.add('bad'); } });
     }
     card.appendChild(hint);
+    /* Apple Pay, Google Pay, card or Revolut Pay, on Revolut's secure page (lib/revolut-pay.js). */
+    var payBtn = null;
+    if (p.payOnline && startPay) {
+      var apple = global.ApplePaySession && /iPhone|iPad|Macintosh/.test(navigator.userAgent);
+      payBtn = btn('pt-btn pay', '', function () {
+        var a = amount(); if (!ok(a)) return;
+        payBtn.classList.add('busy'); payBtn.disabled = true;
+        startPay(a).catch(function () { payBtn.classList.remove('busy'); payBtn.disabled = false; toast('That didn\'t start. Please try again.'); });
+      });
+      payBtn.dataset.apple = apple ? '1' : '';
+      card.appendChild(payBtn);
+      card.appendChild(h('div', 'pt-secure', I.lock + '<span>Apple Pay, Google Pay, card or Revolut Pay. Secure payment to Damp Surveying Limited.</span>'));
+    }
     var area = h('div'); area.style.display = 'grid'; area.style.gap = '10px'; card.appendChild(area);
     var amountRow;
     if (p.payTo) {
-      card.insertBefore(t('div', 'pt-label', 'Pay by bank transfer'), area);
+      card.insertBefore(t('div', 'pt-label', payBtn ? 'Or pay by bank transfer' : 'Pay by bank transfer'), area);
       var ref = h('div', 'pt-ref');
       ref.appendChild(t('small', null, 'Your reference: use exactly this'));
       ref.appendChild(t('div', 'code', p.reference));
@@ -119,13 +133,14 @@
       bankRows(p.payTo).forEach(function (r) { area.appendChild(copyRow(r.label, r.value, r.value.replace(/^(\d{2})[ -]?(\d{2})[ -]?(\d{2})$/, '$1$2$3'))); });
       area.appendChild(h('div', 'pt-live', '<span class="pt-dot"></span><span>We\'ll match your payment by its reference. This page updates once it\'s in.</span>'));
     }
-    var call = h('a', 'pt-btn ghost', '<span class="in">' + I.phone + ' Pay by card: call us</span>'); call.href = 'tel:' + p.brand.phone; area.appendChild(call);
+    if (!payBtn) { var call = h('a', 'pt-btn ghost', '<span class="in">' + I.phone + ' Pay by card: call us</span>'); call.href = 'tel:' + p.brand.phone; area.appendChild(call); }
     function sync() {
       var a = amount(), good = ok(a);
       roll(big, good ? a : (balanceOnly ? most : least));
       field.classList.remove('bad');
       if (!balanceOnly && pick === 'other' && other !== '' && !good) { hint.className = 'pt-hint bad'; hint.textContent = a > most ? 'That\'s more than the ' + money(most) + ' due.' : 'The least you can pay now is ' + money(least) + '.'; }
       else { hint.className = 'pt-hint'; hint.textContent = balanceOnly ? 'Your report unlocks as soon as this is paid.' : 'Pay anything from ' + money(least) + '. The rest is due when your report is ready.'; }
+      if (payBtn && !payBtn.classList.contains('busy')) { payBtn.disabled = !good; payBtn.innerHTML = '<span class="in">Pay ' + (good ? money(a) + ' ' : '') + (payBtn.dataset.apple ? 'with ' + APPLE + ' Pay' : 'now') + '</span>'; }
       if (amountRow) { var b = amountRow.querySelector('b'); b.textContent = good ? money(a) : '-'; amountRow.querySelector('.pt-copy').onclick = null; }
     }
     if (amountRow) amountRow.querySelector('.pt-copy').addEventListener('click', function (e) { e.stopImmediatePropagation(); var a = amount(); if (ok(a)) copied(this, (a / 100).toFixed(2), 'Amount copied'); }, true);

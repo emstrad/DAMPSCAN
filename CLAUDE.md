@@ -469,9 +469,22 @@ checks the mechanical ones.
   send it. Every open, postcode try, download and request is logged
   (portal_events, hashed IP only). The Google review link (REVIEW_URL_DAMPSCAN,
   REVIEW_URL_ATI) shows to everyone paid and reported, never only to happy
-  customers. Still to come (the owners' plan, 11 Nov 2026): Apple Pay and
-  card through Revolut, bank transfers matched by reference then by amount
-  and name, Message us and Ask to move (real free times), On my way, Report
+  customers. Paying online (`lib/revolut-pay.js`): one "Pay" button (with
+  Apple Pay on Apple devices) opens Revolut's own secure page for Apple Pay,
+  Google Pay, card or Revolut Pay; our server makes the order for the amount
+  chosen, checked on the server (at least what is due now, at most the
+  balance); a payment is recorded only when Revolut itself says the order is
+  complete (its notice only means "look at order X", checked with our key,
+  also when the customer comes back first), once (job_payments.external_ref),
+  ticking deposit or paid in full, texting at once and alerting the team;
+  coming back shows Confirming, then paid, or "Nothing was taken" with Try
+  again. Off until REVOLUT_MERCHANT_KEY is in Vercel (PAY_ONLINE=off hides it,
+  REVOLUT_SANDBOX=on tests); Settings, Online payments, "Connect Revolut
+  payments" registers Revolut's notices (owners). Bank transfer stays below
+  as the free way: the bank feed (lib/bank) matches a transfer by the page's
+  reference (KIM0042 typed exactly settles it, its number alone nearly so),
+  then by amount and name, a tie left for a person; a matched transfer counts
+  on the page and texts the customer. Still to come: Message us and Ask to move (real free times), On my way, Report
   ready and Hold, receipts, and the texts.
 - Attachments open on screen, never as a download first (the owners' choice,
   11 Nov 2026, `public/assets/viewer.js`, loaded by staff ui.js and the

@@ -1473,3 +1473,24 @@ create table if not exists sms_templates (
 -- What a customer's texts already covered, so the same payment is texted once.
 alter table jobs add column if not exists texted_paid_pence bigint not null default 0;
 alter table jobs add column if not exists report_ready_at timestamptz;
+
+-- Paying online (lib/revolut-pay.js): each Revolut order made from a
+-- customer's page, and a payment recorded once whichever way it arrived.
+create table if not exists pay_orders (
+  order_id     text primary key,
+  job_id       bigint not null references jobs (id) on delete cascade,
+  amount_pence bigint not null,
+  state        text not null default 'pending',
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+create index if not exists pay_orders_job_idx on pay_orders (job_id, created_at desc);
+alter table job_payments add column if not exists external_ref text;
+create unique index if not exists job_payments_external_idx on job_payments (external_ref) where external_ref is not null;
+-- Secrets the system is handed by a service when it connects (never in code):
+-- the Revolut webhook's signing secret.
+create table if not exists integration_keys (
+  name       text primary key,
+  value      text not null,
+  updated_at timestamptz not null default now()
+);

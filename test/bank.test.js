@@ -189,3 +189,13 @@ test('the importer matches only a clear winner', () => {
   assert.equal(autoMatch(pay(), twins), null, 'two jobs for the same person is a question, not a match');
   assert.equal(suggest(pay(), twins).length, 2);
 });
+
+test('the reference from the customer page (KIM0042) settles a transfer, and so does its number alone', () => {
+  const kim = { id: 42, jobDate: '2026-11-20', customerName: 'Kim Lee', postcode: 'ME19 6AB', surveyPricePence: 29500, receivedPence: 0 };
+  const other = { id: 43, jobDate: '2026-11-21', customerName: 'Sam Kim', postcode: 'N4 4ED', surveyPricePence: 29500, receivedPence: 0 };
+  const tx = (reference) => ({ postedOn: '2026-11-15', amountPence: 14750, reference, counterparty: 'J SMITH', description: '' });
+  assert.equal(autoMatch(tx('KIM0042'), [kim, other]), 42);
+  assert.equal(autoMatch(tx('kim 42'), [kim, other]), 42);
+  assert.equal(autoMatch(tx('Survey 0043'), [kim, other]), 43);
+  assert.equal(autoMatch(tx('deposit'), [kim, other]), null, 'same amount, no reference: a person decides');
+});

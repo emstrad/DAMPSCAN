@@ -128,9 +128,38 @@
     card.appendChild(dl); moneyBar(card, p.money);
   }
 
+  /* Starts a payment on Revolut's secure page; it comes back here with &paid=1. */
+  function pay(pence) {
+    return fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'pay', t: token, pence: pence }) })
+      .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok || !d.url) throw new Error(); location.href = d.url; });
+  }
+  /* Back from Revolut: confirming (checked again every few seconds), declined, or done. */
+  var tries = 0;
+  function payment(p) {
+    var x = p.payment, card;
+    if (!x || x.state === 'completed') {
+      if (x && x.state === 'completed') { P.toast(money(x.pence) + ' received. Thank you!'); history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(token)); }
+      return false;
+    }
+    var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1); brandBar(p.brand);
+    if (x.state === 'pending' && tries < 20) {
+      hello(p, 'Confirming your payment', '', 'Checking');
+      card = h('div', 'pt-card center'); card.appendChild(h('div', 'pt-ring')); card.appendChild(t('h2', null, 'Just a moment'));
+      card.appendChild(t('p', null, 'We\'re confirming your payment of ' + money(x.pence) + '. This page updates by itself.')); main.appendChild(card);
+      tries += 1; setTimeout(load, 3000); return true;
+    }
+    hello(p, x.state === 'pending' ? 'Still waiting on the bank' : 'That payment didn\'t go through', x.state === 'pending' ? 'warn' : 'bad', x.state === 'pending' ? 'Checking' : 'Not paid');
+    card = h('div', 'pt-card center'); card.appendChild(h('div', 'pt-cross', '!'));
+    card.appendChild(t('h2', null, x.state === 'pending' ? 'We\'ll update this page when it lands' : 'Nothing was taken'));
+    card.appendChild(t('p', null, x.state === 'pending' ? 'If you paid, you don\'t need to do anything. If not, you can try again.' : 'Your bank declined it, or it was cancelled. Try again, or pay by bank transfer.'));
+    card.appendChild(btn('pt-btn', '<span class="in">Try again</span>', function () { location.href = location.pathname + '?t=' + encodeURIComponent(token); }));
+    main.appendChild(card); return true;
+  }
+
   function draw(p) {
     document.documentElement.dataset.site = p.code;
     document.title = 'Your survey · ' + p.brand.name;
+    if (payment(p)) return;
     var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1);
     brandBar(p.brand);
     var T = TITLES[p.state] || TITLES.waiting, s = p.state, card;
@@ -148,7 +177,7 @@
       card.appendChild(t('p', null, 'You don\'t need to be there. We\'ll text you the confirmed time.')); main.appendChild(card);
     } else if (s === 'deposit') {
       if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
-      main.appendChild(P.payCard(p, false)); if (p.visit) visitCard(p);
+      main.appendChild(P.payCard(p, false, pay)); if (p.visit) visitCard(p);
     } else if (s === 'booked') {
       card = h('div', 'pt-card center'); card.appendChild(h('div', 'pt-tick', I.tick));
       card.appendChild(t('h2', null, p.money.paidPence ? money(p.money.paidPence) + ' received' : 'You\'re all set')); card.appendChild(t('p', null, 'Your survey is confirmed.'));
@@ -158,7 +187,7 @@
       card.appendChild(t('p', null, (p.visit && p.visit.surveyor ? p.visit.surveyor : 'Your surveyor') + ' is writing up your report. We\'ll text you as soon as it\'s ready.')); moneyBar(card, p.money); main.appendChild(card);
     } else if (s === 'ready') {
       reportCard(p, true); if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
-      main.appendChild(P.payCard(p, true));
+      main.appendChild(P.payCard(p, true, pay));
     } else if (s === 'report') {
       downloadGate(reportCard(p, false), p);
       if (p.reviewUrl) {
@@ -198,9 +227,13 @@
   }
   function gone(text) { var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1); hello(null, 'We can\'t find this page', 'bad', 'Not found'); var c = h('div', 'pt-card'); c.appendChild(t('p', 'pt-msg', text)); main.appendChild(c); }
 
-  fetch(api).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); }).then(function (x) {
-    if (x.status === 410) return expired(x.d);
-    if (!x.d.ok) return gone('Check you opened the whole link from your text or email, or call us.');
-    draw(x.d.portal);
-  }).catch(function () { gone('No connection. Check your signal and try again.'); });
+  function load() {
+    var paid = new URLSearchParams(location.search).get('paid') ? '&paid=1' : '';
+    fetch(api + paid).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); }).then(function (x) {
+      if (x.status === 410) return expired(x.d);
+      if (!x.d.ok) return gone('Check you opened the whole link from your text or email, or call us.');
+      draw(x.d.portal);
+    }).catch(function () { gone('No connection. Check your signal and try again.'); });
+  }
+  load();
 })();
