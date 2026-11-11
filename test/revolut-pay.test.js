@@ -3,6 +3,7 @@
  * is checked on the server, a payment is recorded only when Revolut itself
  * says the order is complete, once, and it ticks, texts and alerts.
  */
+process.env.SMS_QUIET_HOURS = 'off';
 import { test, before, beforeEach, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';

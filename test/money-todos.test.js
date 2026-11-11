@@ -4,6 +4,7 @@
  * not paid after 48 hours each make one to-do and move no money; a card
  * refund goes through Revolut once; a held report stays locked and quiet.
  */
+process.env.SMS_QUIET_HOURS = 'off';
 import { test, before, beforeEach, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';

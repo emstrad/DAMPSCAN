@@ -5,6 +5,7 @@
  * unlocked. At each step the page shows the right state, the right text is
  * sent once in the right words, and the receipts add up.
  */
+process.env.SMS_QUIET_HOURS = 'off';
 import { test, before, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';

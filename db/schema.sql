@@ -1534,3 +1534,54 @@ create table if not exists company_details (
 );
 -- Revolut's fee on a card payment, when Revolut reports it.
 alter table job_payments add column if not exists fee_pence bigint;
+
+-- When each scheduled run last finished (lib/heartbeat.js), for Settings.
+create table if not exists cron_beats (
+  name text primary key,
+  at   timestamptz not null default now()
+);
+
+-- What a deposit or paid-in-full tick stood for when it was made (the go-live
+-- audit, 11 Nov 2026), so a later price change never makes a tick count for
+-- more or less than it did: paid is the larger of the money recorded and the
+-- amount the ticks stood for (lib/portal-view.js moneyOf). A tick made because
+-- a transfer was seen, and the same transfer matched later, count once.
+alter table jobs add column if not exists tick_deposit_pence bigint;
+alter table jobs add column if not exists tick_paid_pence bigint;
+create or replace function jobs_tick_amounts() returns trigger language plpgsql as $$
+begin
+  if new.deposit_paid_at is null then new.tick_deposit_pence := null;
+  elsif tg_op = 'INSERT' or old.deposit_paid_at is null or new.tick_deposit_pence is null then
+    new.tick_deposit_pence := ceil(coalesce(new.survey_price_pence, 0) / 2.0)::bigint;
+  end if;
+  if new.paid_at is null then new.tick_paid_pence := null;
+  elsif tg_op = 'INSERT' or old.paid_at is null or new.tick_paid_pence is null then
+    new.tick_paid_pence := coalesce(new.survey_price_pence, 0);
+  end if;
+  return new;
+end $$;
+drop trigger if exists jobs_tick_amounts_trg on jobs;
+create trigger jobs_tick_amounts_trg before insert or update of deposit_paid_at, paid_at on jobs for each row execute function jobs_tick_amounts();
+-- Once: ticks already made stand for the price as it is today.
+do $$
+begin
+  if not exists (select 1 from lab_flags where key = 'tick_amounts_v1') then
+    update jobs set tick_deposit_pence = ceil(coalesce(survey_price_pence, 0) / 2.0)::bigint where deposit_paid_at is not null and tick_deposit_pence is null;
+    update jobs set tick_paid_pence = coalesce(survey_price_pence, 0) where paid_at is not null and tick_paid_pence is null;
+    insert into lab_flags (key, enabled) values ('tick_amounts_v1', true);
+  end if;
+end $$;
+-- Once, before customer texts are switched on (the go-live audit, 11 Nov
+-- 2026): every damp survey counts as texted for the money it already has, so
+-- the first edit after switching on never texts about an older payment.
+do $$
+begin
+  if not exists (select 1 from lab_flags where key = 'texted_paid_backfill_v1') then
+    update jobs j set texted_paid_pence = greatest(
+        coalesce((select sum(p.amount_pence) from job_payments p where p.job_id = j.id and p.label <> 'refund'), 0)
+          + coalesce((select sum(b.amount_pence) from bank_transactions b where b.job_id = j.id and b.amount_pence > 0), 0),
+        coalesce(j.tick_paid_pence, j.tick_deposit_pence, 0))
+     where j.site in ('dampscan', 'ati-london') and coalesce(j.texted_paid_pence, 0) = 0;
+    insert into lab_flags (key, enabled) values ('texted_paid_backfill_v1', true);
+  end if;
+end $$;

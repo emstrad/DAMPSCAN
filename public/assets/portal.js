@@ -192,7 +192,9 @@
       reportCard(p, true); if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
       main.appendChild(P.payCard(p, true, pay));
     } else if (s === 'report') {
-      downloadGate(reportCard(p, false), p);
+      var rc = reportCard(p, false);
+      if (p.report.file) downloadGate(rc, p);
+      else { rc.appendChild(t('p', null, 'We\'ve emailed your report to you. Can\'t find it? Call us on ' + p.brand.phoneLabel + '.')); moneyBar(rc, p.money); }
       if (p.reviewUrl) {
         card = h('div', 'pt-card center'); card.appendChild(t('div', 'pt-stars', '★★★★★')); card.appendChild(t('h2', null, 'How did we do?'));
         card.appendChild(t('p', null, 'Your review on Google helps other homeowners find us.'));

@@ -53,7 +53,17 @@ enforces the mechanical ones in CI.
   to email or call them instead. Every starting wording fits one text (160
   characters) for either brand with a long name, and gives our number; the
   page link in a text is the short form (/m/<token>, middleware.js rewrites it
-  to my.html). test/journey-dryrun.test.js runs one customer from booking to
+  to my.html). The go-live audit's rules (11 Nov 2026): no text between 21:00
+  and 07:00 (it waits; SMS_QUIET_HOURS=off only in tests); the morning text
+  goes from any hourly run 7 until noon, once a day, never once the visit has
+  begun or for a time still with the agent; a booked text is held while the
+  estate agent confirms and goes once they have; a rebooking is texted, a
+  booked text still waiting carries a quick move; the report texts go once per
+  survey ("your report" whenever the balance comes after "ready"); a text
+  stopped on the Texts page stays stopped; the agent's own number is never
+  texted; Twilio refusing a text is a to-do; any staff request sends texts
+  whose two minutes are up. Every survey counted as texted for its money once,
+  before switching on. test/journey-dryrun.test.js runs one customer from booking to
   report with a pretend Revolut and Twilio; keep it passing.
 
 ## People and access (enforced on the server)
@@ -70,7 +80,8 @@ enforces the mechanical ones in CI.
   tabs or pages (anything else sends them to Today). They never see money,
   but every customer's contact details are open to them, so a survey handed
   over at short notice can be reached before it is reassigned. They may
-  only mark Surveyed and Report sent, attach a report and tap On my way; ChatGPT read-only
+  only mark Surveyed and Report sent (on their own surveys, never a money
+  step), attach a report and tap On my way; ChatGPT read-only
   plus those marks; no owners' alerts, only their own diary (below).
 - Every filter lives on the server (`lib/figures.js`, `lib/work-only.js`),
   never only in the page. A work-level person reads only what their own pages
@@ -477,6 +488,15 @@ checks the mechanical ones.
   An agent booking says access is being arranged with the agent. Refunds: a
   cancellation 48 hours or more before the survey is a full refund, later the
   deposit is kept (jobs.cancelled_at, set by trigger however it is cancelled).
+  Paid on the page is the larger of the money recorded (payments, matched bank
+  lines) and what the ticks stood for when made (jobs.tick_deposit_pence,
+  tick_paid_pence), never today's price, so a tick and the transfer it was for
+  count once and a price rise asks for the difference. The bank feed never
+  matches Revolut paying in a card payment already recorded, and its paid
+  ticks count card money too. Payments only while something is owed on a live
+  survey; a payment still processing keeps confirming; a Revolut notice we
+  could not check answers 500 so Revolut sends it again, and the hourly run
+  sweeps open orders. A report emailed with no file shows done once paid.
   Hourly money checks (`lib/money-todos.js`) make one owners' to-do each and
   never move money: a cancellation owing money back, an overpayment, and a
   survey booked 48 hours (jobs.booked_at) with no deposit (chase; the booking
@@ -540,7 +560,8 @@ checks the mechanical ones.
   server's push keys are missing).
 
 - Settings, "Ready to switch on" (owners, `lib/readiness.js`): each thing
-  the texts, online payments, bank feed, receipts, reviews and alerts still
+  the texts, online payments, bank feed, receipts, reviews, scheduled runs
+  (cron_beats, `lib/heartbeat.js`: hourly, morning, evening) and alerts still
   need, as done, to do or worth a look (test mode on); set or not, never a value.
 - Company details (Settings, owners only, `lib/company-details.js`): Damp
   Surveying Limited's company number, registered office, directors, HMRC
