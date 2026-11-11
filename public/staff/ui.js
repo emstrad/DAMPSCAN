@@ -117,7 +117,15 @@
     if (res.status === 401) { global.location.replace('/staff'); throw new Error('unauthorised'); }
     var data = await res.json().catch(function () { return null; });
     if (!res.ok && res.status !== 400) throw new Error('Request failed (' + res.status + ')');
+    if (res.ok && path.indexOf('/api/admin/texts') !== 0) flushSoon();
     return { ok: res.ok, status: res.status, data: data };
+  }
+  /* A change may have put a customer text in its two-minute wait (lib/texts.js):
+     if this page is still open when that is up, it sends it on the spot. */
+  var flushTimer = null;
+  function flushSoon() {
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(function () { fetch('/api/admin/texts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"flush"}' }).catch(function () {}); }, 125000);
   }
 
   function csvCell(value) {

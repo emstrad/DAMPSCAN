@@ -194,13 +194,11 @@
       link.setAttribute('role', 'menuitem');
       sheet.appendChild(link);
     });
-    /* Settings lives here on a phone: the cog at the end of the company row runs off the screen. */
-    if (A.rights && A.rights.settings) {
-      var cog = U.node('a', 'shell-item', 'Settings');
-      cog.href = '/staff/settings.html';
-      cog.setAttribute('role', 'menuitem');
-      sheet.appendChild(cog);
-    }
+    /* Texts (the damp customers' texts) and Settings live here on a phone: the cog at the end of the company row runs off the screen. */
+    [['Texts', '/staff/texts.html', (A.held || []).indexOf('damp') !== -1], ['Settings', '/staff/settings.html', true]].forEach(function (x) {
+      if (!(A.rights && A.rights.settings && x[2])) return;
+      var a = U.node('a', 'shell-item', x[0]); a.href = x[1]; a.setAttribute('role', 'menuitem'); sheet.appendChild(a);
+    });
   }
   document.addEventListener('click', function (ev) {
     if (sheet.hidden || sheet.contains(ev.target) || ev.target.closest('[data-shell]')) return;
