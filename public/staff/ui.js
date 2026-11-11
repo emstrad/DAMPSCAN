@@ -178,3 +178,11 @@
     table: table, csvCell: csvCell, downloadCsv: downloadCsv
   };
 })(window);
+
+/* Attachments open in the on-screen viewer (public/assets/viewer.js) on every
+   staff page that loads this file, rather than downloading. */
+(function () {
+  if (window.DSVIEW || document.querySelector('script[data-viewer]')) return;
+  var s = document.createElement('script'); s.src = '/assets/viewer.js'; s.defer = true; s.setAttribute('data-viewer', '1');
+  document.head.appendChild(s);
+})();

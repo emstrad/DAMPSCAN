@@ -458,6 +458,15 @@ checks the mechanical ones.
   card through Revolut, bank transfers matched by reference then by amount
   and name, Message us and Ask to move (real free times), On my way, Report
   ready and Hold, receipts, and the texts.
+- Attachments open on screen, never as a download first (the owners' choice,
+  11 Nov 2026, `public/assets/viewer.js`, loaded by staff ui.js and the
+  customer page): every attachment, report and full-size photo link opens a
+  pop-up to swipe across its neighbours; photos fit the screen and PDFs are
+  drawn page by page (pdf.js from cdnjs, loaded only when a PDF opens) to
+  scroll through, iPhone included. Download stays in the pop-up's top bar.
+  Files are fetched and shown from memory, so the attachment route keeps
+  sending them as downloads. The customer's report opens the same way after
+  the postcode check.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (damp managers only), +, Companies,
   Search (surveyors have their own, above). No Money button (the owner's choice); the bank stays in the
