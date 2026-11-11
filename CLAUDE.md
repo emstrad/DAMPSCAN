@@ -433,17 +433,31 @@ checks the mechanical ones.
   job pop-up opens with its one next step (book, confirm the time, deposit,
   report, balance) and folds Notes, Enquiry, Photos, Messages, a changed date
   and History; the customer card leads with "Nobody in touch yet".
-- Customer portal (`lib/portal.js`, `public/my.html`, through `api/quote.js`
-  doc=portal), ATi and DampScan: one private link per survey, 12 months from
-  when it was made, a new one replacing the old. The one next step first
-  (deposit, the visit, report being written, balance, report, review), the
-  progress line, then Your survey, Payments, History, Need anything? folded.
-  The report unlocks only when paid in full; the Google review link
-  (REVIEW_URL_DAMPSCAN, REVIEW_URL_ATI) only once paid and reported. Never
-  staff notes, to-dos, pay or anyone else's diary. In the Lab (owners make a
-  link for any survey) until Twilio and Revolut are set up; then come
-  messages, photo uploads through the booking path, and the estate agent's
-  own view (an agent already on the enquiry filled in, one tap to invite).
+- Customer portal (`lib/portal.js`, `lib/portal-view.js`, `public/my.html`,
+  `portal.js`, `portal-parts.js`, through `api/quote.js` doc=portal), ATi and
+  DampScan: one private link per survey, 12 months from when it was made, a new
+  one replacing the old. In each site's own palette (data-site s1, s2) and
+  mark, sent by the server so the shared files name neither brand; only "Damp
+  Surveying Limited" as the company. One state at a time, urgent first
+  (requested, waiting, agent, deposit, booked, writing, ready, report,
+  cancelled), worked out on the server from real payments (job_payments or
+  the ticks): deposit 50%, in full, or any amount from the deposit up; the
+  report unlocks only on the full balance and downloads only after the
+  property postcode is typed (five wrong tries in 30 minutes lock it and make
+  a to-do). Bank transfer shows a reference of their first name and the
+  survey number (KIM0042) as the hero, with copy buttons; nobody ticks "I've
+  sent it". No "before we arrive", no report due date (the owners' choice).
+  An agent booking says access is being arranged with the agent. Refunds: a
+  cancellation 48 hours or more before the survey is a full refund, later the
+  deposit is kept (jobs.cancelled_at, set by trigger however it is cancelled).
+  An expired link asks for a new one (a to-do and an alert, once a day); we
+  send it. Every open, postcode try, download and request is logged
+  (portal_events, hashed IP only). The Google review link (REVIEW_URL_DAMPSCAN,
+  REVIEW_URL_ATI) shows to everyone paid and reported, never only to happy
+  customers. Still to come (the owners' plan, 11 Nov 2026): Apple Pay and
+  card through Revolut, bank transfers matched by reference then by amount
+  and name, Message us and Ask to move (real free times), On my way, Report
+  ready and Hold, receipts, and the texts.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (damp managers only), +, Companies,
   Search (surveyors have their own, above). No Money button (the owner's choice); the bank stays in the

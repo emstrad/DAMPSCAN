@@ -1,157 +1,204 @@
-/* The customer portal: reads /api/quote?doc=portal and draws the one next
-   step as a big card, the step tracker, then cards for the survey, payments,
-   history and help. Plain DOM, no build step. */
+/* The customer's own page: reads /api/quote?doc=portal and draws the one
+   state the server worked out (lib/portal-view.js), urgent first, with the
+   rest folded. The site code (s1, s2) picks the palette; the brand's name and
+   mark come from the server, so this shared file names neither brand. */
 (function () {
   'use strict';
-  var el = function (id) { return document.getElementById(id); };
-  var t = new URLSearchParams(location.search).get('t') || '';
-  var api = '/api/quote?doc=portal&t=' + encodeURIComponent(t);
-  var node = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-  var pounds = function (p) { return '£' + (p / 100).toFixed(p % 100 ? 2 : 0); };
-  var longDay = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); };
-  var when = function (iso) { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }); };
-  var nice = function (tm) { var h = Number(tm.slice(0, 2)); return (h % 12 || 12) + (tm.slice(3) === '00' ? '' : ':' + tm.slice(3)) + (h < 12 ? 'am' : 'pm'); };
-  var ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-  var CAL = ICON + '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
-  var PHONE = ICON + '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>';
-  var LOCK = ICON + '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
-
-  function row(box, label, value) { var r = node('div', 'pt-row'); r.appendChild(node('span', null, label)); var b = node('b', 'pt-val', value); r.appendChild(b); box.appendChild(r); return b; }
-  /* Copy a detail in one tap; phones that block the clipboard get the old way. */
-  function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
-    var ta = node('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
-    var ok = document.execCommand('copy'); ta.remove();
-    return ok ? Promise.resolve() : Promise.reject();
+  var P = window.PT, I = P.I, h = P.h, t = P.t, btn = P.btn, money = P.money;
+  var token = new URLSearchParams(location.search).get('t') || '';
+  var api = '/api/quote?doc=portal&t=' + encodeURIComponent(token);
+  var main = document.getElementById('main');
+  var shortDay = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
+  var when = function (iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' }); };
+  /* "9 to 10am", "11am to 12pm": the one-hour arrival window. */
+  function windowOf(tm) {
+    var a = Number(tm.slice(0, 2)), b = (a + 1) % 24, ap = function (x) { return x < 12 ? 'am' : 'pm'; }, n = function (x) { return (x % 12 || 12) + (tm.slice(3) === '00' ? '' : ':' + tm.slice(3)); };
+    return ap(a) === ap(b) ? n(a) + ' to ' + n(b) + ap(b) : n(a) + ap(a) + ' to ' + n(b) + ap(b);
   }
-  function copyBtn(box, text) {
-    var c = node('button', 'pt-copy ms-press', 'Copy'); c.type = 'button'; c.setAttribute('aria-label', 'Copy ' + text);
-    c.addEventListener('click', function () {
-      copyText(text).then(function () {
-        c.textContent = 'Copied'; c.classList.add('done', 'ms-swap');
-        setTimeout(function () { c.textContent = 'Copy'; c.classList.remove('done', 'ms-swap'); }, 1800);
-      }, function () { c.textContent = 'Press and hold to copy'; });
+  var TITLES = {
+    requested: ['We have your request', '', 'Requested'], waiting: ['We\'ll arrange a time with you', 'warn', 'Waiting for a time'],
+    agent: ['Arranging access with your agent', '', 'With the agent'], deposit: ['Secure your survey', 'warn', 'Deposit due'],
+    booked: ['You\'re booked in', 'good', 'Confirmed'], writing: ['We\'re writing your report', '', 'Surveyed'],
+    ready: ['Your report is ready', '', 'Balance due'], report: ['All done. Thank you!', 'good', 'Paid in full'],
+    cancelled: ['Your survey is cancelled', '', 'Cancelled']
+  };
+
+  function brandBar(brand) {
+    var top = h('div', 'pt-top'), logo = h('a', 'pt-logo'); logo.href = brand.origin; logo.setAttribute('aria-label', brand.name + ' home');
+    var mk = brand.mark || {};
+    if (mk.img) { var im = t('img'); im.src = mk.img; im.alt = mk.alt || brand.name; logo.appendChild(im); logo.appendChild(t('span', 'tag', mk.tag)); }
+    else { var w = h('span', 'pt-word'), b = t('b', null, (mk.word || [brand.name])[0]); if (mk.word && mk.word[1]) b.appendChild(t('span', null, mk.word[1])); w.appendChild(b); if (mk.tag) w.appendChild(t('small', null, mk.tag)); logo.appendChild(w); }
+    top.appendChild(logo); top.appendChild(h('span', 'pt-private', I.lock + '<span>Private to you</span>'));
+    var head = document.getElementById('head'); head.textContent = ''; head.appendChild(top);
+  }
+  function hello(p, title, cls, badge) {
+    var box = h('div', 'pt-hello');
+    if (p && p.firstName) box.appendChild(t('small', null, 'Hi ' + p.firstName));
+    /* The page's one h1 is in the HTML; it moves into the greeting with its words. */
+    var h1 = document.getElementById('title'); h1.textContent = title; box.appendChild(h1);
+    var b = h('span', 'pt-badge ' + cls); b.appendChild(t('span', null, badge)); box.appendChild(b); main.appendChild(box);
+  }
+  function steps(at) {
+    var box = h('div', 'pt-steps'), track = h('div', 'pt-track'), fill = h('i'); track.appendChild(fill); box.appendChild(track);
+    var lab = h('div', 'pt-steplabels'); ['Requested', 'Booked', 'Surveyed', 'Report', 'Done'].forEach(function (n, i) { lab.appendChild(t(i === at ? 'b' : 'span', null, n)); });
+    box.appendChild(lab); main.appendChild(box);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { fill.style.width = (20 * (at + 1)) + '%'; }); });
+  }
+  function moneyBar(parent, m) {
+    var box = h('div', 'pt-money'), bar = h('div', 'pt-bar'), fill = h('i'); bar.appendChild(fill); box.appendChild(bar);
+    var row = h('div'); row.appendChild(h('span', null, 'Paid <b>' + money(m.paidPence) + '</b>'));
+    row.appendChild(h('span', null, m.paidInFull ? '<b>Paid in full</b>' : 'Left <b>' + money(m.balancePence) + '</b>')); box.appendChild(row); parent.appendChild(box);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { fill.style.width = Math.min(100, Math.round(100 * m.paidPence / Math.max(1, m.pricePence))) + '%'; }); });
+  }
+  function lines(parent, m) {
+    if (!m.lines) return;
+    var box = h('div', 'pt-lines');
+    m.lines.forEach(function (l) { var r = h('div'); r.appendChild(t('span', null, l.name)); r.appendChild(t('b', null, money(l.pence))); box.appendChild(r); });
+    var tot = h('div', 'tot'); tot.appendChild(t('span', null, 'Total')); tot.appendChild(t('b', null, money(m.pricePence))); box.appendChild(tot); parent.appendChild(box);
+  }
+  /* A calendar file for the visit, made on the phone. */
+  function calendar(p) {
+    var v = p.visit, d = v.date.replace(/-/g, ''), hh = v.time.slice(0, 2), mm = v.time.slice(3, 5), end = String(Number(hh) + 1).padStart(2, '0');
+    var ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Survey//EN', 'BEGIN:VEVENT', 'UID:' + token.slice(0, 12) + '@survey', 'DTSTART;TZID=Europe/London:' + d + 'T' + hh + mm + '00',
+      'DTEND;TZID=Europe/London:' + d + 'T' + end + mm + '00', 'SUMMARY:' + p.survey + ' (' + p.brand.name + ')', 'LOCATION:' + (p.address || '').replace(/,/g, '\\,'),
+      'DESCRIPTION:Arriving ' + windowOf(v.time) + '. Questions? Call ' + p.brand.phoneLabel, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    var a = t('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'survey.ics'; document.body.appendChild(a); a.click(); a.remove();
+  }
+  function visitCard(p, actions) {
+    var v = p.visit, card = h('div', 'pt-card'), row = h('div', 'pt-visit');
+    var dt = new Date(v.date + 'T12:00:00Z'), opt = function (o) { return dt.toLocaleDateString('en-GB', Object.assign({ timeZone: 'UTC' }, o)); };
+    var tile = h('div', 'pt-date'); tile.appendChild(t('small', null, opt({ weekday: 'short' }))); tile.appendChild(t('b', null, opt({ day: 'numeric' }))); tile.appendChild(t('span', null, opt({ month: 'short' }))); row.appendChild(tile);
+    var d = h('div'); d.appendChild(t('h2', null, p.survey)); d.appendChild(t('p', null, 'Arriving ' + windowOf(v.time))); if (p.address) d.appendChild(t('p', null, p.address)); row.appendChild(d); card.appendChild(row);
+    if (v.surveyor) { var who = h('div', 'pt-who'); who.appendChild(t('span', 'pt-avatar', v.surveyor.charAt(0))); var w = h('div'); w.appendChild(t('b', null, v.surveyor)); w.appendChild(t('small', null, 'Your surveyor')); who.appendChild(w); card.appendChild(who); }
+    if (actions !== false) { var chips = h('div', 'pt-chips'); chips.appendChild(btn('pt-chip', I.cal + '<span>Add to calendar</span>', function () { calendar(p); })); card.appendChild(chips); }
+    main.appendChild(card);
+  }
+  function enquiryFold(p) {
+    if (!p.enquiry) return;
+    P.fold(main, 'Your enquiry', function (box) {
+      if (p.enquiry.issues.length) box.appendChild(t('p', null, p.enquiry.issues.join(', ')));
+      if (p.enquiry.said) box.appendChild(t('div', 'pt-quote', p.enquiry.said));
+      if (p.enquiry.photos) {
+        var grid = h('div', 'pt-photos');
+        for (var i = 0; i < Math.min(p.enquiry.photos, 12); i += 1) { var a = t('a'), im = t('img'); a.href = api + '&file=photo&i=' + i; a.target = '_blank'; a.rel = 'noopener'; im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); grid.appendChild(a); }
+        box.appendChild(grid);
+      }
     });
-    box.appendChild(c);
   }
-  /* The business's bank details, one row per line ("Sort code: 00-00-00" or "Sort code 00-00-00"). */
-  function bankRows(text) {
-    return String(text).split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
-      var m = l.match(/^([^:]+):\s*(.+)$/) || l.match(/^(sort code|account(?: number| no\.?)?|iban|bic|swift)\s+(.+)$/i);
-      if (!m) return { label: 'Account name', value: l };
-      return { label: m[1].charAt(0).toUpperCase() + m[1].slice(1), value: m[2] };
+  function paymentsFold(p) {
+    var m = p.money;
+    P.fold(main, 'Payments', function (box) {
+      if (m.paidPence) moneyBar(box, m); else box.appendChild(t('span', null, 'Nothing paid yet.'));
+      if (m.creditPence) box.appendChild(t('p', null, 'You\'ve paid ' + money(m.creditPence) + ' more than the total. We\'ll refund it.'));
+      box.appendChild(t('span', null, 'Cancel ' + p.refundHours + ' hours or more before your survey for a full refund of anything paid. Within ' + p.refundHours + ' hours, the deposit is kept.'));
     });
   }
-  function button(box, text, href, cls) { var a = node('a', 'pt-btn ms-press' + (cls ? ' ' + cls : ''), text); a.href = href; box.appendChild(a); return a; }
-  function card(title, fill, open) {
-    var d = node('details', 'pt-card'); if (open) d.open = true;
-    d.appendChild(node('summary', null, title));
-    fill(d); el('cards').appendChild(d);
+  function helpFold(p) {
+    P.fold(main, 'Need help?', function (box) {
+      box.appendChild(t('span', null, 'Call us on ' + p.brand.phoneLabel + ', Monday to Saturday.'));
+      var a = h('a', 'pt-btn ghost', '<span class="in">' + I.phone + ' Call ' + p.brand.phoneLabel + '</span>'); a.href = 'tel:' + p.brand.phone; box.appendChild(a);
+    });
   }
-  function whenRow(box, v) { var w = node('div', 'pt-when'); w.innerHTML = CAL; w.appendChild(node('span', null, longDay(v.date) + ' at ' + nice(v.time))); box.appendChild(w); }
-
-  /* How to pay, until online payment arrives: the bank details, the reference and a call. */
-  function payBox(box, p, amount) {
-    box.appendChild(node('div', 'pt-big', pounds(amount)));
-    var bank = node('div', 'pt-bank');
-    var line = function (label, value) {
-      var r = node('div', 'pt-brow'), t = node('div');
-      t.appendChild(node('small', null, label)); t.appendChild(node('b', null, value)); r.appendChild(t);
-      copyBtn(r, value.replace(/^(\d{2})[ -]?(\d{2})[ -]?(\d{2})$/, '$1$2$3')); bank.appendChild(r);
-    };
-    if (p.payTo) bankRows(p.payTo).forEach(function (r) { line(r.label, r.value); });
-    line('Reference', p.reference);
-    box.appendChild(bank);
-    var c = button(box, 'Pay by card: call us', 'tel:' + p.brand.phone, 'ghost'); c.insertAdjacentHTML('afterbegin', PHONE);
+  function reportCard(p, locked) {
+    var card = h('div', 'pt-card'), rep = h('div', 'pt-report');
+    rep.appendChild(h('div', 'pt-doc' + (locked ? ' locked' : ''), '<i class="h"></i><i></i><i></i><i class="s"></i><i></i><i></i><i class="s"></i>' + (locked ? '<div class="lock"><span>' + I.lockBig + '</span></div>' : '')));
+    var tx = h('div'); tx.appendChild(t('h2', null, 'Your damp survey report')); if (p.address) tx.appendChild(t('p', null, p.address)); if (locked) tx.appendChild(t('p', null, 'Unlocks when the balance is paid')); rep.appendChild(tx);
+    card.appendChild(rep); main.appendChild(card); return card;
   }
-
-  var TAG = { deposit: ['Action needed', 'act'], balance: ['Action needed', 'act'], report: ['Complete', 'ok'], visit: ['All set', 'ok'] };
-  function next(p) {
-    var n = el('next'), k = p.next.kind, tag = TAG[k] || ['In progress', ''];
-    if (k === 'report') n.insertAdjacentHTML('beforeend', '<span class="ms-tick pt-done-tick"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>');
-    n.appendChild(node('span', 'pt-tag ' + tag[1], tag[0]));
-    if (k === 'deposit') {
-      n.appendChild(node('h2', null, 'Pay your deposit to secure your survey'));
-      whenRow(n, p.visit);
-      payBox(n, p, p.money.depositPence);
-      n.appendChild(node('p', 'pt-small', 'The rest, ' + pounds(p.money.pricePence - p.money.depositPence) + ', is due once your survey is done.'));
-    } else if (k === 'visit') {
-      n.appendChild(node('h2', null, 'Your survey is booked'));
-      whenRow(n, p.visit);
-      if (p.visit.surveyor) n.appendChild(node('p', null, p.visit.surveyor + ' will be your surveyor.'));
-    } else if (k === 'balance') {
-      n.appendChild(node('h2', null, 'Your report is ready'));
-      n.appendChild(node('p', null, 'Pay the balance and your report unlocks straight away.'));
-      payBox(n, p, p.money.balancePence);
-      var l = node('p', 'pt-lock'); l.innerHTML = LOCK; l.appendChild(node('span', null, 'Report locked until paid in full')); n.appendChild(l);
-    } else if (k === 'report') {
-      n.appendChild(node('h2', null, 'Your report is ready'));
-      n.appendChild(node('p', null, 'Thank you. Download it below and keep it for your records.'));
-      button(n, 'Download your report', api + '&file=report');
-      if (p.reviewUrl) { n.appendChild(node('p', 'pt-small', 'Happy with us? A quick Google review really helps a local business.')); var g = button(n, 'Leave a Google review', p.reviewUrl, 'ghost'); g.rel = 'noopener'; g.target = '_blank'; }
-    } else {
-      n.appendChild(node('h2', null, p.next.title));
-      if (p.next.detail) n.appendChild(node('p', null, p.next.detail));
-    }
+  /* The download asks for the property postcode, so a forwarded link alone is not enough. */
+  function downloadGate(card, p) {
+    card.appendChild(t('div', 'pt-label', 'Confirm the property postcode'));
+    var f = h('label', 'pt-field'), inp = t('input'); inp.id = 'pt-postcode'; inp.autocomplete = 'postal-code'; inp.autocapitalize = 'characters'; inp.setAttribute('aria-label', 'Postcode'); inp.placeholder = 'Postcode';
+    f.appendChild(inp); card.appendChild(f);
+    var msg = t('p', 'pt-hint', 'This keeps your report private if this link is ever forwarded.'); card.appendChild(msg);
+    var dl = btn('pt-btn', '<span class="in">' + I.dl + ' Download report</span>', function () {
+      if (!inp.value.trim()) { inp.focus(); return; }
+      dl.classList.add('busy'); dl.disabled = true;
+      fetch(api + '&file=report&pc=' + encodeURIComponent(inp.value)).then(function (r) {
+        if (r.ok) return r.blob().then(function (b) {
+          var a = t('a'); a.href = URL.createObjectURL(b); a.download = p.report.name; document.body.appendChild(a); a.click(); a.remove();
+          dl.classList.remove('busy'); dl.classList.add('ok'); dl.innerHTML = '<span class="in">' + I.check + ' Downloaded</span>'; dl.disabled = false; P.toast('Report downloaded');
+        });
+        dl.classList.remove('busy'); dl.disabled = false; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); msg.className = 'pt-hint bad';
+        msg.textContent = r.status === 403 ? 'That postcode doesn\'t match this survey.' : r.status === 429 ? 'Downloads are paused for 30 minutes. Call us on ' + p.brand.phoneLabel + ' if you need it now.' : 'That didn\'t work. Please try again.';
+      }, function () { dl.classList.remove('busy'); dl.disabled = false; msg.className = 'pt-hint bad'; msg.textContent = 'No connection. Please try again.'; });
+    });
+    card.appendChild(dl); moneyBar(card, p.money);
   }
 
   function draw(p) {
-    /* The look comes from the server as a tone, so this file names no brand. */
-    if (p.brand.tone) document.documentElement.setAttribute('data-tone', p.brand.tone);
-    document.title = 'Your survey | ' + p.brand.name;
-    /* A one-word name splits at its second capital (the bold half). */
-    var camel = p.brand.name.match(/^([A-Z][a-z]+)([A-Z]\w+)$/);
-    var words = camel ? [camel[1], camel[2]] : p.brand.name.split(' ');
-    var logo = el('brand'); logo.textContent = words[0] + (camel ? '' : ' ');
-    logo.appendChild(node('b', null, words.slice(1).join(' ')));
-    var call = el('call'); call.classList.add('ms-press'); call.href = 'tel:' + p.brand.phone; call.insertAdjacentHTML('afterbegin', PHONE);
-    el('hi').textContent = p.firstName ? 'Hi ' + p.firstName : 'Your survey';
-    el('sub').textContent = [p.survey, [p.address, p.postcode].filter(Boolean).join(', ')].filter(Boolean).join(' at ');
-    next(p);
-
-    if (p.next.kind !== 'cancelled') p.steps.forEach(function (s, i) {
-      var done = i < p.step || p.next.kind === 'report', now = !done && i === p.step;
-      var li = node('li', done ? 'done' : now ? 'now' : null);
-      if (now) li.setAttribute('aria-current', 'step');
-      if (i) li.appendChild(node('span', 'pt-line'));
-      var dot = node('span', 'pt-dot' + (now ? ' now' : ''));
-      if (done) { dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'; dot.style.animationDelay = (i * 60) + 'ms'; }
-      li.appendChild(dot); li.appendChild(node('span', null, s));
-      el('steps').appendChild(li);
-    });
-
-    if (p.visit) card('Your survey', function (b) {
-      row(b, 'Date', longDay(p.visit.date));
-      row(b, 'Time', nice(p.visit.time));
-      if (p.visit.surveyor) row(b, 'Surveyor', p.visit.surveyor);
-      if (p.survey) row(b, 'Survey', p.survey);
-      if (p.address || p.postcode) row(b, 'Address', [p.address, p.postcode].filter(Boolean).join(', '));
-      if (p.agent) row(b, 'Estate agent', p.agent);
-    });
-    if (p.money.pricePence) card('Payments', function (b) {
-      var bar = node('div', 'pt-bar'), fill = node('i', 'ms-fill'); fill.style.setProperty('--ms-to', Math.round(100 * p.money.paidPence / p.money.pricePence) + '%'); bar.appendChild(fill); b.appendChild(bar);
-      row(b, 'Survey fee', pounds(p.money.pricePence));
-      row(b, 'Paid so far', pounds(p.money.paidPence));
-      row(b, 'Left to pay', p.money.balancePence ? pounds(p.money.balancePence) : 'Nothing, thank you');
-    });
-    if (p.history.length) card('What has happened', function (b) {
-      var ol = node('ol', 'pt-hist');
-      p.history.slice().reverse().forEach(function (h) { var li = node('li', null, h.what); li.appendChild(node('small', null, when(h.at))); ol.appendChild(li); });
-      b.appendChild(ol);
-    });
-    card('Need help?', function (b) {
-      var chips = node('div', 'pt-chips'), c = node('a', 'pt-chip', 'Call ' + p.brand.phoneLabel); c.href = 'tel:' + p.brand.phone; chips.appendChild(c); b.appendChild(chips);
-      b.appendChild(node('p', 'pt-small', 'This page is private to you and works until ' + when(p.expiresOn + 'T12:00:00Z') + '.'));
-    });
-    el('state').hidden = true; el('doc').hidden = false;
-    /* The payment bar fills only once its card is opened, so the motion is seen. */
-    document.querySelectorAll('.pt-card').forEach(function (d) { d.addEventListener('toggle', function () { var f = d.querySelector('.ms-fill'); if (f && d.open) { f.classList.remove('ms-fill'); void f.offsetWidth; f.classList.add('ms-fill'); } }); });
+    document.documentElement.dataset.site = p.code;
+    document.title = 'Your survey · ' + p.brand.name;
+    var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1);
+    brandBar(p.brand);
+    var T = TITLES[p.state] || TITLES.waiting, s = p.state, card;
+    if (s === 'cancelled') T = ['Your survey is cancelled', '', p.cancel.rule === 'refund' ? 'Refund on its way' : p.cancel.rule === 'refunded' ? 'Refunded' : 'Cancelled'];
+    hello(p, T[0], T[1], T[2]);
+    if (s !== 'cancelled') steps(p.step);
+    if (s === 'requested') {
+      card = h('div', 'pt-card'); card.appendChild(t('h2', null, shortDay(p.requested.date) + (p.requested.time ? ' at ' + p.requested.time : '') + ', requested'));
+      card.appendChild(t('p', null, 'This time isn\'t booked yet. We\'ll text you as soon as it\'s confirmed.')); main.appendChild(card);
+    } else if (s === 'waiting') {
+      card = h('div', 'pt-card'); card.appendChild(t('h2', null, 'No date fixed yet'));
+      card.appendChild(t('p', null, p.money.paidPence ? 'Your payment is kept for the new date. We\'ll be in touch to arrange it.' : 'We\'ll be in touch to arrange a time that suits.')); main.appendChild(card);
+    } else if (s === 'agent') {
+      card = h('div', 'pt-card'); card.appendChild(P.banner('', 'We\'re arranging access with', p.agent ? p.agent + '.' : 'your estate agent.'));
+      card.appendChild(t('p', null, 'You don\'t need to be there. We\'ll text you the confirmed time.')); main.appendChild(card);
+    } else if (s === 'deposit') {
+      if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
+      main.appendChild(P.payCard(p, false)); if (p.visit) visitCard(p);
+    } else if (s === 'booked') {
+      card = h('div', 'pt-card center'); card.appendChild(h('div', 'pt-tick', I.tick));
+      card.appendChild(t('h2', null, p.money.paidPence ? money(p.money.paidPence) + ' received' : 'You\'re all set')); card.appendChild(t('p', null, 'Your survey is confirmed.'));
+      if (p.money.paidPence) moneyBar(card, p.money); main.appendChild(card); visitCard(p);
+    } else if (s === 'writing') {
+      card = h('div', 'pt-card'); card.appendChild(t('h2', null, 'Survey done'));
+      card.appendChild(t('p', null, (p.visit && p.visit.surveyor ? p.visit.surveyor : 'Your surveyor') + ' is writing up your report. We\'ll text you as soon as it\'s ready.')); moneyBar(card, p.money); main.appendChild(card);
+    } else if (s === 'ready') {
+      reportCard(p, true); if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
+      main.appendChild(P.payCard(p, true));
+    } else if (s === 'report') {
+      downloadGate(reportCard(p, false), p);
+      if (p.reviewUrl) {
+        card = h('div', 'pt-card center'); card.appendChild(t('div', 'pt-stars', '★★★★★')); card.appendChild(t('h2', null, 'How did we do?'));
+        card.appendChild(t('p', null, 'Your review on Google helps other homeowners find us.'));
+        var rv = h('a', 'pt-btn', '<span class="in">Review us on Google</span>'); rv.href = p.reviewUrl; rv.target = '_blank'; rv.rel = 'noopener'; card.appendChild(rv); main.appendChild(card);
+      }
+    } else if (s === 'cancelled') {
+      card = h('div', 'pt-card'); var c = p.cancel;
+      if (c.rule === 'refund') card.appendChild(P.banner('good', 'Cancelled ' + p.refundHours + ' hours or more before your survey, so you get a full refund of', money(c.pence) + '.'));
+      else if (c.rule === 'refunded') card.appendChild(P.banner('good', 'Your refund has been made:', money(c.pence) + '.'));
+      else if (c.rule === 'kept') card.appendChild(P.banner('', 'Cancelled within ' + p.refundHours + ' hours of your survey, so the deposit is kept, as set out when you booked:', money(c.pence) + '.'));
+      card.appendChild(t('p', null, c.rule === 'kept' ? 'If something has happened, call us and we\'ll take a look.' : 'We\'d be glad to survey for you another time.')); main.appendChild(card);
+    }
+    if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(s) !== -1) enquiryFold(p);
+    if (s !== 'requested') paymentsFold(p);
+    helpFold(p);
+    main.appendChild(t('p', 'pt-foot', 'Private link, works until ' + when(p.expiresOn) + ' · Damp Surveying Limited'));
   }
 
-  fetch(api).then(function (res) {
-    if (res.status === 410) throw new Error('This link has run out. Give us a call and we will send you a new one.');
-    if (!res.ok) throw new Error('This link is not working. It may have been replaced by a newer one.');
-    return res.json();
-  }).then(function (d) { draw(d.portal); }).catch(function (e) { var s = el('state'); s.textContent = ''; s.appendChild(node('p', 'pt-msg', e.message)); });
+  /* An expired link asks the team for a fresh one; we send it, never the page. */
+  function expired(d) {
+    if (d.code) document.documentElement.dataset.site = d.code;
+    if (d.brand) document.title = 'Your survey · ' + d.brand.name;
+    var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1);
+    if (d.brand) brandBar(d.brand);
+    hello(null, 'This link has expired', 'bad', 'Expired');
+    var card = h('div', 'pt-card'); card.appendChild(t('p', null, 'For your privacy, links work for 12 months. We\'ll send you a fresh one.'));
+    var go = btn('pt-btn', '<span class="in">Send me a new link</span>', function () {
+      go.classList.add('busy'); go.disabled = true;
+      fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'newlink', t: token }) })
+        .then(function (r) { go.classList.remove('busy'); if (!r.ok) throw new Error(); go.classList.add('ok'); go.innerHTML = '<span class="in">' + I.check + ' Requested. We\'ll text it to you.</span>'; })
+        .catch(function () { go.disabled = false; P.toast('That didn\'t send. Please try again.'); });
+    });
+    card.appendChild(go); if (d.brand) card.appendChild(t('p', 'pt-hint', 'Or call ' + d.brand.phoneLabel + '.')); main.appendChild(card);
+    main.appendChild(t('p', 'pt-foot', 'Damp Surveying Limited'));
+  }
+  function gone(text) { var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1); hello(null, 'We can\'t find this page', 'bad', 'Not found'); var c = h('div', 'pt-card'); c.appendChild(t('p', 'pt-msg', text)); main.appendChild(c); }
+
+  fetch(api).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); }).then(function (x) {
+    if (x.status === 410) return expired(x.d);
+    if (!x.d.ok) return gone('Check you opened the whole link from your text or email, or call us.');
+    draw(x.d.portal);
+  }).catch(function () { gone('No connection. Check your signal and try again.'); });
 })();

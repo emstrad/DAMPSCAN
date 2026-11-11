@@ -1408,3 +1408,29 @@ create index if not exists leads_next_contact_idx on leads (next_contact_on) whe
 -- A to-do can be about an enquiry not booked yet; it moves to the job when booked.
 alter table todos add column if not exists lead_id bigint references leads (id) on delete set null;
 create index if not exists todos_lead_idx on todos (lead_id) where done_at is null;
+
+-- When a survey was cancelled, however it was cancelled, so the customer page
+-- can apply the refund rule (full refund 48 hours or more before the survey).
+alter table jobs add column if not exists cancelled_at timestamptz;
+create or replace function jobs_cancelled_at() returns trigger language plpgsql as $$
+begin
+  if new.status = 'cancelled' and (tg_op = 'INSERT' or old.status is distinct from 'cancelled') then new.cancelled_at := now(); end if;
+  if new.status <> 'cancelled' then new.cancelled_at := null; end if;
+  return new;
+end $$;
+drop trigger if exists jobs_cancelled_at_trg on jobs;
+create trigger jobs_cancelled_at_trg before insert or update of status on jobs for each row execute function jobs_cancelled_at();
+
+-- What each customer did on their page (lib/portal-events.js): opened it,
+-- tried a postcode, downloaded the report, asked for a new link. Never a raw IP.
+create table if not exists portal_events (
+  id         bigserial primary key,
+  job_id     bigint not null references jobs (id) on delete cascade,
+  kind       text not null,
+  detail     text,
+  ip_hash    text,
+  device     text,
+  at         timestamptz not null default now()
+);
+create index if not exists portal_events_job_idx on portal_events (job_id, at desc);
+alter table jobs add column if not exists report_downloaded_at timestamptz;
