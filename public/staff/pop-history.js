@@ -1,7 +1,8 @@
 /* "Everything so far" inside the job pop-up, so a customer reads the same
    wherever they are tapped (Today, Scheduling, Surveys, Reports, Clients):
    calls, emails, texts, notes, money and progress newest first, with a box
-   to add to it. Damp jobs only, managers only (the server refuses the work
+   to add to it, and the job's note for the surveyor pinned at the top
+   (no separate Notes box). Damp jobs only, managers only (the server refuses the work
    login, and then the section is left out). Entries are drawn by
    sched-card.js so the colours match the Scheduling card. */
 (function (global) {
@@ -19,7 +20,21 @@
     } catch (e) { return false; }
   }
 
-  function render(j, section) {
+  /* The one history (the owners' plan): the job's note for the surveyor sits
+     pinned at its top with its own Save, and the separate Notes box goes.
+     Surveyors, who have no history, keep the Notes box. */
+  function pin(box, noteSec) {
+    var form = noteSec && noteSec.querySelector('form');
+    if (!form) return;
+    var p = U.node('div', 'pop-pin');
+    p.appendChild(U.node('p', 'meta', 'Note for the surveyor'));
+    p.appendChild(form);
+    box.insertBefore(p, box.children[1] || null);
+    noteSec.remove();
+    var sum = box.querySelector('summary'); if (sum) sum.textContent = 'History and notes';
+  }
+
+  function render(j, section, noteSec) {
     if (DAMP.indexOf(j.site) === -1 || !global.DSSCHEDCARD) return;
     var box = section('History', 'closed');
     box.hidden = true;
@@ -37,7 +52,7 @@
       said.value = ''; go.disabled = false;
       fill(j, list);
     });
-    fill(j, list).then(function (ok) { box.hidden = !ok; });
+    fill(j, list).then(function (ok) { box.hidden = !ok; if (ok) pin(box, noteSec); });
   }
 
   global.DSPOPHIST = { render: render };

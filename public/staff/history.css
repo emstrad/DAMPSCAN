@@ -58,3 +58,4 @@
 .scc-fold[open] > summary::after { transform: rotate(90deg); }
 .scc-fold[open] { padding-bottom: 12px; }
 .scc-fold .meta { margin: 10px 0 2px; }
+.pop-pin{display:grid;gap:6px;margin:6px 0 12px}
