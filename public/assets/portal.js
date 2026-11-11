@@ -80,7 +80,7 @@
       if (p.enquiry.said) box.appendChild(t('div', 'pt-quote', p.enquiry.said));
       if (p.enquiry.photos) {
         var grid = h('div', 'pt-photos');
-        for (var i = 0; i < Math.min(p.enquiry.photos, 12); i += 1) { var a = t('a'), im = t('img'); a.href = api + '&file=photo&i=' + i; a.target = '_blank'; a.rel = 'noopener'; im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); grid.appendChild(a); }
+        for (var i = 0; i < Math.min(p.enquiry.photos, 12); i += 1) { var a = t('a'), im = t('img'); a.href = api + '&file=photo&i=' + i; a.dataset.view = '1'; a.dataset.name = 'Your photo ' + (i + 1); im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); grid.appendChild(a); }
         box.appendChild(grid);
       }
     });
@@ -111,13 +111,15 @@
     var f = h('label', 'pt-field'), inp = t('input'); inp.id = 'pt-postcode'; inp.autocomplete = 'postal-code'; inp.autocapitalize = 'characters'; inp.setAttribute('aria-label', 'Postcode'); inp.placeholder = 'Postcode';
     f.appendChild(inp); card.appendChild(f);
     var msg = t('p', 'pt-hint', 'This keeps your report private if this link is ever forwarded.'); card.appendChild(msg);
-    var dl = btn('pt-btn', '<span class="in">' + I.dl + ' Download report</span>', function () {
+    var got = null, show = function () { if (window.DSVIEW && got) window.DSVIEW.open([{ blob: got, name: p.report.name }], 0); };
+    var dl = btn('pt-btn', '<span class="in">' + I.dl + ' Open report</span>', function () {
+      if (got) return show();
       if (!inp.value.trim()) { inp.focus(); return; }
       dl.classList.add('busy'); dl.disabled = true;
       fetch(api + '&file=report&pc=' + encodeURIComponent(inp.value)).then(function (r) {
         if (r.ok) return r.blob().then(function (b) {
-          var a = t('a'); a.href = URL.createObjectURL(b); a.download = p.report.name; document.body.appendChild(a); a.click(); a.remove();
-          dl.classList.remove('busy'); dl.classList.add('ok'); dl.innerHTML = '<span class="in">' + I.check + ' Downloaded</span>'; dl.disabled = false; P.toast('Report downloaded');
+          /* Opens on screen to scroll through, with Download in the viewer's top bar. */
+          dl.classList.remove('busy'); dl.disabled = false; got = b; show();
         });
         dl.classList.remove('busy'); dl.disabled = false; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); msg.className = 'pt-hint bad';
         msg.textContent = r.status === 403 ? 'That postcode doesn\'t match this survey.' : r.status === 429 ? 'Downloads are paused for 30 minutes. Call us on ' + p.brand.phoneLabel + ' if you need it now.' : 'That didn\'t work. Please try again.';
