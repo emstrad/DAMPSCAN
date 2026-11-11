@@ -199,7 +199,10 @@
       card = h('div', 'pt-card'); var c = p.cancel;
       if (c.rule === 'refund') card.appendChild(P.banner('good', 'Cancelled ' + p.refundHours + ' hours or more before your survey, so you get a full refund of', money(c.pence) + '.'));
       else if (c.rule === 'refunded') card.appendChild(P.banner('good', 'Your refund has been made:', money(c.pence) + '.'));
-      else if (c.rule === 'kept') card.appendChild(P.banner('', 'Cancelled within ' + p.refundHours + ' hours of your survey, so the deposit is kept, as set out when you booked:', money(c.pence) + '.'));
+      else if (c.rule === 'kept') {
+        card.appendChild(P.banner('', 'Cancelled within ' + p.refundHours + ' hours of your survey, so the deposit is kept, as set out when you booked:', money(c.keptPence) + '.'));
+        if (c.refundPence) card.appendChild(t('p', null, 'Anything you paid over the deposit comes back to you: ' + money(c.refundPence) + '.'));
+      }
       card.appendChild(t('p', null, c.rule === 'kept' ? 'If something has happened, call us and we\'ll take a look.' : 'We\'d be glad to survey for you another time.')); main.appendChild(card);
     }
     if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(s) !== -1) enquiryFold(p);

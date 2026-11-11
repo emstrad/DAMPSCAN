@@ -41,4 +41,6 @@
   }
 
   global.DSPOPHIST = { render: render };
+  /* The money part of the same pop-up (refunds), loaded wherever the history is. */
+  if (!global.DSPOPMONEY) { var sc = document.createElement('script'); sc.src = '/staff/pop-money.js'; document.head.appendChild(sc); }
 })(window);

@@ -23,7 +23,7 @@
       var pc = c.pencil;
       var pen = U.node('div', 'sched-pencil');
       pen.appendChild(U.node('b', null, 'Pencilled ' + day(pc.date) + ', ' + pc.time + ', ' + cap(pc.surveyor)));
-      pen.appendChild(U.node('p', 'meta', (pc.byHand ? 'Held until let go (waiting on the agent)' : 'Held until ' + new Date(pc.until).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit' }))
+      pen.appendChild(U.node('p', 'meta', (pc.byHand ? (pc.chased ? 'Held until let go (no yes after 48 hours: chase)' : 'Held until let go (waiting on the agent)') : 'Held until ' + new Date(pc.until).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit' }))
         + (pc.by ? ' · by ' + pc.by + (pc.setAt ? ', ' + ago(pc.setAt) : '') : '')));
       if (pc.sharing && pc.sharing.length) pen.appendChild(U.node('p', 'tl-clash', 'Also offered to ' + pc.sharing.join(', ') + ': first yes gets it.'));
       var pr = U.node('div', 'sched-row');

@@ -81,7 +81,7 @@
   }
 
   /* Needs you now: the few customers who cannot wait, first on the page.
-     A time picked online to confirm, a hold about to lapse, or a new
+     A time picked online to confirm, a hold about to need a chase, or a new
      enquiry nobody has touched for two hours. Tap one to open its card. */
   function urgent() {
     var box = el('urgent'); box.textContent = '';
@@ -90,7 +90,7 @@
       if (c.stage === 'cold') return;
       var touched = c.log && c.log.length;
       if (c.pencil && c.pencil.by === 'Website') list.push([0, c, 'Picked ' + day(c.pencil.date) + ' ' + c.pencil.time + ' online: confirm it']);
-      else if (c.pencil && c.pencil.until && new Date(c.pencil.until).getTime() - now < 12 * 3600000) list.push([1, c, 'Hold ends in ' + Math.max(1, Math.round((new Date(c.pencil.until).getTime() - now) / 3600000)) + 'h: confirm or let go']);
+      else if (c.pencil && c.pencil.until && new Date(c.pencil.until).getTime() - now < 12 * 3600000) list.push([1, c, 'Chase in ' + Math.max(1, Math.round((new Date(c.pencil.until).getTime() - now) / 3600000)) + 'h: confirm or let go']);
       else if (!touched && now - new Date(c.since).getTime() > 2 * 3600000) list.push([2, c, 'Nobody in touch, ' + ago(c.since).replace(' ago', '') + ' waiting']);
       else if (c.next && c.next.on <= todayIso()) list.push([c.next.why === 'Follow up' ? 4 : 3, c, (c.next.why || 'Follow up') + (c.next.on < todayIso() ? ', due ' + day(c.next.on) : ', due today')]);
     });

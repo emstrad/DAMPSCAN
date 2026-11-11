@@ -1,6 +1,8 @@
 /* Reports to send: each survey done and not yet reported, oldest first, with
-   its countdown, the report file (or an upload), a ChatGPT link that drafts
-   the final email in Outlook, and the Report sent tick. */
+   its countdown, the report file (or an upload), Report ready (texts the
+   customer their page, which unlocks it once paid in full), Hold (keeps it
+   locked and quiet), a ChatGPT link that drafts the final email in Outlook,
+   and the Report sent tick. */
 (function (global) {
   'use strict';
   var U = global.DSUI;
@@ -55,6 +57,19 @@
       lab.appendChild(input);
       foot.appendChild(lab);
     }
+    if (s.reportFile) {
+      var first = s.firstName || 'them';
+      var ready = U.node('button', 'btn btn--sm' + (s.reportReady ? ' is-on' : ''), s.reportReady ? 'Ready ✓' : 'Report ready (texts ' + first + ' in 2 min)');
+      ready.type = 'button';
+      ready.setAttribute('aria-pressed', String(s.reportReady));
+      ready.addEventListener('click', function () { report(s, { ready: !s.reportReady }, ready, status, s.reportReady ? 'Not ready.' : (s.reportHeld ? 'Ready, on hold: nothing sent.' : 'Ready. ' + first + ' gets a text in 2 minutes.')); });
+      foot.appendChild(ready);
+      var hold = U.node('button', 'btn btn--ghost btn--sm' + (s.reportHeld ? ' is-on' : ''), s.reportHeld ? 'On hold: let go' : 'Hold');
+      hold.type = 'button';
+      hold.setAttribute('aria-pressed', String(s.reportHeld));
+      hold.addEventListener('click', function () { report(s, { hold: !s.reportHeld }, hold, status, s.reportHeld ? 'Let go.' : 'On hold: locked on their page, no texts.'); });
+      foot.appendChild(hold);
+    }
     var draft = U.node('a', 'btn btn--ghost btn--sm', 'Draft email in ChatGPT');
     draft.href = draftLink(s); draft.target = '_blank'; draft.rel = 'noopener';
     foot.appendChild(draft);
@@ -68,6 +83,15 @@
     foot.appendChild(status);
     li.appendChild(foot);
     return li;
+  }
+
+  async function report(s, change, btn, status, said) {
+    btn.disabled = true;
+    var r;
+    try { r = await U.send('/api/admin/surveys', Object.assign({ op: 'report', id: s.id }, change)); } catch (e) { r = { ok: false }; }
+    if (!r.ok) { btn.disabled = false; status.textContent = 'Not saved (managers only). Try again.'; return; }
+    status.textContent = said;
+    load();
   }
 
   async function load() {

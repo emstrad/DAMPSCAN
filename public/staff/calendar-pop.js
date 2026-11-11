@@ -186,7 +186,7 @@
     if (!j.quoted) {
       X.facts(js, [['Survey', j.surveyType], ['Surveyor', cap(j.surveyor)], ['Price', j.money ? U.money(j.money.pricePence) : null], ['Agent', X.agentLine(j.agent)]]);
       if (j.money) {
-        if (/^(dampscan|ati-london)$/.test(j.site)) X.surveyEdit(js, j, changed);
+        if (/^(dampscan|ati-london)$/.test(j.site)) { X.surveyEdit(js, j, changed); if (global.DSPOPMONEY) global.DSPOPMONEY.render(js, j, changed); }
         js.appendChild(tick(j, 'depositPaid', 'Deposit paid (' + U.money(j.money.depositPence) + ')', j.depositPaid, 'Deposit marked paid.'));
         js.appendChild(tick(j, 'paid', 'Paid in full', j.paid, 'Marked paid in full.'));
       }
