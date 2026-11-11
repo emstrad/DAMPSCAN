@@ -39,5 +39,30 @@
     if (!Object.keys(errs).length) this.querySelector('.panel-note').textContent = 'Not saved. Try again.';
   });
 
+  /* Ready to switch on: each group folds, open while it has something left to do. */
+  var MARK = { ok: '✓', todo: '✗', warn: '!' };
+  U.get('/api/admin/business?view=ready').then(function (d) {
+    el('p-ready').hidden = false;
+    el('ready-sum').textContent = d.left ? d.left + ' thing' + (d.left === 1 ? '' : 's') + ' left to set up' : 'Everything is set up.';
+    var box = el('ready-list');
+    box.textContent = '';
+    d.groups.forEach(function (g) {
+      var f = document.createElement('details'); f.className = 'sheet-fold';
+      f.open = g.done < g.of;
+      f.appendChild(U.node('summary', null, g.title + ' (' + g.done + ' of ' + g.of + ')'));
+      var ul = U.node('ul', 'ready-list');
+      g.items.forEach(function (i) {
+        var li = U.node('li', 'is-' + i.state);
+        li.appendChild(U.node('b', null, MARK[i.state]));
+        var tx = U.node('span', null, i.label);
+        if (i.note) tx.appendChild(U.node('small', null, i.note));
+        li.appendChild(tx);
+        ul.appendChild(li);
+      });
+      f.appendChild(ul);
+      box.appendChild(f);
+    });
+  }).catch(function () {});
+
   U.get('/api/admin/business?view=company').then(function (d) { el('p-co').hidden = false; draw(d); }).catch(function () {});
 })(window);

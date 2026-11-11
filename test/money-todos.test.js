@@ -80,6 +80,18 @@ test('a card refund goes through Revolut against the orders paid, never more tha
   assert.deepEqual(await refundOnline(id, 10000, { fetchImpl }), { error: 'more_than_paid_online' }, 'only £95 left on the cards');
 });
 
+test('two refunds tapped at once never refund more than was paid by card', async () => {
+  process.env.REVOLUT_MERCHANT_KEY = 'sk_test';
+  const id = await job();
+  await pool.query(`insert into pay_orders (order_id, job_id, amount_pence, state) values ('ord_c', $1, 29500, 'completed')`, [id]);
+  let n = 0;
+  const fetchImpl = async () => { n += 1; await new Promise((r) => setTimeout(r, 20)); return { ok: true, json: async () => ({ id: 'ref_' + n }) }; };
+  const both = await Promise.all([refundOnline(id, 20000, { fetchImpl }), refundOnline(id, 20000, { fetchImpl })]);
+  const total = (await pool.query(`select coalesce(-sum(amount_pence), 0)::int as s from job_payments where label = 'refund'`)).rows[0].s;
+  assert.equal(total, 20000, JSON.stringify(both));
+  assert.equal(n, 1, 'Revolut asked once');
+});
+
 test('a held report stays locked and texts nothing; letting it go sends the ready text', async () => {
   const id = await job({ status: 'completed', date: day(-1) });
   await pool.query(`update jobs set report_path = 'r/x.pdf', report_name = 'x.pdf' where id = $1`, [id]);

@@ -42,7 +42,8 @@ export const config = {
     '/.well-known/openid-configuration',
     '/areas/:path*', '/hubs/:path*', '/service-pages/:path*', '/guide-pages/:path*',
     '/proofing-pages/:path*', '/seasonal-pages/:path*', '/pricing/:path*',
-    '/robots-london.txt', '/sitemap-london.xml', '/llms-london.txt'
+    '/robots-london.txt', '/sitemap-london.xml', '/llms-london.txt',
+    '/m/:token'
   ]
 };
 
@@ -161,6 +162,9 @@ export default function middleware(request) {
   if (path.startsWith('/.well-known/oauth-authorization-server') || path === '/.well-known/openid-configuration') {
     return rewrite(new URL('/api/admin/oauth?step=meta', request.url));
   }
+  /* A customer's page by its short link (/m/<token>), so a text stays one
+     text long; the page reads the token from the path. Same on both hosts. */
+  if (/^\/m\/[A-Za-z0-9_-]{20,64}$/.test(path)) return rewrite(new URL('/my.html', request.url));
   const host = (request.headers.get('host') || '').split(':')[0];
   const london = LONDON_HOST.test(host);
   const key = siteFor(host);
