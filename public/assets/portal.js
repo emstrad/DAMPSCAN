@@ -89,6 +89,7 @@
     var m = p.money;
     P.fold(main, 'Payments', function (box) {
       if (m.paidPence) moneyBar(box, m); else box.appendChild(t('span', null, 'Nothing paid yet.'));
+      if (window.PTRECEIPT) window.PTRECEIPT.list(p, box);
       if (m.creditPence) box.appendChild(t('p', null, 'You\'ve paid ' + money(m.creditPence) + ' more than the total. We\'ll refund it.'));
       box.appendChild(t('span', null, 'Cancel ' + p.refundHours + ' hours or more before your survey for a full refund of anything paid. Within ' + p.refundHours + ' hours, the deposit is kept.'));
     });

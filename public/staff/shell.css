@@ -217,3 +217,5 @@ html.is-worker #day-surveyor{display:none}
 .tx-row{display:flex;flex-wrap:wrap;gap:8px}
 .tx-row .btn{min-height:44px}
 .tx-words{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;margin:0;color:var(--text)}
+/* Settings, Company details (settings-company.js). */
+.co-form{display:grid;gap:12px;margin-top:10px}.co-form label{display:grid;gap:4px}.co-form label>span{font-size:13px;color:var(--muted)}.co-form .field-error{color:var(--warn);font-size:13px}.co-form .field-error:empty{display:none}

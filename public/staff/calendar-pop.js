@@ -59,8 +59,13 @@
   function shortDate(s) { return new Date(s + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); }
 
   /* A damp tick: one write to the client card's route, five seconds to undo. */
+  /* A tick that texts the customer says so, and that Undo in the two minutes stops it (lib/texts.js). */
+  var TEXTS = ['depositPaid', 'paid', 'surveySent'];
   function tick(j, field, label, on, words) {
     var l = U.node('label', 'sheet-tick');
+    var texts = /^(dampscan|ati-london)$/.test(j.site) && TEXTS.indexOf(field) !== -1;
+    var who = String(j.customerName || '').trim().split(/\s+/)[0] || 'them';
+    if (texts) words += ' ' + who + ' gets a text in 2 minutes: Undo stops it.';
     var box = document.createElement('input');
     box.type = 'checkbox';
     box.checked = on;
@@ -75,7 +80,7 @@
       changed();
     });
     l.appendChild(box);
-    l.appendChild(U.node('span', null, label));
+    l.appendChild(U.node('span', null, label + (texts && !on ? ' (texts ' + who + ' in 2 min)' : '')));
     return l;
   }
 
