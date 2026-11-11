@@ -123,6 +123,13 @@ test('ChatGPT on the owners\' code: each way of saying who, a clear answer, and 
   assert.equal((await chat(owners, 'complete_todo', { text: 'slates' })).isError, false);
   assert.equal((await chat(owners, 'list_todos', { view: 'done' })).structuredContent.count, 1);
   assert.equal((await chat(owners, 'reopen_todo', { text: 'slates' })).isError, false);
+  /* A to-do with no customer never borrows the stage of a job that shares its number. */
+  const slates = (await pool.query("select id from todos where text = 'Order slates'")).rows[0].id;
+  await pool.query(`insert into jobs (id, site, status, survey_price_pence, tax_bp, lead_bp, lead_earner, partner_a, partner_b, reserve_bp, fee_bp, fee_floor_pence, split_bp, customer_name, customer_postcode, date_set, paid_at)
+    overriding system value values ($1, 'dampscan', 'paid', 29500, 0, 0, '', '', '', 0, 0, 0, 5000, 'Pat Doe', 'ME19 6AB', false, now()) on conflict (id) do nothing`, [slates]).catch(() => {});
+  const ticked = await chat(owners, 'complete_todo', { id: Number(slates) });
+  assert.equal(ticked.structuredContent.scheduler, undefined);
+  await chat(owners, 'reopen_todo', { id: Number(slates) });
 
   const bad = await chat(owners, 'add_todo', { text: 'x', for: 'Tom and Zed' });
   assert.equal(bad.isError, true);
