@@ -178,6 +178,7 @@
 
     /* Most urgent first: the one next step, what needs doing, then how to reach them. */
     if (X.next) X.next(j, body);
+    if (j.moveAsked) body.appendChild(U.node('p', 'panel-note sheet-ask', 'They asked on their page to move to ' + shortDate(j.moveAsked.date) + ', ' + j.moveAsked.time + '. Change the date below if it suits.'));
     outstanding(j);
     X.where(j, section('Where'));
     if (!j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);

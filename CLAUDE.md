@@ -66,7 +66,7 @@ enforces the mechanical ones in CI.
   tabs or pages (anything else sends them to Today). They never see money,
   but every customer's contact details are open to them, so a survey handed
   over at short notice can be reached before it is reassigned. They may
-  only mark Surveyed and Report sent and attach a report; ChatGPT read-only
+  only mark Surveyed and Report sent, attach a report and tap On my way; ChatGPT read-only
   plus those marks; no owners' alerts, only their own diary (below).
 - Every filter lives on the server (`lib/figures.js`, `lib/work-only.js`),
   never only in the page. A work-level person reads only what their own pages
@@ -156,9 +156,10 @@ checks the mechanical ones.
   set for one person buzzes only them. Removing NTFY_TOPIC (and the
   NTFY_TOPIC_<NAME> feeds) in Vercel switches ntfy off; nothing else changes.
 - Alert texts to the owners (`lib/staff-sms.js`, Scott and Tom, ALERT_SMS_TO
-  with the Twilio details): a new website enquiry and a time picked online
-  only, with the customer's number to tap (the owner's choice) and a link to
-  their Scheduling card; never a street. ntfy and the app still go too.
+  with the Twilio details): a new website enquiry, a time picked online, and
+  from a customer's page a message (who, never their words) or a move asked
+  for, only; with the customer's number to tap (the owner's choice) and a link to
+  their card; never a street. ntfy and the app still go too.
   Everything else stays in the app and the morning summary.
 - Customer details in alert text: first name and postcode district only.
 - Off by the owner's choice: the 06:30 "Good morning" digest push
@@ -496,8 +497,16 @@ checks the mechanical ones.
   reference (KIM0042 typed exactly settles it, its number alone nearly so),
   then by amount and name, a tie left for a person; a matched transfer counts
   on the page and texts the customer. The bank feed runs hourly with
-  report-due, so a transfer shows within the hour. Still to come: Message us and Ask to move (real free times), On my way, Report
-  ready and Hold, receipts, and the texts.
+  report-due, so a transfer shows within the hour. From the page (`lib/portal-asks.js`, `public/assets/portal-asks.js`), all
+  requests, never a change: Message us (on the card's history, an app alert
+  and an owners' text, five a day), Ask to move (a booked survey more than a
+  day away, the surveyors' real free times from the website picker's engine,
+  never who; a to-do, an alert and an owners' text; the job pop-up shows it and
+  the team moves it, which texts 7), and Add photos before the visit (through
+  /api/upload, only paths it made, onto the enquiry or jobs.customer_files).
+  On my way: the surveyor taps it on the day in the job pop-up (their own
+  surveys too); the page shows it two minutes later (Undo before then), for
+  four hours, never a text. Still to come: receipts.
 - Attachments open on screen, never as a download first (the owners' choice,
   11 Nov 2026, `public/assets/viewer.js`, loaded by staff ui.js and the
   customer page): every attachment, report and full-size photo link opens a

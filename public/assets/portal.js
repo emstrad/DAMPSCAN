@@ -165,6 +165,7 @@
     var T = TITLES[p.state] || TITLES.waiting, s = p.state, card;
     if (s === 'cancelled') T = ['Your survey is cancelled', '', p.cancel.rule === 'refund' ? 'Refund on its way' : p.cancel.rule === 'refunded' ? 'Refunded' : 'Cancelled'];
     hello(p, T[0], T[1], T[2]);
+    if (window.PTASK) window.PTASK.top(p, main);
     if (s !== 'cancelled') steps(p.step);
     if (s === 'requested') {
       card = h('div', 'pt-card'); card.appendChild(t('h2', null, shortDay(p.requested.date) + (p.requested.time ? ' at ' + p.requested.time : '') + ', requested'));
@@ -207,6 +208,7 @@
     }
     if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(s) !== -1) enquiryFold(p);
     if (s !== 'requested') paymentsFold(p);
+    if (window.PTASK && s !== 'cancelled') window.PTASK.more(p, main, token, load);
     helpFold(p);
     main.appendChild(t('p', 'pt-foot', 'Private link, works until ' + when(p.expiresOn) + ' · Damp Surveying Limited'));
   }

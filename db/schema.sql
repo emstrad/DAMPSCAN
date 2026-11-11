@@ -1516,3 +1516,10 @@ alter table leads add column if not exists pencil_chased_at timestamptz;
 alter table jobs add column if not exists pencil_chased_at timestamptz;
 -- Card refunds made through Revolut, per order.
 alter table pay_orders add column if not exists refunded_pence bigint not null default 0;
+
+-- The customer's page (lib/portal-asks.js): a move they asked for (a request
+-- only; the team moves it), photos added when the job has no enquiry, and
+-- the surveyor's "On my way" (shown on the page from this moment).
+alter table jobs add column if not exists move_request jsonb;
+alter table jobs add column if not exists customer_files text[];
+alter table jobs add column if not exists on_way_at timestamptz;
