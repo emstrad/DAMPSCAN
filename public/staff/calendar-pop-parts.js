@@ -49,6 +49,7 @@
         s.appendChild(car);
       }
     }
+    onWay(j, s);
     var tel = j.phone ? String(j.phone).replace(/[^\d+]/g, '') : '';
     var talk = U.node('div', 'sheet-grid');
     if (tel) {
@@ -63,6 +64,33 @@
       s.appendChild(U.node('p', 'meta', [j.phone, j.email].filter(Boolean).join(' · ')));
     }
     else s.appendChild(U.node('p', 'panel-note', 'No phone or email on file.'));
+  }
+
+  /* On my way, on the day: their page says so two minutes after the tap
+     (Undo in that time takes it back). Never a text. */
+  function onWay(j, s) {
+    var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+    if (!/^(dampscan|ati-london)$/.test(j.site) || !j.dateSet || j.date !== today || j.status !== 'booked') return;
+    var b = U.node('button', 'sheet-big', '');
+    b.type = 'button';
+    var at = j.onWayAt ? Date.parse(j.onWayAt) : 0;
+    var draw = function () {
+      var wait = at - Date.now();
+      b.textContent = !at ? 'On my way (shows on their page in 2 min)' : wait > 0 ? 'Undo On my way (' + Math.ceil(wait / 1000) + 's)' : 'On their page: on my way';
+      b.disabled = Boolean(at) && wait <= 0;
+    };
+    b.addEventListener('click', async function () {
+      var on = !at;
+      b.disabled = true;
+      var r;
+      try { r = await U.send('/api/admin/surveys', { op: 'onway', id: j.id, on: on }); } catch (e) { r = { ok: false }; }
+      b.disabled = false;
+      if (r.ok) at = on ? Date.now() + 120000 : 0;
+      draw();
+    });
+    draw();
+    var tick = setInterval(function () { if (!document.body.contains(b)) clearInterval(tick); else draw(); }, 1000);
+    s.appendChild(b);
   }
 
   /* Label and value pairs, skipping the empty ones. */

@@ -31,6 +31,7 @@ import { invoiceNumber } from '../lib/quote-store.js';
 import { ratingPage, rate } from '../lib/rating.js';
 import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } from '../lib/portal.js';
 import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
+import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.js';
 import { startPayment, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { deliveryReceipt } from '../lib/texts.js';
@@ -163,7 +164,14 @@ async function portal(req, res) {
   json(res, 200, { ok: true, portal: view });
 }
 
-/* A customer on their page asking for something: for now, a new link when theirs has expired. */
+const ASKS = {
+  message: (req, j, b) => messageUs(req, j, str(b.text, 1000)),
+  times: (req, j) => moveTimes(j),
+  move: (req, j, b) => askToMove(req, j, { date: str(b.date, 10), time: str(b.time, 5) }),
+  photos: (req, j, b) => addPhotos(req, j, b.paths)
+};
+
+/* A customer on their page asking for something: a new link, a payment, a message, a move or photos. */
 async function portalPost(req, res, body) {
   const limit = await rateLimit({ ...LIMITS.quote, ipHash: ipHash(req) });
   if (!limit.ok) { json(res, 429, { ok: false, error: 'too_many_requests' }); return; }
@@ -176,6 +184,11 @@ async function portalPost(req, res, body) {
     const out = await startPayment(found.job, view, Number(body.pence), { returnUrl: back }).catch((err) => ({ error: err.message }));
     if (out.error) { json(res, 400, { ok: false, error: out.error }); return; }
     json(res, 200, { ok: true, url: out.url }); return;
+  }
+  /* Message us, Ask to move and add photos (lib/portal-asks.js): requests only, never a change. */
+  if (!found.gone && ASKS[body.op]) {
+    const out = await ASKS[body.op](req, found.job, body).catch((err) => { console.error('portal ask failed:', err.message); return { error: 'failed' }; });
+    json(res, out.error ? 400 : 200, out.error ? { ok: false, error: out.error } : { ok: true, ...out }); return;
   }
   json(res, 400, { ok: false, error: 'bad_op' });
 }
