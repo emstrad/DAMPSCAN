@@ -4,6 +4,7 @@
  * kept when it says, and the ChatGPT tools for a customer's page and the
  * company (the owners' plan, 11 Nov 2026).
  */
+process.env.SMS_QUIET_HOURS = 'off';
 import { test, before, beforeEach, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';

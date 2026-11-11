@@ -3,6 +3,7 @@
  * wait after a staff change, checked again and worded as it goes, each once,
  * off until switched on, and Twilio's receipts only when truly signed.
  */
+process.env.SMS_QUIET_HOURS = 'off';
 import { test, before, beforeEach, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -92,7 +93,7 @@ test('the morning text asks for an unpaid deposit; the owners\' wording and the 
   const id = await job(`job_date = '${today}'`);
   await pool.query("insert into sms_templates (kind, site, body) values ('today_unpaid', 'ati-london', 'Morning {first}! Deposit {deposit} please: {link}')");
   live(); process.env.SMS_TEST_TO = '07700 900999';
-  assert.equal(await T.morningTexts(today), 1);
+  assert.equal(await T.morningTexts(today, { at: '07:00' }), 1);
   const sent = [];
   await T.flushDue({ fetchImpl: async (u, o) => { sent.push(Object.fromEntries(o.body)); return { ok: true, json: async () => ({}) }; } });
   assert.equal(sent[0].To, '+447700900999');

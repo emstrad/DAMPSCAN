@@ -96,6 +96,6 @@ export default async function handler(req, res) {
      are taken out for anyone who only works on a business, lib/figures.js. */
   await withActivity(withFigures(route))(req, res);
   /* Any customer text whose two minutes are up goes now (lib/texts.js): staff
-     requests are the steadiest clock there is between the hourly runs. */
-  if (req.method !== 'GET' && action !== 'texts') await flushDue({ limit: 5 }).catch((err) => console.warn('text flush failed:', err.message));
+     requests, page loads included, are the steadiest clock between the hourly runs. */
+  if (action !== 'texts') await flushDue({ limit: 5 }).catch((err) => console.warn('text flush failed:', err.message));
 }
