@@ -29,7 +29,8 @@ import { brandFor } from '../lib/brands.js';
 import { effectiveVatBp, canInvoice } from '../lib/business-details.js';
 import { invoiceNumber } from '../lib/quote-store.js';
 import { ratingPage, rate } from '../lib/rating.js';
-import { findPortal, portalView, portalReport } from '../lib/portal.js';
+import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } from '../lib/portal.js';
+import { brandOf, codeOf } from '../lib/portal-view.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -129,9 +130,21 @@ async function accept(req, res) {
 async function portal(req, res) {
   const params = new URL(req.url, 'http://localhost').searchParams;
   const found = await findPortal(params.get('t') || '');
-  if (found.gone) { json(res, found.gone === 'expired' ? 410 : 404, { ok: false, error: found.gone }); return; }
-  if (params.get('file') === 'report') return portalReport(res, found.job);
-  json(res, 200, { ok: true, portal: await portalView(found.job) });
+  /* An expired page still says whose brand it is, so it can ask for a new link in the right colours. */
+  if (found.gone) { json(res, found.gone === 'expired' ? 410 : 404, { ok: false, error: found.gone, code: codeOf(found.site), brand: brandOf(found.site) }); return; }
+  if (params.get('file') === 'report') return portalReport(req, res, found.job, params.get('pc'));
+  if (params.get('file') === 'photo') return portalPhoto(res, found.job, params.get('i'));
+  json(res, 200, { ok: true, portal: await portalView(found.job, undefined, req) });
+}
+
+/* A customer on their page asking for something: for now, a new link when theirs has expired. */
+async function portalPost(req, res, body) {
+  const limit = await rateLimit({ ...LIMITS.quote, ipHash: ipHash(req) });
+  if (!limit.ok) { json(res, 429, { ok: false, error: 'too_many_requests' }); return; }
+  const found = await findPortal(str(body.t, 80) || '');
+  if (!found.job) { json(res, 404, { ok: false, error: 'not_found' }); return; }
+  if (body.op === 'newlink' && found.gone === 'expired') { json(res, 200, await requestNewLink(req, found.job)); return; }
+  json(res, 400, { ok: false, error: 'bad_op' });
 }
 
 export default async function handler(req, res) {
@@ -141,6 +154,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const body = await readJson(req);
       req.body = body;
+      if (body.doc === 'portal') return await portalPost(req, res, body);
       return await (body.doc === 'rate' ? rate(req, res, body) : accept(req, res));
     }
     const limit = await rateLimit({ ...LIMITS.quote, ipHash: ipHash(req) });

@@ -6,26 +6,21 @@
 <meta name="robots" content="noindex, nofollow" />
 <!-- The link is its key, so it must not travel to any other site. -->
 <meta name="referrer" content="no-referrer" />
-<meta name="theme-color" content="#0c1a2b" />
 <title>Your survey</title>
 <link rel="stylesheet" href="/assets/motion.css?v=cc9e5252" />
 <link rel="stylesheet" href="/assets/fit.css?v=3ce5e305" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
-<link rel="stylesheet" href="/assets/portal.css?v=a8b8c8a4" />
+<link rel="stylesheet" href="/assets/portal.css?v=99302aca" />
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to your survey</a>
-<header class="pt-band"><div class="pt-band-in"><span class="pt-logo" id="brand"></span><a class="pt-call" id="call" href="#">Call us</a></div></header>
-<main class="pt" id="main">
-  <div class="pt-skel" id="state" aria-label="Loading your survey"><i class="ms-shimmer w40"></i><i class="ms-shimmer w70"></i><i class="ms-shimmer big"></i><i class="ms-shimmer row"></i><i class="ms-shimmer row"></i></div>
-  <div id="doc" class="ms-stagger" hidden>
-    <h1 class="pt-hi" id="hi"></h1>
-    <p class="pt-sub" id="sub"></p>
-    <section class="pt-next" id="next" aria-live="polite"></section>
-    <ol class="pt-steps" id="steps" aria-label="Progress"></ol>
-    <div id="cards"></div>
-  </div>
+<header class="pt pt-headwrap" id="head"></header>
+<main class="pt" id="main" aria-live="polite">
+  <h1 id="title" class="pt-title">Your survey</h1>
+  <div class="pt-skel" id="state" aria-label="Loading your survey"><i class="w40"></i><i class="w70"></i><i class="big"></i><i></i><i></i></div>
 </main>
-<script src="/assets/portal.js?v=d4843b58"></script>
+<div class="pt-toast" id="toast" role="status"></div>
+<script src="/assets/portal-parts.js?v=a8e73fe7"></script>
+<script src="/assets/portal.js?v=c615523e"></script>
 </body>
 </html>
