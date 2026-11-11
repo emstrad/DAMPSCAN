@@ -106,7 +106,7 @@ test('one customer, start to finish', async () => {
     assert.ok(!/[{}]/.test(b), 'no unfilled word: ' + b);
     assert.ok(b.length <= 160, 'one text: ' + b);
     assert.match(b, /07386 225526/, 'our number, since they cannot reply');
-    assert.ok(!/—/.test(b), 'no em dash');
+    assert.ok(!/\u2014/.test(b), 'no em dash');
   }
   const kinds = (await pool.query("select kind, status from sms_outbox order by id")).rows.map((r) => `${r.kind}:${r.status}`);
   assert.deepEqual(kinds, ['booked:sent', 'paid:sent', 'ready:sent', 'report:sent']);
