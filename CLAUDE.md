@@ -367,7 +367,9 @@ checks the mechanical ones.
   (deposit, payments, paid in full, visit, report) from `lib/timeline.js`. An
   email with no subject is named by its first words. Emails are filed whole by
   ChatGPT's log_email (inbox sweep or pasted in). The same history, with its
-  add box, is in the job pop-up (`public/staff/pop-history.js`, managers), and
+  add box, is in the job pop-up (`public/staff/pop-history.js`, managers, as
+  "History and notes": the job's note for the surveyor pinned at its top with
+  its own Save, so there is no separate Notes box; surveyors keep theirs), and
   that pop-up is the one customer card everywhere: Today, Scheduling, Surveys,
   To-do, Reports (tap the name) and Clients (damp customers; "Edit details"
   still opens the client dialog).

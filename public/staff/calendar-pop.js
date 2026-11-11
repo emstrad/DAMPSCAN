@@ -86,7 +86,7 @@
 
   function notes(j) {
     var s = section('Notes' + (j.note ? '' : ' (none)'), 'closed');
-    if (j.quoted && !j.money) { s.appendChild(U.node('p', 'sheet-note', j.note || 'No notes.')); return; }
+    if (j.quoted && !j.money) { s.appendChild(U.node('p', 'sheet-note', j.note || 'No notes.')); return s; }
     var f = U.node('form', 'sheet-notes');
     var ta = document.createElement('textarea');
     ta.rows = 3; ta.maxLength = 2000; ta.value = j.note || ''; ta.setAttribute('aria-label', 'Notes');
@@ -104,6 +104,7 @@
       said.textContent = r.ok ? 'Saved.' : 'Not saved.';
     });
     s.appendChild(f);
+    return s;
   }
 
   /* Ready messages as one tidy list: a title, then the WhatsApp, text and
@@ -206,7 +207,7 @@
     } else js.appendChild(U.node('p', 'panel-note', 'Money is shown to the manager.'));
     if (j.coolright && global.DSPOPAC) global.DSPOPAC.render(j, section, changed);
 
-    notes(j);
+    var noteSec = notes(j);
     if (j.lead && (j.lead.notes || j.lead.issues.length)) {
       var en = section('Their enquiry', 'closed');
       if (j.lead.issues.length) en.appendChild(U.node('p', 'sheet-note', j.lead.issues.join(', ')));
@@ -217,7 +218,7 @@
     X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
     if (!j.quoted) dampMessages(j, section('Messages to send', 'closed'));
     if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
-    if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section);
+    if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section, noteSec);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
     if (!j.quoted) foot.appendChild(link('Edit details', '/staff/clients.html?area=damp#job-' + j.id, 'pill'));
