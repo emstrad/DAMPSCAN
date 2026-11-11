@@ -30,7 +30,8 @@ import { effectiveVatBp, canInvoice } from '../lib/business-details.js';
 import { invoiceNumber } from '../lib/quote-store.js';
 import { ratingPage, rate } from '../lib/rating.js';
 import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } from '../lib/portal.js';
-import { brandOf, codeOf } from '../lib/portal-view.js';
+import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
+import { startPayment, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { deliveryReceipt } from '../lib/texts.js';
 
@@ -156,7 +157,10 @@ async function portal(req, res) {
   if (found.gone) { json(res, found.gone === 'expired' ? 410 : 404, { ok: false, error: found.gone, code: codeOf(found.site), brand: brandOf(found.site) }); return; }
   if (params.get('file') === 'report') return portalReport(req, res, found.job, params.get('pc'));
   if (params.get('file') === 'photo') return portalPhoto(res, found.job, params.get('i'));
-  json(res, 200, { ok: true, portal: await portalView(found.job, undefined, req) });
+  const view = await portalView(found.job, undefined, req);
+  /* Back from Revolut: how that payment went, asking Revolut if its notice is not in yet. */
+  if (params.get('paid')) view.payment = await latestOrder(found.job.id).catch(() => null);
+  json(res, 200, { ok: true, portal: view });
 }
 
 /* A customer on their page asking for something: for now, a new link when theirs has expired. */
@@ -166,6 +170,13 @@ async function portalPost(req, res, body) {
   const found = await findPortal(str(body.t, 80) || '');
   if (!found.job) { json(res, 404, { ok: false, error: 'not_found' }); return; }
   if (body.op === 'newlink' && found.gone === 'expired') { json(res, 200, await requestNewLink(req, found.job)); return; }
+  if (body.op === 'pay' && !found.gone) {
+    const view = buildView(found.job);
+    const back = `${view.brand.origin}/my.html?t=${encodeURIComponent(found.job.portal_token)}&paid=1`;
+    const out = await startPayment(found.job, view, Number(body.pence), { returnUrl: back }).catch((err) => ({ error: err.message }));
+    if (out.error) { json(res, 400, { ok: false, error: out.error }); return; }
+    json(res, 200, { ok: true, url: out.url }); return;
+  }
   json(res, 400, { ok: false, error: 'bad_op' });
 }
 
@@ -174,6 +185,8 @@ export default async function handler(req, res) {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   try {
     if (req.method === 'POST' && new URL(req.url, 'http://localhost').searchParams.get('doc') === 'sms-status') return await smsStatus(req, res);
+    /* Revolut's notice about an order: only ever "look at order X" (lib/revolut-pay.js). */
+    if (req.method === 'POST' && new URL(req.url, 'http://localhost').searchParams.get('doc') === 'revolut') { const out = await onWebhook(await readJson(req), req.headers); json(res, out.status, { ok: out.status === 200 }); return; }
     if (req.method === 'POST') {
       const body = await readJson(req);
       req.body = body;

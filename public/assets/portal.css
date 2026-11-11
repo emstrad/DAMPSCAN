@@ -154,3 +154,9 @@ a { color:var(--link); }
 .pt-toast.show { transform:none; opacity:1; }
 .pt-msg { color:var(--muted); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } .pt-tick path { stroke-dashoffset:0; } }
+/* The online pay button: black like Apple's own, white on the dark brand. */
+.pt-btn.pay { background:#000; color:#fff; }
+:root[data-site="s1"] .pt-btn.pay { background:#fff; color:#0c1a2b; }
+.pt-secure { display:flex; align-items:center; justify-content:center; gap:6px; font-size:.72rem; color:var(--muted-2); text-align:center; }
+.pt-ring { width:64px; height:64px; border-radius:50%; border:4px solid var(--line-strong); border-top-color:var(--accent); animation:pt-spin .9s linear infinite; }
+.pt-cross { width:64px; height:64px; border-radius:50%; background:var(--bad-soft); color:var(--bad); display:grid; place-items:center; font-size:1.6rem; font-weight:800; animation:pt-pop var(--slow) var(--spring); }

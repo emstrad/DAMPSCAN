@@ -20,7 +20,24 @@
     if (!ul.children.length) ul.appendChild(U.node('li', null, 'Nobody yet besides the owners.'));
   }).catch(function () { el('people').textContent = 'Could not load.'; });
 
-  U.get('/api/admin/me').then(function (me) { if (me && me.isAdmin) el('p-usage').hidden = false; }).catch(function () {});
+  U.get('/api/admin/me').then(function (me) { if (me && me.isAdmin) { el('p-usage').hidden = false; payments(); } }).catch(function () {});
+  /* Apple Pay and card through Revolut (lib/revolut-pay.js): whether the key is in, and connecting Revolut's notices. */
+  function payments(d) {
+    var show = function (x) {
+      el('p-pay').hidden = false;
+      el('pay-state').textContent = !x.key ? 'Off: add REVOLUT_MERCHANT_KEY in Vercel.' : x.connected ? 'On, and Revolut tells us about payments (connected ' + new Date(x.connected).toLocaleDateString('en-GB') + ').' + (x.sandbox ? ' Test mode.' : '') : 'Key added. Connect Revolut so payments tick themselves off.';
+      el('pay-connect').hidden = !x.key;
+      el('pay-connect').textContent = x.connected ? 'Connect again' : 'Connect Revolut payments';
+    };
+    if (d) return show(d);
+    U.get('/api/admin/business?view=payments').then(show).catch(function () {});
+  }
+  el('pay-connect').addEventListener('click', async function () {
+    var b = this; b.disabled = true;
+    var r = await U.send('/api/admin/business', { op: 'revolut-connect' }).catch(function () { return null; });
+    b.disabled = false;
+    if (r && r.ok) payments(r.data); else el('pay-state').textContent = (r && r.data && r.data.error) || 'That did not connect.';
+  });
 
   var on = 'Notification' in global && global.Notification.permission === 'granted';
   el('push-state').textContent = on ? 'Notifications are on for this device.' : 'Notifications are not on for this device.';
