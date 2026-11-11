@@ -104,6 +104,13 @@
       <button class="btn btn--sm" type="button" id="pay-connect">Connect Revolut payments</button>
     </section>
 
+    <section class="panel" aria-labelledby="h-co" id="p-co" hidden>
+      <h2 id="h-co">Company details</h2>
+      <details class="sheet-fold"><summary>Damp Surveying Limited (never passwords or PINs)</summary>
+        <form id="co-form" class="co-form"></form>
+      </details>
+    </section>
+
     <section class="panel" aria-labelledby="h-gpt">
       <h2 id="h-gpt">ChatGPT and Claude</h2>
       <p class="panel-note">Add a connector in ChatGPT (or Claude) with this address, then sign in with your own staff code when it asks. It sees what you see here and nothing more.</p>
@@ -118,6 +125,6 @@
 </main>
 
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
-<script src="/staff/settings.js"></script>
+<script src="/staff/settings.js"></script><script src="/staff/settings-company.js"></script>
 </body>
 </html>

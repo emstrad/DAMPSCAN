@@ -106,7 +106,7 @@ test('a person connects, sees only their business, and a code and a refresh toke
   const tools = (await rpc(t.access_token, 'tools/list')).json().result.tools;
   const writes = tools.filter((x) => x.annotations.readOnlyHint === false).map((x) => x.name).sort();
   assert.deepEqual(writes, ['add_cost', 'add_enquiry', 'add_note', 'add_person', 'add_quote_line', 'add_todo', 'attach_report', 'book_job', 'build_quote_from_words', 'close_enquiry', 'complete_todo', 'coolright_commissioning', 'coolright_service_plan', 'coolright_unit', 'create_client', 'create_invoice', 'create_job', 'create_quote_from_template', 'deactivate_person', 'delete_enquiry',
-    'get_quote_link', 'handover_job', 'job_done', 'log_call', 'log_email', 'log_miles', 'log_time', 'mark_deposit_paid', 'mark_message_sent', 'mark_paid_in_full', 'mark_report_sent', 'match_payment', 'move_job', 'move_on_board', 'pencil_in', 'remove_playbook_note', 'remove_quote_line', 'reopen_enquiry', 'reopen_todo', 'reset_passcode',
+    'get_quote_link', 'handover_job', 'job_done', 'log_call', 'log_email', 'log_miles', 'log_time', 'mark_deposit_paid', 'mark_message_sent', 'mark_paid_in_full', 'mark_report_sent', 'match_payment', 'move_job', 'move_on_board', 'pencil_in', 'remove_playbook_note', 'remove_quote_line', 'reopen_enquiry', 'reopen_todo', 'report_release', 'reset_passcode',
     'save_playbook_note', 'save_report_draft', 'set_awaiting_agent', 'set_estate_agent', 'set_person_access', 'set_project_page', 'set_remedial_status', 'set_roofing_stage', 'set_survey', 'update_client', 'update_job_status', 'update_roofing_plan', 'use_quote_lines_as_price']);
   /* Every change asks first, bar the two the owners chose to run straight away in an inbox sweep: they only record. */
   assert.ok(tools.filter((x) => x.annotations.readOnlyHint === false && !['log_email', 'add_enquiry'].includes(x.name)).every((x) => /wait for the person to say yes/.test(x.description)), 'every change asks first');
@@ -174,11 +174,11 @@ test('every read works for the owners\' code, which sees all four businesses', a
   const t = await connect('1290');
   const today = new Date().toISOString().slice(0, 10);
   const args = { search: { text: 'a' + 'b' }, get_job: { id: 1 }, calendar: { from: today, to: today }, job_photos: { job: 1 }, price_book: { site: 'roofing' }, list_price_book: { site: 'roofing' },
-    get_message: { id: 1, kind: 'rating' }, get_google_post: { id: 1 }, get_invoice_link: { id: 1 }, find_client: { text: 'ab' }, find_enquiry: { text: 'ab' }, customer_history: { words: 'ab' }, get_report_draft: { id: 1 }, draft_message: { id: 1 }, links_for: { id: 1, text: 'hi' }, get_report_file: { id: 1 }, match_email: { from_email: 'a@example.com' }, ads_conversion_setup: { site: 'roofing' } };
+    get_message: { id: 1, kind: 'rating' }, get_google_post: { id: 1 }, get_invoice_link: { id: 1 }, find_client: { text: 'ab' }, find_enquiry: { text: 'ab' }, customer_history: { words: 'ab' }, get_report_draft: { id: 1 }, draft_message: { id: 1 }, links_for: { id: 1, text: 'hi' }, get_report_file: { id: 1 }, customer_page: { id: 1 }, match_email: { from_email: 'a@example.com' }, ads_conversion_setup: { site: 'roofing' } };
   const tools = (await rpc(t.access_token, 'tools/list')).json().result.tools.filter((x) => x.annotations.readOnlyHint);
   for (const x of tools) {
     const r = await tool(t.access_token, x.name, args[x.name] || {});
-    const expectedMissing = ['get_job', 'job_photos', 'get_message', 'get_google_post', 'get_invoice_link', 'get_report_draft', 'draft_message', 'links_for', 'get_report_file'].includes(x.name);
+    const expectedMissing = ['get_job', 'job_photos', 'get_message', 'get_google_post', 'get_invoice_link', 'get_report_draft', 'draft_message', 'links_for', 'get_report_file', 'customer_page'].includes(x.name);
     assert.equal(r.isError, expectedMissing, `${x.name}: ${r.content[0].text.slice(0, 160)}`);
   }
   assert.deepEqual((await tool(t.access_token, 'whoami')).structuredContent.businesses.map((b) => b.slug).sort(), ['ac', 'ati-london', 'dampscan', 'roofing']);

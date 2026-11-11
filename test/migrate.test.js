@@ -67,7 +67,7 @@ test('every statement applies individually, as the Neon driver sends them', asyn
     [SCRATCH]
   );
   assert.deepEqual(rows.map((r) => r.table_name), [
-    'ac_units', 'action_snoozes', 'audit', 'bank_feeds', 'bank_payers', 'bank_rules', 'bank_statements', 'bank_transactions', 'businesses', 'catchups', 'competitor_checks', 'competitor_pages',
+    'ac_units', 'action_snoozes', 'audit', 'bank_feeds', 'bank_payers', 'bank_rules', 'bank_statements', 'bank_transactions', 'businesses', 'catchups', 'company_details', 'competitor_checks', 'competitor_pages',
     'estate_agents', 'events', 'grants', 'integration_keys', 'job_costs', 'job_messages', 'job_miles', 'job_owner_days', 'job_payments', 'job_photos', 'job_rates', 'job_ratings', 'job_settings', 'job_tasks', 'job_time', 'jobs',
     'lab_flags', 'leads', 'mail_seen', 'mcp_clients', 'mcp_codes', 'mcp_tokens', 'notifications', 'pay_orders', 'payouts', 'people', 'playbook_notes', 'portal_events', 'postcode_geo', 'price_items', 'push_subscriptions', 'quote_lines', 'quote_templates', 'rate_hits', 'route_sent', 'service_contracts', 'sms_outbox', 'sms_templates', 'staff_page_views', 'staff_users', 'surveyor_day_set', 'surveyor_hours', 'surveyor_usual', 'todos', 'weather_cache'
   ]);

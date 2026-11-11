@@ -506,7 +506,14 @@ checks the mechanical ones.
   /api/upload, only paths it made, onto the enquiry or jobs.customer_files).
   On my way: the surveyor taps it on the day in the job pop-up (their own
   surveys too); the page shows it two minutes later (Undo before then), for
-  four hours, never a text. Still to come: receipts.
+  four hours, never a text. Receipts: every payment in has its own (Payments
+  fold), issued in the customer's name for the property, from Damp Surveying
+  Limited trading as the brand with the company's details from Settings; on
+  screen, with Print or save as PDF. The job pop-up (managers) has Copy and
+  Text their page link (words to tap, never sent) and how often it was
+  opened. Revolut's fee on a card payment is kept when it reports one
+  (job_payments.fee_pence). A tick that texts the customer (deposit, paid in
+  full, report sent) says so, "texts Kim in 2 min", and its Undo stops it.
 - Attachments open on screen, never as a download first (the owners' choice,
   11 Nov 2026, `public/assets/viewer.js`, loaded by staff ui.js and the
   customer page): every attachment, report and full-size photo link opens a
@@ -525,6 +532,12 @@ checks the mechanical ones.
   holds only the logo: Turn on notifications, Refresh and Sign out are at the
   end of the + menu (and the switch also in Settings, which says when the
   server's push keys are missing).
+
+- Company details (Settings, owners only, `lib/company-details.js`): Damp
+  Surveying Limited's company number, registered office, directors, HMRC
+  references, Government Gateway user ID, filing dates, bank and insurance,
+  for the owners and ChatGPT (company_details). Fixed fields only; never a
+  password, PIN or security answer (the server refuses them).
 
 ## ChatGPT connector (`/api/admin/mcp`)
 - "Strictly ChatGPT, no extra parts on the site" for assistant features.

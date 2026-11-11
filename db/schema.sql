@@ -1523,3 +1523,14 @@ alter table pay_orders add column if not exists refunded_pence bigint not null d
 alter table jobs add column if not exists move_request jsonb;
 alter table jobs add column if not exists customer_files text[];
 alter table jobs add column if not exists on_way_at timestamptz;
+
+-- Damp Surveying Limited's own details for the owners and ChatGPT
+-- (lib/company-details.js). Never a password, PIN or security answer.
+create table if not exists company_details (
+  key        text primary key,
+  value      text not null,
+  updated_by text,
+  updated_at timestamptz not null default now()
+);
+-- Revolut's fee on a card payment, when Revolut reports it.
+alter table job_payments add column if not exists fee_pence bigint;
