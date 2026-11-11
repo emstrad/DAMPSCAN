@@ -1494,3 +1494,25 @@ create table if not exists integration_keys (
   value      text not null,
   updated_at timestamptz not null default now()
 );
+
+-- Report ready and Hold (Reports page): a held report stays locked on the
+-- customer's page and texts nothing until it is let go.
+alter table jobs add column if not exists report_held boolean not null default false;
+-- Once-only marks for the hourly money and chase checks (lib/money-todos.js).
+alter table jobs add column if not exists refund_todo_at timestamptz;
+alter table jobs add column if not exists credit_todo_at timestamptz;
+alter table jobs add column if not exists deposit_chased_at timestamptz;
+-- When a survey was first given a date, for the deposit chase.
+alter table jobs add column if not exists booked_at timestamptz;
+create or replace function jobs_booked_at() returns trigger language plpgsql as $$
+begin
+  if new.date_set and new.booked_at is null then new.booked_at := now(); end if;
+  return new;
+end $$;
+drop trigger if exists jobs_booked_at_trg on jobs;
+create trigger jobs_booked_at_trg before insert or update of date_set on jobs for each row execute function jobs_booked_at();
+-- A pencilled time with no yes after 48 hours is chased, never let go by itself.
+alter table leads add column if not exists pencil_chased_at timestamptz;
+alter table jobs add column if not exists pencil_chased_at timestamptz;
+-- Card refunds made through Revolut, per order.
+alter table pay_orders add column if not exists refunded_pence bigint not null default 0;

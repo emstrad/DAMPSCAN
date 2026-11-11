@@ -1,7 +1,8 @@
 /**
  * Pencilled times: grey on Today, off the free list, shared times flagged,
- * the first booking bumps the other back to Waiting with a to-do, a lapsed
- * hold drops back on its own, and the inbox scan logs emails on the card.
+ * the first booking bumps the other back to Waiting with a to-do, a stale
+ * hold is chased, never let go, one whose time came goes back, and the inbox
+ * scan logs emails on the card.
  */
 import { test, before, beforeEach, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
@@ -72,24 +73,30 @@ test('two pencilled on one time: both grey on Today, first booked bumps the othe
   assert.match(todo[0].text, /Offer Raj \(ME19\) another time/);
 });
 
-test('a hold past its 48 hours lapses back to Waiting with a to-do', async () => {
+test('a hold with no yes after 48 hours is kept and chased once, never let go', async () => {
   const kim = await lead('Kim', 'kim@example.com');
   await post({ op: 'pencil', kind: 'lead', id: kim, date: DATE, time: '10:00', surveyor: 'tom' });
   await pool.query("update leads set pencil_until = now() - interval '1 minute'");
-  assert.equal(await expirePencils(), 1);
-  assert.equal((await pool.query('select pencil_date from leads')).rows[0].pencil_date, null);
-  assert.match((await pool.query('select text from todos')).rows[0].text, /lapsed/);
+  assert.equal(await expirePencils(), 0);
+  const l = (await pool.query('select pencil_date, pencil_until, pencil_chased_at from leads')).rows[0];
+  assert.ok(l.pencil_date, 'still held');
+  assert.equal(l.pencil_until, null, 'now held until let go');
+  assert.ok(l.pencil_chased_at);
+  assert.match((await pool.query('select text from todos')).rows[0].text, /^Chase Kim .*no yes .* after 48 hours\. Still held/);
+  await expirePencils();
+  assert.equal((await pool.query('select count(*)::int as n from todos')).rows[0].n, 1, 'chased once');
 });
 
-test('a hold lapses at its own time, not that morning, and one kept by hand never lapses', async () => {
+test('a hold whose time has come goes back, by hand or not; one later today stays', async () => {
   const kim = await lead('Kim', 'kim@example.com');
   const sam = await lead('Sam', 'sam@example.com');
   const today = (await pool.query(`select (now() at time zone 'Europe/London')::date::text as d`)).rows[0].d;
   await pool.query(`insert into surveyor_hours (surveyor, on_date, start_time, end_time) values ('tom', $1, '00:00', '23:59')`, [today]);
   await pool.query(`update leads set pencil_date = $1::date, pencil_time = '23:59', pencil_surveyor = 'tom', pencil_forced = true, pencil_until = now() + interval '1 hour' where id = $2`, [today, kim]);
   await pool.query(`update leads set pencil_date = '2020-01-01', pencil_time = '10:00', pencil_surveyor = 'tom', pencil_forced = true, pencil_until = null where id = $1`, [sam]);
-  assert.equal(await expirePencils(), 0);
-  assert.equal((await pool.query('select count(*)::int as n from leads where pencil_date is not null')).rows[0].n, 2);
+  assert.equal(await expirePencils(), 1);
+  assert.deepEqual((await pool.query('select first_name from leads where pencil_date is not null')).rows.map((r) => r.first_name), ['Kim']);
+  assert.match((await pool.query('select text from todos')).rows[0].text, /came and went/);
 });
 
 test('the inbox scan logs a reply and an incoming email on the card, once', async () => {

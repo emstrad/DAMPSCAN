@@ -246,7 +246,10 @@ checks the mechanical ones.
   and board cards, and as a list with tick boxes and an add box in the Today
   pop-up and the client card (`public/staff/job-todos.js`).
 - Reports page (ATi & DampScan): every survey done and not reported, oldest
-  first, with countdown, upload, "Draft email in ChatGPT" and Report sent.
+  first, with countdown, upload, Report ready (texts 5 or 6 after the two
+  minutes; their page unlocks it once paid in full), Hold (managers: locked on
+  their page and no texts until let go, then the ready text goes if it never
+  did), "Draft email in ChatGPT" and Report sent.
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
@@ -292,8 +295,8 @@ checks the mechanical ones.
   away in tap-to-open sections. Minutes on
   site: 60, 120, 150, 180, set once on the rate card. The rate card also has
   damp and timber at each size (dt- keys), and the Scheduling booking form's
-  Survey list shows each with its price. A pick is a request: checked again, held 48 hours as a
-  pencilled hold and alerted; the team confirms it on Scheduling.
+  Survey list shows each with its price. A pick is a request: checked again, held as a
+  pencilled hold (chased after 48 hours) and alerted; the team confirms it on Scheduling.
 - Survey length per survey type is on the rate card (Minutes on site,
   default 60) and every drive check uses it. Staff best times after a
   buyer's deadline are marked and listed last.
@@ -374,7 +377,9 @@ checks the mechanical ones.
   flow. Any stage can be skipped. Booking checks the surveyor's My hours and
   their booked surveys, and only goes ahead anyway when the person says so.
 - Pencilled times (`lib/pencils.js`): a time offered and not confirmed shows
-  grey on Today and the week, is off the free list and lapses after 48 hours
+  grey on Today and the week, is off the free list and never lets go by
+  itself (the owners' choice, 11 Nov 2026): 48 hours with no yes makes it held
+  until let go, with one to-do to chase them; a hold whose time has come goes
   back to Waiting with a to-do. Two customers may hold the same time; both
   show, flagged, and the first booked bumps the other back with a to-do.
   Book it in (and Move to: Booked) on a pencilled card starts with the
@@ -444,7 +449,7 @@ checks the mechanical ones.
   are folded, and no staff page has explaining paragraphs under its
   headings (headings and labels say enough; empty states are a few words).
   Urgent first: Scheduling opens with "Needs you now" (a time picked online
-  to confirm, a hold about to lapse, a new enquiry untouched two hours); the
+  to confirm, a hold about to need a chase, a new enquiry untouched two hours); the
   job pop-up opens with its one next step (book, confirm the time, deposit,
   report, balance) and folds Notes, Enquiry, Photos, Messages, a changed date
   and History; the customer card leads with "Nobody in touch yet".
@@ -465,6 +470,12 @@ checks the mechanical ones.
   An agent booking says access is being arranged with the agent. Refunds: a
   cancellation 48 hours or more before the survey is a full refund, later the
   deposit is kept (jobs.cancelled_at, set by trigger however it is cancelled).
+  Hourly money checks (`lib/money-todos.js`) make one owners' to-do each and
+  never move money: a cancellation owing money back, an overpayment, and a
+  survey booked 48 hours (jobs.booked_at) with no deposit (chase; the booking
+  stays). A card payment is refunded from the job pop-up (managers, after a
+  confirm, through Revolut, never more than was paid by card); a bank one is
+  sent back from the bank app.
   An expired link asks for a new one (a to-do and an alert, once a day); we
   send it. Every open, postcode try, download and request is logged
   (portal_events, hashed IP only). The Google review link (REVIEW_URL_DAMPSCAN,
@@ -484,7 +495,8 @@ checks the mechanical ones.
   as the free way: the bank feed (lib/bank) matches a transfer by the page's
   reference (KIM0042 typed exactly settles it, its number alone nearly so),
   then by amount and name, a tie left for a person; a matched transfer counts
-  on the page and texts the customer. Still to come: Message us and Ask to move (real free times), On my way, Report
+  on the page and texts the customer. The bank feed runs hourly with
+  report-due, so a transfer shows within the hour. Still to come: Message us and Ask to move (real free times), On my way, Report
   ready and Hold, receipts, and the texts.
 - Attachments open on screen, never as a download first (the owners' choice,
   11 Nov 2026, `public/assets/viewer.js`, loaded by staff ui.js and the
