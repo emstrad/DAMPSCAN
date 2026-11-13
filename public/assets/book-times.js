@@ -2,7 +2,9 @@
    any point here loses nothing and makes no second enquiry): first a day and
    a time, then which survey. Days and times come from lib/web-booking.js; a
    tap asks for that time, held for the team to confirm, so the words say
-   "requested", never "booked". Then "What do you need?" with prices from the
+   "requested", never "booked" (unless the owners switch on booking straight
+   away, lib/instant-book.js: then it is booked once the survey is chosen
+   and still fits). Then "What do you need?" with prices from the
    one price list (content/prices.js, sent with the times) and a small (i) by
    each with what it is. Nothing shows when the owners have not switched it
    on. Loaded by book.js. */
@@ -66,8 +68,11 @@
             lock(box, true);
             var p = await post({ op: 'pick', leadId: lead.id, sessionId: lead.sessionId, date: t.date, time: t.time, ticket: t.ticket });
             if (p.data && p.data.ok) {
-              if (window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('time requested', { 'Time requested': nice(t.date) + ' at ' + clock(t.time) + ' (a request, not booked: call to confirm)' }, lead.id);
-              next(nice(t.date) + ' at ' + clock(t.time) + ' requested. We will call to confirm.');
+              var when = nice(t.date) + ' at ' + clock(t.time);
+              /* Booked straight away when the owners switch it on: held now, booked once the survey is chosen. */
+              lead.instant = Boolean(p.data.instant);
+              if (window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('time requested', { 'Time requested': when + (p.data.booked ? ' (booked online)' : lead.instant ? ' (held online, booked once the survey is chosen)' : ' (a request, not booked: call to confirm)') }, lead.id);
+              next(p.data.booked ? when + ' is booked. We have sent you a link to pay the deposit.' : lead.instant ? when + ' is held for you. Choose your survey below to book it.' : when + ' requested. We will call to confirm.');
             }
             else if (p.data && p.data.error === 'taken') start(box, lead, 'Sorry, that time has just gone. Here are the times still free.');
             else next("Something went wrong, we'll call you to arrange a time.");
@@ -156,10 +161,13 @@
     async function send() {
       lock(box, true);
       /* The staff Lab previews this with no enquiry: priced here, nothing saved. */
-      var c = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}).chose : preview(P, pick);
+      var sv = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}) : null;
+      var c = lead ? sv.chose : preview(P, pick);
       var chosen = pick.service !== 'unsure' && c && c.price
         ? c.name + ', ' + money(c.price, c.from) + ((c.addOns || []).length ? ', with ' + c.addOns.map(function (a) { return a.name.toLowerCase() + ' ' + money(a.price, a.from); }).join(' and ') : '') : null;
       if (lead && window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('survey chosen', { 'Survey chosen': chosen || 'Not sure, wants help choosing' }, lead.id);
+      if (sv && sv.booked) return done(box, 'You are booked in', (said ? said.replace(/ is held for you\. Choose your survey below to book it\./, '') + ': ' : '') + (chosen ? chosen + '. ' : '') + 'We have sent you a link to pay the deposit and see your survey.');
+      if (lead && lead.instant && said) said = said.replace(/ is held for you\. Choose your survey below to book it\./, ' is held for you. We will call to confirm it.');
       done(box, 'Thanks, all noted', (said ? said + ' ' : '') + (chosen ? chosen + '. We confirm the fee before we come.' : 'We will help you choose the right survey when we call.'));
     }
   }
