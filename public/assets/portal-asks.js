@@ -34,12 +34,13 @@
           go.remove();
           if (!d.ok || !d.days || !d.days.length) { area.appendChild(t('p', null, 'No other times free just now. Call us and we\'ll help.')); return; }
           var days = h('div', 'pt-chips pt-pick'), times = h('div', 'pt-chips pt-pick'), pick = { date: null, time: null };
-          var send = btn('pt-btn', '<span class="in">Ask for this time</span>', function () {
+          var self = Boolean(p.move.self);
+          var send = btn('pt-btn', '<span class="in">' + (self ? 'Move to this time' : 'Ask for this time') + '</span>', function () {
             if (!pick.date || !pick.time) return;
             send.classList.add('busy'); send.disabled = true;
             ask(token, { op: 'move', date: pick.date, time: pick.time }).then(function (r) {
               send.classList.remove('busy'); send.disabled = false;
-              if (r.ok) { P.toast('Asked. We\'ll call to confirm.'); reload(); }
+              if (r.ok) { P.toast(r.moved ? 'Done: moved to ' + shortDay(r.moved.date) + ' at ' + r.moved.time + '. We\'ll text you the new time.' : 'Asked. We\'ll call to confirm.'); reload(); }
               else P.toast(r.error === 'taken' ? 'That time has just gone. Pick another.' : 'That didn\'t send. Please try again.');
             });
           });
@@ -58,7 +59,7 @@
           area.appendChild(t('div', 'pt-label', 'Pick a day')); area.appendChild(days);
           area.appendChild(t('div', 'pt-label', 'Then a time')); area.appendChild(times);
           area.appendChild(send);
-          area.appendChild(t('p', 'pt-hint', 'This asks us to move it. Your survey stays as it is until we call to confirm.'));
+          area.appendChild(t('p', 'pt-hint', self ? 'Your survey moves straight away, with the same surveyor.' : 'This asks us to move it. Your survey stays as it is until we call to confirm.'));
         }, function () { go.classList.remove('busy'); go.disabled = false; P.toast('No connection. Please try again.'); });
       });
       area.appendChild(go);

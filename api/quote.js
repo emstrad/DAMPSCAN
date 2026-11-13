@@ -32,6 +32,7 @@ import { ratingPage, rate } from '../lib/rating.js';
 import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } from '../lib/portal.js';
 import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
 import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.js';
+import { movesItself, moveNow } from '../lib/portal-move.js';
 import { startPayment, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { deliveryReceipt } from '../lib/texts.js';
@@ -166,8 +167,9 @@ async function portal(req, res) {
 
 const ASKS = {
   message: (req, j, b) => messageUs(req, j, str(b.text, 1000)),
-  times: (req, j) => moveTimes(j),
-  move: (req, j, b) => askToMove(req, j, { date: str(b.date, 10), time: str(b.time, 5) }),
+  /* With Book it straight away on, they move it themselves (lib/portal-move.js); else it is a request. */
+  times: async (req, j) => moveTimes(j, undefined, { own: await movesItself(j) }),
+  move: async (req, j, b) => ((await movesItself(j)) ? moveNow : askToMove)(req, j, { date: str(b.date, 10), time: str(b.time, 5) }),
   photos: (req, j, b) => addPhotos(req, j, b.paths)
 };
 
