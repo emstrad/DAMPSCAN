@@ -54,7 +54,7 @@ test('the patch of a postcode', () => {
   assert.equal(patchOf('DA15 8JN'), 'london', 'Sidcup');
 });
 
-test('a Maidstone customer is offered Kent surveyors; a London one gets Tom first, and an hour nobody can reach is not offered', async () => {
+test('a Maidstone customer is offered Kent surveyors; a London one gets Tom first, and another surveyor when Tom is busy', async () => {
   const kent = await lead('Kim', 'ME14 1AA');
   const k = (await W.timesFor({ ...kent, today: TODAY })).days.find((d) => d.date === MON);
   log('Maidstone ME14, Monday:', whoFor(k).join(', '));
@@ -67,8 +67,8 @@ test('a Maidstone customer is offered Kent surveyors; a London one gets Tom firs
   const tom = whoFor(l).filter((x) => x.endsWith('tom')).map((x) => x.slice(0, 5));
   assert.ok(tom.includes('09:00') && tom.includes('15:00'), 'Tom first for London');
   assert.ok(!tom.includes('13:00'), 'not while Tom is at his 1pm survey');
-  /* Ben could take it, but central London is over two hours from West Malling: nobody can, so it is not offered. */
-  assert.ok(!whoFor(l).some((x) => x.startsWith('13:00')), 'nobody can reach SE1 at 1pm, so it is not offered');
+  /* Tom is busy at 1pm; West Malling to SE1 is about an hour on the road (not the two the old guess said), so Ben is offered. */
+  assert.ok(whoFor(l).some((x) => x.startsWith('13:00') && !x.endsWith('tom')), 'someone who can reach SE1 at 1pm is offered when Tom cannot');
 
   const pick = l.times.find((t) => t.time === '15:00');
   assert.equal((await W.pickTime({ ...ldn, ...pick, today: TODAY })).ok, true);
