@@ -577,7 +577,12 @@ checks the mechanical ones.
   and an owners' text, five a day), Ask to move (a booked survey more than a
   day away, the surveyors' real free times from the website picker's engine,
   never who; a to-do, an alert and an owners' text; the job pop-up shows it and
-  the team moves it, which texts 7), and Add photos before the visit (through
+  the team moves it, which texts 7; with the Lab's Book it straight away on,
+  they move it themselves instead (`lib/portal-move.js`, the owner's choice,
+  13 Nov 2026): only their own surveyor's real free times, moved there and
+  then through the client card route (drive check, surveyor told, "as you
+  asked" text at once, an owners' alert and text), twice per survey, then a
+  request again), and Add photos before the visit (through
   /api/upload, only paths it made, onto the enquiry or jobs.customer_files).
   On my way: the surveyor taps it on the day in the job pop-up (their own
   surveys too); the page shows it two minutes later (Undo before then), for
