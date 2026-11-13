@@ -103,7 +103,7 @@ export function reviewsBlock(site) {
 
   const [a, b] = show ? rowsFor(list) : ['', ''];
   return `${START}
-  <div class="carousel" aria-label="Customer reviews"${hide}><div class="carousel-track" id="track-a">${a}</div></div>
+  <div class="carousel" aria-label="Customer reviews"${hide}><div class="carousel-track" id="track-a" data-held="${show ? list.length : 0}">${a}</div></div>
   <div class="carousel" aria-label="More customer reviews"${hide}><div class="carousel-track rev" id="track-b">${b}</div></div>
   <div class="container">
     <p class="reviews-source" id="reviews-source"${hide}>Reviews from our Google Business Profile.${link}</p>
