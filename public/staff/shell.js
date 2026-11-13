@@ -177,7 +177,7 @@
       item('To-do list', function () { openTodo(false); });
       item('Add a cost to a job', function () { openSearch(true); });
       /* Texts and Settings in reach on every page (the owner's ask, 13 Nov 2026), not only in the Companies sheet. */
-      if ((A.held || []).indexOf('damp') !== -1) item('Texts', function () { go('/staff/texts.html'); });
+      if ((A.held || []).indexOf('damp') !== -1) item('Texts', function () { go('/staff/texts.html?area=damp'); });
       item('Settings', function () { go('/staff/settings.html'); });
     }
     /* What used to crowd the header: alerts on this phone, a fresh look, sign out. */
@@ -198,7 +198,7 @@
       sheet.appendChild(link);
     });
     /* Texts (the damp customers' texts) and Settings live here on a phone: the cog at the end of the company row runs off the screen. */
-    [['Texts', '/staff/texts.html', (A.held || []).indexOf('damp') !== -1], ['Settings', '/staff/settings.html', true]].forEach(function (x) {
+    [['Texts', '/staff/texts.html?area=damp', (A.held || []).indexOf('damp') !== -1], ['Settings', '/staff/settings.html', true]].forEach(function (x) {
       if (!(A.rights && A.rights.settings && x[2])) return;
       var a = U.node('a', 'shell-item', x[0]); a.href = x[1]; a.setAttribute('role', 'menuitem'); sheet.appendChild(a);
     });
