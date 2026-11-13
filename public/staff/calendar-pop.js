@@ -71,7 +71,9 @@
   var TEXTS = ['depositPaid', 'paid', 'surveySent'];
   function tick(j, field, label, on, words) {
     var l = U.node('label', 'sheet-tick');
-    var texts = /^(dampscan|ati-london)$/.test(j.site) && TEXTS.indexOf(field) !== -1;
+    /* A surveyor's report tick texts nobody: it waits for an owner (lib/report-check.js). */
+    var R = global.DSAREA && global.DSAREA.rights;
+    var texts = /^(dampscan|ati-london)$/.test(j.site) && TEXTS.indexOf(field) !== -1 && !(R && R.worker && field === 'surveySent');
     var who = String(j.customerName || '').trim().split(/\s+/)[0] || 'them';
     if (texts) words += ' ' + who + ' gets a text in 2 minutes: Undo stops it.';
     var box = document.createElement('input');

@@ -38,6 +38,7 @@
     var cd = countdown(s);
     if (cd) top.appendChild(cd);
     li.appendChild(top);
+    if (s.submittedBy && !s.reportReady) li.appendChild(U.node('span', 'tag', s.submittedBy + ' has finished it: check, then Report ready'));
     li.appendChild(U.node('p', 'jobs-meta', [day(s.date), s.surveyLabel, cap(s.surveyor), BRAND[s.site]].filter(Boolean).join(' · ') + (s.paid ? ' · Paid' : ' · Not paid in full')));
     var foot = U.node('div', 'jobs-foot');
     var status = U.node('span', 'panel-note');

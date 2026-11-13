@@ -1498,6 +1498,9 @@ create table if not exists integration_keys (
 -- Report ready and Hold (Reports page): a held report stays locked on the
 -- customer's page and texts nothing until it is let go.
 alter table jobs add column if not exists report_held boolean not null default false;
+-- A surveyor's finished report waits for an owner's Report ready (lib/report-check.js).
+alter table jobs add column if not exists report_submitted_at timestamptz;
+alter table jobs add column if not exists report_submitted_by text;
 -- Once-only marks for the hourly money and chase checks (lib/money-todos.js).
 alter table jobs add column if not exists refund_todo_at timestamptz;
 alter table jobs add column if not exists credit_todo_at timestamptz;
