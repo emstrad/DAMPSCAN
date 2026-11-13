@@ -567,7 +567,8 @@ checks the mechanical ones.
   Search (surveyors have their own, above). No Money button (the owner's choice); the bank stays in the
   Companies tabs.
   Settings is in the Companies sheet (the cog at the end of the company row
-  runs off a phone's screen), and Settings opens with Notifications. The header
+  runs off a phone's screen) and in the + menu with Texts (the owner's ask,
+  13 Nov 2026), and Settings opens with Notifications. The header
   holds only the logo: Turn on notifications, Refresh and Sign out are at the
   end of the + menu (and the switch also in Settings, which says when the
   server's push keys are missing).

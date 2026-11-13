@@ -176,6 +176,9 @@
       item('New to-do', function () { openTodo(true); });
       item('To-do list', function () { openTodo(false); });
       item('Add a cost to a job', function () { openSearch(true); });
+      /* Texts and Settings in reach on every page (the owner's ask, 13 Nov 2026), not only in the Companies sheet. */
+      if ((A.held || []).indexOf('damp') !== -1) item('Texts', function () { go('/staff/texts.html'); });
+      item('Settings', function () { go('/staff/settings.html'); });
     }
     /* What used to crowd the header: alerts on this phone, a fresh look, sign out. */
     sheet.appendChild(U.node('hr', 'shell-sep'));
