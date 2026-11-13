@@ -285,7 +285,12 @@ checks the mechanical ones.
   first, with countdown, upload, Report ready (texts 5 or 6 after the two
   minutes; their page unlocks it once paid in full), Hold (managers: locked on
   their page and no texts until let go, then the ready text goes if it never
-  did), "Draft email in ChatGPT" and Report sent.
+  did), "Draft email in ChatGPT" and Report sent. The job pop-up has the same
+  in its Report section (`public/staff/pop-report.js`; surveyors upload and
+  tick Report sent, Ready and Hold are the managers'). Report ready is refused
+  until the file is uploaded, and counts as reported everywhere (stage,
+  countdown, overdue alert, Reports list once paid) (the owner's review,
+  13 Nov 2026).
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
@@ -414,7 +419,15 @@ checks the mechanical ones.
   its own Save, so there is no separate Notes box; surveyors keep theirs), and
   that pop-up is the one customer card everywhere: Today, Scheduling, Surveys,
   To-do, Reports (tap the name) and Clients (damp customers; "Edit details"
-  still opens the client dialog).
+  still opens the client dialog). The automatic texts sit in the same history
+  (sent, delivered, waiting, not sent, stopped, each with its words), with
+  Report ready and On my way; with texts on there is no "Messages to send",
+  only "Message by hand" for what texts never cover (asking the estate agent
+  for a time; ATi's remedial quote offer). Every staff message about a move or
+  a tick that texts the customer says so ("gets a text in 2 minutes: Undo
+  stops it"), and an Undo back to the time they were told texts nothing. A
+  live damp survey is never deleted (the server refuses; Not going ahead
+  instead): only a cancelled one with no money on it.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,

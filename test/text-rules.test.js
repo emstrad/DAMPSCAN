@@ -111,3 +111,32 @@ test('reminders: the deposit once after two days, the balance once after three, 
   assert.equal(texts.length, 2, 'paid meanwhile: the reminder never goes');
   assert.match((await outbox()).at(-1).error, /^Paid, held or no longer ready/);
 });
+
+test('a move undone back to the time they were told texts nothing; Report ready undone stops the "ready to view" text', async () => {
+  const id = await job({ date: day(6), time: '09:00' });
+  await textBookedOrMoved(id, { first: true, date: day(6), time: '09:00' });
+  await due(); await flushDue();
+  assert.equal(texts.length, 1);
+  await textBookedOrMoved(id, { first: false, date: day(7), time: '10:00' });
+  await textBookedOrMoved(id, { first: false, date: day(6), time: '09:00' });
+  await due(); await flushDue();
+  assert.equal(texts.length, 1, 'back where they were told: nothing to say');
+  await pool.query("update jobs set status = 'completed', job_date = current_date - 1, paid_at = now(), report_path = 'r/k.pdf', report_ready_at = now() where id = $1", [id]);
+  const { textsAfterChange } = await import('../lib/texts.js');
+  await textsAfterChange(id, { delayMs: 0 });
+  await pool.query('update jobs set report_ready_at = null where id = $1', [id]);
+  await flushDue();
+  assert.equal(texts.length, 1, 'undone in time: never sent');
+  assert.match((await outbox()).at(-1).error, /no longer marked ready/);
+});
+
+test('the texts sit in the customer\'s history with their words', async () => {
+  const { correspondence } = await import('../lib/correspondence.js');
+  const id = await job();
+  await textBookedOrMoved(id, { first: true, date: day(6), time: '09:00' });
+  await due(); await flushDue();
+  const e = (await correspondence('job', id)).find((x) => x.kind === 'sms');
+  assert.equal(e.subject, 'Booked, deposit due');
+  assert.equal(e.state, 'sent');
+  assert.match(e.body, /^Hi Kim, you're booked in with DampScan/);
+});

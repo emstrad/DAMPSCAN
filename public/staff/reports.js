@@ -7,7 +7,7 @@
   'use strict';
   var U = global.DSUI;
   var el = function (id) { return document.getElementById(id); };
-  var site = '';
+  var site = '', textsOn = false;
   var BRAND = { dampscan: 'DampScan', 'ati-london': 'ATi' };
   var cap = function (w) { return w ? w.charAt(0).toUpperCase() + w.slice(1) : ''; };
   var day = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
@@ -73,7 +73,8 @@
     var draft = U.node('a', 'btn btn--ghost btn--sm', 'Draft email in ChatGPT');
     draft.href = draftLink(s); draft.target = '_blank'; draft.rel = 'noopener';
     foot.appendChild(draft);
-    var sent = U.node('button', 'btn btn--primary btn--sm', 'Report sent');
+    /* Report sent texts them too (the report text), unless Report ready already did. */
+    var sent = U.node('button', 'btn btn--primary btn--sm', 'Report sent' + (textsOn && !s.reportReady ? ' (texts ' + (s.firstName || 'them') + ' in 2 min)' : ''));
     sent.type = 'button';
     sent.addEventListener('click', async function () {
       sent.disabled = true;
@@ -97,6 +98,7 @@
   async function load() {
     try {
       var data = await U.get('/api/admin/surveys?view=reports' + (site ? '&site=' + site : ''));
+      textsOn = Boolean(data.textsOn);
       var list = el('list');
       list.textContent = '';
       data.surveys.forEach(function (s) { list.appendChild(row(s)); });

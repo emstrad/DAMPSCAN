@@ -244,7 +244,9 @@
       /* Inside the drive to or from another survey: say so, and only go ahead if asked. */
       if (!r.ok && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?')) r = await U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), Object.assign(W.moveBody(it, d.value, t.value), { force: true }));
       if (!r.ok) { note.textContent = (r.data && (r.data.message || Object.values(r.data.errors || {})[0])) || 'Not saved'; return; }
-      if (j.dateSet) W.offerUndo('Moved. Remember to let the customer know.', function () { return U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, j.date, j.time)); }, changed);
+      /* The moved text goes by itself (in 2 minutes, stopped by Undo) once texts are on; until then, staff tell them. */
+      var who = String(j.customerName || '').trim().split(/\s+/)[0] || 'them';
+      if (j.dateSet) W.offerUndo(!j.quoted && j.textsOn ? 'Moved. ' + who + ' gets a text in 2 minutes: Undo stops it.' : 'Moved. Remember to let the customer know.', function () { return U.send('/api/admin/' + (j.quoted ? 'quoted' : 'clients'), W.moveBody(it, j.date, j.time)); }, changed);
       changed();
     });
     s.appendChild(f);

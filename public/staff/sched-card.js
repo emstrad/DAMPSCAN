@@ -24,6 +24,14 @@
   function entry(e) {
     var li = U.node('li', 'scc-entry is-' + e.kind + (e.dir ? ' is-' + e.dir : ''));
     /* A filed email has a subject or its words; "Emailed" logged by hand is just what was typed. */
+    /* An automatic text: which one, whether it arrived, and its words a tap away. */
+    if (e.kind === 'sms') {
+      li.appendChild(U.node('span', 'scc-when', { waiting: 'Text waiting to go', failed: 'Text not sent', delivered: 'Text delivered', sent: 'Text sent', off: 'Text not sent (texts were off)', stopped: 'Text stopped' }[e.state] + ' · ' + when(e.at)));
+      li.appendChild(U.node('b', null, e.subject));
+      if (e.text) li.appendChild(U.node('span', 'meta', e.text));
+      if (e.body) { var t = document.createElement('details'); t.appendChild(U.node('summary', null, 'Read the text')); t.appendChild(U.node('p', 'scc-body', e.body)); li.appendChild(t); }
+      return li;
+    }
     var filed = e.kind === 'email' && (e.subject || e.body);
     var label = filed ? (e.dir === 'out' ? 'Email to them' : 'Email from them') : { call: 'Called', email: 'Emailed', text: 'Texted', note: 'Note', action: 'Done', fact: 'Survey' }[e.kind] || 'Note';
     li.appendChild(U.node('span', 'scc-when', label + ' · ' + when(e.at) + (e.by ? ' · ' + e.by : '')));
