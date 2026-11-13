@@ -134,10 +134,14 @@ test('a work surveyor can mark surveyed and report sent, and nothing that touche
     assert.match(res.json().message, /whoever manages/);
   }
   assert.equal((await api(ronnie, 'DELETE', '/api/admin/jobs', { id })).statusCode, 403);
-  const paid = (await pool.query('select paid_at, deposit_paid_at, survey_sent_at, status from jobs where id = $1', [id])).rows[0];
+  const paid = (await pool.query('select paid_at, deposit_paid_at, survey_sent_at, report_submitted_by, status from jobs where id = $1', [id])).rows[0];
   assert.equal(paid.paid_at, null);
   assert.equal(paid.deposit_paid_at, null);
-  assert.ok(paid.survey_sent_at);
+  /* The owner's choice, 13 Nov 2026: a surveyor's report waits for an owner's Report ready, so nothing is sent yet. */
+  assert.equal(paid.survey_sent_at, null);
+  assert.equal(paid.report_submitted_by, 'Ronnie');
+  assert.equal((await pool.query("select count(*)::int as n from sms_outbox where job_id = $1 and kind in ('ready', 'ready_paid', 'report')", [id])).rows[0].n, 0, 'no report text to the customer');
+  assert.match((await pool.query('select text from todos where job_id = $1 and for_owners', [id])).rows[0].text, /^Ronnie has finished Sam's report \(ME14\): check it and press Report ready/);
 });
 
 test('a work surveyor\'s ChatGPT lists only reads (and mark_report_sent) and refuses a write called by name', async () => {

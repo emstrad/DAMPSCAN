@@ -101,7 +101,10 @@ enforces the mechanical ones in CI.
   but every customer's contact details are open to them, so a survey handed
   over at short notice can be reached before it is reassigned. They may
   only mark Surveyed and Report sent (on their own surveys, never a money
-  step), attach a report and tap On my way; ChatGPT read-only
+  step), attach a report and tap On my way; their Report sent ("Report done")
+  never reaches the customer: it is submitted for an owner to check, with one
+  owners' to-do and an alert, and goes only when a manager presses Report
+  ready (`lib/report-check.js`, the owner's choice, 13 Nov 2026); ChatGPT read-only
   plus those marks; no owners' alerts, only their own diary (below).
 - Every filter lives on the server (`lib/figures.js`, `lib/work-only.js`),
   never only in the page. A work-level person reads only what their own pages
@@ -593,7 +596,8 @@ checks the mechanical ones.
   drawn page by page (pdf.js from cdnjs, loaded only when a PDF opens) to
   scroll through, iPhone included. Download stays in the pop-up's top bar.
   Files are fetched and shown from memory, so the attachment route keeps
-  sending them as downloads. The customer's report opens the same way after
+  sending them as downloads. The viewer is a modal dialog of its own, so it
+  opens over the job pop-up and swipes there too. The customer's report opens the same way after
   the postcode check.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (damp managers only), +, Companies,

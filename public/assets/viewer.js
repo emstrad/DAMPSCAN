@@ -10,7 +10,10 @@
   /* pdf.js only loads when a PDF is opened. Pinned, from the allowed CDN. */
   var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
   var WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  var CSS = '.vw{position:fixed;inset:0;z-index:1000;background:rgba(6,10,16,.94);color:#f3f6fa;display:grid;grid-template-rows:auto 1fr;height:100dvh;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;animation:vw-in .16s ease-out}' +
+  /* A modal dialog of its own, so it opens over the staff pop-up (also a modal
+     dialog, which makes everything else on the page untouchable) and swipes there too. */
+  var CSS = 'dialog.vw{border:0;padding:0;margin:0;width:100vw;max-width:none;max-height:none;overflow:hidden}.vw::backdrop{background:transparent}' +
+    '.vw{position:fixed;inset:0;z-index:1000;background:rgba(6,10,16,.94);color:#f3f6fa;display:grid;grid-template-rows:auto 1fr;height:100dvh;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;animation:vw-in .16s ease-out}' +
     '.vw [hidden]{display:none}' +
     '@keyframes vw-in{from{opacity:0}to{opacity:1}}' +
     '.vw-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left))}' +
@@ -104,12 +107,15 @@
   }
   function close() {
     if (!box) return;
-    box.remove(); box = null; document.removeEventListener('keydown', keys);
+    var gone = box; box = null;
+    if (gone.open && gone.close) gone.close();
+    gone.remove(); document.removeEventListener('keydown', keys);
     document.documentElement.style.overflow = '';
     urls.forEach(function (u) { URL.revokeObjectURL(u); }); urls = [];
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
   function keys(e) {
+    if (!box) return;
     if (e.key === 'Escape') close();
     else if (e.key === 'ArrowRight') show(at + 1);
     else if (e.key === 'ArrowLeft') show(at - 1);
@@ -122,7 +128,9 @@
     style(); close();
     items = list.map(function (x) { return { url: x.url, blob: x.blob, name: x.name }; });
     lastFocus = document.activeElement;
-    box = el('div', 'vw'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Attachments');
+    box = el('dialog', 'vw'); box.setAttribute('aria-label', 'Attachments');
+    /* Escape closes it the viewer's way (tidying the files from memory). */
+    box.addEventListener('cancel', function (e) { e.preventDefault(); close(); });
     var bar = el('div', 'vw-bar');
     bar.appendChild(el('span', 'vw-name')); bar.appendChild(el('span', 'vw-count'));
     bar.appendChild(button('Download', 'Download this file', function () { download(items[at]); }));
@@ -136,6 +144,7 @@
     var settle;
     track.addEventListener('scroll', function () { clearTimeout(settle); settle = setTimeout(function () { var i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth)); if (i !== at) { at = i; sync(); } }, 80); });
     document.body.appendChild(box);
+    if (box.showModal) box.showModal(); else box.setAttribute('open', '');
     document.documentElement.style.overflow = 'hidden';
     document.addEventListener('keydown', keys);
     requestAnimationFrame(function () { show(index || 0); x.focus(); });

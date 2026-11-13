@@ -63,7 +63,12 @@
       s.appendChild(acts);
       s.appendChild(U.node('p', 'meta', r.held ? 'Locked on their page until let go.' : r.ready ? (j.paid ? 'Unlocked on their page.' : 'On their page, unlocked once paid in full.') : 'Not on their page until Report ready.'));
     }
-    s.appendChild(tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
+    /* A surveyor's tick is "done, for an owner to check" (lib/report-check.js); the owners see who finished it. */
+    if (!boss) s.appendChild(tick(j, 'surveySent', 'Report done (an owner checks it, then it goes to them)', Boolean(r.submittedBy), 'Sent to the owners to check.'));
+    else {
+      if (r.submittedBy && !r.ready) s.insertBefore(U.node('p', 'sheet-ask', r.submittedBy + ' has finished this report: check it, then Report ready.'), s.children[1] || null);
+      s.appendChild(tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
+    }
     s.appendChild(said);
   }
 
