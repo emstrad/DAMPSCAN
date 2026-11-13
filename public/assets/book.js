@@ -96,6 +96,10 @@
   function validate(){
     const step = steps[current];
     let ok = true;
+    /* The address step's biggest stumble (the funnel, 13 Nov 2026): the whole address typed into
+       the town box, the first line left empty. Take it as the address rather than refuse it. */
+    const a1 = step.querySelector('#f-addr1'), town = step.querySelector('#f-town');
+    if (a1 && town && !a1.value.trim() && town.value.trim()) { a1.value = town.value.trim(); town.value = ''; }
 
     step.querySelectorAll('.form-row').forEach(row => {
       const field = row.querySelector('input[required], select[required]')
