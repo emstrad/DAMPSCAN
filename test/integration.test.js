@@ -51,6 +51,7 @@ const notified = (await import('../api/notified.js')).default;
 const jobsRoute = (await import('../lib/routes/admin/jobs.js')).default;
 const ratesRoute = (await import('../lib/routes/admin/rates.js')).default;
 const clientsRoute = (await import('../lib/routes/admin/clients.js')).default;
+const surveysRoute = (await import('../lib/routes/admin/surveys.js')).default;
 const { siteFor } = await import('../lib/site.js');
 
 /* ---------- minimal req/res doubles ---------- */
@@ -729,9 +730,24 @@ test('a nonsense percentage is refused rather than stored', async () => {
   assert.equal(still.settings.taxBp, 2000, 'unchanged');
 });
 
-test('a job can be deleted', async () => {
+test('Report ready is refused until the report file is uploaded', async () => {
   const cookie = await signedInCookie();
   const created = (await createJob(cookie)).json().job;
+  const no = await call(surveysRoute, { method: 'POST', url: '/api/admin/surveys', headers: { cookie }, body: { op: 'report', id: created.id, ready: true } });
+  assert.equal(no.statusCode, 400);
+  assert.match(no.json().error, /^Upload the report first/);
+  await pool.query("update jobs set report_path = 'r/x.pdf' where id = $1", [created.id]);
+  const yes = await call(surveysRoute, { method: 'POST', url: '/api/admin/surveys', headers: { cookie }, body: { op: 'report', id: created.id, ready: true } });
+  assert.equal(yes.statusCode, 200);
+  await pool.query('delete from jobs where id = $1', [created.id]);
+});
+
+test('a damp survey is never deleted while live; cancelled with no money on it, it can be', async () => {
+  const cookie = await signedInCookie();
+  const created = (await createJob(cookie)).json().job;
+  const live = await call(jobsRoute, { method: 'DELETE', url: '/api/admin/jobs', headers: { cookie }, body: { id: created.id } });
+  assert.equal(live.statusCode, 409);
+  await pool.query("update jobs set status = 'cancelled' where id = $1", [created.id]);
   const res = await call(jobsRoute, {
     method: 'DELETE', url: '/api/admin/jobs', headers: { cookie }, body: { id: created.id }
   });

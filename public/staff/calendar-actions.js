@@ -114,9 +114,11 @@
         add(linkBtn('Call', 'tel:' + String(it.phone).replace(/[^\d+]/g, '')));
         if (it.whatsapp) add(linkBtn('WhatsApp', it.whatsapp, 'msg-whatsapp'));
       }
-      if (a === 'deposit') add(button('Deposit paid', function () { act(row, '/api/admin/clients', { id: it.jobId, depositPaid: true }, onDone, { body: { id: it.jobId, depositPaid: false } }, 'Deposit marked paid.'); }, 'act-main'));
-      if (a === 'paid') add(button('Paid in full', function () { act(row, '/api/admin/clients', { id: it.jobId, paid: true }, onDone, { body: { id: it.jobId, paid: false } }, 'Marked paid in full.'); }));
-      if (a === 'report') add(button('Report sent', function () { act(row, '/api/admin/clients', { id: it.jobId, surveySent: true }, onDone, { body: { id: it.jobId, surveySent: false } }, 'Report marked sent.'); }, 'act-main'));
+      /* These three text an ATi or DampScan customer, so the toast says so and Undo stops it. */
+      var tx = /^(dampscan|ati-london)$/.test(it.site) ? ' They get a text in 2 minutes: Undo stops it.' : '';
+      if (a === 'deposit') add(button('Deposit paid', function () { act(row, '/api/admin/clients', { id: it.jobId, depositPaid: true }, onDone, { body: { id: it.jobId, depositPaid: false } }, 'Deposit marked paid.' + tx); }, 'act-main'));
+      if (a === 'paid') add(button('Paid in full', function () { act(row, '/api/admin/clients', { id: it.jobId, paid: true }, onDone, { body: { id: it.jobId, paid: false } }, 'Marked paid in full.' + tx); }));
+      if (a === 'report') add(button('Report sent', function () { act(row, '/api/admin/clients', { id: it.jobId, surveySent: true }, onDone, { body: { id: it.jobId, surveySent: false } }, 'Report marked sent.' + tx); }, 'act-main'));
       if (a === 'remedial') {
         add(button('Quoting', function () { act(row, '/api/admin/surveys', { op: 'remedial', id: it.jobId, status: 'quoting' }, onDone, { body: { op: 'remedial', id: it.jobId, status: 'none' } }, 'Marked quoting.'); }, 'act-main'));
         add(button('Not wanted', function () { act(row, '/api/admin/surveys', { op: 'remedial', id: it.jobId, status: 'declined' }, onDone, { body: { op: 'remedial', id: it.jobId, status: 'none' } }, 'Marked not wanted.'); }));

@@ -42,12 +42,20 @@
 
   /* fold 'open' or 'closed' makes the section one tap-to-open line: what
      is urgent stays in view, the rest waits folded (the owners' choice). */
-  function section(title, fold) {
+  function section(title, fold, into) {
     var s;
     if (fold) { s = U.node('details', 'sheet-sec sheet-fold'); s.open = fold === 'open'; s.appendChild(U.node('summary', null, title)); }
     else { s = U.node('section', 'sheet-sec'); if (title) s.appendChild(U.node('h3', null, title)); }
-    body.appendChild(s);
+    (into || body).appendChild(s);
     return s;
+  }
+  /* A part kept in its own file, loaded the first time it is needed, drawn in its place. */
+  function part(name, src, draw) {
+    var slot = U.node('div');
+    body.appendChild(slot);
+    var go = function () { draw(function (t, f) { return section(t, f, slot); }); };
+    if (global[name]) go();
+    else { var sc = document.createElement('script'); sc.src = src; sc.onload = go; document.head.appendChild(sc); }
   }
   function link(text, href, cls) {
     var a = U.node('a', 'pill act ' + (cls || ''), text);
@@ -107,8 +115,9 @@
     return s;
   }
 
-  /* Ready messages as one tidy list: a title, then the WhatsApp, text and
-     email links (messages.js) that send the words. */
+  /* Messages sent by hand: with the automatic texts on, only what they never
+     cover (asking the estate agent for a time, offering a remedial quote);
+     with them off, the booking and deposit words as well. Hidden when empty. */
   async function dampMessages(j, s) {
     var list = U.node('ul', 'sheet-msgs');
     s.appendChild(list);
@@ -122,12 +131,13 @@
         li.appendChild(global.DSMSG.buttons(j.id, msg, null));
         list.appendChild(li);
       };
-      add(m.confirm, 'Booking confirmation');
-      if (!j.depositPaid) add(m.deposit, 'Deposit request');
+      if (!j.textsOn) add(m.confirm, 'Booking confirmation');
+      if (!j.textsOn && !j.depositPaid) add(m.deposit, 'Deposit request');
       if (j.awaitingAgent) add(m.chase, 'Ask the agent for a time');
-      if (j.reportSent) add(m.remedial, 'Offer to quote the remedial work');
-      if (!list.children.length) s.appendChild(U.node('p', 'meta', 'None ready.'));
-    } catch (e) { s.appendChild(U.node('p', 'panel-note', 'Messages are on the full card.')); }
+      /* DampScan sells survey and report only, so never offers remedial work. */
+      if (j.reportSent && j.site !== 'dampscan') add(m.remedial, 'Offer to quote the remedial work');
+      if (!list.children.length) s.remove();
+    } catch (e) { s.remove(); }
   }
 
   function outstanding(j) {
@@ -197,7 +207,7 @@
         js.appendChild(tick(j, 'depositPaid', 'Deposit paid (' + U.money(j.money.depositPence) + ')', j.depositPaid, 'Deposit marked paid.'));
         js.appendChild(tick(j, 'paid', 'Paid in full', j.paid, 'Marked paid in full.'));
       }
-      js.appendChild(tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
+      if (!j.report) js.appendChild(tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
       /* A surveyor who only works here marks the report; the rest is the manager's. */
       if (!global.DSAREA.rights || !global.DSAREA.rights.known || global.DSAREA.rights.manages[j.site]) js.appendChild(tick(j, 'awaitingAgent', 'Awaiting estate agent', j.awaitingAgent, 'Marked awaiting the agent.'));
     } else if (j.money) {
@@ -206,6 +216,8 @@
       js.appendChild(link('Record a payment', W.jobHref(j.site, j.id, true), 'act-main'));
     } else js.appendChild(U.node('p', 'panel-note', 'Money is shown to the manager.'));
     if (j.coolright && global.DSPOPAC) global.DSPOPAC.render(j, section, changed);
+    /* The report: upload, Report ready (texts them, unlocks their page once paid), Hold and Report sent. */
+    if (j.report) part('DSPOPREPORT', '/staff/pop-report.js', function (sec) { global.DSPOPREPORT.render(j, sec, tick, changed); });
 
     var noteSec = notes(j);
     if (j.lead && (j.lead.notes || j.lead.issues.length)) {
@@ -216,13 +228,15 @@
     todos(j);
     var pics = (j.files || []).length + (j.photos || []).length;
     X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
-    if (!j.quoted) dampMessages(j, section('Messages to send', 'closed'));
+    if (!j.quoted) dampMessages(j, section(j.textsOn ? 'Message by hand' : 'Messages to send', 'closed'));
     if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
     if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section, noteSec);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
     if (!j.quoted) foot.appendChild(link('Edit details', '/staff/clients.html?area=damp#job-' + j.id, 'pill'));
-    /* Deleting cannot be undone, so it asks once, by name, before it goes. */
+    /* Deleting cannot be undone, so it asks once, by name, before it goes. A damp
+       customer is never deleted while live (the server refuses): only a cancelled mistake. */
+    if (!j.quoted && j.status !== 'cancelled') return;
     var del = U.node('button', 'pill act-delete', 'Delete job');
     del.type = 'button';
     del.addEventListener('click', async function () {
