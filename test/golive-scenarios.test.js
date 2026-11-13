@@ -141,7 +141,7 @@ test('the morning text: once a day whichever kind, not once the visit has begun,
   assert.equal(await morningTexts(), 0, 'a later run, deposit now paid: still the one text');
   await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /Your £147\.50 deposit is still to pay/);
+  assert.match(texts[0].body, /Your page will show you when they're on the way/, 'paid before it went, so it no longer asks');
 });
 
 test('a bank transfer with the page\'s reference: matched, on their page, texted at once', async () => {
@@ -157,7 +157,7 @@ test('a bank transfer with the page\'s reference: matched, on their page, texted
   assert.equal(v.state, 'booked');
   await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /received your payment, £147\.50 paid so far/);
+  assert.match(texts[0].body, /received your payment \(£147\.50 paid so far\)\. Your DampScan survey \(.+\) is secured/);
 });
 
 test('the database out for a moment: the text waits and goes on the next try, never lost', async () => {
@@ -175,8 +175,8 @@ test('the database out for a moment: the text waits and goes on the next try, ne
 
 test('the enquiry thanks: plain, a time asked for, the agent, or dropped once they booked', async () => {
   const { queueText } = await import('../lib/texts.js');
-  const lead = async () => Number((await pool.query(`insert into leads (site, stage, first_name, email, postcode, phone, session_id) values ('dampscan', 'complete', 'Kim', 'k@x.com', 'ME19 6AB', '07700900123', gen_random_uuid()) returning id`)).rows[0].id);
-  const plain = await lead(), asked = await lead(), agent = await lead(), booked = await lead();
+  const lead = async (phone) => Number((await pool.query(`insert into leads (site, stage, first_name, email, postcode, phone, session_id) values ('dampscan', 'complete', 'Kim', 'k@x.com', 'ME19 6AB', $1, gen_random_uuid()) returning id`, [phone])).rows[0].id);
+  const plain = await lead('07700900121'), asked = await lead('07700900122'), agent = await lead('07700900123'), booked = await lead('07700900124');
   await pool.query("update leads set pencil_date = current_date + 5, pencil_time = '10:00' where id = $1", [asked]);
   await pool.query("insert into estate_agents (name) values ('Agent') on conflict do nothing");
   await pool.query('update leads set estate_agent_id = (select id from estate_agents limit 1) where id = $1', [agent]);
@@ -187,6 +187,6 @@ test('the enquiry thanks: plain, a time asked for, the agent, or dropped once th
   const all = texts.map((t) => t.body).join(' | ');
   assert.match(all, /Hi Kim, thanks for getting in touch with DampScan! We'll give you a call shortly/);
   assert.match(all, /We've got your request for .+, 10 to 11am\. We'll call you shortly to confirm it/);
-  assert.match(all, /arrange your survey with your estate agent/);
+  assert.match(all, /arrange a time with your estate agent and text you as soon as it's confirmed/);
   assert.ok((await outbox()).some((r) => r.status === 'cancelled' && /^Booked meanwhile/.test(r.error)));
 });

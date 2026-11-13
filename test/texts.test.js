@@ -51,7 +51,7 @@ test('a booking waits two minutes, then goes from the brand name with the link, 
   assert.equal(await T.flushDue({ fetchImpl: async (url, o) => { sent.push(Object.fromEntries(o.body)); return { ok: true, json: async () => ({ sid: 'SM1' }) }; } }), 1);
   assert.equal(sent[0].From, 'ATi Damp');
   assert.equal(sent[0].To, '+447700900123');
-  assert.match(sent[0].Body, /^Hi Kim, you're booked in with ATi Damp Survey for .+, arriving 9 to 10am\. To secure it, please pay the £147\.50 deposit on your page: https:\/\/atidampsurvey\.co\.uk\/m\/[\w-]{32} /);
+  assert.match(sent[0].Body, /^Hi Kim, you're booked in with ATi Damp Survey for .+, arriving 9 to 10am\. To secure your survey, please pay the £147\.50 deposit on your page: https:\/\/atidampsurvey\.co\.uk\/m\/[\w-]{32} /);
   [r] = await rows();
   assert.deepEqual([r.status, r.sid], ['sent', 'SM1']);
   await tellSurveyors(id);

@@ -20,6 +20,7 @@ import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { agentFromLead } from '../lib/estate-agents.js';
 import { londonToday } from '../lib/pipeline.js';
 import { labFlag } from '../lib/availability.js';
+import { queuePartial } from '../lib/text-nudges.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -219,6 +220,10 @@ export default async function handler(req, res) {
   if (value.stage === 'complete') {
     try { await query(`delete from leads where session_id = $1::uuid and stage = 'partial' and notified_at is null`, [value.sessionId]); }
     catch (err) { console.warn('draft tidy failed:', err.message); }
+  }
+  /* A half-finished form with a phone: a "can we help?" text ten minutes after they stop (lib/text-nudges.js; dropped if they finish). */
+  if (value.stage === 'partial' && row.phone) {
+    try { await queuePartial(site, id); } catch (err) { console.warn('partial text failed:', err.message); }
   }
   if (value.stage === 'partial' && row.inserted && !quiet) {
     try { await alertPartials(site); } catch (err) { console.warn('partial alerts failed:', err.message); }

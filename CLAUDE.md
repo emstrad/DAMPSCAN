@@ -32,13 +32,27 @@ enforces the mechanical ones in CI.
 - Nothing is ever sent to a customer automatically: messages are words with
   tap-to-send links, emails are drafts the person checks and sends.
   The one exception the owners chose (11 Nov 2026): customer texts through
-  Twilio (`lib/texts.js`, `lib/text-words.js`), seven kinds: 1 enquiry
-  received (worded for no time picked, a time asked for, or the estate agent
+  Twilio (`lib/texts.js`, `lib/text-words.js`, `lib/text-pick.js`,
+  `lib/text-nudges.js`), seven steps, each worded for the situation as it
+  goes (the owner's rules, 13 Nov 2026): 1 enquiry received (no time picked;
+  a time asked for, only with Book it straight away off; or the estate agent
   letting us in; with the time picker on it waits ten minutes and is dropped
-  if they booked online meanwhile, whose booked text goes at once), 2 booked with the deposit link, 3 payment received (from Revolut,
-  a matched transfer or a tick by hand), 4 the survey morning at 7 (asking for
-  the deposit when unpaid; no evening-before text), 5 report ready (balance
-  due, or ready to view when paid), 6 your report once paid, 7 survey moved.
+  if they booked online meanwhile, whose booked text goes at once; once a
+  week per number), and a half-finished form with a mobile gets one polite
+  "can we help?" ten minutes after they stop (held while still typing,
+  dropped once they finish or book, once a month per number, never a sales
+  text, a landline makes no to-do), 2 booked with the deposit link ("we've
+  confirmed it with your estate agent" when the agent has the keys), with one
+  deposit reminder two days after booking while the survey is over a day
+  away, 3 payment received (a deposit or part, paid in full, before or after
+  the visit; from Revolut, a matched transfer or a tick by hand), 4 the survey
+  morning at 7 (asking for the deposit when unpaid, the agent letting us in
+  said; none if booked or moved that day; no evening-before text), 5 report
+  ready (balance due, or ready to view when paid), with one reminder three
+  days on while the balance is owed, 6 your report once paid, 7 survey moved
+  ("as you asked" for the time they asked for on their page, or agreed with
+  their agent). Reminders are queued by the hourly run between 10am and 6pm.
+  Dates read "today" and "tomorrow" where they are.
   Never on a cancellation, never to an estate agent. One outbox: a text from a
   staff change waits two minutes (an undo or second change cancels or
   replaces it), one the customer caused goes at once; each is checked again
@@ -56,8 +70,8 @@ enforces the mechanical ones in CI.
   per kind in the order a customer gets them, each opening as it lands on a
   phone (filled with an example) with its words and fill-ins beneath. A customer with
   no mobile (a landline or email only) gets no text; the owners get one to-do
-  to email or call them instead. Every starting wording fits two texts (306
-  characters) for either brand with a long name; the
+  to email or call them instead. Length is no worry (the owner: a clear text pays
+  for itself); the
   page link in a text is the short form (/m/<token>, middleware.js rewrites it
   to my.html). The go-live audit's rules (11 Nov 2026): no text between 21:00
   and 07:00 (it waits; SMS_QUIET_HOURS=off only in tests); the morning text
