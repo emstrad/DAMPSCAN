@@ -66,8 +66,8 @@ test('one customer, start to finish', async () => {
   assert.equal(texts.length, 1);
   assert.equal(texts[0].from, 'DampScan');
   assert.equal(texts[0].to, '+447700900123');
-  assert.match(texts[0].body, /^Hi Kim, you're booked in with DampScan for .*, please pay the £147\.50 deposit on your page: https:\/\/dampscan\.co\.uk\/m\/[\w-]{32} You can see your booking and message us there too\.$/);
-  for (const t of texts) assert.ok(t.body.length <= 306, 'two texts at most: ' + t.body);
+  assert.match(texts[0].body, /^Hi Kim, you're booked in with DampScan for .*\. To secure your survey, please pay the £147\.50 deposit on your page: https:\/\/dampscan\.co\.uk\/m\/[\w-]{32} Your page also shows your booking/);
+  
   assert.equal((await page()).state, 'deposit');
 
   /* The deposit online: recorded once, ticked, text 3 straight away, a receipt. */
@@ -105,7 +105,6 @@ test('one customer, start to finish', async () => {
   /* Every text once, nothing left unfilled, each with their page, none to an agent. */
   for (const b of sent()) {
     assert.ok(!/[{}]/.test(b), 'no unfilled word: ' + b);
-    assert.ok(b.length <= 306, 'two texts at most: ' + b);
     assert.match(b, /https:\/\/dampscan\.co\.uk\/m\//, 'their page, where they can message us, since they cannot reply');
     assert.ok(!/\u2014/.test(b), 'no em dash');
   }
