@@ -15,7 +15,9 @@ const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://dampsca
 Object.assign(process.env, { SESSION_SECRET: 'golive-secret-long-enough-xxxxxxxxxxxx', IP_SALT: 'golive-salt', REVOLUT_MERCHANT_KEY: 'sk_test',
   SMS_AUTO: 'on', TWILIO_ACCOUNT_SID: 'AC1', TWILIO_AUTH_TOKEN: 'tok', TWILIO_FROM_DAMPSCAN: 'DampScan', TWILIO_FROM_ATI: 'ATi Damp' });
 const pool = new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 4 });
-mock.module('../lib/db.js', { namedExports: { sql: () => { throw new Error('not used'); }, query: async (t, p = []) => (await pool.query(t, p)).rows, queryOne: async (t, p = []) => (await pool.query(t, p)).rows[0] || null, ping: async () => true } });
+let dbDown = 0;
+const run = async (t, p) => { if (dbDown > 0 && /from jobs/.test(t)) { dbDown--; throw new Error('Error connecting to database: fetch failed'); } return (await pool.query(t, p)).rows; };
+mock.module('../lib/db.js', { namedExports: { sql: () => { throw new Error('not used'); }, query: run, queryOne: async (t, p = []) => (await run(t, p))[0] || null, ping: async () => true } });
 
 const orders = new Map();
 let texts = [];
@@ -156,4 +158,17 @@ test('a bank transfer with the page\'s reference: matched, on their page, texted
   await flushDue();
   assert.equal(texts.length, 1);
   assert.match(texts[0].body, /received £147\.50/);
+});
+
+test('the database out for a moment: the text waits and goes on the next try, never lost', async () => {
+  const id = await job();
+  await textBookedOrMoved(id, { first: true, date: day(6), time: '09:00' });
+  await due();
+  dbDown = 1;
+  await flushDue();
+  assert.equal(texts.length, 0);
+  assert.deepEqual((await outbox()).map((r) => [r.status, /^Trying again/.test(r.error || '')]), [['waiting', true]]);
+  await due(); await flushDue();
+  assert.equal(texts.length, 1);
+  assert.equal((await outbox())[0].status, 'sent');
 });
