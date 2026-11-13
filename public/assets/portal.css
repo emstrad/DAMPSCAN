@@ -177,9 +177,18 @@ label.pt-btn { cursor:pointer; }
 .pt-receipt-to small { color:var(--muted); }
 @keyframes pt-rise { from { transform:translateY(16px); opacity:0; } to { transform:none; opacity:1; } }
 @media (prefers-reduced-motion: reduce) { .pt-receipt { animation:none; } }
+/* Printed or saved as PDF: a plain paper receipt, black on white whatever the
+   page's palette, every line readable, nothing of the page around it. */
 @media print {
+  @page { size:A4; margin:18mm; }
+  html, body { background:#fff !important; color:#111 !important; }
   .pt-printing body > *:not(.pt-receipt-shade) { display:none !important; }
-  .pt-receipt-shade { position:static; background:none; padding:0; }
-  .pt-receipt { max-height:none; box-shadow:none; background:#fff; color:#000; }
-  .pt-receipt .pt-chips { display:none; }
+  .pt-receipt-shade { position:static !important; inset:auto; background:none !important; padding:0 !important; display:block !important; }
+  .pt-receipt { position:static !important; width:auto !important; max-width:none !important; max-height:none !important; margin:0 !important;
+    padding:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:#fff !important; animation:none !important; }
+  .pt-receipt, .pt-receipt * { color:#111 !important; background:transparent !important; }
+  .pt-receipt h2 { font-size:26pt; margin:0 0 4pt; }
+  .pt-receipt .pt-receipt-no, .pt-receipt small, .pt-receipt .pt-hint { color:#555 !important; }
+  .pt-receipt .pt-lines div { border-color:#bbb !important; }
+  .pt-receipt .pt-chips { display:none !important; }
 }
