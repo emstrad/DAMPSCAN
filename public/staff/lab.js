@@ -54,8 +54,8 @@
       var pc = el('lab-pc') ? el('lab-pc').value.trim() : '';
       var data = await U.get('/api/admin/hours?view=slots' + (pc ? '&postcode=' + encodeURIComponent(pc) : ''));
       prices = data.prices;
-      el('sw-slots').checked = Boolean(data.live); el('sw-quiz').checked = Boolean(data.quiz);
-      el('sw-slots').disabled = el('sw-quiz').disabled = false;
+      el('sw-slots').checked = Boolean(data.live); el('sw-quiz').checked = Boolean(data.quiz); if (el('sw-instant')) el('sw-instant').checked = Boolean(data.instant);
+      el('sw-slots').disabled = el('sw-quiz').disabled = false; if (el('sw-instant')) el('sw-instant').disabled = false;
       slots(data.slots);
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
   }
@@ -64,7 +64,7 @@
     el('quiz-out').textContent = 'On the website this would open the booking form with "' + r.survey.name + '" chosen' + (r.addOns.length ? ' and ' + r.addOns.map(function (x) { return x.name.toLowerCase(); }).join(' and ') + ' noted' : '') + '.';
   } });
   /* The two switches that put the time picker and the survey step on the sites. */
-  ['sw-slots', 'sw-quiz'].forEach(function (id) {
+  ['sw-slots', 'sw-quiz', 'sw-instant'].forEach(function (id) {
     var box = el(id);
     box.addEventListener('change', async function () {
       box.disabled = true;

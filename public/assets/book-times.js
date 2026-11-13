@@ -2,7 +2,9 @@
    any point here loses nothing and makes no second enquiry): first a day and
    a time, then which survey. Days and times come from lib/web-booking.js; a
    tap asks for that time, held for the team to confirm, so the words say
-   "requested", never "booked". Then "What do you need?" with prices from the
+   "requested", never "booked" (unless the owners switch on booking straight
+   away, lib/instant-book.js: then it is booked once the survey is chosen
+   and still fits). Then "What do you need?" with prices from the
    one price list (content/prices.js, sent with the times) and a small (i) by
    each with what it is. Nothing shows when the owners have not switched it
    on. Loaded by book.js. */
@@ -42,16 +44,18 @@
     var r = await post({ op: 'times', leadId: lead.id, sessionId: lead.sessionId });
     var d = r.data || {};
     box.textContent = '';
+    /* Booked straight away: the survey first, then only the times that fit it, and a tap books it. */
+    if (d.surveyFirst) { box.hidden = false; return survey(box, lead, d.prices, '', function () { start(box, lead); }); }
     var next = d.askSurvey ? function (said) { survey(box, lead, d.prices, said); } : function (said) { done(box, 'Thanks', said); };
     if (!(d.days || []).length) { if (d.askSurvey) { box.hidden = false; return next(''); } box.hidden = true; return; }
     box.hidden = false;
-    times(box, lead, d.days, note, next);
+    times(box, lead, d.days, note, next, d.instant);
   }
 
   /* Step one: the days with a free time, then every free time on the day tapped. */
-  function times(box, lead, days, note, next) {
+  function times(box, lead, days, note, next, instant) {
     box.appendChild(el('h4', 'bt-title', 'Pick a time'));
-    box.appendChild(el('p', 'note', note || 'A request: we call to confirm.'));
+    box.appendChild(el('p', 'note', note || (instant ? 'Every time here fits your survey. Tap one to book it.' : 'A request: we call to confirm.')));
     var dayRow = el('div', 'bt-row bt-days ms-stagger'), timeBox = el('div', 'bt-times');
     days.forEach(function (d) {
       var b = el('button', 'bt-time bt-dayb', short(d.date)); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
@@ -66,8 +70,10 @@
             lock(box, true);
             var p = await post({ op: 'pick', leadId: lead.id, sessionId: lead.sessionId, date: t.date, time: t.time, ticket: t.ticket });
             if (p.data && p.data.ok) {
-              if (window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('time requested', { 'Time requested': nice(t.date) + ' at ' + clock(t.time) + ' (a request, not booked: call to confirm)' }, lead.id);
-              next(nice(t.date) + ' at ' + clock(t.time) + ' requested. We will call to confirm.');
+              var when = nice(t.date) + ' at ' + clock(t.time);
+              if (window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE(p.data.booked ? 'booked online' : 'time requested', { [p.data.booked ? 'Booked' : 'Time requested']: when + (p.data.booked ? ' (booked online)' : ' (a request, not booked: call to confirm)') }, lead.id);
+              if (p.data.booked) return done(box, 'You are booked in', when + '. We have sent you a link to pay the deposit and see your survey.');
+              next(when + ' requested. We will call to confirm.');
             }
             else if (p.data && p.data.error === 'taken') start(box, lead, 'Sorry, that time has just gone. Here are the times still free.');
             else next("Something went wrong, we'll call you to arrange a time.");
@@ -104,13 +110,13 @@
   function only(list, b) { list.querySelectorAll('.bt-survey').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); }
 
   /* Step two: what they need, then the size, then anything to add. */
-  function survey(box, lead, P, said) {
+  function survey(box, lead, P, said, after) {
     swap(function () { draw0(); });
     function draw0() {
       box.textContent = '';
       if (said) box.appendChild(el('p', 'bt-said', said));
       box.appendChild(el('h4', 'bt-title', 'What do you need?'));
-      box.appendChild(el('p', 'note', 'So we come with the right time and price. You can change it when we call.'));
+      box.appendChild(el('p', 'note', after ? 'So every time we offer fits your survey, and the price is right.' : 'So we come with the right time and price. You can change it when we call.'));
       pick = { service: null, size: null, extras: [] };
       list = el('div', 'bt-surveys ms-stagger'); rest = el('div');
       [['damp', P.services.damp.name, P.services.damp.info], ['timber', P.services.timber.name, P.services.timber.info],
@@ -122,7 +128,8 @@
     var pick, list, rest;
     function draw() {
       rest.textContent = '';
-      if (pick.service === 'unsure') return send();
+      /* Not sure still asks the size when booking straight away: it sets the time on site. */
+      if (pick.service === 'unsure' && !after) return send();
       /* A damp survey always, extras only on top of one (the owners' choice). */
       rest.appendChild(el('p', 'bt-day', 'How much of the home?'));
       var sizes = el('div', 'bt-surveys ms-stagger');
@@ -156,10 +163,12 @@
     async function send() {
       lock(box, true);
       /* The staff Lab previews this with no enquiry: priced here, nothing saved. */
-      var c = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}).chose : preview(P, pick);
+      var sv = lead ? ((await post({ op: 'survey', leadId: lead.id, sessionId: lead.sessionId, choice: pick })).data || {}) : null;
+      var c = lead ? sv.chose : preview(P, pick);
       var chosen = pick.service !== 'unsure' && c && c.price
         ? c.name + ', ' + money(c.price, c.from) + ((c.addOns || []).length ? ', with ' + c.addOns.map(function (a) { return a.name.toLowerCase() + ' ' + money(a.price, a.from); }).join(' and ') : '') : null;
       if (lead && window.DS_EMAIL_UPDATE) window.DS_EMAIL_UPDATE('survey chosen', { 'Survey chosen': chosen || 'Not sure, wants help choosing' }, lead.id);
+      if (after && sv && sv.chose) return after();
       done(box, 'Thanks, all noted', (said ? said + ' ' : '') + (chosen ? chosen + '. We confirm the fee before we come.' : 'We will help you choose the right survey when we call.'));
     }
   }

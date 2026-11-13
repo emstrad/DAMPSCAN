@@ -1585,3 +1585,11 @@ begin
     insert into lab_flags (key, enabled) values ('texted_paid_backfill_v1', true);
   end if;
 end $$;
+
+-- Free-flow road minutes between two places (lib/road-times.js, OSRM), by
+-- "lat,lon|lat,lon", so each pair is asked for once.
+create table if not exists drive_times (
+  pair       text primary key,
+  minutes    numeric not null,
+  looked_at  timestamptz not null default now()
+);

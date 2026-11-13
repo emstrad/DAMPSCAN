@@ -291,9 +291,16 @@ checks the mechanical ones.
   districts are London, Dartford's are Kent); a time goes to the patch
   surveyor first, then whoever else can reach it, else it is not offered.
   Brands do not matter. The day's limit is only hours, survey length and
-  drive. Picks stay requests (the customer is told it is not booked until we
-  call to confirm); the team confirms, decides who goes and sends
-  the deposit by hand. The Lab shows the same. The form is saved before any
+  drive. Booked straight away (the owner's choice, 13 Nov 2026, Lab switch
+  instant_booking, `lib/instant-book.js`): the customer chooses the survey
+  first ("not sure" still gives the size, booked as a damp survey of that
+  size), is offered only times that fit that survey's real length and extras,
+  and the time tapped is booked there and then through the same path as
+  Scheduling's Book it in (surveyor told, booked text with the deposit link);
+  never a request, and a time taken a moment before shows the fresh times.
+  With the switch off, picks stay requests (the customer is told it is not
+  booked until we call to confirm); the team confirms, decides who goes and
+  sends the deposit by hand. The Lab shows the same. The form is saved before any
   of this, so leaving part way loses nothing and makes no second enquiry.
   Time first (least friction), then, with the Lab's survey quiz switch on,
   "What do you need?": damp survey, damp and timber, or not sure; then the
@@ -406,9 +413,15 @@ checks the mechanical ones.
   every surveyor's open starts for two weeks, grouped by day and person, for
   answering the phone. Same rules as the free list, booked and pencilled out;
   with the caller's postcode it uses real travel.
-- Travel time (`lib/travel.js`, `lib/travel-guard.js`): a survey is an hour
-  plus the drive to the next, from postcodes (postcodes.io, cached in
-  postcode_geo; an hour when unknown). Every way of booking a damp survey
+- Travel time (`lib/travel.js`, `lib/travel-guard.js`, `lib/road-times.js`):
+  a survey is its rate card minutes plus 30 per extra (surveyMinutes, used by
+  every check: the drive either side and inside their hours; the timings
+  audit, 13 Nov 2026, found the checks assumed an hour) plus the drive to the
+  next. The drive is the real road time (OSRM table, OSRM_URL, cached in
+  drive_times) plus daytime traffic (+50% London, +30% in and out, +20%
+  elsewhere) and 10 minutes to park; with no road time an estimate tuned
+  against real roads; from postcodes (postcodes.io, cached in postcode_geo; an
+  hour when unknown). Every way of booking a damp survey
   refuses a time inside it with the reason unless told to go ahead (force).
 - Holds for a buyer waiting on the estate agent never lapse; someone lets them
   go by hand. A hold notes who pencilled it; pencilling a time someone else
