@@ -98,7 +98,7 @@ test('an estate agent still confirming: no booked text until they have, then it 
   await textsAfterChange(id, { delayMs: 0 });
   await due(); await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /^DampScan: Kim, booked /);
+  assert.match(texts[0].body, /^Hi Kim, you're booked in with DampScan /);
 });
 
 test('Twilio refusing a text makes a to-do, so nobody waits on a text that never went', async () => {
@@ -128,7 +128,7 @@ test('paid in full at once: one payment text, then the report text says ready to
   v = await portalView((await findPortal(token)).job);
   assert.equal(v.state, 'report');
   assert.deepEqual((await outbox()).map((r) => r.kind), ['paid', 'ready_paid']);
-  assert.match(texts[1].body, /report is ready to view/);
+  assert.match(texts[1].body, /report is ready! Read and download it on your page/);
   assert.equal((await settleOrder(o.orderId)).already, true, 'Revolut telling us again changes nothing');
 });
 
@@ -141,7 +141,7 @@ test('the morning text: once a day whichever kind, not once the visit has begun,
   assert.equal(await morningTexts(), 0, 'a later run, deposit now paid: still the one text');
   await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /Deposit £147\.50/);
+  assert.match(texts[0].body, /Your £147\.50 deposit is still to pay/);
 });
 
 test('a bank transfer with the page\'s reference: matched, on their page, texted at once', async () => {
@@ -157,7 +157,7 @@ test('a bank transfer with the page\'s reference: matched, on their page, texted
   assert.equal(v.state, 'booked');
   await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /received £147\.50/);
+  assert.match(texts[0].body, /received your payment, £147\.50 paid so far/);
 });
 
 test('the database out for a moment: the text waits and goes on the next try, never lost', async () => {
@@ -171,4 +171,22 @@ test('the database out for a moment: the text waits and goes on the next try, ne
   await due(); await flushDue();
   assert.equal(texts.length, 1);
   assert.equal((await outbox())[0].status, 'sent');
+});
+
+test('the enquiry thanks: plain, a time asked for, the agent, or dropped once they booked', async () => {
+  const { queueText } = await import('../lib/texts.js');
+  const lead = async () => Number((await pool.query(`insert into leads (site, stage, first_name, email, postcode, phone, session_id) values ('dampscan', 'complete', 'Kim', 'k@x.com', 'ME19 6AB', '07700900123', gen_random_uuid()) returning id`)).rows[0].id);
+  const plain = await lead(), asked = await lead(), agent = await lead(), booked = await lead();
+  await pool.query("update leads set pencil_date = current_date + 5, pencil_time = '10:00' where id = $1", [asked]);
+  await pool.query("insert into estate_agents (name) values ('Agent') on conflict do nothing");
+  await pool.query('update leads set estate_agent_id = (select id from estate_agents limit 1) where id = $1', [agent]);
+  await pool.query('update jobs set lead_id = $1 where id = $2', [booked, await job()]);
+  for (const id of [plain, asked, agent, booked]) await queueText({ kind: 'enquiry', site: 'dampscan', leadId: id, key: 'enquiry' });
+  await flushDue();
+  assert.equal(texts.length, 3);
+  const all = texts.map((t) => t.body).join(' | ');
+  assert.match(all, /Hi Kim, thanks for getting in touch with DampScan! We'll give you a call shortly/);
+  assert.match(all, /We've got your request for .+, 10 to 11am\. We'll call you shortly to confirm it/);
+  assert.match(all, /arrange your survey with your estate agent/);
+  assert.ok((await outbox()).some((r) => r.status === 'cancelled' && /^Booked meanwhile/.test(r.error)));
 });

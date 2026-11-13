@@ -33,7 +33,9 @@ enforces the mechanical ones in CI.
   tap-to-send links, emails are drafts the person checks and sends.
   The one exception the owners chose (11 Nov 2026): customer texts through
   Twilio (`lib/texts.js`, `lib/text-words.js`), seven kinds: 1 enquiry
-  received, 2 booked with the deposit link, 3 payment received (from Revolut,
+  received (worded for no time picked, a time asked for, or the estate agent
+  letting us in; with the time picker on it waits ten minutes and is dropped
+  if they booked online meanwhile, whose booked text goes at once), 2 booked with the deposit link, 3 payment received (from Revolut,
   a matched transfer or a tick by hand), 4 the survey morning at 7 (asking for
   the deposit when unpaid; no evening-before text), 5 report ready (balance
   due, or ready to view when paid), 6 your report once paid, 7 survey moved.
@@ -43,15 +45,19 @@ enforces the mechanical ones in CI.
   and worded just before it goes, once per survey, kind and moment; a change
   to a payment or report more than two days old never texts. Sent from the
   brand name (TWILIO_FROM_ATI, TWILIO_FROM_DAMPSCAN); customers cannot reply,
-  so each text gives the phone number. Off until SMS_AUTO=on with
+  so each text is friendly and, once booked, points to their own page (pay,
+  on my way, message us, ask to move) instead of a phone number (the owner's
+  choice, 13 Nov 2026); the enquiry texts, with no page yet, give the number. Off until SMS_AUTO=on with
   TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN; while off the outbox keeps what
   would have gone, and SMS_TEST_TO sends everything to one test number. The
-  Texts page (managers, in the Companies sheet) shows what is waiting (edit,
-  send now, stop), what went and whether it arrived (Twilio's signed receipts;
-  a failure is a to-do), and the wording per kind and brand. A customer with
+  Texts page (managers, in the Companies sheet and the + menu), one company at
+  a time, shows what is waiting (edit, send now, stop), what went and whether
+  it arrived (Twilio's signed receipts; a failure is a to-do), and the wording
+  per kind in the order a customer gets them, each opening as it lands on a
+  phone (filled with an example) with its words and fill-ins beneath. A customer with
   no mobile (a landline or email only) gets no text; the owners get one to-do
-  to email or call them instead. Every starting wording fits one text (160
-  characters) for either brand with a long name, and gives our number; the
+  to email or call them instead. Every starting wording fits two texts (306
+  characters) for either brand with a long name; the
   page link in a text is the short form (/m/<token>, middleware.js rewrites it
   to my.html). The go-live audit's rules (11 Nov 2026): no text between 21:00
   and 07:00 (it waits; SMS_QUIET_HOURS=off only in tests); the morning text
@@ -568,8 +574,12 @@ checks the mechanical ones.
   Companies tabs.
   Settings is in the Companies sheet (the cog at the end of the company row
   runs off a phone's screen) and in the + menu with Texts (the owner's ask,
-  13 Nov 2026), and Settings opens with Notifications. The header
-  holds only the logo: Turn on notifications, Refresh and Sign out are at the
+  13 Nov 2026), and Settings opens with Notifications. The + menu (phone bar
+  and the tablet and desktop header alike, the same lit tile turning to a
+  cross) is only New survey or enquiry (damp), To-do list, Texts, Settings,
+  then Turn on notifications, Refresh and Sign out; no new to-do, no add a
+  cost, no new Verge or CoolRight work (the owner's choice, 13 Nov 2026). The
+  header holds only the logo: Turn on notifications, Refresh and Sign out are at the
   end of the + menu (and the switch also in Settings, which says when the
   server's push keys are missing).
 

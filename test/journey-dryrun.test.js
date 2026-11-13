@@ -66,8 +66,8 @@ test('one customer, start to finish', async () => {
   assert.equal(texts.length, 1);
   assert.equal(texts[0].from, 'DampScan');
   assert.equal(texts[0].to, '+447700900123');
-  assert.match(texts[0].body, /^DampScan: Kim, booked .* Deposit £147\.50: https:\/\/dampscan\.co\.uk\/m\/[\w-]{32} Call 07386 225526$/);
-  for (const t of texts) assert.ok(t.body.length <= 160, 'one text: ' + t.body);
+  assert.match(texts[0].body, /^Hi Kim, you're booked in with DampScan for .*, please pay the £147\.50 deposit on your page: https:\/\/dampscan\.co\.uk\/m\/[\w-]{32} You can see your booking and message us there too\.$/);
+  for (const t of texts) assert.ok(t.body.length <= 306, 'two texts at most: ' + t.body);
   assert.equal((await page()).state, 'deposit');
 
   /* The deposit online: recorded once, ticked, text 3 straight away, a receipt. */
@@ -102,11 +102,11 @@ test('one customer, start to finish', async () => {
   await flushDue({ limit: 10 });
   assert.equal(texts.length, 4, sent().join(' | '));
 
-  /* Every text once, nothing left unfilled, each with our number, none to an agent. */
+  /* Every text once, nothing left unfilled, each with their page, none to an agent. */
   for (const b of sent()) {
     assert.ok(!/[{}]/.test(b), 'no unfilled word: ' + b);
-    assert.ok(b.length <= 160, 'one text: ' + b);
-    assert.match(b, /07386 225526/, 'our number, since they cannot reply');
+    assert.ok(b.length <= 306, 'two texts at most: ' + b);
+    assert.match(b, /https:\/\/dampscan\.co\.uk\/m\//, 'their page, where they can message us, since they cannot reply');
     assert.ok(!/\u2014/.test(b), 'no em dash');
   }
   const kinds = (await pool.query("select kind, status from sms_outbox order by id")).rows.map((r) => `${r.kind}:${r.status}`);
