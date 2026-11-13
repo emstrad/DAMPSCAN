@@ -44,8 +44,9 @@
      and the bank is Money, one level up. */
   var EXTRA = ['due.html', TODO, MONEY];
   /* Pages a company keeps reachable without a tab: the old pipeline, which
-     Verge's and CoolRight's new boards replaced, stays for anyone with it bookmarked. */
-  var ALSO = { roofing: ['pipeline.html'], ac: ['pipeline.html'] };
+     Verge's and CoolRight's new boards replaced, stays for anyone with it bookmarked;
+     the damp customers' Texts page, reached from the + menu and the Companies sheet. */
+  var ALSO = { damp: ['texts.html'], roofing: ['pipeline.html'], ac: ['pipeline.html'] };
 
   function stored() { try { return global.localStorage.getItem(KEY); } catch (e) { return null; } }
   function remember(a) { try { global.localStorage.setItem(KEY, a); } catch (e) {} }
