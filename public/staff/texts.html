@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0c1a2b" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="manifest" href="/staff/manifest.webmanifest" /><link rel="apple-touch-icon" href="/staff/icon-180.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
-<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" />
+<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" /><link rel="stylesheet" href="/staff/texts.css" />
 <script>
 /* Both sites share this staff area, so the hostname decides whose name is on
    it. This runs in the head, before anything is painted, so neither brand ever
@@ -57,13 +57,15 @@
   <p class="tx-live" id="live"></p>
   <div class="state" id="state">Loading…</div>
   <div id="content" hidden>
+    <div class="pills tx-brands" role="group" aria-label="Company" id="brands"></div>
     <div class="pills" role="group" aria-label="Show">
-      <button class="pill" type="button" data-tab="waiting" aria-pressed="true">Waiting</button>
+      <button class="pill" type="button" data-tab="waiting" id="tab-waiting" aria-pressed="true">Waiting</button>
       <button class="pill" type="button" data-tab="sent" aria-pressed="false">Sent</button>
       <button class="pill" type="button" data-tab="wording" aria-pressed="false">Wording</button>
     </div>
     <div id="list" class="tx-list"></div>
   </div>
+  <dialog class="tx-dlg" id="phone" aria-labelledby="ph-title"></dialog>
 </main>
 
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>

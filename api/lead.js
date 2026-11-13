@@ -19,6 +19,7 @@ import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { agentFromLead } from '../lib/estate-agents.js';
 import { londonToday } from '../lib/pipeline.js';
+import { labFlag } from '../lib/availability.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -86,6 +87,8 @@ export default async function handler(req, res) {
         : body.op === 'times'
         ? await timesFor({ leadId: body.leadId, sessionId: body.sessionId, today })
         : await pickTime({ leadId: body.leadId, sessionId: body.sessionId, date: str(body.date, 10), time: str(body.time, 5), ticket: str(body.ticket, 80), today });
+      /* Sent before answering: a function can be frozen once it has replied. */
+      await flushDue({ limit: 3 }).catch(() => {});
       json(res, out.error ? (out.error === 'not_found' ? 404 : 409) : 200, { ok: !out.error, ...out });
     } catch (err) {
       console.error('web booking failed:', err.message);
@@ -199,7 +202,13 @@ export default async function handler(req, res) {
     /* And a text to the owners, which arrives whatever ntfy's limit (lib/staff-sms.js). */
     await textOwners(enquiryText(site, id, row));
     /* And the customer's own "thanks, we'll call" text (lib/texts.js), once texts are on. */
-    try { await queueText({ kind: 'enquiry', site, leadId: id, key: 'enquiry' }); await flushDue({ limit: 3 }); } catch (err) { console.warn('enquiry text failed:', err.message); }
+    /* With the time picker on, the thanks waits ten minutes: a time booked meanwhile
+       makes it unneeded (the booked text says it all), one asked for changes its words. */
+    try {
+      const waits = await labFlag('booking_slots') && !(await queryOne('select 1 from leads where id = $1 and estate_agent_id is not null', [id]));
+      await queueText({ kind: 'enquiry', site, leadId: id, key: 'enquiry', delayMs: waits ? 10 * 60000 : 0 });
+      await flushDue({ limit: 3 });
+    } catch (err) { console.warn('enquiry text failed:', err.message); }
   }
 
   /* There is no frequent schedule to catch a form left half done, so a new

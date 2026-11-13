@@ -129,7 +129,7 @@
   sheet.setAttribute('role', 'menu');
   document.body.appendChild(sheet);
   /* The bar's + turns to a cross while its menu is open (shell.css). */
-  function plusOpen(on) { var p = document.querySelector('.bb-plus'); if (p) p.setAttribute('aria-expanded', on ? 'true' : 'false'); }
+  function plusOpen(on) { document.querySelectorAll('.bb-plus,.shell-plus').forEach(function (p) { p.setAttribute('aria-expanded', on ? 'true' : 'false'); }); }
   function closeSheet() { sheet.hidden = true; plusOpen(false); }
   function item(text, onClick) {
     var b = U.node('button', 'shell-item', text);
@@ -145,11 +145,11 @@
     sheet.dataset.for = anchor.dataset.shell;
     fill();
     sheet.hidden = false;
-    plusOpen(anchor.dataset.shell === 'plus-bar');
+    plusOpen(anchor.hasAttribute('data-plus'));
     var r = anchor.getBoundingClientRect();
     var phone = global.matchMedia('(max-width: 759px)').matches;
     sheet.classList.toggle('is-bottom', phone);
-    if (!phone) { sheet.style.top = (r.bottom + global.scrollY + 6) + 'px'; sheet.style.left = Math.max(8, Math.min(r.left, global.innerWidth - 270)) + 'px'; }
+    if (!phone) { sheet.style.top = (r.bottom + global.scrollY + 8) + 'px'; sheet.style.left = Math.max(8, Math.min(r.left, global.innerWidth - 290)) + 'px'; }
     else { sheet.style.top = ''; sheet.style.left = ''; }
     var firstItem = sheet.querySelector('button, a');
     if (firstItem) firstItem.focus();
@@ -172,10 +172,9 @@
   function plusMenu() {
     /* A surveyor's + is only notifications, Refresh and Sign out (worker.js). */
     if (!(A.rights && A.rights.worker)) {
-      (A.held || []).forEach(function (a) { item('New enquiry or job: ' + A.names[a], function () { go(newWork(a)); }); });
-      item('New to-do', function () { openTodo(true); });
+      /* Trimmed (the owner's ask, 13 Nov 2026): a new damp survey only, no new to-do (the list has its own add) and no add a cost. */
+      if ((A.held || []).indexOf('damp') !== -1) item('New survey or enquiry', function () { go(newWork('damp')); });
       item('To-do list', function () { openTodo(false); });
-      item('Add a cost to a job', function () { openSearch(true); });
       /* Texts and Settings in reach on every page (the owner's ask, 13 Nov 2026), not only in the Companies sheet. */
       if ((A.held || []).indexOf('damp') !== -1) item('Texts', function () { go('/staff/texts.html?area=damp'); });
       item('Settings', function () { go('/staff/settings.html'); });
@@ -208,6 +207,7 @@
     closeSheet();
   });
 
+  var PLUS_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
   function button(text, key, cls, label) {
     var b = U.node('button', cls, text);
     b.type = 'button';
@@ -217,8 +217,9 @@
   }
 
   if (header) {
-    var plus = button('+', 'plus', 'btn btn--primary btn--sm shell-plus', 'Add new');
-    plus.setAttribute('data-plus', '');
+    /* The same lit tile as the phone's +, turning to a cross while its menu is open (shell.css). */
+    var plus = button('', 'plus', 'shell-plus', 'Add new');
+    plus.innerHTML = PLUS_SVG; plus.setAttribute('aria-expanded', 'false'); plus.setAttribute('data-plus', '');
     plus.addEventListener('click', function () { showSheet(plus, plusMenu); });
     var end = header.querySelector('.top-end');
     header.insertBefore(form, end || null);
@@ -244,9 +245,7 @@
   /* The owners' bar: Scheduling where Search was, Search where Money was. */
   barLink('Scheduling', '/staff/schedule.html?area=damp', A.page === 'schedule.html');
   var bPlus = button('', 'plus-bar', 'bb-item bb-plus', 'Add new');
-  bPlus.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
-  bPlus.setAttribute('aria-expanded', 'false');
-  bPlus.setAttribute('data-plus', '');
+  bPlus.innerHTML = PLUS_SVG; bPlus.setAttribute('aria-expanded', 'false'); bPlus.setAttribute('data-plus', '');
   bPlus.addEventListener('click', function () { showSheet(bPlus, plusMenu); });
   bar.appendChild(bPlus);
   var cBtn = button('Companies', 'companies', 'bb-item' + (A.area && todayPages.indexOf(A.page) === -1 && A.page !== 'bank.html' && A.page !== 'schedule.html' ? ' is-current' : ''));

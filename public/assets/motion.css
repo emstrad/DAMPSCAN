@@ -20,6 +20,9 @@ dialog[open]::backdrop{animation:ms-fade var(--ms-med) ease-out}
 @keyframes ms-pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes ms-fade{from{opacity:0}}
 
+/* The staff + menu and Companies sheet rise in as they open. */
+.shell-sheet:not([hidden]){animation:ms-in var(--ms-fast) var(--ms-out)}
+
 /* Opening a fold slides its contents down a touch. */
 details[open]>:not(summary){animation:ms-in .26s var(--ms-out)}
 summary{transition:color .18s}
