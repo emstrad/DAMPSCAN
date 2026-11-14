@@ -13,7 +13,7 @@
   /* A modal dialog of its own, so it opens over the staff pop-up (also a modal
      dialog, which makes everything else on the page untouchable) and swipes there too. */
   var CSS = 'dialog.vw{border:0;padding:0;margin:0;width:100vw;max-width:none;max-height:none;overflow:hidden}.vw::backdrop{background:transparent}' +
-    '.vw{position:fixed;inset:0;z-index:1000;background:rgba(6,10,16,.94);color:#f3f6fa;display:grid;grid-template-rows:auto 1fr;height:100dvh;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;animation:vw-in .16s ease-out}' +
+    '.vw{position:fixed;inset:0;z-index:1000;background:#06090f;color:#f3f6fa;display:grid;grid-template-rows:auto 1fr;height:100dvh;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;animation:vw-in .16s ease-out}' +
     '.vw [hidden]{display:none}' +
     '@keyframes vw-in{from{opacity:0}to{opacity:1}}' +
     '.vw-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left))}' +
