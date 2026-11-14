@@ -92,10 +92,12 @@ export default async function handler(req, res) {
       if (!allowedWrite(action, req.method, req.body)) return json(res, 403, { ok: false, error: 'forbidden', message: REFUSED });
     }
   }
+  /* Any customer text whose two minutes are up goes now (lib/texts.js): staff
+     requests, page loads included, are the steadiest clock between the hourly
+     runs. Sent before answering, because the host can freeze a function once it
+     has replied, which left texts stuck half sent. */
+  if (action !== 'texts') await flushDue({ limit: 5 }).catch((err) => console.warn('text flush failed:', err.message));
   /* Each change made here is one phone alert, see lib/activity.js. Figures
      are taken out for anyone who only works on a business, lib/figures.js. */
   await withActivity(withFigures(route))(req, res);
-  /* Any customer text whose two minutes are up goes now (lib/texts.js): staff
-     requests, page loads included, are the steadiest clock between the hourly runs. */
-  if (action !== 'texts') await flushDue({ limit: 5 }).catch((err) => console.warn('text flush failed:', err.message));
 }
