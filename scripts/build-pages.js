@@ -117,8 +117,11 @@ async function stampAllPages() {
   async function walk(dir) {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name);
-      if (entry.isDirectory()) { if (entry.name !== 'staff') await walk(path); continue; }
-      if (!entry.name.endsWith('.html')) continue;
+      if (entry.isDirectory()) { await walk(path); continue; }
+      /* The staff pages are no-store, but the shared /assets files they load (the viewer, motion, fit)
+         are cached for a year like any other, so their pages, scripts and styles carry stamps too. */
+      const staff = path.includes(`${join('public', 'staff')}`);
+      if (!entry.name.endsWith('.html') && !(staff && /\.(js|css)$/.test(entry.name))) continue;
       const html = await readFile(path, 'utf8');
       const out = stampAssets(html, hashes);
       if (out !== html) { await writeFile(path, out, 'utf8'); stamped++; }

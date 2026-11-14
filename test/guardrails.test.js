@@ -62,8 +62,8 @@ test('Surveymate is never written to and change alerts never say who via ChatGPT
 test('every page loads the shared motion and fit, and hidden stays hidden', async () => {
   for (const css of ['public/assets/header.css', 'public/staff/shell.css']) {
     const s = await readFile(join(root, css), 'utf8');
-    assert.match(s, /@import url\("\/assets\/motion\.css"\)/, css);
-    assert.match(s, /@import url\("\/assets\/fit\.css"\)/, css);
+    assert.match(s, /@import url\("\/assets\/motion\.css(\?v=[0-9a-f]{8})?"\)/, css);
+    assert.match(s, /@import url\("\/assets\/fit\.css(\?v=[0-9a-f]{8})?"\)/, css);
   }
   assert.match(await readFile(join(root, 'public/assets/fit.css'), 'utf8'), /\[hidden\]\{display:none!important\}/);
 });

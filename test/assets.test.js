@@ -58,8 +58,11 @@ test('every asset reference in every shipped page matches the file it names', as
   const hashes = await assetHashes(ROOT);
   assert.ok(hashes.has('/assets/book.js'), 'the asset map is reading the right directory');
 
-  const pages = (await htmlFiles(join(ROOT, 'public')))
-    .filter((p) => !p.includes('/staff/'));   // served no-store, never cached
+  /* The staff pages are no-store, but the /assets files they load are cached for a year,
+     so their pages, scripts and styles must carry current stamps too (the viewer fix sat
+     unseen on phones for a day because ui.js named /assets/viewer.js bare). */
+  const staffFiles = (await readdir(join(ROOT, 'public', 'staff'))).filter((f) => /\.(js|css)$/.test(f)).map((f) => join(ROOT, 'public', 'staff', f));
+  const pages = [...(await htmlFiles(join(ROOT, 'public'))), ...staffFiles];
   assert.ok(pages.length > 60, `expected the whole site, found ${pages.length} pages`);
 
   const stale = [];
