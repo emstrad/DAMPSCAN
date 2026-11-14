@@ -622,10 +622,15 @@ checks the mechanical ones.
   end of the + menu (and the switch also in Settings, which says when the
   server's push keys are missing).
 
-- Settings, "Ready to switch on" (owners, `lib/readiness.js`): each thing
-  the texts, online payments, bank feed, receipts, reviews, scheduled runs
-  (cron_beats, `lib/heartbeat.js`: hourly, morning, evening) and alerts still
-  need, as done, to do or worth a look (test mode on); set or not, never a value.
+- Settings (the owner's tidy-up, 14 Nov 2026): Notifications first, then
+  "Left to set up" (owners, `lib/readiness.js`): only what the texts, card
+  payments, bank details, receipts, reviews, scheduled runs (cron_beats,
+  `lib/heartbeat.js`: hourly, morning, evening) and alerts still need, each
+  row tapping through to where it is put right (a fold on the page, a company's
+  Insights, Vercel for keys, the mirror's Actions), what is done folded below,
+  the card gone once all is done; set or not, never a value. Then one folded
+  line each: Card payments, Company details, Bank details and VAT, Rates and
+  price book, People, ChatGPT and Claude.
 - Company details (Settings, owners only, `lib/company-details.js`): Damp
   Surveying Limited's company number, registered office, directors, HMRC
   references, Government Gateway user ID, filing dates, bank and insurance,

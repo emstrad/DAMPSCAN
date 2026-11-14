@@ -46,40 +46,44 @@
     if (go.charAt(0) === '#') a.addEventListener('click', function (e) {
       var to = document.querySelector(go); if (!to) return;
       e.preventDefault();
-      var fold = to.querySelector('details'); if (fold) fold.open = true;
+      var fold = to.tagName === 'DETAILS' ? to : to.querySelector('details'); if (fold) fold.open = true;
       to.scrollIntoView({ block: 'start' });
     });
     return a;
   }
+  function line(i) {
+    var li = U.node('li', 'is-' + i.state);
+    var to = i.state !== 'ok' && i.go ? goTo(i.go) : null;
+    var row = to || li;
+    row.appendChild(U.node('b', null, MARK[i.state]));
+    var tx = U.node('span', null, i.label);
+    if (i.note) tx.appendChild(U.node('small', null, i.note));
+    row.appendChild(tx);
+    if (to) { to.appendChild(U.node('i', 'ready-go', '\u203A')); li.appendChild(to); }
+    return li;
+  }
 
-  /* Ready to switch on: each group folds, open while it has something left to do. */
-  var MARK = { ok: '✓', todo: '✗', warn: '!' };
-  U.get('/api/admin/business?view=ready').then(function (d) {
-    el('p-ready').hidden = false;
-    el('ready-sum').textContent = d.left ? d.left + ' thing' + (d.left === 1 ? '' : 's') + ' left to set up' : 'Everything is set up.';
-    var box = el('ready-list');
-    box.textContent = '';
-    d.groups.forEach(function (g) {
-      var f = document.createElement('details'); f.className = 'sheet-fold';
-      f.open = g.done < g.of;
-      f.appendChild(U.node('summary', null, g.title + ' (' + g.done + ' of ' + g.of + ')'));
-      var ul = U.node('ul', 'ready-list');
-      g.items.forEach(function (i) {
-        var li = U.node('li', 'is-' + i.state);
-        /* Anything not done taps straight through to where it is put right. */
-        var to = i.state !== 'ok' && i.go ? goTo(i.go) : null;
-        var row = to || li;
-        row.appendChild(U.node('b', null, MARK[i.state]));
-        var tx = U.node('span', null, i.label);
-        if (i.note) tx.appendChild(U.node('small', null, i.note));
-        row.appendChild(tx);
-        if (to) { to.appendChild(U.node('i', 'ready-go', '\u203A')); li.appendChild(to); }
-        ul.appendChild(li);
-      });
-      f.appendChild(ul);
-      box.appendChild(f);
-    });
-  }).catch(function () {});
+  /* Left to set up: only what still needs doing (worth a look first), each tapping
+     through to its fix; everything done folded beneath. Gone once all is done. */
+  var MARK = { ok: '\u2713', todo: '\u2717', warn: '!' };
+  function ready() {
+    U.get('/api/admin/business?view=ready').then(function (d) {
+      var all = [].concat.apply([], d.groups.map(function (g) { return g.items; }));
+      var left = all.filter(function (i) { return i.state !== 'ok'; }).sort(function (x, y) { return (x.state === 'todo') - (y.state === 'todo'); });
+      var done = all.filter(function (i) { return i.state === 'ok'; });
+      el('p-ready').hidden = !left.length;
+      var todo = el('ready-todo'); todo.textContent = '';
+      left.forEach(function (i) { todo.appendChild(line(i)); });
+      var box = el('ready-done'); box.textContent = '';
+      done.forEach(function (i) { box.appendChild(line(i)); });
+      el('ready-done-sum').textContent = done.length + ' already set up';
+      el('ready-done-fold').hidden = !done.length;
+    }).catch(function () {});
+  }
+  ready();
+  document.addEventListener('ds:ready', ready);
 
   U.get('/api/admin/business?view=company').then(function (d) { el('p-co').hidden = false; draw(d); }).catch(function () {});
+  /* Saving the company's details can tick items off the list above. */
+  el('co-form').addEventListener('submit', function () { setTimeout(ready, 1200); });
 })(window);
