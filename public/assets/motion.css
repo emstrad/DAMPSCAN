@@ -58,6 +58,9 @@ summary{transition:color .18s}
   .sched-card:hover,.bt-survey:hover,.quiz-opt:hover{transform:translateY(-1px);box-shadow:0 6px 18px -10px rgba(0,0,0,.45)}
 }
 
+/* A fold's arrow turns as it opens. */
+.sheet-fold>summary::after{transition:transform .18s ease-out}
+
 /* Smooth page scrolling for in-page links and brought-into-view cards. */
 html{scroll-behavior:smooth}
 

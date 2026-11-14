@@ -1,4 +1,4 @@
-@import url("/assets/motion.css?v=17d80162");
+@import url("/assets/motion.css?v=e57b6c8c");
 @import url("/assets/fit.css?v=3ce5e305");
 /* The shared shell (shell.js): header search, the + button and its menu, the
    phone's bottom bar, the Undo toast and the To-do drawer on Today. */
@@ -201,7 +201,11 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 .quiz-adds{margin:0;padding-left:18px}
 .quiz-why,.quiz-total{margin:0;color:var(--muted)}
 /* A folded part of the job sheet: one tidy line until opened. */
-.sheet-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--accent)}
+.sheet-fold>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-weight:700;color:var(--accent)}
+/* A flex summary loses the browser's arrow (iOS too), so it gets its own: it reads as something to tap. */
+.sheet-fold>summary::-webkit-details-marker{display:none}
+.sheet-fold>summary::after{content:'\203A';flex:none;font-size:1.4rem;line-height:1;color:var(--muted)}
+.sheet-fold[open]>summary::after{transform:rotate(90deg)}
 .sheet-sec:has(> .sheet-fold){padding:2px 0}
 .sheet .meta,.scc .meta{font-size:13px;color:var(--muted);margin:2px 0 6px}
 /* The job sheet's one next step, first thing in view. */
