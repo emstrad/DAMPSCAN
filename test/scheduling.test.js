@@ -119,8 +119,8 @@ test('a job card history shows the deposit and payments, and an email without a 
   await addEmail('job', id, { dir: 'in', subject: '', body: 'Can you do the 9th?\nThanks' });
   const r = await callRoute(route, s, { method: 'GET', url: `/api/admin/scheduling?card=job:${id}` });
   const e = r.data.entries;
-  assert.ok(e.some((x) => x.kind === 'fact' && x.text === 'Deposit paid'));
-  assert.ok(e.some((x) => x.kind === 'fact' && x.text === 'Payment received (deposit) £155'));
+  assert.ok(e.some((x) => x.kind === 'fact' && x.text === 'Deposit paid £155'), 'the payment, with its amount');
+  assert.ok(!e.some((x) => x.kind === 'fact' && x.text === 'Deposit paid'), 'the tick it made is not said twice');
   assert.equal(e.find((x) => x.kind === 'email').subject, 'Can you do the 9th?');
 });
 

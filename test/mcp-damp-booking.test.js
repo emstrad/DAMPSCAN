@@ -169,7 +169,8 @@ test('a phone alert button ticks paid in full for its job only, and a forged one
   assert.equal(open.action, 'view');
   const hit = async (url) => { const u = new URL(url); let body = ''; const res = { statusCode: 200, setHeader() {}, getHeader() {}, write(c) { body += c; }, end(c) { if (c) body += c; } };
     await quick({ method: 'POST', url: u.pathname + u.search, headers: {} }, res); return res.statusCode; };
-  assert.equal(await hit(paid.url.replace(/sig=../, 'sig=00')), 403);
+  /* Always different from the real one: a fixed '00' matched it one time in 256. */
+  assert.equal(await hit(paid.url.replace(/sig=(.)/, (m, c) => 'sig=' + (c === '0' ? '1' : '0'))), 403);
   assert.equal(await hit(paid.url.replace(`job=${id}`, `job=${id + 1}`)), 403);
   assert.equal((await pool.query('select paid_at from jobs')).rows[0].paid_at, null);
   assert.equal(await hit(paid.url), 200);
@@ -300,7 +301,7 @@ test('reports owed, the customer story, the same-person link and the Friday mone
   assert.equal((await reportsOwed(['ati-london'])).length, 1);
   await pool.query('update jobs set deposit_paid_at = now() where id = $1', [id]);
   const story = await timelineFor(scope, id);
-  assert.ok(story.some((e) => e.what === 'Job started') && story.some((e) => e.what === 'Deposit paid'));
+  assert.ok(story.some((e) => e.what === 'Booked') && story.some((e) => e.what === 'Deposit paid'));
   const lead = Number((await pool.query(`insert into leads (session_id, site, stage, first_name, email, postcode) values (gen_random_uuid(), 'ati-london', 'complete', 'John', 'jsnicholls@gmail.com', 'SW2 2JX') returning id`)).rows[0].id);
   assert.equal((await matchesFor(scope, id))[0].leadId, lead);
   assert.equal((await linkLead(scope, id, 999999)).error !== undefined, true, 'only a real match links');
