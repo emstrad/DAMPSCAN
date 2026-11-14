@@ -120,9 +120,17 @@
       /* Apple Pay or Google Pay right here when the phone has one (portal-wallet.js); then the
          button below is for a card or Pay by Bank on Stripe's page. */
       var wbox = h('div', 'pt-wallet'); wbox.hidden = true; card.appendChild(wbox);
-      if (p.walletKey && global.PTWALLET && startPay.token) wallet = global.PTWALLET.mount(wbox, { key: p.walletKey, token: startPay.token, amount: amount, ok: function () { return ok(amount()); },
-        onShown: function () { payBtn.dataset.apple = ''; payBtn.dataset.other = '1'; payBtn.className = 'pt-btn ghost'; sync(); },
-        onError: function (text) { toast(text); } });
+      /* A phone that can have Apple Pay or Google Pay keeps the button's place from the start (no swap
+         as it loads); if it turns out to have neither, the page's own button takes its place again. */
+      var maybe = p.walletKey && global.PTWALLET && startPay.token && (global.ApplePaySession || global.PaymentRequest);
+      var asOther = function () { payBtn.dataset.apple = ''; payBtn.dataset.other = '1'; payBtn.className = 'pt-btn ghost'; };
+      if (maybe) {
+        wbox.hidden = false; wbox.classList.add('is-loading'); asOther();
+        wallet = global.PTWALLET.mount(wbox, { key: p.walletKey, token: startPay.token, amount: amount, ok: function () { return ok(amount()); },
+          onShown: function () { asOther(); sync(); },
+          onNone: function () { payBtn.dataset.apple = apple ? '1' : ''; payBtn.dataset.other = ''; payBtn.className = 'pt-btn pay'; sync(); },
+          onError: function (text) { toast(text); } });
+      }
       card.appendChild(payBtn);
       card.appendChild(h('div', 'pt-secure', I.lock + '<span>Apple Pay, Google Pay or card. Secure payment to Damp Surveying Limited.</span>'));
     }

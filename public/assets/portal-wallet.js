@@ -21,11 +21,15 @@
   }
 
   /**
-   * Mounts the button in `box`. o: { key, token, amount(), ok(), onShown(), onError(text) }.
+   * Mounts the button in `box`. o: { key, token, amount(), ok(), onShown(), onNone(), onError(text) }.
+   * onNone: no wallet on this phone after all (or Stripe.js would not load), so the page puts its own Pay button back.
    * Returns { amount(pence) } so the page can follow Deposit, In full or Other.
    */
   function mount(box, o) {
-    var elements = null, now = Math.max(30, o.amount() || 0);
+    var elements = null, now = Math.max(30, o.amount() || 0), settled = false, busy = false;
+    var none = function () { if (settled) return; settled = true; box.hidden = true; o.onNone(); };
+    /* Stripe normally answers in a second; if it has not in six, the page's own button is the way to pay. */
+    var wait = setTimeout(none, 6000);
     load().then(function (Stripe) {
       var stripe = Stripe(o.key);
       /* ATi's page is light and DampScan's dark: a solid black button on light, white on dark, so it always reads as a button. */
@@ -40,15 +44,20 @@
       });
       ece.on('ready', function (e) {
         var any = e.availablePaymentMethods && (e.availablePaymentMethods.applePay || e.availablePaymentMethods.googlePay);
-        if (any) { box.hidden = false; o.onShown(); }
+        clearTimeout(wait);
+        if (!any) { none(); return; }
+        if (settled) return;
+        settled = true; box.hidden = false; box.classList.remove('is-loading'); o.onShown();
       });
+      ece.on('loaderror', function () { clearTimeout(wait); none(); });
       /* An amount the page would refuse never opens the sheet. */
-      ece.on('click', function (e) { if (o.ok()) e.resolve(); });
+      ece.on('click', function (e) { if (o.ok() && !busy) e.resolve(); });
       ece.on('confirm', function (ev) {
         var pence = o.amount(), done = false;
+        busy = true;
         /* Whatever goes wrong, the Apple Pay sheet is closed with a failure (never left spinning) and we hear why. */
         var fail = function (text) {
-          if (done) return; done = true;
+          if (done) return; done = true; busy = false;
           try { ev.paymentFailed({ reason: 'fail' }); } catch (e) { /* the sheet may already be gone */ }
           o.onError(text || 'That payment didn\'t go through. Nothing was taken.');
           fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'wallet_failed', t: o.token, text: String(text || '').slice(0, 200) }) }).catch(function () {});
@@ -64,7 +73,7 @@
         }).catch(function (err) { clearTimeout(slow); fail(err && err.message); });
       });
       ece.mount(box);
-    }).catch(function () { /* No Stripe.js (blocked or offline): the usual Pay button is still there. */ });
+    }).catch(function () { clearTimeout(wait); none(); });
     return { amount: function (pence) { if (pence >= 30 && pence !== now) { now = pence; if (elements) elements.update({ amount: pence }); } } };
   }
 
