@@ -569,7 +569,13 @@ checks the mechanical ones.
   again. Off until STRIPE_SECRET_KEY is in Vercel (PAY_ONLINE=off hides it,
   a test key takes no real money); Settings, Online payments, "Connect card
   payments" registers Stripe's notices (owners). Backing out of Stripe's page
-  returns to their page as it was. The Revolut code stays only for its older
+  returns to their page as it was. Apple Pay or Google Pay right on the page
+  (the owner's ask, 14 Nov 2026, `public/assets/portal-wallet.js`, Stripe's
+  Express Checkout with STRIPE_PUBLISHABLE_KEY): tap, Face ID, paid, no trip to
+  Stripe's page; the same server checks (startWallet), card only, then the page
+  comes back as after Stripe's page; "Card or Pay by Bank" stays beneath, and a
+  phone with neither wallet keeps the one Pay button. Connect card payments
+  registers both sites with Stripe for Apple Pay and keeps the one notice address. The Revolut code stays only for its older
   orders (REVOLUT_MERCHANT_KEY), used when no Stripe key is set. Bank transfer stays below
   as the free way: the bank feed (lib/bank) matches a transfer by the page's
   reference (KIM0042 typed exactly settles it, its number alone nearly so),

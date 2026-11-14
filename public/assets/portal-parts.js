@@ -108,7 +108,7 @@
     }
     card.appendChild(hint);
     /* Apple Pay, Google Pay or card, on Stripe's secure page (lib/stripe-pay.js). */
-    var payBtn = null;
+    var payBtn = null, wallet = null;
     if (p.payOnline && startPay) {
       var apple = global.ApplePaySession && /iPhone|iPad|Macintosh/.test(navigator.userAgent);
       payBtn = btn('pt-btn pay', '', function () {
@@ -117,6 +117,12 @@
         startPay(a).catch(function () { payBtn.classList.remove('busy'); payBtn.disabled = false; toast('That didn\'t start. Please try again.'); });
       });
       payBtn.dataset.apple = apple ? '1' : '';
+      /* Apple Pay or Google Pay right here when the phone has one (portal-wallet.js); then the
+         button below is for a card or Pay by Bank on Stripe's page. */
+      var wbox = h('div', 'pt-wallet'); wbox.hidden = true; card.appendChild(wbox);
+      if (p.walletKey && global.PTWALLET && startPay.token) wallet = global.PTWALLET.mount(wbox, { key: p.walletKey, token: startPay.token, amount: amount, ok: function () { return ok(amount()); },
+        onShown: function () { payBtn.dataset.apple = ''; payBtn.dataset.other = '1'; payBtn.className = 'pt-btn ghost'; sync(); },
+        onError: function (text) { toast(text); } });
       card.appendChild(payBtn);
       card.appendChild(h('div', 'pt-secure', I.lock + '<span>Apple Pay, Google Pay or card. Secure payment to Damp Surveying Limited.</span>'));
     }
@@ -140,7 +146,8 @@
       field.classList.remove('bad');
       if (!balanceOnly && pick === 'other' && other !== '' && !good) { hint.className = 'pt-hint bad'; hint.textContent = a > most ? 'That\'s more than the ' + money(most) + ' due.' : 'The least you can pay now is ' + money(least) + '.'; }
       else { hint.className = 'pt-hint'; hint.textContent = balanceOnly ? 'Your report unlocks as soon as this is paid.' : 'Pay anything from ' + money(least) + '. The rest is due when your report is ready.'; }
-      if (payBtn && !payBtn.classList.contains('busy')) { payBtn.disabled = !good; payBtn.innerHTML = '<span class="in">Pay ' + (good ? money(a) + ' ' : '') + (payBtn.dataset.apple ? 'with ' + APPLE + ' Pay' : 'now') + '</span>'; }
+      if (payBtn && !payBtn.classList.contains('busy')) { payBtn.disabled = !good; payBtn.innerHTML = '<span class="in">' + (payBtn.dataset.other ? 'Card or Pay by Bank' : 'Pay ' + (good ? money(a) + ' ' : '') + (payBtn.dataset.apple ? 'with ' + APPLE + ' Pay' : 'now')) + '</span>'; }
+      if (wallet && good) wallet.amount(a);
       if (amountRow) { var b = amountRow.querySelector('b'); b.textContent = good ? money(a) : '-'; amountRow.querySelector('.pt-copy').onclick = null; }
     }
     if (amountRow) amountRow.querySelector('.pt-copy').addEventListener('click', function (e) { e.stopImmediatePropagation(); var a = amount(); if (ok(a)) copied(this, (a / 100).toFixed(2), 'Amount copied'); }, true);

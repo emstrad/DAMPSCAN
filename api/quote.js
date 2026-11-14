@@ -33,7 +33,7 @@ import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } fro
 import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
 import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.js';
 import { movesItself, moveNow } from '../lib/portal-move.js';
-import { startPayment, latestOrder, onWebhook } from '../lib/revolut-pay.js';
+import { startPayment, startWallet, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { deliveryReceipt } from '../lib/texts.js';
 
@@ -191,6 +191,13 @@ async function portalPost(req, res, body) {
     const out = await startPayment(found.job, view, Number(body.pence), { returnUrl: back }).catch((err) => ({ error: err.message }));
     if (out.error) { json(res, 400, { ok: false, error: out.error }); return; }
     json(res, 200, { ok: true, url: out.url }); return;
+  }
+  /* The Apple Pay or Google Pay button on the page: a payment it confirms there, then the page comes back as after Stripe's page. */
+  if (body.op === 'wallet' && !found.gone) {
+    const view = buildView(found.job);
+    const out = await startWallet(found.job, view, Number(body.pence)).catch((err) => ({ error: err.message }));
+    if (out.error) { json(res, 400, { ok: false, error: out.error }); return; }
+    json(res, 200, { ok: true, clientSecret: out.clientSecret, back: `${view.brand.origin}/my.html?t=${encodeURIComponent(found.job.portal_token)}&paid=1` }); return;
   }
   /* Message us, Ask to move and add photos (lib/portal-asks.js): requests only, never a change. */
   if (!found.gone && ASKS[body.op]) {

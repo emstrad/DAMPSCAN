@@ -1,0 +1,61 @@
+/* The Apple Pay or Google Pay button right on the customer's page (the
+   owner's ask, 14 Nov 2026): tap, Face ID, paid, without a trip to Stripe's
+   page. Stripe.js draws the button (it must come from js.stripe.com); our
+   server makes the payment for the amount chosen and checks it (lib/revolut-pay.js
+   startWallet), and the page then comes back exactly as after Stripe's page, so
+   the payment is confirmed from Stripe itself before it shows as received.
+   Phones with neither wallet never see it: the usual Pay button stays. */
+(function (global) {
+  'use strict';
+  var JS = 'https://js.stripe.com/v3/';
+  var loading = null;
+  function load() {
+    if (global.Stripe) return Promise.resolve(global.Stripe);
+    if (loading) return loading;
+    loading = new Promise(function (ok, no) {
+      var s = document.createElement('script'); s.src = JS; s.async = true;
+      s.onload = function () { ok(global.Stripe); }; s.onerror = function () { loading = null; no(new Error('stripe')); };
+      document.head.appendChild(s);
+    });
+    return loading;
+  }
+
+  /**
+   * Mounts the button in `box`. o: { key, token, amount(), ok(), onShown(), onError(text) }.
+   * Returns { amount(pence) } so the page can follow Deposit, In full or Other.
+   */
+  function mount(box, o) {
+    var elements = null, now = Math.max(30, o.amount() || 0);
+    load().then(function (Stripe) {
+      var stripe = Stripe(o.key);
+      elements = stripe.elements({ mode: 'payment', amount: now, currency: 'gbp', paymentMethodTypes: ['card'],
+        appearance: { theme: 'night', variables: { borderRadius: '14px' } } });
+      var ece = elements.create('expressCheckout', {
+        buttonType: { applePay: 'plain', googlePay: 'plain' }, buttonHeight: 52,
+        paymentMethods: { applePay: 'auto', googlePay: 'auto', link: 'never', paypal: 'never', amazonPay: 'never', klarna: 'never' },
+        layout: { maxColumns: 1, maxRows: 1 }
+      });
+      ece.on('ready', function (e) {
+        var any = e.availablePaymentMethods && (e.availablePaymentMethods.applePay || e.availablePaymentMethods.googlePay);
+        if (any) { box.hidden = false; o.onShown(); }
+      });
+      /* An amount the page would refuse never opens the sheet. */
+      ece.on('click', function (e) { if (o.ok()) e.resolve(); });
+      ece.on('confirm', function () {
+        var pence = o.amount();
+        elements.submit().then(function (sub) {
+          if (sub.error) throw new Error(sub.error.message);
+          return fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'wallet', t: o.token, pence: pence }) });
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (!d.ok || !d.clientSecret) throw new Error('That didn\'t start. Please try again.');
+          return stripe.confirmPayment({ elements: elements, clientSecret: d.clientSecret, confirmParams: { return_url: d.back }, redirect: 'if_required' })
+            .then(function (res) { if (res.error) throw new Error(res.error.message); location.href = d.back; });
+        }).catch(function (err) { o.onError((err && err.message) || 'That payment didn\'t go through. Nothing was taken.'); });
+      });
+      ece.mount(box);
+    }).catch(function () { /* No Stripe.js (blocked or offline): the usual Pay button is still there. */ });
+    return { amount: function (pence) { if (pence >= 30 && pence !== now) { now = pence; if (elements) elements.update({ amount: pence }); } } };
+  }
+
+  global.PTWALLET = { mount: mount };
+})(window);

@@ -131,6 +131,7 @@
   }
 
   /* Starts a payment on Stripe's secure page; it comes back here with &paid=1. */
+  pay.token = token;
   function pay(pence) {
     return fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'pay', t: token, pence: pence }) })
       .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok || !d.url) throw new Error(); location.href = d.url; });
