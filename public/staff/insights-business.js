@@ -100,6 +100,8 @@
       } catch (e) { /* not a manager of this one */ }
     }
     el('p-business').hidden = !shown;
+    /* Arrived from Settings' ready list: bring the payment details into view. */
+    if (shown && location.hash === '#p-business') el('p-business').scrollIntoView({ block: 'start' });
   }
 
   load();
