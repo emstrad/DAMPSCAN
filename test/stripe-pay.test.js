@@ -137,7 +137,8 @@ test('the Apple Pay button on the page: same checks, a card-only payment, record
   assert.equal((await R.startWallet(j, v, 100, { fetchImpl })).error, 'amount', 'under the deposit');
   const ok = await R.startWallet(j, v, 14750, { fetchImpl });
   assert.deepEqual(ok, { clientSecret: 'pi_w1_secret_x', orderId: 'pi_w1' });
-  assert.equal(calls[0].body['payment_method_types[0]'], 'card');
+  assert.equal(calls[0].body['payment_method_types[0]'], undefined, 'newer Stripe accounts refuse it');
+  assert.deepEqual([calls[0].body['automatic_payment_methods[enabled]'], calls[0].body['automatic_payment_methods[allow_redirects]']], ['true', 'never']);
   assert.equal(calls[0].body.amount, '14750');
   assert.deepEqual(await R.settleOrder('pi_w1', { fetchImpl }), { state: 'pending' }, 'not paid yet: nothing recorded');
   status = 'succeeded';
