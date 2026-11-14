@@ -575,7 +575,11 @@ checks the mechanical ones.
   Stripe's page; the same server checks (startWallet), card only, then the page
   comes back as after Stripe's page; "Card or Pay by Bank" stays beneath, and a
   phone with neither wallet keeps the one Pay button. Connect card payments
-  registers both sites with Stripe for Apple Pay and keeps the one notice address. The Revolut code stays only for its older
+  registers both sites with Stripe for Apple Pay and keeps the one notice address. The page's
+  referrer policy is strict-origin-when-cross-origin (Stripe needs the site's
+  origin for Apple Pay; the private link's path never leaves the page); a
+  failed or slow payment closes the sheet with the reason, kept on the card's
+  trail (pay_failed); test/wallet-e2e.test.js runs it end to end. The Revolut code stays only for its older
   orders (REVOLUT_MERCHANT_KEY), used when no Stripe key is set. Bank transfer stays below
   as the free way: the bank feed (lib/bank) matches a transfer by the page's
   reference (KIM0042 typed exactly settles it, its number alone nearly so),

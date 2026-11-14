@@ -83,6 +83,7 @@ a { color:var(--link); }
 .pt-btn:active { transform:scale(.97); }
 .pt-wallet { min-height:52px; margin:0 0 10px; }
 .pt-wallet[hidden] { display:none; }
+.pt-wallet.is-loading { border-radius:14px; background:var(--line, rgba(127,127,127,.18)); opacity:.55; }
 .pt-btn.ghost { background:transparent; color:var(--text); border:1.5px solid var(--line-strong); font-weight:600; font-size:.92rem; min-height:48px; }
 .pt-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 .pt-btn .in { display:inline-flex; align-items:center; gap:8px; }
