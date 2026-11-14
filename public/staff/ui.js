@@ -191,6 +191,6 @@
    staff page that loads this file, rather than downloading. */
 (function () {
   if (window.DSVIEW || document.querySelector('script[data-viewer]')) return;
-  var s = document.createElement('script'); s.src = '/assets/viewer.js?v=b25bf22e'; s.defer = true; s.setAttribute('data-viewer', '1');
+  var s = document.createElement('script'); s.src = '/assets/viewer.js?v=af54e30e'; s.defer = true; s.setAttribute('data-viewer', '1');
   document.head.appendChild(s);
 })();
