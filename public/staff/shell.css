@@ -64,6 +64,8 @@
   /* No rubber-band past the ends, which is what shakes the fixed bar loose on iPhone. */
   html.has-shell,html.has-shell body{overscroll-behavior-y:none}
   .bottom-bar{will-change:transform}
+  /* Typing on a phone: the bar steps aside rather than riding up on the keyboard. */
+  html.kb-open .bottom-bar{display:none}
   html.has-shell main{scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .section-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .section-tab{flex:none}
