@@ -78,6 +78,7 @@ test('only Stripe saying paid records it, once, with its fee, ticking the deposi
   const pays = (await pool.query('select amount_pence, label, external_ref, fee_pence from job_payments where job_id = $1', [id])).rows;
   assert.deepEqual(pays.map((p) => [Number(p.amount_pence), p.label, p.external_ref, Number(p.fee_pence)]), [[14750, 'deposit', 'stripe:cs_test_1', 241]]);
   assert.ok((await row(id)).deposit_paid_at, 'deposit ticked');
+  assert.equal((await row(id)).paid_at, null, 'a deposit is not paid in full');
   assert.equal((await pool.query("select provider_ref from pay_orders where order_id = 'cs_test_1'")).rows[0].provider_ref, 'pi_1');
   assert.deepEqual(await R.onWebhook({ type: 'checkout.session.completed', data: { object: { id: 'cs_not_ours' } } }, {}, { fetchImpl: paid.fetchImpl }), { status: 200 }, 'a session we never made is ignored');
   assert.deepEqual(await R.onWebhook({ type: 'charge.refunded', data: { object: { id: 'ch_1' } } }), { status: 200 }, 'other notices are ignored');

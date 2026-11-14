@@ -152,6 +152,9 @@ async function smsStatus(req, res) {
   json(res, 200, { ok: true });
 }
 
+/* The survey read again, once a payment has just been recorded against it. */
+const refreshed = async (j) => (await findPortal(j.portal_token)).job || j;
+
 async function portal(req, res) {
   const params = new URL(req.url, 'http://localhost').searchParams;
   const found = await findPortal(params.get('t') || '');
@@ -159,9 +162,11 @@ async function portal(req, res) {
   if (found.gone) { json(res, found.gone === 'expired' ? 410 : 404, { ok: false, error: found.gone, code: codeOf(found.site), brand: brandOf(found.site) }); return; }
   if (params.get('file') === 'report') return portalReport(req, res, found.job, params.get('pc'));
   if (params.get('file') === 'photo') return portalPhoto(res, found.job, params.get('i'));
-  const view = await portalView(found.job, undefined, req);
-  /* Back from Revolut: how that payment went, asking Revolut if its notice is not in yet. */
-  if (params.get('paid')) view.payment = await latestOrder(found.job.id).catch(() => null);
+  /* Back from paying: how it went, asking Stripe if its notice is not in yet. Settled
+     first, so the page drawn straight after already shows the money as received. */
+  const payment = params.get('paid') ? await latestOrder(found.job.id).catch(() => null) : undefined;
+  const view = await portalView(payment && payment.state === 'completed' ? await refreshed(found.job) : found.job, undefined, req);
+  if (payment !== undefined) view.payment = payment;
   json(res, 200, { ok: true, portal: view });
 }
 
