@@ -107,7 +107,7 @@
       inp.addEventListener('blur', function () { if (other !== '' && !ok(amount())) { field.classList.remove('bad'); void field.offsetWidth; field.classList.add('bad'); } });
     }
     card.appendChild(hint);
-    /* Apple Pay, Google Pay, card or Revolut Pay, on Revolut's secure page (lib/revolut-pay.js). */
+    /* Apple Pay, Google Pay or card, on Stripe's secure page (lib/stripe-pay.js). */
     var payBtn = null;
     if (p.payOnline && startPay) {
       var apple = global.ApplePaySession && /iPhone|iPad|Macintosh/.test(navigator.userAgent);
@@ -118,7 +118,7 @@
       });
       payBtn.dataset.apple = apple ? '1' : '';
       card.appendChild(payBtn);
-      card.appendChild(h('div', 'pt-secure', I.lock + '<span>Apple Pay, Google Pay, card or Revolut Pay. Secure payment to Damp Surveying Limited.</span>'));
+      card.appendChild(h('div', 'pt-secure', I.lock + '<span>Apple Pay, Google Pay or card. Secure payment to Damp Surveying Limited.</span>'));
     }
     var area = h('div'); area.style.display = 'grid'; area.style.gap = '10px'; card.appendChild(area);
     var amountRow;

@@ -21,13 +21,14 @@
   }).catch(function () { el('people').textContent = 'Could not load.'; });
 
   U.get('/api/admin/me').then(function (me) { if (me && me.isAdmin) { el('p-usage').hidden = false; payments(); } }).catch(function () {});
-  /* Apple Pay and card through Revolut (lib/revolut-pay.js): whether the key is in, and connecting Revolut's notices. */
+  /* Apple Pay and card through Stripe (lib/stripe-pay.js): whether the key is in, and connecting its notices. */
   function payments(d) {
     var show = function (x) {
       el('p-pay').hidden = false;
-      el('pay-state').textContent = !x.key ? 'Off: add REVOLUT_MERCHANT_KEY in Vercel.' : x.connected ? 'On, and Revolut tells us about payments (connected ' + new Date(x.connected).toLocaleDateString('en-GB') + ').' + (x.sandbox ? ' Test mode.' : '') : 'Key added. Connect Revolut so payments tick themselves off.';
+      var who = x.via === 'revolut' ? 'Revolut' : 'Stripe';
+      el('pay-state').textContent = !x.key ? 'Off: add STRIPE_SECRET_KEY in Vercel.' : x.connected ? 'On, and ' + who + ' tells us about payments (connected ' + new Date(x.connected).toLocaleDateString('en-GB') + ').' + (x.sandbox ? ' Test mode.' : '') : 'Key added. Connect ' + who + ' so payments tick themselves off.';
       el('pay-connect').hidden = !x.key;
-      el('pay-connect').textContent = x.connected ? 'Connect again' : 'Connect Revolut payments';
+      el('pay-connect').textContent = x.connected ? 'Connect again' : 'Connect card payments';
     };
     if (d) return show(d);
     U.get('/api/admin/business?view=payments').then(show).catch(function () {});

@@ -130,12 +130,12 @@
     card.appendChild(dl); moneyBar(card, p.money);
   }
 
-  /* Starts a payment on Revolut's secure page; it comes back here with &paid=1. */
+  /* Starts a payment on Stripe's secure page; it comes back here with &paid=1. */
   function pay(pence) {
     return fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'pay', t: token, pence: pence }) })
       .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok || !d.url) throw new Error(); location.href = d.url; });
   }
-  /* Back from Revolut: confirming (checked again every few seconds), declined, or done. */
+  /* Back from paying: confirming (checked again every few seconds), declined, or done. */
   var tries = 0;
   function payment(p) {
     var x = p.payment, card;
