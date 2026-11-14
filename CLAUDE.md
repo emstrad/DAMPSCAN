@@ -45,7 +45,7 @@ enforces the mechanical ones in CI.
   confirmed it with your estate agent" when the agent has the keys), with one
   deposit reminder two days after booking while the survey is over a day
   away, 3 payment received (a deposit or part, paid in full, before or after
-  the visit; from Revolut, a matched transfer or a tick by hand), 4 the survey
+  the visit; online by card, a matched transfer or a tick by hand), 4 the survey
   morning at 7 (asking for the deposit when unpaid, the agent letting us in
   said; none if booked or moved that day; no evening-before text), 5 report
   ready (balance due, or ready to view when paid), with one reminder three
@@ -84,7 +84,7 @@ enforces the mechanical ones in CI.
   texted; Twilio refusing a text is a to-do; any staff request sends texts
   whose two minutes are up. Every survey counted as texted for its money once,
   before switching on. test/journey-dryrun.test.js runs one customer from booking to
-  report with a pretend Revolut and Twilio; keep it passing.
+  report with a pretend card company and Twilio; keep it passing.
 
 ## People and access (enforced on the server)
 - Managers: Scott and Tom. Tom (manages ATi, DampScan) has his own login;
@@ -541,33 +541,36 @@ checks the mechanical ones.
   lines) and what the ticks stood for when made (jobs.tick_deposit_pence,
   tick_paid_pence), never today's price, so a tick and the transfer it was for
   count once and a price rise asks for the difference. The bank feed never
-  matches Revolut paying in a card payment already recorded, and its paid
+  matches a card payout (Stripe's weekly payout, or Revolut's) as a customer's transfer, and its paid
   ticks count card money too. Payments only while something is owed on a live
-  survey; a payment still processing keeps confirming; a Revolut notice we
-  could not check answers 500 so Revolut sends it again, and the hourly run
+  survey; a payment still processing keeps confirming; a card notice we
+  could not check answers 500 so Stripe sends it again, and the hourly run
   sweeps open orders. A report emailed with no file shows done once paid.
   Hourly money checks (`lib/money-todos.js`) make one owners' to-do each and
   never move money: a cancellation owing money back, an overpayment, and a
   survey booked 48 hours (jobs.booked_at) with no deposit (chase; the booking
   stays). A card payment is refunded from the job pop-up (managers, after a
-  confirm, through Revolut, never more than was paid by card); a bank one is
+  confirm, through Stripe, never more than was paid by card); a bank one is
   sent back from the bank app.
   An expired link asks for a new one (a to-do and an alert, once a day); we
   send it. Every open, postcode try, download and request is logged
   (portal_events, hashed IP only). The Google review link (REVIEW_URL_DAMPSCAN,
   REVIEW_URL_ATI) shows to everyone paid and reported, never only to happy
-  customers. Paying online (`lib/revolut-pay.js`): one "Pay" button (with
-  Apple Pay on Apple devices) opens Revolut's own secure page for Apple Pay,
-  Google Pay, card or Revolut Pay; our server makes the order for the amount
+  customers. Paying online (`lib/revolut-pay.js` around it, `lib/stripe-pay.js` for
+  Stripe, the owners' choice, 14 Nov 2026, after Revolut refused the company):
+  one "Pay" button (with Apple Pay on Apple devices) opens Stripe Checkout,
+  Stripe's own secure page, for Apple Pay, Google Pay or card; our server makes the order for the amount
   chosen, checked on the server (at least what is due now, at most the
-  balance); a payment is recorded only when Revolut itself says the order is
-  complete (its notice only means "look at order X", checked with our key,
+  balance); a payment is recorded only when Stripe itself says the session is
+  paid (its notice only means "look at session X", checked with our key,
   also when the customer comes back first), once (job_payments.external_ref),
   ticking deposit or paid in full, texting at once and alerting the team;
   coming back shows Confirming, then paid, or "Nothing was taken" with Try
-  again. Off until REVOLUT_MERCHANT_KEY is in Vercel (PAY_ONLINE=off hides it,
-  REVOLUT_SANDBOX=on tests); Settings, Online payments, "Connect Revolut
-  payments" registers Revolut's notices (owners). Bank transfer stays below
+  again. Off until STRIPE_SECRET_KEY is in Vercel (PAY_ONLINE=off hides it,
+  a test key takes no real money); Settings, Online payments, "Connect card
+  payments" registers Stripe's notices (owners). Backing out of Stripe's page
+  returns to their page as it was. The Revolut code stays only for its older
+  orders (REVOLUT_MERCHANT_KEY), used when no Stripe key is set. Bank transfer stays below
   as the free way: the bank feed (lib/bank) matches a transfer by the page's
   reference (KIM0042 typed exactly settles it, its number alone nearly so),
   then by amount and name, a tie left for a person; a matched transfer counts
@@ -591,7 +594,7 @@ checks the mechanical ones.
   Limited trading as the brand with the company's details from Settings; on
   screen, with Print or save as PDF. The job pop-up (managers) has Copy and
   Text their page link (words to tap, never sent) and how often it was
-  opened. Revolut's fee on a card payment is kept when it reports one
+  opened. Stripe's fee on a card payment is kept when it reports one
   (job_payments.fee_pence). A tick that texts the customer (deposit, paid in
   full, report sent) says so, "texts Kim in 2 min", and its Undo stops it.
 - Attachments open on screen, never as a download first (the owners' choice,

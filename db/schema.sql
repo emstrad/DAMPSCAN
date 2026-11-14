@@ -1519,6 +1519,8 @@ alter table leads add column if not exists pencil_chased_at timestamptz;
 alter table jobs add column if not exists pencil_chased_at timestamptz;
 -- Card refunds made through Revolut, per order.
 alter table pay_orders add column if not exists refunded_pence bigint not null default 0;
+-- The card payment behind a Stripe order, which a refund goes back against.
+alter table pay_orders add column if not exists provider_ref text;
 
 -- The customer's page (lib/portal-asks.js): a move they asked for (a request
 -- only; the team moves it), photos added when the job has no enquiry, and

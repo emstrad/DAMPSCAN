@@ -200,8 +200,8 @@ export default async function handler(req, res) {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   try {
     if (req.method === 'POST' && new URL(req.url, 'http://localhost').searchParams.get('doc') === 'sms-status') return await smsStatus(req, res);
-    /* Revolut's notice about an order: only ever "look at order X" (lib/revolut-pay.js). */
-    if (req.method === 'POST' && new URL(req.url, 'http://localhost').searchParams.get('doc') === 'revolut') { const out = await onWebhook(await readJson(req), req.headers); json(res, out.status, { ok: out.status === 200 }); return; }
+    /* Stripe's (or Revolut's) notice about a payment: only ever "look at X" (lib/revolut-pay.js). */
+    if (req.method === 'POST' && String(new URL(req.url, 'http://localhost').searchParams.get('doc')).match(/^(revolut|stripe)$/)) { const out = await onWebhook(await readJson(req), req.headers); json(res, out.status, { ok: out.status === 200 }); return; }
     if (req.method === 'POST') {
       const body = await readJson(req);
       req.body = body;
