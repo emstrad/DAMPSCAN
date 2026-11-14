@@ -195,9 +195,10 @@ checks the mechanical ones.
   NTFY_TOPIC_<NAME> feeds) in Vercel switches ntfy off; nothing else changes.
 - Alert texts to the owners (`lib/staff-sms.js`, Scott and Tom, ALERT_SMS_TO
   with the Twilio details): a new website enquiry, a time picked online, and
-  from a customer's page a message (who, never their words) or a move asked
-  for, only; with the customer's number to tap (the owner's choice) and a link to
-  their card; never a street. ntfy and the app still go too.
+  from a customer's page a message (who and their words, up to 300
+  characters, the owner's ask, 14 Nov 2026) or a move asked for, only; with the
+  customer's number to tap (the owner's choice) and a link that opens their
+  customer card (a damp job's link is Surveys, #job-N, which opens it); never a street. ntfy and the app still go too.
   Everything else stays in the app and the morning summary.
 - Customer details in alert text: first name and postcode district only.
 - Off by the owner's choice: the 06:30 "Good morning" digest push

@@ -40,7 +40,7 @@ test('a message goes on their history with an alert, never quoted in the alert, 
   const log = (await pool.query('select sched_log from jobs where id = $1', [id])).rows[0].sched_log;
   assert.equal(log[0].note, 'They wrote on their page: Can you call after 5pm?');
   const n = (await pool.query("select message from notifications where kind = 'portal_message'")).rows[0];
-  assert.ok(!/5pm/.test(n.message), 'the words stay on the card');
+  assert.match(n.message, /Kim.*"Can you call after 5pm\?"/, 'their words in the alert, so it can be answered from the phone');
   for (let i = 0; i < 4; i += 1) await A.messageUs(req, await row(id), 'again');
   assert.deepEqual(await A.messageUs(req, await row(id), 'one too many'), { error: 'too_many' });
   assert.deepEqual(await A.messageUs(req, await row(id), ' '), { error: 'empty' });

@@ -40,7 +40,7 @@ test('dates and times read like a diary', () => {
 
 test('links open the right staff page for the right company', () => {
   assert.equal(jobPage('roofing', 5), '/quoted.html?area=roofing#job-5');
-  assert.equal(jobPage('ati-london', 5), '/jobs.html?area=damp#job-5');
+  assert.equal(jobPage('ati-london', 5), '/surveys.html?area=damp#job-5');
   assert.equal(page('todo.html', null), '/calendar.html#todo', 'to-dos live in Today now');
   assert.equal(page('due.html', 'roofing'), '/calendar.html?area=roofing');
   assert.equal(brandName('dampscan'), 'DampScan');
