@@ -28,10 +28,13 @@
     var elements = null, now = Math.max(30, o.amount() || 0);
     load().then(function (Stripe) {
       var stripe = Stripe(o.key);
+      /* ATi's page is light and DampScan's dark: a solid black button on light, white on dark, so it always reads as a button. */
+      var light = document.documentElement.dataset.site === 's2';
       elements = stripe.elements({ mode: 'payment', amount: now, currency: 'gbp', paymentMethodTypes: ['card'],
-        appearance: { theme: 'night', variables: { borderRadius: '14px' } } });
+        appearance: { theme: light ? 'stripe' : 'night', variables: { borderRadius: '14px' } } });
       var ece = elements.create('expressCheckout', {
         buttonType: { applePay: 'plain', googlePay: 'plain' }, buttonHeight: 52,
+        buttonTheme: { applePay: light ? 'black' : 'white', googlePay: light ? 'black' : 'white' },
         paymentMethods: { applePay: 'auto', googlePay: 'auto', link: 'never', paypal: 'never', amazonPay: 'never', klarna: 'never' },
         layout: { maxColumns: 1, maxRows: 1 }
       });
@@ -41,16 +44,24 @@
       });
       /* An amount the page would refuse never opens the sheet. */
       ece.on('click', function (e) { if (o.ok()) e.resolve(); });
-      ece.on('confirm', function () {
-        var pence = o.amount();
+      ece.on('confirm', function (ev) {
+        var pence = o.amount(), done = false;
+        /* Whatever goes wrong, the Apple Pay sheet is closed with a failure (never left spinning) and we hear why. */
+        var fail = function (text) {
+          if (done) return; done = true;
+          try { ev.paymentFailed({ reason: 'fail' }); } catch (e) { /* the sheet may already be gone */ }
+          o.onError(text || 'That payment didn\'t go through. Nothing was taken.');
+          fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'wallet_failed', t: o.token, text: String(text || '').slice(0, 200) }) }).catch(function () {});
+        };
+        var slow = setTimeout(function () { fail('That took too long. Nothing was taken: please try again.'); }, 30000);
         elements.submit().then(function (sub) {
           if (sub.error) throw new Error(sub.error.message);
           return fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doc: 'portal', op: 'wallet', t: o.token, pence: pence }) });
         }).then(function (r) { return r.json(); }).then(function (d) {
-          if (!d.ok || !d.clientSecret) throw new Error('That didn\'t start. Please try again.');
+          if (!d.ok || !d.clientSecret) throw new Error('That didn\'t start (' + (d.error || 'no answer') + '). Please try again.');
           return stripe.confirmPayment({ elements: elements, clientSecret: d.clientSecret, confirmParams: { return_url: d.back }, redirect: 'if_required' })
-            .then(function (res) { if (res.error) throw new Error(res.error.message); location.href = d.back; });
-        }).catch(function (err) { o.onError((err && err.message) || 'That payment didn\'t go through. Nothing was taken.'); });
+            .then(function (res) { if (res.error) throw new Error(res.error.message); done = true; clearTimeout(slow); location.href = d.back; });
+        }).catch(function (err) { clearTimeout(slow); fail(err && err.message); });
       });
       ece.mount(box);
     }).catch(function () { /* No Stripe.js (blocked or offline): the usual Pay button is still there. */ });

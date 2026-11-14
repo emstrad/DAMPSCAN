@@ -34,6 +34,7 @@ import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
 import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.js';
 import { movesItself, moveNow } from '../lib/portal-move.js';
 import { startPayment, startWallet, latestOrder, onWebhook } from '../lib/revolut-pay.js';
+import { logEvent, deviceOf } from '../lib/portal-events.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { deliveryReceipt } from '../lib/texts.js';
 
@@ -192,11 +193,16 @@ async function portalPost(req, res, body) {
     if (out.error) { json(res, 400, { ok: false, error: out.error }); return; }
     json(res, 200, { ok: true, url: out.url }); return;
   }
+  /* The wallet sheet failed on their phone: kept on their card's trail so the reason is seen. */
+  if (body.op === 'wallet_failed' && !found.gone) {
+    await logEvent(found.job.id, 'pay_failed', { detail: String(body.text || 'No reason given').slice(0, 200), device: deviceOf(req) }).catch(() => {});
+    json(res, 200, { ok: true }); return;
+  }
   /* The Apple Pay or Google Pay button on the page: a payment it confirms there, then the page comes back as after Stripe's page. */
   if (body.op === 'wallet' && !found.gone) {
     const view = buildView(found.job);
     const out = await startWallet(found.job, view, Number(body.pence)).catch((err) => ({ error: err.message }));
-    if (out.error) { json(res, 400, { ok: false, error: out.error }); return; }
+    if (out.error) { await logEvent(found.job.id, 'pay_failed', { detail: `Apple Pay or Google Pay did not start: ${String(out.error).slice(0, 180)}` }).catch(() => {}); json(res, 400, { ok: false, error: out.error }); return; }
     json(res, 200, { ok: true, clientSecret: out.clientSecret, back: `${view.brand.origin}/my.html?t=${encodeURIComponent(found.job.portal_token)}&paid=1` }); return;
   }
   /* Message us, Ask to move and add photos (lib/portal-asks.js): requests only, never a change. */
