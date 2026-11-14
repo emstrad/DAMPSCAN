@@ -39,6 +39,19 @@
     if (!Object.keys(errs).length) this.querySelector('.panel-note').textContent = 'Not saved. Try again.';
   });
 
+  /* A place on this page (opening its fold), another staff page, or Vercel and GitHub in a new tab. */
+  function goTo(go) {
+    var a = U.node('a', 'ready-link'); a.href = go;
+    if (/^https?:/.test(go)) { a.target = '_blank'; a.rel = 'noopener'; return a; }
+    if (go.charAt(0) === '#') a.addEventListener('click', function (e) {
+      var to = document.querySelector(go); if (!to) return;
+      e.preventDefault();
+      var fold = to.querySelector('details'); if (fold) fold.open = true;
+      to.scrollIntoView({ block: 'start' });
+    });
+    return a;
+  }
+
   /* Ready to switch on: each group folds, open while it has something left to do. */
   var MARK = { ok: '✓', todo: '✗', warn: '!' };
   U.get('/api/admin/business?view=ready').then(function (d) {
@@ -53,10 +66,14 @@
       var ul = U.node('ul', 'ready-list');
       g.items.forEach(function (i) {
         var li = U.node('li', 'is-' + i.state);
-        li.appendChild(U.node('b', null, MARK[i.state]));
+        /* Anything not done taps straight through to where it is put right. */
+        var to = i.state !== 'ok' && i.go ? goTo(i.go) : null;
+        var row = to || li;
+        row.appendChild(U.node('b', null, MARK[i.state]));
         var tx = U.node('span', null, i.label);
         if (i.note) tx.appendChild(U.node('small', null, i.note));
-        li.appendChild(tx);
+        row.appendChild(tx);
+        if (to) { to.appendChild(U.node('i', 'ready-go', '\u203A')); li.appendChild(to); }
         ul.appendChild(li);
       });
       f.appendChild(ul);
