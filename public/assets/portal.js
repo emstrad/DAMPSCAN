@@ -185,6 +185,8 @@
     } else if (s === 'writing') {
       card = h('div', 'pt-card'); card.appendChild(t('h2', null, 'Survey done'));
       card.appendChild(t('p', null, (p.visit && p.visit.surveyor ? p.visit.surveyor : 'Your surveyor') + ' is writing up your report. We\'ll text you as soon as it\'s ready.')); moneyBar(card, p.money); main.appendChild(card);
+      /* Still owed after the visit: they can pay now (the deposit first if it never came, else the rest). */
+      if (p.money.balancePence > 0) main.appendChild(P.payCard(p, p.money.depositPaid, pay));
     } else if (s === 'ready') {
       reportCard(p, true); if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
       main.appendChild(P.payCard(p, true, pay));
@@ -200,7 +202,7 @@
     } else if (s === 'cancelled') {
       card = h('div', 'pt-card'); var c = p.cancel;
       if (c.rule === 'refund') card.appendChild(P.banner('good', 'Cancelled ' + p.refundHours + ' hours or more before your survey, so you get a full refund of', money(c.pence) + '.'));
-      else if (c.rule === 'refunded') card.appendChild(P.banner('good', 'Your refund has been made:', money(c.pence) + '.'));
+      else if (c.rule === 'refunded') card.appendChild(P.banner('good', 'Your refund has been made:', money(p.money.refundedPence) + '.'));
       else if (c.rule === 'kept') {
         card.appendChild(P.banner('', 'Cancelled within ' + p.refundHours + ' hours of your survey, so the deposit is kept, as set out when you booked:', money(c.keptPence) + '.'));
         if (c.refundPence) card.appendChild(t('p', null, 'Anything you paid over the deposit comes back to you: ' + money(c.refundPence) + '.'));

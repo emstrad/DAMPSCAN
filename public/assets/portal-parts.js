@@ -155,7 +155,7 @@
       roll(big, good ? a : (balanceOnly ? most : least));
       field.classList.remove('bad');
       if (!balanceOnly && pick === 'other' && other !== '' && !good) { hint.className = 'pt-hint bad'; hint.textContent = a > most ? 'That\'s more than the ' + money(most) + ' due.' : 'The least you can pay now is ' + money(least) + '.'; }
-      else { hint.className = 'pt-hint'; hint.textContent = balanceOnly ? 'Your report unlocks as soon as this is paid.' : 'Pay anything from ' + money(least) + '. The rest is due when your report is ready.'; }
+      else { hint.className = 'pt-hint'; hint.textContent = balanceOnly ? (p.state === 'writing' ? 'Paid now, your report opens the moment it\'s ready.' : 'Your report unlocks as soon as this is paid.') : 'Pay anything from ' + money(least) + '. The rest is due when your report is ready.'; }
       if (payBtn && !payBtn.classList.contains('busy')) { payBtn.disabled = !good; payBtn.innerHTML = '<span class="in">' + (payBtn.dataset.other ? 'Card or Pay by Bank' : 'Pay ' + (good ? money(a) + ' ' : '') + (payBtn.dataset.apple ? 'with ' + APPLE + ' Pay' : 'now')) + '</span>'; }
       if (wallet && good) wallet.amount(a);
       if (amountRow) { var b = amountRow.querySelector('b'); b.textContent = good ? money(a) : '-'; amountRow.querySelector('.pt-copy').onclick = null; }
