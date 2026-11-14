@@ -155,7 +155,7 @@ test('connecting again registers the sites for Apple Pay and updates the one not
   const fetchImpl = async (url, o = {}) => {
     calls.push({ url, method: o.method || 'GET', body: o.body ? Object.fromEntries(new URLSearchParams(o.body)) : null });
     if (url.endsWith('/v1/payment_method_domains')) return calls.filter((c) => c.url.endsWith('/v1/payment_method_domains')).length === 1 ? { ok: true, json: async () => ({ id: 'pmd_1' }) } : { ok: false, status: 400, json: async () => ({ error: { message: 'This domain already exists.' } }) };
-    if (url.includes('/v1/webhook_endpoints?limit')) return { ok: true, json: async () => ({ data: [{ id: 'we_old', url: 'https://dampscan.co.uk/api/quote?doc=stripe' }] }) };
+    if (url.includes('/v1/webhook_endpoints?limit')) return { ok: true, json: async () => ({ data: [{ id: 'we_old', url: 'https://dampscan.co.uk//api/quote?doc=stripe' }] }) };
     return { ok: true, json: async () => ({ id: 'we_old' }) };
   };
   await pool.query("insert into integration_keys (name, value) values ('stripe_webhook_secret', 'whsec_keep')");
@@ -163,6 +163,17 @@ test('connecting again registers the sites for Apple Pay and updates the one not
   assert.equal(calls.filter((c) => c.url.endsWith('/v1/payment_method_domains')).length, 2, 'both sites, one already there is fine');
   const upd = calls.find((c) => c.url.endsWith('/v1/webhook_endpoints/we_old'));
   assert.ok(upd && upd.body['enabled_events[4]'] === 'payment_intent.succeeded', 'the existing address now hears the button too');
+  assert.equal(upd.body.url, 'https://dampscan.co.uk/api/quote?doc=stripe', 'one saved with a doubled slash (redirected, so nothing arrived) is put right, not duplicated');
   assert.equal((await pool.query("select value from integration_keys where name = 'stripe_webhook_secret'")).rows[0].value, 'whsec_keep', 'the secret is kept');
   assert.ok((await pool.query("select 1 from integration_keys where name = 'stripe_wallet_domains'")).rows.length);
+});
+
+test('the site address never doubles its slash, however STATUS_BASE was typed', async () => {
+  const { siteBase } = await import('../lib/alert-words.js');
+  const was = process.env.STATUS_BASE;
+  process.env.STATUS_BASE = 'https://dampscan.co.uk/ ';
+  assert.equal(`${siteBase()}/api/quote?doc=stripe`, 'https://dampscan.co.uk/api/quote?doc=stripe');
+  process.env.STATUS_BASE = 'https://dampscan.co.uk//';
+  assert.equal(siteBase(), 'https://dampscan.co.uk');
+  if (was === undefined) delete process.env.STATUS_BASE; else process.env.STATUS_BASE = was;
 });
