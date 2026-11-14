@@ -2,7 +2,7 @@
    server refuses anyone else, and then nothing shows): their page's link to
    copy or text and how often it was opened, anything owed back after a
    cancellation or an overpayment, and a refund to the card they paid with
-   through Revolut, after a confirm. Shown only when there is something. */
+   through Stripe, after a confirm. Shown only when there is something. */
 (function (global) {
   'use strict';
   var U = global.DSUI;
@@ -32,7 +32,7 @@
         ev.preventDefault();
         var pence = Math.round(Number(amt.value) * 100);
         if (!(pence > 0)) { note.textContent = 'Enter the amount.'; return; }
-        if (!global.confirm('Refund ' + pounds(pence) + ' to ' + (j.firstName || j.customerName || 'their') + '\'s card through Revolut? This cannot be undone.')) return;
+        if (!global.confirm('Refund ' + pounds(pence) + ' to ' + (j.firstName || j.customerName || 'their') + '\'s card through Stripe? This cannot be undone.')) return;
         go.disabled = true; note.textContent = 'Refunding…';
         var r;
         try { r = await U.send('/api/admin/surveys', { op: 'refund', id: j.id, pence: pence }); } catch (e) { r = { ok: false, data: null }; }

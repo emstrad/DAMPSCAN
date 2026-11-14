@@ -44,6 +44,10 @@ const TYPES = new Set(ATTACHMENT_TYPES);
    Anything satisfying neither is refused before a token or a byte is taken. */
 const EXTENSIONS = /\.(jpe?g|png|heic|heif|webp|pdf)$/i;
 const allowed = (name, type) => TYPES.has(type) || EXTENSIONS.test(name);
+/* The stored type is only ever one of ours: a caller's own (text/html on a file named .png)
+   would be served back as a page on our domain, so it comes from the list or the extension. */
+const BY_EXT = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', heic: 'image/heic', heif: 'image/heif', webp: 'image/webp', pdf: 'application/pdf' };
+export const storedType = (name, type) => (TYPES.has(type) ? type : BY_EXT[(String(name).match(EXTENSIONS) || [])[1]?.toLowerCase()] || null);
 
 /**
  * Reads the body, refusing as soon as it goes over the cap rather than after.
@@ -115,7 +119,7 @@ async function proxy(req, res, url) {
     return;
   }
 
-  const saved = await storeAttachment(name, contentType, body);
+  const saved = await storeAttachment(name, storedType(name, contentType), body);
   if (!saved.ok) {
     json(res, 200, { ok: false, stored: false, error: saved.reason });
     return;

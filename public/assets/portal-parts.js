@@ -31,9 +31,11 @@
     (function step(now) { var k = Math.min(1, (now - t0) / 260), e = 1 - Math.pow(1 - k, 3); el.textContent = money(Math.round(from + (to - from) * e)); if (k < 1) requestAnimationFrame(step); else el.textContent = money(to); })(t0);
   }
   var toastTimer;
+  /* A tick only for good news; a problem gets the info mark. Long enough to read (about 60ms a character). */
+  var PROBLEM = /didn't|didn\'t|no connection|try again|has just gone|took too long|call us|nothing was taken/i;
   function toast(msg) {
-    var el = document.getElementById('toast'); el.innerHTML = I.check; el.appendChild(document.createTextNode(msg)); el.classList.add('show');
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2000);
+    var el = document.getElementById('toast'); el.innerHTML = PROBLEM.test(msg) ? I.info : I.check; el.appendChild(document.createTextNode(msg)); el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, Math.max(2600, String(msg).length * 60));
   }
   function glide(box) { var on = box.querySelector('button[aria-pressed="true"]'), pill = box.querySelector('.pill'); if (!on || !pill) return; pill.style.width = on.offsetWidth + 'px'; pill.style.transform = 'translateX(' + (on.offsetLeft - 4) + 'px)'; }
   function seg(items, value, onPick, label) {
@@ -153,7 +155,7 @@
       roll(big, good ? a : (balanceOnly ? most : least));
       field.classList.remove('bad');
       if (!balanceOnly && pick === 'other' && other !== '' && !good) { hint.className = 'pt-hint bad'; hint.textContent = a > most ? 'That\'s more than the ' + money(most) + ' due.' : 'The least you can pay now is ' + money(least) + '.'; }
-      else { hint.className = 'pt-hint'; hint.textContent = balanceOnly ? 'Your report unlocks as soon as this is paid.' : 'Pay anything from ' + money(least) + '. The rest is due when your report is ready.'; }
+      else { hint.className = 'pt-hint'; hint.textContent = balanceOnly ? (p.state === 'writing' ? 'Paid now, your report opens the moment it\'s ready.' : 'Your report unlocks as soon as this is paid.') : 'Pay anything from ' + money(least) + '. The rest is due when your report is ready.'; }
       if (payBtn && !payBtn.classList.contains('busy')) { payBtn.disabled = !good; payBtn.innerHTML = '<span class="in">' + (payBtn.dataset.other ? 'Card or Pay by Bank' : 'Pay ' + (good ? money(a) + ' ' : '') + (payBtn.dataset.apple ? 'with ' + APPLE + ' Pay' : 'now')) + '</span>'; }
       if (wallet && good) wallet.amount(a);
       if (amountRow) { var b = amountRow.querySelector('b'); b.textContent = good ? money(a) : '-'; amountRow.querySelector('.pt-copy').onclick = null; }

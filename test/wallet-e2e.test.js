@@ -131,3 +131,10 @@ test('a payment that never finished stays unpaid, and the hourly sweep records o
   assert.equal((await sweepOrders()).recorded, 1);
   assert.equal(Number((await pool.query('select count(*) from job_payments where job_id = $1', [id])).rows[0].count), 1);
 });
+
+test('after the visit, before the report: the rest can be paid, all of it at once', async () => {
+  const { id, t } = await survey();
+  await pool.query("update jobs set job_date = current_date - 1, deposit_paid_at = now(), tick_deposit_pence = 50 where id = $1", [id]);
+  assert.equal((await post({ doc: 'portal', op: 'wallet', t, pence: 10 })).body.error, 'amount', 'the whole balance, not part');
+  assert.equal((await post({ doc: 'portal', op: 'wallet', t, pence: 50 })).status, 200);
+});
