@@ -35,6 +35,7 @@ import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.j
 import { movesItself, moveNow } from '../lib/portal-move.js';
 import { startPayment, startWallet, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { logEvent, deviceOf } from '../lib/portal-events.js';
+import { siteBase } from '../lib/alert-words.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { deliveryReceipt } from '../lib/texts.js';
 
@@ -143,7 +144,8 @@ async function smsStatus(req, res) {
     if (raw == null) { const chunks = []; for await (const c of req) chunks.push(c); raw = Buffer.concat(chunks).toString('utf8'); }
     form = Object.fromEntries(new URLSearchParams(raw));
   }
-  const url = `${process.env.STATUS_BASE || 'https://dampscan.co.uk'}${req.url}`;
+  /* Twilio signs the address it called: ours, built the same way as the callback it was given. */
+  const url = `${siteBase()}${req.url}`;
   const signed = url + Object.keys(form).sort().map((k) => k + form[k]).join('');
   const want = createHmac('sha1', process.env.TWILIO_AUTH_TOKEN || '').update(signed).digest('base64');
   const got = String(req.headers['x-twilio-signature'] || '');
