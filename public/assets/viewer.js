@@ -12,19 +12,19 @@
   var WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   /* A modal dialog of its own, so it opens over the staff pop-up (also a modal
      dialog, which makes everything else on the page untouchable) and swipes there too. */
-  var CSS = 'dialog.vw{border:0;padding:0;margin:0;width:100vw;max-width:none;max-height:none;overflow:hidden}.vw::backdrop{background:transparent}' +
-    '.vw{position:fixed;inset:0;z-index:1000;background:#06090f;color:#f3f6fa;display:grid;grid-template-rows:auto 1fr;height:100dvh;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;animation:vw-in .16s ease-out}' +
+  var CSS = 'dialog.vw{border:0;padding:0;margin:0;width:100%;height:100%;max-width:none;max-height:none;overflow:hidden}.vw::backdrop{background:transparent}' +
+    '.vw,.vw *{box-sizing:border-box}.vw{position:fixed;inset:0;z-index:1000;background:#06090f;color:#f3f6fa;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:100dvh;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;animation:vw-in .16s ease-out}' +
     '.vw [hidden]{display:none}' +
     '@keyframes vw-in{from{opacity:0}to{opacity:1}}' +
-    '.vw-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left))}' +
+    '.vw-bar{min-width:0;overflow:hidden;display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left))}' +
     '.vw-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}' +
     '.vw-count{font-size:.8rem;opacity:.7;white-space:nowrap}' +
     '.vw-b{min-width:44px;min-height:44px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:inherit;border-radius:12px;cursor:pointer;font:inherit;font-weight:600;padding:0 12px;display:inline-grid;place-items:center}' +
     '.vw-b:focus-visible{outline:3px solid #7cc3f5;outline-offset:2px}' +
     '.vw-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior:contain;scrollbar-width:none;min-height:0}' +
     '.vw-track::-webkit-scrollbar{display:none}' +
-    '.vw-slide{flex:0 0 100%;scroll-snap-align:center;min-width:0;overflow:auto;display:grid;place-items:center;padding:0 max(8px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px,env(safe-area-inset-left))}' +
-    '.vw-slide img{max-width:100%;max-height:calc(100dvh - 90px);object-fit:contain;border-radius:6px;touch-action:pinch-zoom}' +
+    '.vw-slide{box-sizing:border-box;flex:0 0 100%;scroll-snap-align:center;min-width:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);place-items:center;padding:0 max(8px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px,env(safe-area-inset-left))}' +
+    '.vw-slide img{display:block;width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;touch-action:pinch-zoom}' +
     '.vw-pages{display:grid;gap:10px;justify-items:center;align-content:start;width:100%;padding:6px 0 24px;place-self:start center}' +
     '.vw-pages canvas{width:100%;max-width:900px;height:auto;background:#fff;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.4)}' +
     '.vw-msg{text-align:center;opacity:.85;display:grid;gap:12px;justify-items:center;padding:24px}' +
@@ -99,6 +99,8 @@
     track.scrollTo({ left: track.clientWidth * at, behavior: 'auto' });
     sync();
   }
+  /* Turning the phone resizes the slides, so the one showing is lined up again. */
+  function realign() { if (box) show(at); }
   function sync() {
     box.querySelector('.vw-name').textContent = items[at].name || 'Attachment';
     box.querySelector('.vw-count').textContent = items.length > 1 ? (at + 1) + ' of ' + items.length : '';
@@ -109,7 +111,7 @@
     if (!box) return;
     var gone = box; box = null;
     if (gone.open && gone.close) gone.close();
-    gone.remove(); document.removeEventListener('keydown', keys);
+    gone.remove(); document.removeEventListener('keydown', keys); global.removeEventListener('resize', realign);
     document.documentElement.style.overflow = '';
     urls.forEach(function (u) { URL.revokeObjectURL(u); }); urls = [];
     if (lastFocus && lastFocus.focus) lastFocus.focus();
@@ -146,8 +148,9 @@
     document.body.appendChild(box);
     if (box.showModal) box.showModal(); else box.setAttribute('open', '');
     document.documentElement.style.overflow = 'hidden';
-    document.addEventListener('keydown', keys);
-    requestAnimationFrame(function () { show(index || 0); x.focus(); });
+    document.addEventListener('keydown', keys); global.addEventListener('resize', realign);
+    /* Focus without scrolling: iOS otherwise slides the whole viewer sideways to the button. */
+    requestAnimationFrame(function () { box.scrollLeft = 0; show(index || 0); try { x.focus({ preventScroll: true }); } catch (e) { x.focus(); } });
   }
 
   /* Any attachment link opens here: its neighbours in the same box are the gallery. */
