@@ -26,7 +26,7 @@
     var show = function (x) {
       el('p-pay').hidden = false;
       var who = x.via === 'revolut' ? 'Revolut' : 'Stripe';
-      el('pay-state').textContent = !x.key ? 'Off: add STRIPE_SECRET_KEY in Vercel.' : x.connected ? 'On, and ' + who + ' tells us about payments (connected ' + new Date(x.connected).toLocaleDateString('en-GB') + ').' + (x.sandbox ? ' Test mode.' : '') : 'Key added. Connect ' + who + ' so payments tick themselves off.';
+      el('pay-state').textContent = !x.key ? 'Off: add STRIPE_SECRET_KEY in Vercel, then Redeploy.' : x.connected ? 'On, and ' + who + ' tells us about payments (connected ' + new Date(x.connected).toLocaleDateString('en-GB') + ').' + (x.sandbox ? ' Test mode.' : '') : 'Key added. Connect ' + who + ' so payments tick themselves off.';
       el('pay-connect').hidden = !x.key;
       el('pay-connect').textContent = x.connected ? 'Connect again' : 'Connect card payments';
     };
