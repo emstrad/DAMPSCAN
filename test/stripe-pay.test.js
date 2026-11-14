@@ -111,3 +111,16 @@ test('Settings connects the notices to Stripe and keeps the signing secret', asy
 test('form fields nest the way Stripe reads them', () => {
   assert.equal(form({ a: 1, m: { k: 'v' }, l: [{ q: 2 }], skip: null }).toString(), 'a=1&m%5Bk%5D=v&l%5B0%5D%5Bq%5D=2');
 });
+
+test('50p on a £1 survey is the deposit, never paid in full (amounts compared as numbers, not text)', async () => {
+  const id = await job();
+  await pool.query('update jobs set survey_price_pence = 100 where id = $1', [id]);
+  await pool.query("insert into pay_orders (order_id, job_id, amount_pence) values ('cs_small', $1, 50)", [id]);
+  const f = fake(PAID);
+  const real = f.fetchImpl;
+  const fetchImpl = async (url, o) => (o.method === 'GET' || !o.method ? { ok: true, json: async () => ({ id: 'cs_small', amount_total: 50, status: 'complete', payment_status: 'paid', payment_intent: { id: 'pi_s' } }) } : real(url, o));
+  await R.settleOrder('cs_small', { fetchImpl });
+  const j = await row(id);
+  assert.ok(j.deposit_paid_at, 'deposit ticked');
+  assert.equal(j.paid_at, null, '50 is not >= 100');
+});
