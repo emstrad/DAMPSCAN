@@ -81,6 +81,8 @@ a { color:var(--link); }
 .pt-btn { position:relative; width:100%; min-height:54px; border:0; border-radius:15px; cursor:pointer; font-weight:700; font-size:1rem; display:grid; place-items:center; text-decoration:none;
   background:var(--accent); color:var(--on-accent); transition:transform var(--fast) var(--ease), opacity var(--fast) linear, background var(--mid) linear; }
 .pt-btn:active { transform:scale(.97); }
+.pt-wallet { min-height:52px; margin:0 0 10px; }
+.pt-wallet[hidden] { display:none; }
 .pt-btn.ghost { background:transparent; color:var(--text); border:1.5px solid var(--line-strong); font-weight:600; font-size:.92rem; min-height:48px; }
 .pt-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 .pt-btn .in { display:inline-flex; align-items:center; gap:8px; }

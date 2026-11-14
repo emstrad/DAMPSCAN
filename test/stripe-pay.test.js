@@ -104,7 +104,7 @@ test('an expired session is "nothing was taken"; a card refund goes back against
 test('Settings connects the notices to Stripe and keeps the signing secret', async () => {
   const f = fake();
   assert.deepEqual(await R.connectWebhook('https://dampscan.co.uk/api/quote?doc=stripe', { fetchImpl: f.fetchImpl }), { ok: true, id: 'we_1' });
-  assert.equal(f.calls[0].body['enabled_events[0]'], 'checkout.session.completed');
+  assert.equal(f.calls.find((c) => c.method === 'POST' && c.url.endsWith('/v1/webhook_endpoints')).body['enabled_events[0]'], 'checkout.session.completed');
   assert.equal((await pool.query("select value from integration_keys where name = 'stripe_webhook_secret'")).rows[0].value, 'whsec_x');
 });
 
@@ -123,4 +123,45 @@ test('50p on a £1 survey is the deposit, never paid in full (amounts compared a
   const j = await row(id);
   assert.ok(j.deposit_paid_at, 'deposit ticked');
   assert.equal(j.paid_at, null, '50 is not >= 100');
+});
+
+test('the Apple Pay button on the page: same checks, a card-only payment, recorded only once Stripe says it succeeded', async () => {
+  const id = await job(); const j = await row(id); const v = buildView(j);
+  const calls = [];
+  let status = 'requires_payment_method';
+  const fetchImpl = async (url, o = {}) => {
+    calls.push({ url, method: o.method, body: o.body ? Object.fromEntries(new URLSearchParams(o.body)) : null });
+    if (o.method === 'POST' && url.endsWith('/v1/payment_intents')) return { ok: true, json: async () => ({ id: 'pi_w1', client_secret: 'pi_w1_secret_x' }) };
+    return { ok: true, json: async () => ({ id: 'pi_w1', status, amount: 14750, amount_received: 14750, latest_charge: { balance_transaction: { fee: 241 } } }) };
+  };
+  assert.equal((await R.startWallet(j, v, 100, { fetchImpl })).error, 'amount', 'under the deposit');
+  const ok = await R.startWallet(j, v, 14750, { fetchImpl });
+  assert.deepEqual(ok, { clientSecret: 'pi_w1_secret_x', orderId: 'pi_w1' });
+  assert.equal(calls[0].body['payment_method_types[0]'], 'card');
+  assert.equal(calls[0].body.amount, '14750');
+  assert.deepEqual(await R.settleOrder('pi_w1', { fetchImpl }), { state: 'pending' }, 'not paid yet: nothing recorded');
+  status = 'succeeded';
+  assert.equal((await R.onWebhook({ type: 'payment_intent.succeeded', data: { object: { id: 'pi_w1' } } }, {}, { fetchImpl })).status, 200);
+  await R.onWebhook({ type: 'payment_intent.succeeded', data: { object: { id: 'pi_w1' } } }, {}, { fetchImpl });
+  const pays = (await pool.query('select amount_pence, external_ref, fee_pence from job_payments where job_id = $1', [id])).rows;
+  assert.deepEqual(pays.map((p) => [Number(p.amount_pence), p.external_ref, Number(p.fee_pence)]), [[14750, 'stripe:pi_w1', 241]]);
+  assert.equal((await pool.query("select provider_ref from pay_orders where order_id = 'pi_w1'")).rows[0].provider_ref, 'pi_w1', 'a refund goes back against it');
+  assert.ok(buildView(j).walletKey === null, 'no publishable key: no button');
+});
+
+test('connecting again registers the sites for Apple Pay and updates the one notice address', async () => {
+  const calls = [];
+  const fetchImpl = async (url, o = {}) => {
+    calls.push({ url, method: o.method || 'GET', body: o.body ? Object.fromEntries(new URLSearchParams(o.body)) : null });
+    if (url.endsWith('/v1/payment_method_domains')) return calls.filter((c) => c.url.endsWith('/v1/payment_method_domains')).length === 1 ? { ok: true, json: async () => ({ id: 'pmd_1' }) } : { ok: false, status: 400, json: async () => ({ error: { message: 'This domain already exists.' } }) };
+    if (url.includes('/v1/webhook_endpoints?limit')) return { ok: true, json: async () => ({ data: [{ id: 'we_old', url: 'https://dampscan.co.uk/api/quote?doc=stripe' }] }) };
+    return { ok: true, json: async () => ({ id: 'we_old' }) };
+  };
+  await pool.query("insert into integration_keys (name, value) values ('stripe_webhook_secret', 'whsec_keep')");
+  await R.connectWebhook('https://dampscan.co.uk/api/quote?doc=stripe', { fetchImpl, domains: ['dampscan.co.uk', 'atidampsurvey.co.uk'] });
+  assert.equal(calls.filter((c) => c.url.endsWith('/v1/payment_method_domains')).length, 2, 'both sites, one already there is fine');
+  const upd = calls.find((c) => c.url.endsWith('/v1/webhook_endpoints/we_old'));
+  assert.ok(upd && upd.body['enabled_events[4]'] === 'payment_intent.succeeded', 'the existing address now hears the button too');
+  assert.equal((await pool.query("select value from integration_keys where name = 'stripe_webhook_secret'")).rows[0].value, 'whsec_keep', 'the secret is kept');
+  assert.ok((await pool.query("select 1 from integration_keys where name = 'stripe_wallet_domains'")).rows.length);
 });
