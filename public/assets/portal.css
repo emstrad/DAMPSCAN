@@ -195,3 +195,7 @@ label.pt-btn { cursor:pointer; }
   .pt-receipt .pt-lines div { border-color:#bbb !important; }
   .pt-receipt .pt-chips { display:none !important; }
 }
+/* What they have sent: a quiet tick so they know it arrived. */
+.pt-sent { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:.82rem; margin:8px 0 0; }
+.pt-sent svg { width:15px; height:15px; color:var(--good); flex:none; }
+.pt-said { margin-bottom:12px; }

@@ -74,16 +74,12 @@
     if (actions !== false) { var chips = h('div', 'pt-chips'); chips.appendChild(btn('pt-chip', I.cal + '<span>Add to calendar</span>', function () { calendar(p); })); card.appendChild(chips); }
     main.appendChild(card);
   }
+  /* Their photos sit under Add photos (portal-asks.js), so they see each one arrived. */
   function enquiryFold(p) {
     if (!p.enquiry) return;
     P.fold(main, 'Your enquiry', function (box) {
       if (p.enquiry.issues.length) box.appendChild(t('p', null, p.enquiry.issues.join(', ')));
       if (p.enquiry.said) box.appendChild(t('div', 'pt-quote', p.enquiry.said));
-      if (p.enquiry.photos) {
-        var grid = h('div', 'pt-photos');
-        for (var i = 0; i < Math.min(p.enquiry.photos, 12); i += 1) { var a = t('a'), im = t('img'); a.href = api + '&file=photo&i=' + i; a.dataset.view = '1'; a.dataset.name = 'Your photo ' + (i + 1); im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); grid.appendChild(a); }
-        box.appendChild(grid);
-      }
     });
   }
   function paymentsFold(p) {
@@ -213,7 +209,7 @@
     }
     if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(s) !== -1) enquiryFold(p);
     if (s !== 'requested') paymentsFold(p);
-    if (window.PTASK && s !== 'cancelled') window.PTASK.more(p, main, token, load);
+    if (window.PTASK && s !== 'cancelled') window.PTASK.more(p, main, token, load, api);
     helpFold(p);
     main.appendChild(t('p', 'pt-foot', 'Private link, works until ' + when(p.expiresOn) + ' · Damp Surveying Limited'));
   }

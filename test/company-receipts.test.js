@@ -48,7 +48,7 @@ test('a receipt for each payment, in their name for the property, from the compa
   await pool.query(`insert into job_payments (job_id, amount_pence, label, external_ref, paid_on) values ($1, 14750, 'deposit', 'revolut:ord_1', '2026-11-10')`, [id]);
   const token = new URL(await issuePortal(id)).searchParams.get('t');
   const v = await portalView((await findPortal(token)).job);
-  assert.deepEqual(v.receipts.company, { name: 'Damp Surveying Limited', number: '12345678', office: '1 High St, West Malling', vatNumber: null });
+  assert.deepEqual(v.receipts.company, { name: 'Damp Surveying Limited', number: '12345678', vatNumber: null }, 'no street on a receipt');
   assert.deepEqual(v.receipts.to, { name: 'Kim Lee', address: '4 Mill Lane, ME19 6AB' });
   assert.deepEqual(v.receipts.items.map((r) => [r.day, r.pence, r.how, r.refund]), [['2026-11-10', 14750, 'Card or wallet, online', false]]);
   assert.match(v.receipts.items[0].number, new RegExp(`^R-${id}-P\\d+$`));

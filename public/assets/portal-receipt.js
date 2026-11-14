@@ -1,7 +1,7 @@
 /* Receipts on the customer's page (lib/portal.js receiptsFor): every payment
    with its own receipt, issued in the customer's name for the property, from
    the company (its details come from the server, so this shared file names
-   neither brand). Opens on screen, with Print or save as PDF. */
+   neither brand). No street: the company number is enough (the owner, 14 Nov 2026). Opens on screen, with Print or save as PDF. */
 (function (global) {
   'use strict';
   var P = global.PT, h = P.h, t = P.t, btn = P.btn, money = P.money;
@@ -15,7 +15,6 @@
     sheet.appendChild(t('p', 'pt-receipt-no', r.number + ' · ' + longDay(r.day)));
     var from = h('div', 'pt-receipt-from'); from.appendChild(t('b', null, c.name));
     if (p.brand && p.brand.name) from.appendChild(t('span', null, 'Trading as ' + p.brand.name));
-    if (c.office) from.appendChild(t('span', null, c.office));
     if (c.number) from.appendChild(t('span', null, 'Company number ' + c.number));
     if (c.vatNumber) from.appendChild(t('span', null, 'VAT number ' + c.vatNumber));
     sheet.appendChild(from);
