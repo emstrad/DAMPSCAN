@@ -66,7 +66,8 @@ test('Apple Pay on the page: offered, started for exactly the deposit, shown rec
   assert.equal(start.body.clientSecret, 'pi_1_secret');
   assert.match(start.body.back, /^https:\/\/atidampsurvey\.co\.uk\/my\.html\?t=.+&paid=1$/, 'back to their own brand');
   const made = stripe.calls.find((c) => c.method === 'POST' && c.url.endsWith('/v1/payment_intents'));
-  assert.deepEqual([made.body.amount, made.body.currency, made.body['payment_method_types[0]']], ['50', 'gbp', 'card']);
+  assert.deepEqual([made.body.amount, made.body.currency, made.body['payment_method_types[0]'], made.body['automatic_payment_methods[enabled]'], made.body['automatic_payment_methods[allow_redirects]']],
+    ['50', 'gbp', undefined, 'true', 'never'], 'the Dashboard decides the methods (newer accounts refuse a list), and nothing redirects away');
   assert.match(made.body.description, /SCOTT\d{4}/, 'the reference on Stripe');
 
   /* Apple Pay done: the page comes back with paid=1 and asks Stripe itself. */

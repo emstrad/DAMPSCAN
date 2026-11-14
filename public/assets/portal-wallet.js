@@ -34,7 +34,8 @@
       var stripe = Stripe(o.key);
       /* ATi's page is light and DampScan's dark: a solid black button on light, white on dark, so it always reads as a button. */
       var light = document.documentElement.dataset.site === 's2';
-      elements = stripe.elements({ mode: 'payment', amount: now, currency: 'gbp', paymentMethodTypes: ['card'],
+      /* No payment method list here either: the account's Dashboard settings decide, as for the payment the server makes. */
+      elements = stripe.elements({ mode: 'payment', amount: now, currency: 'gbp',
         appearance: { theme: light ? 'stripe' : 'night', variables: { borderRadius: '14px' } } });
       var ece = elements.create('expressCheckout', {
         buttonType: { applePay: 'plain', googlePay: 'plain' }, buttonHeight: 52,
