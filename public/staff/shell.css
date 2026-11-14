@@ -88,9 +88,16 @@
 .snooze-pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 
 /* Settings: one card per place a setting lives. */
-.settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.settings-grid .panel{margin:0}
-.settings-grid ul{padding-left:18px;margin:8px 0 0}
+/* Settings: everything after the urgent part is one folded line each, divided by a hairline. */
+.set-folds{padding-top:2px;padding-bottom:2px}
+.set-folds>details+details{border-top:1px solid var(--line)}
+.set-folds>details[open]{padding-bottom:10px}
+.set-list,.set-links{list-style:none;margin:2px 0 10px;padding:0;display:grid;gap:4px}
+.set-links a{display:flex;align-items:center;min-height:44px}
+.settings .meta:empty{display:none}
+.co-form{display:grid;gap:10px;margin-top:4px}.co-form .field{display:grid;gap:4px}.co-form .field>span{font-size:13px;color:var(--muted)}
+.co-form input,.co-form textarea{font:inherit;font-size:16px;min-height:44px;width:100%;box-sizing:border-box;background:var(--navy-2);color:var(--text);border:1px solid var(--line-strong);border-radius:10px;padding:10px;color-scheme:dark}
+.co-form .field-error{color:var(--warn)}.co-form .field-error:empty{display:none}
 .usage-table td.num{font-variant-numeric:tabular-nums}
 
 /* ---------- phones and tablets: every page and every dialog ---------- */

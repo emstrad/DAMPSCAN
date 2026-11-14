@@ -52,82 +52,66 @@
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap settings">
   <h1>Settings</h1>
 
-    <section class="panel" aria-labelledby="h-notify">
-      <h2 id="h-notify">Notifications</h2>
-      <p class="panel-note">On a phone, open the staff area from its home screen icon first; each phone is turned on separately (<a href="https://github.com/emstrad/DAMPSCAN/blob/main/docs/notifications.md" target="_blank" rel="noopener">the alerts guide</a>).</p>
-      <div id="push-here" class="push-here"></div>
-      <p class="panel-note" id="push-state"></p>
-      <h3>Phones with staff app notifications on</h3>
-      <ul id="push-phones"></ul>
-      <h3>Are alerts getting through?</h3>
-      <p class="panel-note" id="push-ntfy"></p>
-      <ul id="push-recent"></ul>
+  <section class="panel" aria-labelledby="h-notify">
+    <h2 id="h-notify">Notifications</h2>
+    <div id="push-here" class="push-here"></div>
+    <p class="meta" id="push-state"></p>
+    <details class="sheet-fold"><summary>Phones and a test alert</summary>
+      <ul id="push-phones" class="set-list"></ul>
+      <p class="meta" id="push-ntfy"></p>
+      <ul id="push-recent" class="set-list"></ul>
       <button class="btn btn--ghost btn--sm" type="button" id="push-test">Send a test alert</button>
-      <p class="panel-note" id="push-test-out" role="status"></p>
-    </section>
-  <div class="settings-grid">
-    <section class="panel" aria-labelledby="h-people">
-      <h2 id="h-people">People</h2>
-      <p class="panel-note">Who can sign in, and which companies they hold. People and passcodes are added by the owners with <code>npm run create-person</code> and changed with <code>npm run set-user</code>.</p>
-      <ul id="people"><li>Loading…</li></ul>
-    </section>
-    <section class="panel" aria-labelledby="h-rates">
-      <h2 id="h-rates">Rates</h2>
-      <ul>
-        <li><a href="/staff/jobs.html?area=damp#h-rates">ATi &amp; DampScan rate card</a> (survey prices and surveyor fees, admin only)</li>
-        <li>Hourly rates for clocked time: on a job in <a href="/staff/quoted.html?area=roofing">Verge</a> or <a href="/staff/quoted.html?area=ac">CoolRight</a> Quotes and jobs, under the time block.</li>
-      </ul>
-    </section>
-    <section class="panel" aria-labelledby="h-book">
-      <h2 id="h-book">Price book and templates</h2>
-      <p class="panel-note">Inside any job's Quote block, under "Price book and templates".</p>
-      <ul>
-        <li><a href="/staff/quoted.html?area=roofing">Verge Roofing jobs</a></li>
-        <li><a href="/staff/quoted.html?area=ac">CoolRight jobs</a></li>
-      </ul>
-    </section>
-    <section class="panel" aria-labelledby="h-biz">
-      <h2 id="h-biz">Business details and VAT</h2>
-      <p class="panel-note">What an invoice prints, and whether quotes charge VAT. On each company's Insights page, for whoever manages it.</p>
-      <ul>
-        <li><a href="/staff/insights.html?area=damp#p-business">ATi &amp; DampScan</a></li>
+      <p class="meta" id="push-test-out" role="status"></p>
+    </details>
+  </section>
+
+  <section class="panel" aria-labelledby="h-ready" id="p-ready" hidden>
+    <h2 id="h-ready">Left to set up</h2>
+    <ul id="ready-todo" class="ready-list"></ul>
+    <details class="sheet-fold" id="ready-done-fold"><summary id="ready-done-sum">Done</summary>
+      <ul id="ready-done" class="ready-list"></ul>
+    </details>
+  </section>
+
+  <section class="panel set-folds" aria-label="Everything else">
+    <details class="sheet-fold" id="p-pay" hidden><summary>Card payments</summary>
+      <p id="pay-state">Checking.</p>
+      <button class="btn btn--primary btn--sm" type="button" id="pay-connect" hidden>Connect card payments</button>
+    </details>
+    <details class="sheet-fold" id="p-co" hidden><summary>Company details</summary>
+      <form id="co-form" class="co-form"></form>
+    </details>
+    <details class="sheet-fold"><summary>Bank details and VAT, per company</summary>
+      <ul class="set-links">
+        <li><a href="/staff/insights.html?area=damp#p-business">ATi and DampScan</a></li>
         <li><a href="/staff/insights.html?area=roofing#p-business">Verge Roofing</a></li>
         <li><a href="/staff/insights.html?area=ac#p-business">CoolRight</a></li>
       </ul>
-    </section>
-    <section class="panel" aria-labelledby="h-ready" id="p-ready" hidden>
-      <h2 id="h-ready">Ready to switch on</h2>
-      <p id="ready-sum" class="meta"></p>
-      <div id="ready-list"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="h-pay" id="p-pay" hidden>
-      <h2 id="h-pay">Online payments</h2>
-      <p id="pay-state">Checking.</p>
-      <button class="btn btn--sm" type="button" id="pay-connect">Connect card payments</button>
-    </section>
-
-    <section class="panel" aria-labelledby="h-co" id="p-co" hidden>
-      <h2 id="h-co">Company details</h2>
-      <details class="sheet-fold"><summary>Damp Surveying Limited (never passwords or PINs)</summary>
-        <form id="co-form" class="co-form"></form>
-      </details>
-    </section>
-
-    <section class="panel" aria-labelledby="h-gpt">
-      <h2 id="h-gpt">ChatGPT and Claude</h2>
-      <p class="panel-note">Add a connector in ChatGPT (or Claude) with this address, then sign in with your own staff code when it asks. It sees what you see here and nothing more.</p>
+    </details>
+    <details class="sheet-fold"><summary>Rates and price book</summary>
+      <ul class="set-links">
+        <li><a href="/staff/jobs.html?area=damp#h-rates">ATi and DampScan rate card</a></li>
+        <li><a href="/staff/quoted.html?area=roofing">Verge price book and hourly rate</a></li>
+        <li><a href="/staff/quoted.html?area=ac">CoolRight price book and hourly rate</a></li>
+      </ul>
+    </details>
+    <details class="sheet-fold"><summary>People</summary>
+      <ul id="people" class="set-list"><li>Loading…</li></ul>
+    </details>
+    <details class="sheet-fold"><summary>ChatGPT and Claude</summary>
       <p><code id="mcp-url">/api/admin/mcp</code></p>
-      <p class="panel-note"><a href="https://github.com/emstrad/DAMPSCAN/blob/main/docs/chatgpt-commands.md" target="_blank" rel="noopener">What you can ask it</a></p>
-    </section>
-    <section class="panel" aria-labelledby="h-usage" id="p-usage" hidden>
-      <h2 id="h-usage">Which pages get used</h2>
-      <p class="panel-note"><a href="/staff/insights.html#p-usage">Most used pages, last 30 days</a>, on Insights (admins only).</p>
-    </section>
-  </div>
+      <div class="sheet-row">
+        <button class="btn btn--ghost btn--sm" type="button" id="mcp-copy">Copy the address</button>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/emstrad/DAMPSCAN/blob/main/docs/chatgpt-commands.md" target="_blank" rel="noopener">What you can ask it</a>
+      </div>
+    </details>
+    <details class="sheet-fold" id="p-usage" hidden><summary>Which pages get used</summary>
+      <ul class="set-links"><li><a href="/staff/insights.html#p-usage">Most used pages, last 30 days</a></li></ul>
+    </details>
+  </section>
 </main>
 
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
