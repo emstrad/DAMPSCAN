@@ -1539,6 +1539,10 @@ create table if not exists company_details (
 );
 -- Revolut's fee on a card payment, when Revolut reports it.
 alter table job_payments add column if not exists fee_pence bigint;
+-- When a payment came in, to the minute, for the customer's history (paid_on is the day only).
+-- Added empty, then given its default, so older payments keep only their day rather than today's time.
+alter table job_payments add column if not exists created_at timestamptz;
+alter table job_payments alter column created_at set default now();
 
 -- When each scheduled run last finished (lib/heartbeat.js), for Settings.
 create table if not exists cron_beats (

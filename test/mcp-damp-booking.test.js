@@ -300,7 +300,7 @@ test('reports owed, the customer story, the same-person link and the Friday mone
   assert.equal((await reportsOwed(['ati-london'])).length, 1);
   await pool.query('update jobs set deposit_paid_at = now() where id = $1', [id]);
   const story = await timelineFor(scope, id);
-  assert.ok(story.some((e) => e.what === 'Job started') && story.some((e) => e.what === 'Deposit paid'));
+  assert.ok(story.some((e) => e.what === 'Booked') && story.some((e) => e.what === 'Deposit paid'));
   const lead = Number((await pool.query(`insert into leads (session_id, site, stage, first_name, email, postcode) values (gen_random_uuid(), 'ati-london', 'complete', 'John', 'jsnicholls@gmail.com', 'SW2 2JX') returning id`)).rows[0].id);
   assert.equal((await matchesFor(scope, id))[0].leadId, lead);
   assert.equal((await linkLead(scope, id, 999999)).error !== undefined, true, 'only a real match links');
