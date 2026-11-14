@@ -119,7 +119,7 @@
 
   /* ---------- the lists ---------- */
   function status(t) {
-    return t.status === 'waiting' ? 'Goes ' + when(t.sendAfter) : t.status === 'off' ? 'Not sent: texts were off (this is what would have gone)'
+    return t.status === 'waiting' ? 'Goes ' + when(t.sendAfter) : t.status === 'sending' ? 'Sending now' : t.status === 'off' ? 'Not sent: texts were off (this is what would have gone)'
       : t.status === 'cancelled' ? 'Stopped: ' + (t.error || '') : t.status === 'failed' ? 'Failed: ' + (t.error || '')
       : 'Sent ' + when(t.sentAt) + (t.delivery === 'delivered' ? ', delivered' : t.delivery ? ', ' + t.delivery : '');
   }
