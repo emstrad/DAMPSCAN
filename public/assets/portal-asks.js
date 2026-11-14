@@ -5,7 +5,7 @@
    (portal-parts.js) so it names neither brand. */
 (function (global) {
   'use strict';
-  var P = global.PT, h = P.h, t = P.t, btn = P.btn;
+  var P = global.PT, h = P.h, t = P.t, btn = P.btn, I = P.I;
   var shortDay = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   var ask = function (token, body) {
     return fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ doc: 'portal', t: token }, body)) })
@@ -75,51 +75,71 @@
           .then(function (r) { return r.json(); }).then(function (x) { if (!x.ok || !x.path) throw new Error(); return x.path; });
       });
   }
-  function photosFold(p, main, token, reload) {
+  /* After sending, the page is drawn again with that fold open on what they sent. */
+  var openNext = null;
+  var ticked = function (tag, cls, text) { var e = h(tag, cls, I.check); e.appendChild(document.createTextNode(text)); return e; };
+  var stamp = function (at) { var d = new Date(at); return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/London' }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }); };
+
+  function photosFold(p, main, token, reload, api) {
     if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(p.state) === -1) return;
-    P.fold(main, 'Add photos', function (box) {
-      var lab = h('label', 'pt-btn ghost', '<span class="in">Choose photos</span>'), inp = t('input');
+    var n = p.photos || 0, show = openNext === 'photos';
+    if (show) openNext = null;
+    P.fold(main, n ? 'Your photos (' + n + ')' : 'Add photos', function (box) {
+      if (n) {
+        var grid = h('div', 'pt-photos');
+        for (var i = 0; i < Math.min(n, 30); i += 1) { var a = t('a'), im = t('img'); a.href = api + '&file=photo&i=' + i; a.dataset.view = '1'; a.dataset.name = 'Your photo ' + (i + 1); im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); grid.appendChild(a); }
+        box.appendChild(grid);
+        box.appendChild(ticked('p', 'pt-sent', 'We have ' + (n === 1 ? 'your photo' : 'all ' + n) + '.'));
+      }
+      var lab = h('label', 'pt-btn ghost', '<span class="in">' + (n ? 'Add more photos' : 'Choose photos') + '</span>'), inp = t('input');
       inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.hidden = true; lab.appendChild(inp);
-      var msg = t('p', 'pt-hint', 'Photos of the damp help us prepare.');
+      var msg = t('p', 'pt-hint', n ? '' : 'Photos of the damp help us prepare.');
       inp.addEventListener('change', function () {
         var files = Array.prototype.slice.call(inp.files || [], 0, 10);
         if (!files.length) return;
-        lab.classList.add('busy'); msg.textContent = 'Sending ' + files.length + '…';
+        lab.classList.add('busy'); msg.hidden = false; msg.textContent = 'Sending ' + files.length + '…';
         var paths = [];
         files.reduce(function (ch, f) { return ch.then(function () { return upload(f).then(function (x) { paths.push(x); }, function () {}); }); }, Promise.resolve())
           .then(function () { return paths.length ? ask(token, { op: 'photos', paths: paths }) : { ok: false }; })
           .then(function (r) {
             lab.classList.remove('busy'); inp.value = '';
-            if (r.ok) { P.toast(r.added + ' photo' + (r.added === 1 ? '' : 's') + ' added. Thank you.'); reload(); }
-            else msg.textContent = 'Those didn\'t come through. Please try again, or send them by WhatsApp.';
+            if (r.ok) { P.toast(r.added + ' photo' + (r.added === 1 ? '' : 's') + ' added. Thank you.'); openNext = 'photos'; reload(); }
+            else msg.textContent = r.error === 'too_many' ? 'That\'s as many as we can take here. Send any more by WhatsApp.' : 'Those didn\'t come through. Please try again, or send them by WhatsApp.';
           });
       });
-      box.appendChild(lab); box.appendChild(msg);
-    });
+      msg.hidden = !msg.textContent; box.appendChild(lab); box.appendChild(msg);
+    }, show);
   }
 
-  function messageFold(p, main, token) {
+  function messageFold(p, main, token, reload) {
+    var sent = p.messages || [], show = openNext === 'message';
+    if (show) openNext = null;
     P.fold(main, 'Message us', function (box) {
-      var f = h('label', 'pt-field'), ta = t('textarea'); ta.rows = 3; ta.maxLength = 1000; ta.setAttribute('aria-label', 'Your message'); ta.placeholder = 'Your message';
+      /* What they have sent, so they know it arrived and what they asked. We reply by phone or text. */
+      sent.forEach(function (m) {
+        var b = h('div', 'pt-said'); b.appendChild(t('div', 'pt-quote', m.text));
+        b.appendChild(ticked('small', 'pt-sent', 'Sent ' + stamp(m.at))); box.appendChild(b);
+      });
+      var f = h('label', 'pt-field'), ta = t('textarea'); ta.rows = 3; ta.maxLength = 1000; ta.setAttribute('aria-label', 'Your message'); ta.placeholder = sent.length ? 'Anything else?' : 'Your message';
       f.appendChild(ta); box.appendChild(f);
       var go = btn('pt-btn', '<span class="in">Send</span>', function () {
         if (ta.value.trim().length < 2) { ta.focus(); return; }
         go.classList.add('busy'); go.disabled = true;
         ask(token, { op: 'message', text: ta.value }).then(function (r) {
           go.classList.remove('busy'); go.disabled = false;
-          if (r.ok) { ta.value = ''; P.toast('Sent. We\'ll get back to you.'); }
+          if (r.ok) { ta.value = ''; P.toast('Sent. We\'ll call or text you back.'); openNext = 'message'; reload(); }
           else P.toast(r.error === 'too_many' ? 'Please call us on ' + p.brand.phoneLabel + '.' : 'That didn\'t send. Please try again.');
         });
       });
       box.appendChild(go);
-      box.appendChild(t('p', 'pt-hint', 'Goes straight to the team. Urgent? Call ' + p.brand.phoneLabel + '.'));
-    });
+      box.appendChild(t('p', 'pt-hint', 'Goes straight to the team, who will call or text you back. Urgent? Call ' + p.brand.phoneLabel + '.'));
+    }, show);
   }
 
-  function more(p, main, token, reload) {
+  function more(p, main, token, reload, api) {
     moveFold(p, main, token, reload);
-    photosFold(p, main, token, reload);
-    messageFold(p, main, token);
+    photosFold(p, main, token, reload, api);
+    messageFold(p, main, token, reload);
   }
 
   global.PTASK = { top: top, more: more };

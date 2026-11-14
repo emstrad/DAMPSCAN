@@ -195,9 +195,10 @@ checks the mechanical ones.
   NTFY_TOPIC_<NAME> feeds) in Vercel switches ntfy off; nothing else changes.
 - Alert texts to the owners (`lib/staff-sms.js`, Scott and Tom, ALERT_SMS_TO
   with the Twilio details): a new website enquiry, a time picked online, and
-  from a customer's page a message (who, never their words) or a move asked
-  for, only; with the customer's number to tap (the owner's choice) and a link to
-  their card; never a street. ntfy and the app still go too.
+  from a customer's page a message (who and their words, up to 300
+  characters, the owner's ask, 14 Nov 2026) or a move asked for, only; with the
+  customer's number to tap (the owner's choice) and a link that opens their
+  customer card (a damp job's link is Surveys, #job-N, which opens it); never a street. ntfy and the app still go too.
   Everything else stays in the app and the morning summary.
 - Customer details in alert text: first name and postcode district only.
 - Off by the owner's choice: the 06:30 "Good morning" digest push
@@ -587,7 +588,9 @@ checks the mechanical ones.
   on the page and texts the customer. The bank feed runs hourly with
   report-due, so a transfer shows within the hour. From the page (`lib/portal-asks.js`, `public/assets/portal-asks.js`), all
   requests, never a change: Message us (on the card's history, an app alert
-  and an owners' text, five a day), Ask to move (a booked survey more than a
+  and an owners' text, five a day; the page shows each message they sent with
+  when, and we reply by call or text, no two-way chat, the owner's choice,
+  14 Nov 2026), Ask to move (a booked survey more than a
   day away, the surveyors' real free times from the website picker's engine,
   never who; a to-do, an alert and an owners' text; the job pop-up shows it and
   the team moves it, which texts 7; with the Lab's Book it straight away on,
@@ -596,12 +599,14 @@ checks the mechanical ones.
   then through the client card route (drive check, surveyor told, "as you
   asked" text at once, an owners' alert and text), twice per survey, then a
   request again), and Add photos before the visit (through
-  /api/upload, only paths it made, onto the enquiry or jobs.customer_files).
+  /api/upload, only paths it made, onto the enquiry or jobs.customer_files;
+  the fold becomes "Your photos (N)" showing every one they sent).
   On my way: the surveyor taps it on the day in the job pop-up (their own
   surveys too); the page shows it two minutes later (Undo before then), for
   four hours, never a text. Receipts: every payment in has its own (Payments
   fold), issued in the customer's name for the property, from Damp Surveying
-  Limited trading as the brand with the company's details from Settings; on
+  Limited trading as the brand with the company number (and VAT number) from Settings, never
+  a street (the owner's choice, 14 Nov 2026); on
   screen, with Print or save as PDF. The job pop-up (managers) has Copy and
   Text their page link (words to tap, never sent) and how often it was
   opened. Stripe's fee on a card payment is kept when it reports one

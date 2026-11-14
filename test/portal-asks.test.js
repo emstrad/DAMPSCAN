@@ -40,10 +40,15 @@ test('a message goes on their history with an alert, never quoted in the alert, 
   const log = (await pool.query('select sched_log from jobs where id = $1', [id])).rows[0].sched_log;
   assert.equal(log[0].note, 'They wrote on their page: Can you call after 5pm?');
   const n = (await pool.query("select message from notifications where kind = 'portal_message'")).rows[0];
-  assert.ok(!/5pm/.test(n.message), 'the words stay on the card');
+  assert.match(n.message, /Kim.*"Can you call after 5pm\?"/, 'their words in the alert, so it can be answered from the phone');
   for (let i = 0; i < 4; i += 1) await A.messageUs(req, await row(id), 'again');
   assert.deepEqual(await A.messageUs(req, await row(id), 'one too many'), { error: 'too_many' });
   assert.deepEqual(await A.messageUs(req, await row(id), ' '), { error: 'empty' });
+  /* Their page shows what they sent, so they know it arrived and what they asked; staff notes never show. */
+  await pool.query(`update jobs set sched_log = sched_log || '[{"by":"Scott","how":"note","note":"Private staff note"}]'::jsonb where id = $1`, [id]);
+  const sent = buildView(await row(id)).messages;
+  assert.deepEqual(sent.map((m) => m.text), ['Can you call after 5pm?', 'again', 'again', 'again', 'again']);
+  assert.ok(sent.every((m) => m.at));
 });
 
 test('ask to move: only a time offered, a request with a to-do, the survey unchanged; never who', async () => {
@@ -68,6 +73,9 @@ test('photos only from our own upload route, added to the job when there is no e
   assert.deepEqual(await A.addPhotos(req, await row(id), ['reports/other.pdf', '../x.jpg', 'leads/2026-11-11/not-a-uuid-x.jpg']), { error: 'no_photos' });
   assert.deepEqual(await A.addPhotos(req, await row(id), [ok]), { ok: true, added: 1 });
   assert.deepEqual((await pool.query('select customer_files from jobs where id = $1', [id])).rows[0].customer_files, [ok]);
+  /* Shown back on their page (lib/portal.js joins the job's own files in with the enquiry's). */
+  const j = await row(id); j.lead_files = j.customer_files;
+  assert.equal(buildView(j).photos, 1);
 });
 
 test('On my way shows two minutes after the tap, on the day, and surveyors may tap it', async () => {
