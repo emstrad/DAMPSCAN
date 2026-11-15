@@ -49,7 +49,7 @@
     pane.appendChild(ring);
     pane.appendChild(el('h2', 'ht-h', booked ? 'You\'re booked in, ' + d.name : 'Thanks, ' + d.name));
     pane.appendChild(el('p', 'ht-when-big', booked ? h.nice(d.when.date) + ' at ' + h.clock(d.when.time)
-      : d.agent ? 'We\'ll arrange the time with ' + d.agent.name + ' and text you once it\'s confirmed.' : 'We\'ll call you to agree a time, then text you to confirm.'));
+      : d.agent ? 'We\'ll arrange the time with ' + d.agent.name + ' and text you once it\'s confirmed.' : d.outside ? 'You\'re a little outside our usual area: we\'ll check we can reach you and call to agree a time.' : 'We\'ll call you to agree a time, then text you to confirm.'));
 
     var s = d.pick ? h.sizes.filter(function (z) { return z.key === d.pick.size; })[0] : null;
     var lines = [

@@ -248,6 +248,7 @@
     X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
     if (!j.quoted) dampMessages(j, section(j.textsOn ? 'Message by hand' : 'Messages to send', 'closed'));
     if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
+    if (!j.quoted && j.status === 'booked' && /^(dampscan|ati-london)$/.test(j.site) && (!global.DSAREA.rights || !global.DSAREA.rights.known || global.DSAREA.rights.manages[j.site])) part('DSPOPCLOSE', '/staff/pop-close.js', function (sec) { global.DSPOPCLOSE.render(j, sec, changed); });
     if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section, noteSec);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));

@@ -119,3 +119,17 @@ test('a delivery receipt counts only when Twilio signed it; a failed one is a to
   assert.equal((await rows())[0].delivery, 'undelivered');
   assert.equal((await pool.query('select count(*)::int as n from todos where job_id = $1', [id])).rows[0].n, 1);
 });
+
+test('the fresh start: a survey taken out never texts, and one already waiting is stopped when it would go', async () => {
+  const id = await job();
+  await T.queueText({ kind: 'paid', site: 'ati-london', jobId: id, key: '1' });
+  await pool.query('update jobs set texts_off = true where id = $1', [id]);
+  assert.equal(await T.queueText({ kind: 'ready', site: 'ati-london', jobId: id, key: 'ready' }), null, 'nothing new is queued');
+  live(); await due();
+  let called = 0;
+  await T.flushDue({ fetchImpl: async () => { called += 1; return { ok: true, json: async () => ({ sid: 'SM9' }) }; } });
+  assert.equal(called, 0);
+  const [r] = await rows();
+  assert.equal(r.status, 'cancelled');
+  assert.match(r.error, /fresh start/);
+});

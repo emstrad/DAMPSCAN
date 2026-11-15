@@ -77,6 +77,8 @@
     d.name = $('f-name').value.trim(); d.phone = $('f-phone').value.trim(); d.email = $('f-email').value.trim();
     d.address = [$('f-addr1').value.trim(), $('f-town').value.trim(), $('f-postcode').value.trim().toUpperCase()].filter(Boolean).join(', ');
     d.postcode = tidyPc($('f-postcode').value);
+    /* Outside London and Kent: no times to offer, so the time step is skipped and we confirm by phone. */
+    d.outside = !ours(d.postcode);
     d.agent = $('f-agent-on').checked ? { name: $('f-agent').value.trim(), phone: $('f-agent-phone').value.trim() } : null;
     open();
   });
@@ -96,7 +98,7 @@
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && d.agent ? 2 : step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside) ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); if (TEL) top.appendChild(callChip()); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
@@ -136,7 +138,7 @@
   function go(n) {
     step = n; dotsTo(n); body.textContent = '';
     var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : 'ht-pane ht-pane--c'); body.appendChild(pane);
-    if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, function () { go(d.agent ? 4 : 3); }); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
+    if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, function () { go(d.agent || d.outside ? 4 : 3); }); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
     if (n === 3) when(pane);
     if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again });
     /* A new step starts at its top, under the site's header. */
@@ -155,7 +157,12 @@
       .then(function (r) { return r.json(); }).then(function (x) {
         var by = {}; (x.slots || []).forEach(function (s) { (by[s.date] = by[s.date] || []).push(s); });
         var free = Object.keys(by).sort();
-        if (!free.length) { days.appendChild(el('p', 'ht-sub', 'No free times near there yet: the live form would say we\'ll call to arrange one.')); return; }
+        if (!free.length) {
+          /* Nothing free near them: leave it with us rather than a dead end. */
+          quick.appendChild(el('p', 'ht-sub', 'We\'ll find a time that works and call you to arrange it.'));
+          var leave = el('button', 'btn btn--primary btn--lg', 'Leave it with us'); leave.type = 'button'; leave.addEventListener('click', function () { d.when = null; go(4); });
+          quick.appendChild(leave); skip.hidden = anytime.hidden = times.hidden = true; return;
+        }
         var e = by[free[0]][0], eb = el('button', 'ht-earliest'); eb.type = 'button';
         eb.appendChild(el('span', null, 'Earliest')); eb.appendChild(el('b', null, short(free[0]) + ', ' + clock(e.time)));
         eb.addEventListener('click', function () { book(free[0], e.time); }); quick.appendChild(eb);
@@ -193,7 +200,7 @@
         next.addEventListener('click', function () { week += 7 * 864e5; draw(); });
         draw();
       }).catch(function () { days.appendChild(el('p', 'ht-sub', 'Times could not load.')); });
-    pane.appendChild(el('p', 'ht-sub ht-small', 'Change your time anytime from your page.'));
+    var anytime = el('p', 'ht-sub ht-small', 'Change your time anytime from your page.'); pane.appendChild(anytime);
     var skip = el('button', 'bt-skip', 'Skip, just call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
     pane.appendChild(skip);
   }

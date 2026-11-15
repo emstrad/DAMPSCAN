@@ -117,9 +117,16 @@
     });
   }
 
+  /* No text goes 9pm to 7am (lib/texts.js QUIET): one due then waits for the morning. */
+  var hourOf = function (d) { return Number(new Date(d).toLocaleString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false })); };
+  function quiet(sendAfter) {
+    var at = new Date(Math.max(Date.now(), new Date(sendAfter).getTime())), h = hourOf(at);
+    return h >= 21 || h < 7;
+  }
+
   /* ---------- the lists ---------- */
   function status(t) {
-    return t.status === 'waiting' ? 'Goes ' + when(t.sendAfter) : t.status === 'sending' ? 'Sending now' : t.status === 'off' ? 'Not sent: texts were off (this is what would have gone)'
+    return t.status === 'waiting' ? (quiet(t.sendAfter) ? 'Goes at 7am: no texts between 9pm and 7am' : 'Goes ' + when(t.sendAfter)) : t.status === 'sending' ? 'Sending now' : t.status === 'off' ? 'Not sent: texts were off (this is what would have gone)'
       : t.status === 'cancelled' ? 'Stopped: ' + (t.error || '') : t.status === 'failed' ? 'Failed: ' + (t.error || '')
       : 'Sent ' + when(t.sentAt) + (t.delivery === 'delivered' ? ', delivered' : t.delivery ? ', ' + t.delivery : '');
   }
@@ -196,6 +203,13 @@
       data = await U.get('/api/admin/texts');
       el('live').textContent = data.live ? (data.test ? 'On, in test mode: every text goes to the test number.' : 'On.')
         : 'Off: nothing goes to customers.';
+      /* Whether waiting texts go by themselves (the every-minute run), or only while a staff page is open. */
+      var mins = data.runner ? (Date.now() - new Date(data.runner).getTime()) / 60000 : null;
+      el('runner').hidden = false;
+      el('runner').textContent = mins !== null && mins < 5 ? 'Sending by itself: checked ' + Math.max(0, Math.round(mins)) + ' min ago.'
+        : 'Not sending by itself' + (data.runner ? ' since ' + when(data.runner) : '') + ': waiting texts only go while a staff page is open. Settings, Left to set up, has the every-minute run.';
+      el('runner').classList.toggle('is-bad', !(mins !== null && mins < 5));
+      el('fresh').hidden = !data.owners;
       el('state').hidden = true; el('content').hidden = false;
       drawBrands();
       draw();
@@ -208,6 +222,12 @@
       document.querySelectorAll('[data-tab]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
       draw();
     });
+  });
+  el('fresh-go').addEventListener('click', async function () {
+    if (!window.confirm('Start fresh? Every text waiting now is stopped, and surveys already visited never get a text.')) return;
+    var r = await U.send('/api/admin/texts', { op: 'fresh' });
+    el('fresh-say').textContent = r.ok ? r.data.stopped + ' waiting stopped, ' + r.data.off + ' surveys already visited taken out.' : 'Could not start fresh.';
+    load();
   });
   el('phone').addEventListener('click', function (ev) { if (ev.target === el('phone')) el('phone').close(); });
   load();

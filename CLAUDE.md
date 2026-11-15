@@ -84,7 +84,11 @@ enforces the mechanical ones in CI.
   texted; Twilio refusing a text is a to-do; any staff request sends texts
   whose two minutes are up, and so does /api/cron/texts, which cron-job.org calls
   every minute (UAT, 15 Nov 2026: a held text sat waiting once the staff page
-  closed); Settings shows whether it runs. Every survey counted as texted for its money once,
+  closed); Settings and the Texts page show whether it runs, and a text due
+  overnight says it goes at 7am. Start fresh on the Texts page (owners, the
+  owner's ask before going live, 15 Nov 2026) stops everything waiting and
+  takes every survey already visited out of texts for good (jobs.texts_off),
+  so customers part way through hear nothing new. Every survey counted as texted for its money once,
   before switching on. test/journey-dryrun.test.js runs one customer from booking to
   report with a pretend card company and Twilio; keep it passing.
 
@@ -457,7 +461,8 @@ checks the mechanical ones.
   again (the estate agent letting us in says they are buying); 3 When suits
   you? with no sub-line: Earliest as one tap, then a week at a time up to
   eight weeks ahead, times under Morning and Afternoon, "change your time
-  anytime from your page"; the time tapped books it (skipped for an agent);
+  anytime from your page"; the time tapped books it (skipped for an agent, and outside London and Kent,
+  where we confirm by phone; no free times near them offers Leave it with us);
   Done: booked, the deposit to pay by wallet there and then, their survey page
   to open, the link texted too and Add to calendar; for an
   agent or "just call me", a text once confirmed; photos, a note and a
@@ -554,7 +559,9 @@ checks the mechanical ones.
   a tick that texts the customer says so ("gets a text in 2 minutes: Undo
   stops it"), and an Undo back to the time they were told texts nothing. A
   live damp survey is never deleted (the server refuses; Not going ahead
-  instead): only a cancelled one with no money on it.
+  instead): only a cancelled one with no money on it. The job pop-up has Not going ahead
+  too (managers, a reason first, `public/staff/pop-close.js`), so a card under
+  Not booked in yet can be closed without Scheduling.
 - Scheduling (`lib/scheduling.js`, managers only) shows the whole enquiry
   (address, problem, message, photos). Every damp enquiry starts
   in New enquiry, moves to Contacted when a call, email or text is logged,
