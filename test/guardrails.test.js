@@ -25,7 +25,8 @@ test('at most 12 serverless functions under api/ (Vercel Hobby)', async () => {
 
 test('code files stay under 300 lines', async () => {
   const code = [...await files('lib', (p) => p.endsWith('.js')), ...await files('api', (p) => p.endsWith('.js')),
-    ...await files('public/staff', (p) => /\.(js|html|css)$/.test(p) && !p.endsWith('staff.css'))];
+    /* The home page trial copies are generated from the public home page (scripts/trial-home.js), not written by hand. */
+    ...await files('public/staff', (p) => /\.(js|html|css)$/.test(p) && !p.endsWith('staff.css') && !/home-trial-(dampscan|ati)\.html$/.test(p))];
   const long = [];
   for (const f of code) {
     const n = (await readFile(join(root, f), 'utf8')).replace(/\n$/, '').split('\n').length;
