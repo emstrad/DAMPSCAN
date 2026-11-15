@@ -1,7 +1,7 @@
 /* The booking trial's end (the owner's third pass, 15 Nov 2026): booked the
    moment a time is tapped, then this screen. Booked: their survey page to open
-   there and then (pay the deposit, see the visit), the same link by text, and
-   Add to calendar. Agent or "just call me": a text once the time is
+   there and then, the deposit to pay by wallet right here, the same link by
+   text, and Add to calendar. Agent or "just call me": a text once the time is
    confirmed. Photos, a note and a previous survey come after, all optional,
    so nothing optional stands before the booking. Nothing is saved or sent. */
 (function (global) {
@@ -61,9 +61,15 @@
 
     if (booked) {
       var acts = el('div', 'ht-acts');
-      var page = el('button', 'btn btn--primary btn--lg', 'Open your survey page'); page.type = 'button';
-      var note = el('p', 'ht-sub ht-trialnote', 'Trial: live, this opens their own page, where they pay the deposit and see the visit.'); note.hidden = true;
-      page.addEventListener('click', function () { note.hidden = false; });
+      /* The deposit while they are still keen: the same wallet as their page (Stripe's Express Checkout). */
+      var pay = el('div', 'ht-pay');
+      var payBtn = el('button', 'btn btn--primary btn--lg ht-paybtn'); payBtn.type = 'button';
+      payBtn.appendChild(el('b', null, 'Pay ' + h.money(d.pick.totalPounds / 2) + ' deposit')); payBtn.appendChild(el('span', null, 'Apple Pay, Google Pay or card'));
+      pay.appendChild(payBtn); pane.appendChild(pay);
+      var note = el('p', 'ht-sub ht-trialnote', ''); note.hidden = true;
+      var page = el('button', 'btn btn--ghost btn--lg', 'Open your survey page'); page.type = 'button';
+      page.addEventListener('click', function () { note.textContent = 'Trial: live, this opens their own page: the visit, payments, messages and their report.'; note.hidden = false; });
+      payBtn.addEventListener('click', function () { note.textContent = 'Trial: live, Apple Pay or Google Pay opens here, Face ID and it is paid; card by Stripe\'s secure page.'; note.hidden = false; });
       var cal = el('button', 'btn btn--ghost btn--lg', 'Add to calendar'); cal.type = 'button';
       cal.addEventListener('click', function () { ics(d, { title: 'Damp survey' }); });
       acts.appendChild(page); acts.appendChild(cal); pane.appendChild(acts); pane.appendChild(note);

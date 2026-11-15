@@ -24,18 +24,46 @@
   fetch('/api/admin/me', { headers: { Accept: 'application/json' } }).then(function (r) { if (r.status === 401) location.replace('/staff?next=' + encodeURIComponent(location.pathname)); });
   var badge = el('div', 'ht-badge', 'Staff trial: nothing is sent'); document.body.appendChild(badge);
 
+  /* A small Call us chip on every step, to the number in the site's own header. */
+  var telA = document.querySelector('a[href^="tel:"]'), TEL = telA ? telA.getAttribute('href') : '';
+  function callChip() {
+    var a = el('a', 'ht-call'); a.href = TEL;
+    a.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>';
+    a.appendChild(el('span', null, 'Call us')); a.setAttribute('aria-label', 'Call us'); return a;
+  }
+  if (TEL) card.querySelector('.fnav').appendChild(callChip());
+
   /* ---------- Step 1, in the card ---------- */
   var phoneOk = function (v) { var n = String(v || '').replace(/[\s()-]/g, '').replace(/^\+44/, '0'); return /^0\d{10}$/.test(n); };
   var pcOk = function (v) { return /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i.test(String(v || '').trim()); };
   ['f-phone', 'f-agent-phone'].forEach(function (id) { var i = $(id); i.addEventListener('input', function () { var v = i.value.replace(/[^\d\s+]/g, ''); i.value = v.charAt(0) + v.slice(1).replace(/\+/g, ''); }); });
   document.querySelectorAll('input[name="Access"]').forEach(function (r) { r.addEventListener('change', function () { $('f-agent-fields').hidden = !$('f-agent-on').checked; }); });
+  /* The postcode tidied as they leave the box (me196ab becomes ME19 6AB), checked
+     against postcodes.io, and a soft word when it is outside London and Kent. */
+  var tidyPc = function (v) { var t = String(v || '').toUpperCase().replace(/\s+/g, ''); return t.length > 4 ? t.slice(0, -3) + ' ' + t.slice(-3) : t; };
+  var LONDON = ['E', 'EC', 'N', 'NW', 'SE', 'SW', 'W', 'WC', 'BR', 'CR', 'EN', 'HA', 'IG', 'KT', 'RM', 'SM', 'TW', 'UB'], KENT = ['ME', 'TN', 'CT'];
+  function ours(pc) { var m = /^([A-Z]{1,2})(\d{1,2})/.exec(pc.replace(/\s+/g, '')); if (!m) return true; return m[1] === 'DA' || LONDON.indexOf(m[1]) !== -1 || KENT.indexOf(m[1]) !== -1; }
+  var pcIn = $('f-postcode'), pcRow = pcIn.closest('.form-row'), pcErr = pcRow.querySelector('.err'), pcNote = el('p', 'ht-pc-note'), pcBad = null;
+  pcNote.hidden = true; pcRow.appendChild(pcNote);
+  pcIn.addEventListener('blur', function () {
+    /* The note changes only once the answer is back, so Continue never moves under a finger mid-tap. */
+    var v = tidyPc(pcIn.value); if (!v) return; pcIn.value = v;
+    if (!pcOk(v)) { pcNote.hidden = true; return; }
+    fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(v.replace(' ', ''))).then(function (r) {
+      if (r.status === 404) { pcBad = v; pcErr.textContent = 'We can\'t find that postcode. Please check it.'; mark(pcIn, true); return; }
+      if (!r.ok) return;
+      pcBad = null; pcErr.textContent = 'Please enter the postcode.'; mark(pcIn, false);
+      pcNote.hidden = ours(v);
+      if (!ours(v)) { pcNote.textContent = 'That\'s outside London and Kent, where we usually work. Carry on and we\'ll confirm we can reach you.'; }
+    }).catch(function () {});
+  });
   function mark(input, bad, row) { input.setAttribute('aria-invalid', String(bad)); (row || input.closest('.form-row')).classList.toggle('has-err', bad); return bad; }
   function checkOne() {
     var bad = false;
     bad = mark($('f-name'), !$('f-name').value.trim()) || bad;
     bad = mark($('f-phone'), !phoneOk($('f-phone').value)) || bad;
     bad = mark($('f-email'), !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('f-email').value.trim())) || bad;
-    bad = mark($('f-postcode'), !pcOk($('f-postcode').value)) || bad;
+    bad = mark($('f-postcode'), !pcOk($('f-postcode').value) || pcBad === tidyPc($('f-postcode').value)) || bad;
     bad = mark($('f-addr1'), !$('f-addr1').value.trim()) || bad;
     if ($('f-agent-on').checked) {
       bad = mark($('f-agent'), !$('f-agent').value.trim()) || bad;
@@ -48,7 +76,7 @@
     if (!checkOne()) return;
     d.name = $('f-name').value.trim(); d.phone = $('f-phone').value.trim(); d.email = $('f-email').value.trim();
     d.address = [$('f-addr1').value.trim(), $('f-town').value.trim(), $('f-postcode').value.trim().toUpperCase()].filter(Boolean).join(', ');
-    d.postcode = $('f-postcode').value.trim().toUpperCase();
+    d.postcode = tidyPc($('f-postcode').value);
     d.agent = $('f-agent-on').checked ? { name: $('f-agent').value.trim(), phone: $('f-agent-phone').value.trim() } : null;
     open();
   });
@@ -70,7 +98,7 @@
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
     var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && d.agent ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
-    top.appendChild(back); top.appendChild(dots); inner.appendChild(top);
+    top.appendChild(back); top.appendChild(dots); if (TEL) top.appendChild(callChip()); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
     place(box(card.getBoundingClientRect()));
     hero.appendChild(stage); document.body.classList.add('ht-booking');
@@ -165,6 +193,7 @@
         next.addEventListener('click', function () { week += 7 * 864e5; draw(); });
         draw();
       }).catch(function () { days.appendChild(el('p', 'ht-sub', 'Times could not load.')); });
+    pane.appendChild(el('p', 'ht-sub ht-small', 'Change your time anytime from your page.'));
     var skip = el('button', 'bt-skip', 'Skip, just call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
     pane.appendChild(skip);
   }

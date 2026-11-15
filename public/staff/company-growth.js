@@ -52,6 +52,23 @@
     });
     f.appendChild(table);
 
+    /* The booking form step by step, last 30 days: who reached each step and how many left there. */
+    var fs = sec('Booking form, last 30 days');
+    var form = d.form || { steps: [], sent: 0 };
+    var rungs = form.steps.map(function (x) { return ['Step ' + x.step, x.n]; }).concat([['Sent', form.sent]]);
+    if (!form.steps.length) fs.appendChild(node('p', 'mn-say', 'None yet.'));
+    else {
+      var top = rungs[0][1] || 1;
+      rungs.forEach(function (r, i) {
+        var nextN = i + 1 < rungs.length ? rungs[i + 1][1] : null, left = nextN === null ? 0 : Math.max(0, r[1] - nextN);
+        var row = node('div', 'mn-cost' + (left && r[1] && left / r[1] >= 0.4 ? ' is-bad' : ''));
+        row.appendChild(node('span', null, r[0] + ': ' + r[1] + (left ? ', ' + left + ' left here (' + pc(left, r[1]) + ')' : '')));
+        row.appendChild(node('b', null, pc(r[1], top)));
+        var bar = node('div', 'mn-bar mn-bar--thin'), fill = node('i'); fill.style.width = Math.round(100 * r[1] / top) + '%'; bar.appendChild(fill); row.appendChild(bar);
+        fs.appendChild(row);
+      });
+    }
+
     /* Every source this company year, best money first. */
     var s = sec('Where enquiries came from this year');
     if (!d.sources.length) s.appendChild(node('p', 'mn-say', 'None yet.'));
