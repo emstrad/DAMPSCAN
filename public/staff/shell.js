@@ -248,7 +248,7 @@
   bPlus.innerHTML = PLUS_SVG; bPlus.setAttribute('aria-expanded', 'false'); bPlus.setAttribute('data-plus', '');
   bPlus.addEventListener('click', function () { showSheet(bPlus, plusMenu); });
   bar.appendChild(bPlus);
-  var cBtn = button('Companies', 'companies', 'bb-item' + (A.area && todayPages.indexOf(A.page) === -1 && A.page !== 'bank.html' && A.page !== 'schedule.html' ? ' is-current' : ''));
+  var cBtn = button('Companies', 'companies', 'bb-item' + (A.area && todayPages.indexOf(A.page) === -1 && A.page !== 'schedule.html' ? ' is-current' : ''));
   cBtn.addEventListener('click', function () { showSheet(cBtn, companiesMenu); });
   bar.appendChild(cBtn);
   var sBtn = button('Search', 'search', 'bb-item');

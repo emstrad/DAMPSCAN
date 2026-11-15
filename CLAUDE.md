@@ -289,6 +289,17 @@ checks the mechanical ones.
   the VAT threshold over the last 12 months with when it would be reached, and
   ways to lower the tax, each with its saving, as prompts for the accountant.
   Expenses are never edited, removed only with who and when.
+  Bank check (`lib/tide-check.js`, `company-tide.js`, `?op=tide`): the company
+  account is Tide, with no feed, so once a month its statement (CSV) is
+  uploaded and every line put beside the logbook: money in beside the survey
+  it pays (only pointed at their card, never ticked from here) or a Stripe
+  payout; money out beside a payment on Pay or an expense (same amount within
+  five days, or the line it was added from, bank_ref). What is left comes
+  first: paid out and not logged (one select, a cost or who was paid, Add),
+  paid in and not ticked, paid in and not placed, and logged but not in Tide
+  (cash never expected). Nothing from the file is stored. It replaced the Bank
+  page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
+  tools stay for older books); the top bar's Money opens Company.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).
@@ -676,8 +687,8 @@ checks the mechanical ones.
   opens over the job pop-up and swipes there too. The customer's report opens the same way.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (damp managers only), +, Companies,
-  Search (surveyors have their own, above). No Money button (the owner's choice); the bank stays in the
-  Companies tabs.
+  Search (surveyors have their own, above). No Money button (the owner's choice); the bank check is a tab
+  of Company.
   Settings is in the Companies sheet (the cog at the end of the company row
   runs off a phone's screen) and in the + menu with Texts (the owner's ask,
   13 Nov 2026), and Settings opens with Notifications. The + menu (phone bar

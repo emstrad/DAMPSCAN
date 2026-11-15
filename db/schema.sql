@@ -1636,3 +1636,7 @@ create table if not exists expenses (
   removed_by    text
 );
 create index if not exists expenses_day_idx on expenses (spent_on desc);
+-- The Tide line a payment or cost was put right from on the monthly bank
+-- check (lib/tide-check.js), so the next check matches it exactly.
+alter table paid_out add column if not exists bank_ref text;
+alter table expenses add column if not exists bank_ref text;
