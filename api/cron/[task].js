@@ -11,10 +11,11 @@ import digest from '../../lib/routes/cron/digest.js';
 import evening from '../../lib/routes/cron/evening.js';
 import reportDue from '../../lib/routes/cron/report-due.js';
 import sweepBlobs from '../../lib/routes/cron/sweep-blobs.js';
+import texts from '../../lib/routes/cron/texts.js';
 
 export const config = { runtime: 'nodejs' };
 
-const TASKS = { digest, evening, 'sweep-blobs': sweepBlobs, 'report-due': reportDue };
+const TASKS = { digest, evening, 'sweep-blobs': sweepBlobs, 'report-due': reportDue, texts };
 
 export default async function handler(req, res) {
   const task = TASKS[actionFrom(req.url)];

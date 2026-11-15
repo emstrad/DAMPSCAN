@@ -205,3 +205,20 @@ label.pt-btn { cursor:pointer; }
 .pt-banktoggle[aria-expanded="true"] .chev { transform:rotate(180deg); }
 .pt-bankarea { display:grid; gap:10px; }
 .pt-bankarea[hidden] { display:none; }
+/* On my way (portal-asks.js): the surveyor's car drives along the road to the house, pauses, and goes again.
+   The owners' ask (UAT, 15 Nov 2026); parked halfway when the device asks for less motion. */
+.pt-onway { gap:12px; }
+.pt-road { position:relative; height:58px; border-radius:14px; background:var(--good-soft); overflow:hidden; }
+.pt-road::after { content:""; position:absolute; left:0; right:0; bottom:9px; height:3px; border-radius:2px;
+  background:repeating-linear-gradient(90deg, color-mix(in srgb, var(--good) 45%, transparent) 0 14px, transparent 14px 28px); animation:pt-lane .7s linear infinite; }
+@keyframes pt-lane { to { background-position:-28px 0; } }
+.pt-car { position:absolute; bottom:11px; left:-60px; color:var(--good); display:block; line-height:0; animation:pt-drive 4.8s cubic-bezier(.45,.05,.35,1) infinite; }
+.pt-car svg { animation:pt-bob .35s ease-in-out infinite alternate; }
+.pt-home { position:absolute; right:12px; bottom:12px; color:var(--good); line-height:0; }
+@keyframes pt-drive { 0% { left:-60px; } 72% { left:calc(100% - 104px); } 100% { left:calc(100% - 104px); } }
+@keyframes pt-bob { to { transform:translateY(-1px); } }
+.pt-onway-words { display:grid; gap:2px; }
+@media (prefers-reduced-motion: reduce) {
+  .pt-car, .pt-car svg, .pt-road::after { animation:none; }
+  .pt-car { left:calc(50% - 28px); }
+}

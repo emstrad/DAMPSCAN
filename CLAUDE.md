@@ -82,7 +82,9 @@ enforces the mechanical ones in CI.
   survey ("your report" whenever the balance comes after "ready"); a text
   stopped on the Texts page stays stopped; the agent's own number is never
   texted; Twilio refusing a text is a to-do; any staff request sends texts
-  whose two minutes are up. Every survey counted as texted for its money once,
+  whose two minutes are up, and so does /api/cron/texts, which cron-job.org calls
+  every minute (UAT, 15 Nov 2026: a held text sat waiting once the staff page
+  closed); Settings shows whether it runs. Every survey counted as texted for its money once,
   before switching on. test/journey-dryrun.test.js runs one customer from booking to
   report with a pretend card company and Twilio; keep it passing.
 
@@ -235,6 +237,11 @@ checks the mechanical ones.
   Collect paid in full, Send survey report (and CoolRight warranties).
 - A damp survey whose day has passed with nothing paid is under Collect paid
   in full even while still "booked".
+- A booked damp survey becomes Surveyed by itself once its visit is over
+  (start plus the rate card's minutes and extras) or its report is uploaded,
+  with a line in its history (`lib/auto-surveyed.js`, UAT 15 Nov 2026): on staff
+  requests, the every-minute texts call, the hourly run and a report upload.
+  Never one waiting on the agent.
 - Timeline cards show survey type and surveyor; cards show phone and email.
 - To-do list: newest first by when it came in, each with how long it has
   been waiting.
@@ -689,7 +696,13 @@ checks the mechanical ones.
   the fold becomes "Your photos (N)" showing every one they sent).
   On my way: the surveyor taps it on the day in the job pop-up (their own
   surveys too); the page shows it two minutes later (Undo before then), for
-  four hours, never a text. Receipts: every payment in has its own (Payments
+  four hours, never a text, as the surveyor's car driving along to the house
+  (the owners' ask, UAT 15 Nov 2026; parked when the device asks for less
+  motion). The open page checks for news every 30 seconds and on coming back
+  to it (poll=1: never logged as an open, and it sends any text now due), redrawn
+  only when something they would notice changed and never while they type;
+  back from Stripe's page it starts afresh (Safari's back-forward cache kept the
+  spinner). Receipts: every payment in has its own (Payments
   fold), issued in the customer's name for the property, from Damp Surveying
   Limited trading as the brand with the company number (and VAT number) from Settings, never
   a street (the owner's choice, 14 Nov 2026); on

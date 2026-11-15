@@ -12,10 +12,19 @@
       .then(function (r) { return r.json().catch(function () { return {}; }); });
   };
 
-  /* On the day, first thing under the greeting. */
+  /* On the day, first thing under the greeting: the surveyor's car driving to the house. */
+  var CAR = '<svg viewBox="0 0 64 30" width="56" height="26" aria-hidden="true"><path fill="currentColor" d="M6 20c0-3 1.6-4.6 4.6-5.2l6.8-1.4 7.2-6.2C26 6 27.6 5.4 29.4 5.4h12.2c1.8 0 3.4.7 4.6 2l6.2 6.6 4.4.9c2.6.5 4.2 2.4 4.2 5v2.6c0 1.4-1.1 2.5-2.5 2.5H8.5C7.1 25 6 23.9 6 22.5z"/><path fill="var(--card)" opacity=".85" d="M27 8.6c.6-.6 1.4-.9 2.3-.9h5.4v6H22zm10.2-.9h4.4c1 0 1.9.4 2.6 1.1l4.6 4.9h-11.6z"/><circle cx="18" cy="24.5" r="4.6" fill="var(--text)"/><circle cx="18" cy="24.5" r="1.8" fill="var(--card)"/><circle cx="48" cy="24.5" r="4.6" fill="var(--text)"/><circle cx="48" cy="24.5" r="1.8" fill="var(--card)"/></svg>';
+  var HOME = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3 2.5 11.2l1.3 1.5L5 11.7V20a1 1 0 0 0 1 1h4.5v-6h3v6H18a1 1 0 0 0 1-1v-8.3l1.2 1 1.3-1.5z"/></svg>';
   function top(p, main) {
     if (!p.onWay) return;
-    var card = h('div', 'pt-card'); card.appendChild(P.banner('good', (p.onWay.surveyor || 'Your surveyor') + ' is on the way', 'to you now.'));
+    var card = h('div', 'pt-card pt-onway');
+    var road = h('div', 'pt-road'); road.setAttribute('role', 'img'); road.setAttribute('aria-label', 'A car driving to your home');
+    road.appendChild(h('span', 'pt-home', HOME)); road.appendChild(h('span', 'pt-car', CAR));
+    card.appendChild(road);
+    var words = h('div', 'pt-onway-words');
+    words.appendChild(t('h2', null, (p.onWay.surveyor || 'Your surveyor') + ' is on the way'));
+    words.appendChild(t('p', null, 'Heading to you now.'));
+    card.appendChild(words);
     main.appendChild(card);
   }
 

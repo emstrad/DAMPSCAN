@@ -37,7 +37,7 @@ import { startPayment, startWallet, latestOrder, onWebhook } from '../lib/revolu
 import { logEvent, deviceOf } from '../lib/portal-events.js';
 import { siteBase } from '../lib/alert-words.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { deliveryReceipt } from '../lib/texts.js';
+import { deliveryReceipt, flushDue } from '../lib/texts.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -168,7 +168,10 @@ async function portal(req, res) {
   /* Back from paying: how it went, asking Stripe if its notice is not in yet. Settled
      first, so the page drawn straight after already shows the money as received. */
   const payment = params.get('paid') ? await latestOrder(found.job.id).catch(() => null) : undefined;
-  const view = await portalView(payment && payment.state === 'completed' ? await refreshed(found.job) : found.job, undefined, req);
+  /* The open page checking for news (poll=1): not logged as an open, and any text whose two minutes are up goes. */
+  const quiet = params.get('poll') === '1';
+  if (quiet) await flushDue({ limit: 3 }).catch(() => {});
+  const view = await portalView(payment && payment.state === 'completed' ? await refreshed(found.job) : found.job, undefined, req, { quiet });
   if (payment !== undefined) view.payment = payment;
   json(res, 200, { ok: true, portal: view });
 }

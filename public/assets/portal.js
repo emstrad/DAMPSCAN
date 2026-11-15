@@ -232,13 +232,33 @@
   }
   function gone(text) { var h1 = document.getElementById('title'); main.textContent = ''; main.appendChild(h1); hello(null, 'We can\'t find this page', 'bad', 'Not found'); var c = h('div', 'pt-card'); c.appendChild(t('p', 'pt-msg', text)); main.appendChild(c); }
 
+  /* What the customer would notice change: drawn again only when one of these moves. */
+  function sig(p) { return JSON.stringify([p.state, p.onWay, p.money && p.money.paidPence, p.money && p.money.refundedPence, p.report, p.visit, p.move, p.messages && p.messages.length, p.photos]); }
+  var last = null;
   function load() {
     var paid = new URLSearchParams(location.search).get('paid') ? '&paid=1' : '';
     fetch(api + paid).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); }).then(function (x) {
       if (x.status === 410) return expired(x.d);
       if (!x.d.ok) return gone('Check you opened the whole link from your text or email, or call us.');
+      last = sig(x.d.portal);
       draw(x.d.portal);
     }).catch(function () { gone('No connection. Check your signal and try again.'); });
   }
+  /* The page keeps itself up to date while it is open (On my way, a payment,
+     the report), every half minute and on coming back to it; never while they
+     are typing or a fold is being used, so nothing is snatched from under them. */
+  function busy() { var a = document.activeElement; return (a && main.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) || main.querySelector('.busy, dialog[open]'); }
+  function poll() {
+    if (document.visibilityState !== 'visible' || last === null || busy()) return;
+    fetch(api + '&poll=1').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.ok || busy()) return;
+      var s = sig(d.portal);
+      if (s !== last) { last = s; draw(d.portal); }
+    }).catch(function () {});
+  }
+  setInterval(poll, 30000);
+  document.addEventListener('visibilitychange', poll);
+  /* Back from Stripe's page, Safari shows this page exactly as it was left, spinner and all: start it afresh instead. */
+  window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
   load();
 })();
