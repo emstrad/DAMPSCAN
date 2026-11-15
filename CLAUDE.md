@@ -308,6 +308,16 @@ checks the mechanical ones.
   (cash never expected). Nothing from the file is stored. It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
+  Growth (`lib/company-growth.js`, `company-growth.js`, `?view=growth`):
+  Google Ads first (this month, last month, the year): the spend logged on
+  Money against what paid clicks became (the session's paid channel or a Google
+  click id): enquiries, booked, money paid, cost per enquiry and per booking,
+  and the return per pound; then month by month (visitors, enquiries, booked
+  with its rate, paid, money) and every source over the company year, best
+  money first, phone callers apart. For ATi and DampScan the Leads page
+  (as Website), Insights and Records are no longer damp section tabs: they sit
+  in Company's tab row (`company-hub.js` draws the same row on those pages),
+  reached through ALSO in area.js; Verge and CoolRight keep their own.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).
