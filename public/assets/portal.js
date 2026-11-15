@@ -74,7 +74,7 @@
     var tile = h('div', 'pt-date'); tile.appendChild(t('small', null, opt({ weekday: 'short' }))); tile.appendChild(t('b', null, opt({ day: 'numeric' }))); tile.appendChild(t('span', null, opt({ month: 'short' }))); row.appendChild(tile);
     var d = h('div'); d.appendChild(t('h2', null, p.survey)); d.appendChild(t('p', null, 'Arriving ' + windowOf(v.time))); if (p.address) d.appendChild(t('p', null, p.address)); row.appendChild(d); card.appendChild(row);
     if (v.surveyor) { var who = h('div', 'pt-who'); who.appendChild(t('span', 'pt-avatar', v.surveyor.charAt(0))); var w = h('div'); w.appendChild(t('b', null, v.surveyor)); w.appendChild(t('small', null, 'Your surveyor')); who.appendChild(w); card.appendChild(who); }
-    if (actions !== false) { var chips = h('div', 'pt-chips'); chips.appendChild(btn('pt-chip', I.cal + '<span>Add to calendar</span>', function () { calendar(p); })); card.appendChild(chips); }
+    if (actions !== false) { var chips = h('div', 'pt-chips'); chips.appendChild(btn('pt-chip', I.cal + '<span>Add to calendar</span>', function () { calendar(p); })); if (window.PTASK) window.PTASK.chips(chips); card.appendChild(chips); }
     main.appendChild(card);
   }
   /* Their photos sit under Add photos (portal-asks.js), so they see each one arrived. */
@@ -161,7 +161,7 @@
     var T = TITLES[p.state] || TITLES.waiting, s = p.state, card;
     if (s === 'cancelled') T = ['Your survey is cancelled', '', p.cancel.rule === 'refund' ? 'Refund on its way' : p.cancel.rule === 'refunded' ? 'Refunded' : 'Cancelled'];
     hello(p, T[0], T[1], T[2]);
-    if (window.PTASK) window.PTASK.top(p, main);
+    if (window.PTASK) window.PTASK.top(p, main, token, load);
     if (s !== 'cancelled') steps(p.step);
     if (s === 'requested') {
       card = h('div', 'pt-card'); card.appendChild(t('h2', null, shortDay(p.requested.date) + (p.requested.time ? ' at ' + p.requested.time : '') + ', requested'));

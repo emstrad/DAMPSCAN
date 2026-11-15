@@ -215,3 +215,29 @@ label.pt-btn { cursor:pointer; }
 @keyframes pt-drive { from { left:5px; } to { left:calc(62% - 34px); } }
 @media (prefers-reduced-motion: reduce) { .pt-road i { animation:none; left:calc(62% - 34px); } }
 }
+/* Ask to move it and Message us rise as a sheet from the bottom (portal-asks.js), the owners'
+   chosen design from the page preview (UAT, 15 Nov 2026): the page stays put underneath. */
+body.pt-sheet-on { overflow:hidden; }
+.pt-scrim { position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.4); opacity:0; transition:opacity var(--mid) linear; }
+.pt-scrim.open { opacity:1; }
+.pt-sheet { position:fixed; left:0; right:0; bottom:0; z-index:21; max-width:520px; margin:0 auto; max-height:88dvh; overflow:auto; overscroll-behavior:contain;
+  background:var(--card); color:var(--text); border-radius:24px 24px 0 0; border-top:1px solid var(--line-strong); box-shadow:0 -20px 40px -20px rgba(0,0,0,.5);
+  padding:10px 16px calc(20px + env(safe-area-inset-bottom)); display:grid; gap:12px; transform:translateY(105%); transition:transform var(--slow) var(--ease); }
+.pt-sheet.open { transform:none; }
+.pt-grab { width:40px; height:5px; border-radius:999px; background:var(--line-strong); justify-self:center; }
+.pt-sheet-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.pt-sheet-head h2 { margin:0; font-size:1.15rem; }
+.pt-sheet-x { width:44px; height:44px; border-radius:50%; border:1px solid var(--line-strong); background:transparent; color:var(--text); font-size:1.4rem; line-height:1; cursor:pointer; }
+.pt-movearea { display:grid; gap:10px; min-height:80px; }
+.pt-ring--sm { width:36px; height:36px; border-width:3px; justify-self:center; }
+.pt-days { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scroll-snap-type:x proximity; }
+.pt-days button { flex:none; width:64px; border:1.5px solid var(--line-strong); background:transparent; border-radius:14px; padding:8px 0; cursor:pointer; display:grid; gap:1px; color:var(--text); scroll-snap-align:start; transition:background var(--fast) linear; }
+.pt-days button small { font-size:.66rem; color:var(--muted); font-weight:700; text-transform:uppercase; }
+.pt-days button b { font-size:1.2rem; }
+.pt-days button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.pt-days button[aria-pressed="true"] small { color:inherit; }
+.pt-times { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+.pt-times:empty { display:none; }
+.pt-times button { min-height:46px; border:1.5px solid var(--line-strong); background:transparent; border-radius:12px; font-weight:700; cursor:pointer; color:var(--text); }
+.pt-times button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+@media (prefers-reduced-motion: reduce) { .pt-sheet, .pt-scrim { transition:none; } }

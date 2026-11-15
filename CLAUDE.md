@@ -736,7 +736,10 @@ checks the mechanical ones.
   13 Nov 2026): only their own surveyor's real free times, moved there and
   then through the client card route (drive check, surveyor told, "as you
   asked" text at once, an owners' alert and text), twice per survey, then a
-  request again), and Add photos before the visit (through
+  request again; Ask to move it and Message us sit as chips on the visit card
+  beside Add to calendar and rise as a sheet from the bottom, days as tiles
+  and times three across, the owners' chosen design from the page preview,
+  UAT 15 Nov 2026, with the fold kept where there is no visit card), and Add photos before the visit (through
   /api/upload, only paths it made, onto the enquiry or jobs.customer_files;
   the fold becomes "Your photos (N)" showing every one they sent).
   On my way: the surveyor taps it on the day in the job pop-up (their own
