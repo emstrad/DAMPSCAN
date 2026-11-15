@@ -33,6 +33,7 @@ import { render as renderHome } from './home-template.js';
 import { pricing } from '../content/pricing.js';
 import { assetHashes, stampAssets } from './asset-version.js';
 import { bookForm } from './book-form.js';
+import { writeTrialHomes } from './trial-home.js';
 import { adsTag } from './ads-tag.js';
 import { writeSitemaps } from './sitemaps.js';
 import { writeGalleryShells } from './gallery-shells.js';
@@ -238,6 +239,8 @@ async function main() {
   await writeAdsTag();
   await writeHomeLinks(ROOT, HOME);
   await writeReviews();
+  /* The booking trial copies the finished home pages, so it runs after them and before stamping. */
+  await writeTrialHomes(ROOT, HOME);
   const stamps = await stampAllPages();
   const galleryCount = await writeGalleryShells(ROOT);
 

@@ -63,6 +63,12 @@
     <p class="panel-note" id="sw-note" role="status"></p>
   </section>
 
+  <section class="panel" aria-labelledby="h-trial">
+    <h2 id="h-trial">New booking form on the home page</h2>
+    <p><a class="btn btn--primary" id="trial-link" href="/staff/home-trial-dampscan.html">Try it on the real home page</a></p>
+    <script>(function () { if (/(^|\.)atidampsurvey\.co\.uk$/i.test(location.hostname)) document.getElementById('trial-link').href = '/staff/home-trial-ati.html'; })();</script>
+  </section>
+
   <section class="panel" aria-labelledby="h-slots">
     <h2 id="h-slots">Pick a time, at the end of the booking form</h2>
     <div class="ranges"><label for="lab-pc">Customer's postcode</label> <input id="lab-pc" autocomplete="off" placeholder="e.g. CT5 1AA" /> <button class="btn btn--ghost btn--sm" id="lab-pc-go" type="button">Show their times</button></div>
