@@ -356,7 +356,13 @@ checks the mechanical ones.
   orders to try as a customer with real free times and nothing saved: A
   today's order, B price first and details last, C the hybrid (details,
   about the home, survey, time, address and who lets us in), each ending with
-  its screens, taps and seconds. The prices pages, the website's
+  its screens, taps and seconds, and D the survey plan
+  (`public/assets/survey-plan.js`, the owner's brief, 15 Nov 2026: what is
+  going on, what can you see as photos, your home with no age question, then
+  the plan a surveyor would build: Focused or Essential, Recommended and
+  Complete, each check in plain words with the reason from their answers and
+  its price, never a check that cannot apply). Its photos are Wikimedia
+  Commons test pictures until the owners' own replace them. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table
   of extra checks added to a survey, and everything wordy folded
