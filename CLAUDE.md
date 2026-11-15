@@ -428,7 +428,21 @@ checks the mechanical ones.
   the plan a surveyor would build: Focused or Essential, Recommended and
   Complete, each check in plain words with the reason from their answers and
   its price, never a check that cannot apply). Its photos are Wikimedia
-  Commons test pictures until the owners' own replace them. The prices pages, the website's
+  Commons test pictures until the owners' own replace them.
+  The home page booking trial (the owner's brief, 15 Nov 2026,
+  `scripts/trial-home.js`, `public/staff/home-trial.js`, `home-trial-need.js`,
+  `home-trial.css`; linked from the Lab): an exact copy of each site's real home
+  page, rebuilt from it on every build (/staff/home-trial-dampscan.html and
+  -ati.html), with only the booking form swapped and nothing sent (the visit,
+  half-finished form, enquiry, address and upload scripts and the ads tag left
+  out, never indexed, owners signed in). Four steps: 1 in the usual card, name,
+  mobile, email, the full address and who lets us in; then the card opens out
+  to fill the screen (longer than 300 ms by the owner's ask, none with reduced
+  motion) for 2 what you are dealing with (picture tiles, purchase or home,
+  bedrooms, where) beside what you need (survey-pick.js with its reasons and
+  price), 3 a real free time for their postcode and survey length (skipped for
+  an agent), and 4 anything to add (the old last step); the end shows what the
+  live form would have done. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table
   of extra checks added to a survey, and everything wordy folded

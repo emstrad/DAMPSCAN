@@ -1,0 +1,68 @@
+/* The home page booking trial (home-trial.js): the card opening out to fill the
+   screen, the picture tiles of what they are dealing with, the survey beside
+   them, the times and the summary. Built on the live form's own classes
+   (book.css), so the trial looks exactly like the site. The opening is longer
+   than the site's usual 300 ms by the owner's ask; none of it with reduced motion. */
+.ht-lock, .ht-lock body { overflow: hidden; }
+.ht-stage { position: fixed; z-index: 1000; margin: 0; padding: 0 !important; overflow: hidden; border-radius: 18px;
+  transition: top .46s cubic-bezier(.2,.8,.2,1), left .46s cubic-bezier(.2,.8,.2,1), width .46s cubic-bezier(.2,.8,.2,1), height .46s cubic-bezier(.2,.8,.2,1), border-radius .46s ease; }
+.ht-stage.is-open { top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; height: 100dvh !important; border-radius: 0; }
+.ht-inner { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; opacity: 0; transition: opacity .22s ease-out;
+  padding: clamp(16px, 3vw, 44px) max(16px, env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.ht-stage.is-shown .ht-inner { opacity: 1; }
+.ht-top { display: flex; align-items: center; gap: 16px; max-width: 1120px; margin: 0 auto 24px; }
+.ht-top .dots { flex: 1; margin: 0; }
+.ht-back { min-height: 44px; }
+.ht-body { max-width: 1120px; margin: 0 auto; }
+.ht-pane { animation: ht-in .32s cubic-bezier(.2,.8,.2,1) both; display: flex; flex-direction: column; align-items: flex-start; }
+@keyframes ht-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+.ht-h { font-size: clamp(22px, 2.6vw, 32px); letter-spacing: -.015em; margin: 0 0 6px; text-wrap: balance; }
+.ht-sub { color: var(--muted); margin: 0 0 18px; max-width: 62ch; }
+
+/* Step 2: the questions on the left, what we would book on the right. */
+.ht-need { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); width: 100%; }
+.ht-need-q, .ht-need-pick { min-width: 0; }
+.ht-need-pick { position: sticky; top: 0; align-self: start; }
+.ht-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.ht-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 16px; min-height: 140px; border-radius: 16px;
+  border: 1px solid var(--line-strong); background: rgba(127,127,127,.06); color: inherit; font: inherit; cursor: pointer;
+  transition: transform .15s ease-out, border-color .15s, background .15s, box-shadow .15s; }
+.ht-tile:hover { transform: translateY(-2px); }
+.ht-tile:active { transform: scale(.98); }
+.ht-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
+.ht-tile-ico { color: var(--accent); line-height: 0; }
+.ht-tile b { font-size: 15.5px; }
+.ht-tile-say { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.ht-qs { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+.ht-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ht-chip { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: none; color: inherit; font: inherit; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s; }
+.ht-chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.ht-wait { border: 1px dashed var(--line-strong); border-radius: 16px; padding: 18px; color: var(--muted); }
+.ht-why { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 12px; }
+.ht-why li { display: grid; gap: 2px; padding-left: 26px; position: relative; }
+.ht-why li::before { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
+.ht-why b { color: var(--text); }
+.ht-pickbox { width: 100%; }
+
+/* Step 3 and 4. */
+.ht-days { margin-bottom: 14px; }
+.ht-days .bt-time[aria-pressed="true"] { background: var(--accent); color: var(--on-accent, #06121f); }
+.ht-day { font-weight: 700; margin: 6px 0 10px; }
+.ht-times { min-height: 60px; margin-bottom: 8px; }
+.ht-extras { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 640px; margin-bottom: 22px; }
+.ht-pane .check-ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 14px; }
+.ht-sum { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; width: 100%; max-width: 640px; margin: 14px 0 18px; }
+.ht-sum dt { color: var(--muted); }
+.ht-sum dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.ht-badge { position: fixed; z-index: 1100; right: max(10px, env(safe-area-inset-right, 0px)); top: max(10px, env(safe-area-inset-top, 0px)); opacity: .92;
+  background: #f0b867; color: #1a1200; font: 600 12px/1 system-ui, sans-serif; padding: 7px 10px; border-radius: 999px; font-size: 11px; box-shadow: 0 6px 20px -8px rgba(0,0,0,.5); }
+
+@media (max-width: 860px) {
+  .ht-need { grid-template-columns: 1fr; }
+  .ht-need-pick { position: static; }
+}
+@media (max-width: 560px) { .ht-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ht-tile { min-height: 128px; } }
+@media (prefers-reduced-motion: reduce) {
+  .ht-stage, .ht-inner, .ht-tile, .ht-chip { transition: none; }
+  .ht-pane { animation: none; }
+}
