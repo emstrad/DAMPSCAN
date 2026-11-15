@@ -171,5 +171,7 @@
     box.appendChild(f);
   }
 
+  /* Overview's "Ronnie is owed £X" opens that person's statement. */
+  global.DSCOPAY = { open: openCard };
   load();
 })(window);

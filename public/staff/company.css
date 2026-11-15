@@ -82,3 +82,7 @@
 .tide-maybe{display:flex;flex-wrap:wrap;gap:6px}
 .tide-chip{min-height:44px;padding:6px 14px;border-radius:999px;border:1px solid var(--line-strong);background:var(--navy-2,#132437);color:var(--text);font:inherit;cursor:pointer}
 .tide-ok{color:var(--good)}
+/* Overview (company-overview.js): needs-you rows open where they are put right. */
+.ov-item{display:flex;align-items:center;width:100%;min-height:48px;margin-bottom:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--navy-2,#132437);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.ov-item::after{content:'\203A';margin-left:auto;padding-left:10px;color:var(--muted)}
+.ov-item.is-bad{border-color:var(--warn)}
