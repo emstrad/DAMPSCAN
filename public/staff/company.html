@@ -55,8 +55,11 @@
 <main class="wrap">
   <h1 class="sv-h1">Company</h1>
   <div class="pills co-tabs" role="tablist" aria-label="Company">
-    <button class="pill" type="button" role="tab" aria-pressed="true" aria-selected="true">Pay</button>
+    <button class="pill" type="button" role="tab" data-tab="pay" aria-pressed="true">Pay</button>
+    <button class="pill" type="button" role="tab" data-tab="money" aria-pressed="false">Money</button>
   </div>
+  <div id="tab-money" hidden></div>
+  <div id="tab-pay">
   <div class="state" id="state">Loading…</div>
   <div id="content" hidden>
     <div class="pay-cards" id="cards"></div>
@@ -65,10 +68,11 @@
     <p class="pay-check" id="check" role="status"></p>
     <details class="pay-split" id="split"><summary>Split for new surveys</summary><div id="split-form"></div></details>
   </div>
+  </div>
 </main>
 
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script><script src="/staff/pop-history.js"></script>
-<script src="/staff/company-pay.js"></script>
+<script src="/staff/company-pay.js"></script><script src="/staff/company-money.js"></script>
 </body>
 </html>

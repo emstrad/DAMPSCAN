@@ -280,6 +280,15 @@ checks the mechanical ones.
   line proves money in equals what is shared. The split for new surveys is the
   owners' to change there (job_settings); booked ones keep theirs. Scott and Tom
   take a salary (about £12,570 each) and dividends; Ben and Ronnie invoice.
+  Money (`lib/company-money.js`, `company-money.js`, `?view=money`): money in
+  (surveys paid in full), every cost (Ronnie's and Ben's shares, card fees,
+  texts at SMS_PENCE each, salaries recorded on Pay, and the expenses log with
+  receipts, Google Ads among them; dividends are not a cost), profit,
+  corporation tax on the company year's real profit (1 Dec to 30 Nov; 19% to
+  £50k, 25% over £250k, marginal relief between) against what was set aside,
+  the VAT threshold over the last 12 months with when it would be reached, and
+  ways to lower the tax, each with its saving, as prompts for the accountant.
+  Expenses are never edited, removed only with who and when.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).
