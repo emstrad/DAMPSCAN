@@ -21,13 +21,15 @@
   var has = function (d, k) { return d.issues.indexOf(k) !== -1; };
   var pounds = function (n, from) { return (from ? 'from ' : '') + '£' + n; };
 
-  /* What fits what they ticked: the reason shows on the tag's (i). */
+  /* What fits what they ticked: nothing until they tick something, and only an
+     add-on the tick really points to (the owner, 15 Nov 2026: damp alone says
+     nothing about a cavity wall, so the cavity check is never suggested here). */
   function recommended(d) {
-    var r = { service: has(d, 'Timber / Woodworm') ? 'timber' : 'damp', size: d.agent ? 'full-house' : null, extras: {} };
+    var r = { service: null, size: d.agent ? 'full-house' : null, extras: {} };
+    if (!d.issues.length) return r;
+    r.service = has(d, 'Timber / Woodworm') ? 'timber' : 'damp';
     if (has(d, 'Leak / Water damage') || d.agent) r.extras.drone = d.agent ? 'You are buying and cannot see the roof up close.' : 'A leak often starts on the roof, chimney or gutters.';
     if (has(d, 'Timber / Woodworm')) r.extras.camera = 'Woodworm and rot often start under suspended floors.';
-    if (has(d, 'Damp') || has(d, 'Cold / condensation')) r.extras.cavity = 'Damp low on an outside wall is often a bridged cavity.';
-    if (has(d, 'Leak / Water damage') && has(d, 'Damp')) r.extras.invasive = 'Hidden water paths sometimes need a small, agreed opening to find.';
     return r;
   }
 
@@ -85,8 +87,10 @@
     });
     right.appendChild(sizes);
 
-    right.appendChild(el('p', 'ht-label', 'Add on the same visit'));
-    var adds = el('div', 'ht-opts');
+    /* The add-ons spread across the whole card, under both halves. */
+    var wide = el('div', 'ht-need-wide'); box.appendChild(wide);
+    wide.appendChild(el('p', 'ht-label', 'Add on the same visit'));
+    var adds = el('div', 'ht-opts ht-opts--adds');
     P.extras.filter(function (x) { return x.addable; }).forEach(function (x) {
       var on = pick.extras.indexOf(x.key) !== -1, why = rec.extras[x.key];
       var row = el('div', 'bt-pick ht-opt');
@@ -97,7 +101,7 @@
       b.addEventListener('click', function () { var i = pick.extras.indexOf(x.key); if (i === -1) pick.extras.push(x.key); else pick.extras.splice(i, 1); redraw(); });
       row.appendChild(b); info(row, x.scope + '. ' + x.info, x.name); adds.appendChild(row);
     });
-    right.appendChild(adds);
+    wide.appendChild(adds);
 
     /* The total, the deposit and the way on, once a type and a size are chosen. */
     var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
@@ -112,8 +116,8 @@
     var go = el('button', 'btn btn--primary btn--lg', 'Choose a time'); go.type = 'button'; go.disabled = !(z && pick.service && d.issues.length);
     go.addEventListener('click', done);
     bar.appendChild(go);
-    right.appendChild(bar);
-    if (!d.issues.length) right.appendChild(el('p', 'ht-sub ht-hint', 'Tick what you are dealing with first.'));
+    wide.appendChild(bar);
+    if (!d.issues.length) wide.appendChild(el('p', 'ht-sub ht-hint', 'Tick what you are dealing with first.'));
   }
 
   global.HTNEED = { draw: draw, recommended: recommended };

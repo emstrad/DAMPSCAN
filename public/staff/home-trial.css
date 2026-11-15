@@ -24,21 +24,27 @@
 .ht-open > .ht-stage { position: relative; grid-column: 1 / -1; overflow: visible; }
 .ht-inner { opacity: 0; transition: opacity .24s ease-out; }
 .ht-stage.is-shown .ht-inner { opacity: 1; }
-.ht-top { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.ht-stage.book-card { padding: clamp(16px, 2vw, 24px); }
+.ht-top { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
 .ht-top .dots { flex: 1; margin: 0; }
 .ht-back { min-height: 44px; }
 .ht-pane { animation: ht-in .3s cubic-bezier(.2,.8,.2,1) both; display: flex; flex-direction: column; align-items: flex-start; }
+/* Steps 3, 4 and the end sit in the middle of the card. */
+.ht-pane--c { align-items: center; text-align: center; }
+.ht-pane--c .ht-sub { margin-left: auto; margin-right: auto; }
+.ht-pane--c .ht-extras { text-align: left; }
 @keyframes ht-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
-.ht-h { font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -.015em; margin: 0 0 12px; text-wrap: balance; }
-.ht-sub { color: var(--muted); margin: 0 0 16px; max-width: 62ch; font-size: 15px; }
-.ht-label { font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted-2); font-weight: 600; margin: 18px 0 8px; }
+.ht-h { font-size: clamp(19px, 2vw, 24px); letter-spacing: -.015em; margin: 0 0 8px; text-wrap: balance; }
+.ht-sub { color: var(--muted); margin: 0 0 12px; max-width: 62ch; font-size: 15px; }
+.ht-label { font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted-2); font-weight: 600; margin: 12px 0 6px; }
 
 /* Step 2: what they are dealing with beside their survey. */
-.ht-need { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(20px, 3vw, 40px); width: 100%; }
+.ht-need { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(16px, 2.6vw, 32px); width: 100%; }
+.ht-need-wide { width: 100%; }
 .ht-need-q, .ht-need-pick { min-width: 0; }
-.ht-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ht-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .ht-tile { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left;
-  padding: 14px; min-height: 76px; border-radius: 14px; border: 1px solid var(--line-strong); background: rgba(127,127,127,.06); color: inherit; font: inherit; cursor: pointer;
+  padding: 10px 12px; min-height: 60px; border-radius: 12px; border: 1px solid var(--line-strong); background: rgba(127,127,127,.06); color: inherit; font: inherit; cursor: pointer;
   transition: transform .15s ease-out, border-color .15s, background .15s, box-shadow .15s; }
 .ht-tile:active { transform: scale(.98); }
 .ht-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
@@ -47,8 +53,10 @@
 .ht-tile-say { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
 .ht-opts { display: grid; gap: 8px; width: 100%; }
 .ht-opts--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.ht-opt { min-width: 0; }
-.ht-opt .bt-survey { width: 100%; min-height: 52px; gap: 4px; border-color: var(--line-strong); transition: border-color .15s, background .15s; }
+.ht-opts--adds { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; column-gap: 14px; }
+.ht-opt { min-width: 0; grid-template-columns: minmax(0, 1fr) auto; }
+.ht-opt .bt-survey { min-width: 0; }
+.ht-opt .bt-survey { width: 100%; min-height: 48px; gap: 4px; border-color: var(--line-strong); transition: border-color .15s, background .15s; }
 .ht-opt .bt-survey[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); border-width: 1px; box-shadow: 0 0 0 1px var(--accent) inset; }
 .ht-opt-top { display: flex; align-items: center; gap: 10px; width: 100%; }
 .ht-opt-top b { flex: 1; min-width: 0; }
@@ -59,7 +67,7 @@
 .ht-box { width: 20px; height: 20px; flex: none; border-radius: 6px; border: 1.5px solid var(--line-strong); display: grid; place-items: center; color: var(--on-accent, #06121f); }
 .ht-add[aria-pressed="true"] .ht-box { background: var(--accent); border-color: var(--accent); }
 .ht-info { margin: 0 0 6px !important; padding: 10px 12px; border-radius: 10px; background: rgba(127,127,127,.08); font-size: 13.5px !important; line-height: 1.45; opacity: 1 !important; }
-.ht-total { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-strong); }
+.ht-total { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-strong); }
 .ht-total div { display: grid; }
 .ht-total b { font-size: 24px; }
 .ht-total div span { font-size: 13px; color: var(--muted); }
@@ -68,13 +76,21 @@
 .ht-hint { margin-top: 8px; }
 
 /* Step 3 and 4, and the end. */
-.ht-days { margin-bottom: 14px; }
+.ht-week { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
+.ht-week-label { min-width: 150px; }
+.ht-arrow { min-width: 44px; font-size: 20px; line-height: 1; }
+.ht-arrow:disabled, .ht-dayb:disabled { opacity: .35; cursor: default; }
+.ht-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; width: 100%; max-width: 560px; margin-bottom: 10px; }
+.ht-dayb { display: grid; justify-items: center; gap: 2px; padding: 8px 0; min-width: 0; }
+.ht-dayb span { font-size: 12px; opacity: .8; }
+.ht-dayb b { font-size: 17px; }
 .ht-days .bt-time[aria-pressed="true"] { background: var(--accent); color: var(--on-accent, #06121f); }
-.ht-day { font-weight: 700; margin: 6px 0 10px; }
-.ht-times { min-height: 60px; margin-bottom: 8px; }
-.ht-extras { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 640px; margin-bottom: 22px; }
-.ht-pane .check-ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 14px; }
-.ht-sum { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; width: 100%; max-width: 640px; margin: 14px 0 18px; }
+.ht-day { font-weight: 700; margin: 4px 0 8px; }
+.ht-times { min-height: 60px; margin-bottom: 6px; }
+.ht-times .bt-row { justify-content: center; }
+.ht-extras { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; margin-bottom: 16px; }
+.ht-pane .check-ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 10px; }
+.ht-sum { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 18px; width: 100%; max-width: 520px; margin: 10px 0 14px; text-align: left; }
 .ht-sum dt { color: var(--muted); }
 .ht-sum dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
 .ht-badge { position: fixed; z-index: 1100; right: max(10px, env(safe-area-inset-right, 0px)); bottom: max(10px, env(safe-area-inset-bottom, 0px)); opacity: .92;
@@ -82,7 +98,7 @@
 
 @media (max-width: 980px) { .ht-need { grid-template-columns: 1fr; } }
 @media (max-width: 480px) {
-  .ht-opts--2 { grid-template-columns: 1fr; }
+  .ht-opts--2, .ht-opts--adds { grid-template-columns: 1fr; }
   .ht-tiles { gap: 8px; }
   /* On a phone the tiles keep just the picture and the name, two to a row. */
   .ht-tile { grid-template-columns: 1fr; row-gap: 6px; padding: 12px; min-height: 0; }
