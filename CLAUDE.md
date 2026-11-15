@@ -534,9 +534,9 @@ checks the mechanical ones.
   (requested, waiting, agent, deposit, booked, writing, ready, report,
   cancelled), worked out on the server from real payments (job_payments or
   the ticks): deposit 50%, in full, or any amount from the deposit up; the
-  report unlocks only on the full balance and downloads only after the
-  property postcode is typed (five wrong tries in 30 minutes lock it and make
-  a to-do). Bank transfer shows a reference of their first name and the
+  report unlocks only on the full balance and opens from the private link
+  alone (no postcode to type, the owner's choice, 15 Nov 2026: the page shows
+  the postcode, so it guarded nothing; every download is logged). Bank transfer shows a reference of their first name and the
   survey number (KIM0042) as the hero, with copy buttons; nobody ticks "I've
   sent it". No "before we arrive", no report due date (the owners' choice).
   An agent booking says access is being arranged with the agent. "Your
@@ -628,8 +628,7 @@ checks the mechanical ones.
   scroll through, iPhone included. Download stays in the pop-up's top bar.
   Files are fetched and shown from memory, so the attachment route keeps
   sending them as downloads. The viewer is a modal dialog of its own, so it
-  opens over the job pop-up and swipes there too. The customer's report opens the same way after
-  the postcode check.
+  opens over the job pop-up and swipes there too. The customer's report opens the same way.
 - Ronnie alone gets the Send to car button.
 - The phone's bottom bar: Today, Scheduling (damp managers only), +, Companies,
   Search (surveyors have their own, above). No Money button (the owner's choice); the bank stays in the
