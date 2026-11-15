@@ -107,26 +107,20 @@
     card.appendChild(rep); main.appendChild(card); return card;
   }
   /* The download asks for the property postcode, so a forwarded link alone is not enough. */
+  /* Paid in full and reported: the report opens on screen, with Download in the viewer's top bar. */
   function downloadGate(card, p) {
-    card.appendChild(t('div', 'pt-label', 'Confirm the property postcode'));
-    var f = h('label', 'pt-field'), inp = t('input'); inp.id = 'pt-postcode'; inp.autocomplete = 'postal-code'; inp.autocapitalize = 'characters'; inp.setAttribute('aria-label', 'Postcode'); inp.placeholder = 'Postcode';
-    f.appendChild(inp); card.appendChild(f);
-    var msg = t('p', 'pt-hint', 'This keeps your report private if this link is ever forwarded.'); card.appendChild(msg);
+    var msg = t('p', 'pt-hint', ''); msg.hidden = true;
     var got = null, show = function () { if (window.DSVIEW && got) window.DSVIEW.open([{ blob: got, name: p.report.name }], 0); };
     var dl = btn('pt-btn', '<span class="in">' + I.dl + ' Open report</span>', function () {
       if (got) return show();
-      if (!inp.value.trim()) { inp.focus(); return; }
       dl.classList.add('busy'); dl.disabled = true;
-      fetch(api + '&file=report&pc=' + encodeURIComponent(inp.value)).then(function (r) {
-        if (r.ok) return r.blob().then(function (b) {
-          /* Opens on screen to scroll through, with Download in the viewer's top bar. */
-          dl.classList.remove('busy'); dl.disabled = false; got = b; show();
-        });
-        dl.classList.remove('busy'); dl.disabled = false; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); msg.className = 'pt-hint bad';
-        msg.textContent = r.status === 403 ? 'That postcode doesn\'t match this survey.' : r.status === 429 ? 'Downloads are paused for 30 minutes. Call us on ' + p.brand.phoneLabel + ' if you need it now.' : 'That didn\'t work. Please try again.';
-      }, function () { dl.classList.remove('busy'); dl.disabled = false; msg.className = 'pt-hint bad'; msg.textContent = 'No connection. Please try again.'; });
+      fetch(api + '&file=report').then(function (r) {
+        dl.classList.remove('busy'); dl.disabled = false;
+        if (r.ok) return r.blob().then(function (b) { got = b; show(); });
+        msg.hidden = false; msg.className = 'pt-hint bad'; msg.textContent = 'That didn\'t open. Please try again, or call us on ' + p.brand.phoneLabel + '.';
+      }, function () { dl.classList.remove('busy'); dl.disabled = false; msg.hidden = false; msg.className = 'pt-hint bad'; msg.textContent = 'No connection. Please try again.'; });
     });
-    card.appendChild(dl); moneyBar(card, p.money);
+    card.appendChild(dl); card.appendChild(msg); moneyBar(card, p.money);
   }
 
   /* Starts a payment on Stripe's secure page; it comes back here with &paid=1. */

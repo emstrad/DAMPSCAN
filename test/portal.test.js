@@ -89,17 +89,17 @@ test('the page route answers 404 for a wrong link and 410 for an old one', async
 const call = async (q) => { const res = { headers: {}, statusCode: 0, setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b; } };
   await handler({ method: 'GET', url: '/api/quote?doc=portal&' + q, headers: { 'x-forwarded-for': '1.2.3.4', 'user-agent': 'iPhone' }, socket: {} }, res); return res; };
 
-test('the report downloads only with the right postcode, and five wrong tries lock it and tell the team', async () => {
+test('the report opens from the private link alone once paid in full and reported; never before', async () => {
   const id = await job();
-  await pool.query("update jobs set paid_at = now(), survey_sent_at = now(), report_path = 'r/x.pdf' where id = $1", [id]);
+  await pool.query("update jobs set survey_sent_at = now(), report_path = 'r/x.pdf' where id = $1", [id]);
   const { t } = await view(id);
-  for (let i = 0; i < 4; i += 1) assert.equal((await call(`t=${t}&file=report&pc=ME1 1AA`)).statusCode, 403);
-  assert.equal((await call(`t=${t}&file=report&pc=ME1 1AA`)).statusCode, 429, 'the fifth wrong try locks it');
-  assert.equal((await call(`t=${t}&file=report&pc=me19 6ab`)).statusCode, 429, 'even the right postcode waits out the lock');
-  const todo = (await pool.query('select text from todos where job_id = $1', [id])).rows[0];
-  assert.match(todo.text, /wrong postcode 5 times/);
-  const kinds = (await pool.query('select kind from portal_events where job_id = $1 order by id', [id])).rows.map((r) => r.kind);
-  assert.ok(kinds.includes('opened') && kinds.includes('locked'));
+  const early = await call(`t=${t}&file=report`);
+  assert.equal(early.statusCode, 404, 'not paid in full: not yet');
+  assert.equal(JSON.parse(early.body).error, 'not_ready');
+  await pool.query('update jobs set paid_at = now() where id = $1', [id]);
+  const now = await call(`t=${t}&file=report`);
+  assert.notEqual(JSON.parse(now.body || '{}').error, 'not_ready', 'no postcode asked for: straight to the file');
+  assert.ok(![403, 429].includes(now.statusCode));
 });
 
 test('cancelled 48 hours or more before is a full refund; later the deposit is kept', async () => {
