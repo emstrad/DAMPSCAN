@@ -1,8 +1,8 @@
 /* The home page booking trial (the owner's brief, 15 Nov 2026), on an exact copy
-   of the home page (scripts/trial-home.js). Step 1 in the usual card: name,
-   mobile, email, the full address and who lets us in. Then the card opens out to
-   fill the screen for step 2, what they are dealing with and what they need
-   (home-trial-need.js), step 3, a real free time from the Lab's route, and
+   of the home page (scripts/trial-home.js). Step 1 in the usual card, kept
+   compact: name, mobile, email, the full address and who lets us in. Then the
+   card grows across the hero for step 2, what they are dealing with and their
+   survey (home-trial-need.js), step 3, a real free time from the Lab's route, and
    step 4, anything to add. Nothing is saved or sent: the end shows what the live
    form would have done. Owners only; anyone else goes to the staff sign-in. */
 (function (global) {
@@ -35,11 +35,8 @@
     bad = mark($('f-name'), !$('f-name').value.trim()) || bad;
     bad = mark($('f-phone'), !phoneOk($('f-phone').value)) || bad;
     bad = mark($('f-email'), !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('f-email').value.trim())) || bad;
-    var noAddr = !$('f-addr1').value.trim(), noPc = !pcOk($('f-postcode').value);
-    $('f-addr1').setAttribute('aria-invalid', String(noAddr)); $('f-postcode').setAttribute('aria-invalid', String(noPc));
-    var errs = $('f-addr1').closest('.form-row').querySelectorAll('.err');
-    errs[0].style.display = noAddr ? 'block' : 'none'; errs[1].style.display = noPc ? 'block' : 'none';
-    bad = bad || noAddr || noPc;
+    bad = mark($('f-postcode'), !pcOk($('f-postcode').value)) || bad;
+    bad = mark($('f-addr1'), !$('f-addr1').value.trim()) || bad;
     if ($('f-agent-on').checked) {
       bad = mark($('f-agent'), !$('f-agent').value.trim()) || bad;
       bad = mark($('f-agent-phone'), !phoneOk($('f-agent-phone').value)) || bad;
@@ -56,31 +53,49 @@
     open();
   });
 
-  /* ---------- The card opens out to fill the screen ---------- */
-  function place(r) { stage.style.top = r.top + 'px'; stage.style.left = r.left + 'px'; stage.style.width = r.width + 'px'; stage.style.height = r.height + 'px'; }
+  /* The card grows across the hero, from where it sits to the hero's whole width,
+     then settles into the page so the hero simply grows with what it holds. */
+  var hero = card.closest('.hero-grid') || card.parentNode;
+  function box(r) { var c = hero.getBoundingClientRect(); return { top: r.top - c.top, left: r.left - c.left, width: r.width, height: r.height }; }
+  function place(b) { stage.style.top = b.top + 'px'; stage.style.left = b.left + 'px'; stage.style.width = b.width + 'px'; stage.style.height = b.height + 'px'; }
+  function full() {
+    var cs = getComputedStyle(hero), c = hero.getBoundingClientRect();
+    var pl = parseFloat(cs.paddingLeft) || 0, pr = parseFloat(cs.paddingRight) || 0, pt = parseFloat(cs.paddingTop) || 0, pb = parseFloat(cs.paddingBottom) || 0;
+    return { top: pt, left: pl, width: c.width - pl - pr, height: Math.max(c.height - pt - pb, card.offsetHeight) };
+  }
+  var MS = reduce ? 0 : 480;
   function open() {
-    stage = el('div', card.className + ' ht-stage'); stage.setAttribute('role', 'dialog'); stage.setAttribute('aria-modal', 'true'); stage.setAttribute('aria-label', 'Book your survey');
+    stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
+    stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '← Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
-    place(card.getBoundingClientRect());
-    document.body.appendChild(stage); document.documentElement.classList.add('ht-lock');
+    place(box(card.getBoundingClientRect()));
+    hero.appendChild(stage);
+    card.style.visibility = 'hidden';
     void stage.offsetWidth;
-    stage.classList.add('is-open');
-    setTimeout(function () { stage.classList.add('is-shown'); }, reduce ? 0 : 260);
+    stage.classList.add('is-moving'); place(full());
+    setTimeout(function () {
+      if (!stage) return;
+      /* Settled: in the page's flow, the hero's copy set aside, the height its content's. */
+      hero.classList.add('ht-open'); stage.classList.remove('is-moving'); stage.removeAttribute('style'); stage.classList.add('is-shown');
+      var y = hero.getBoundingClientRect().top + window.scrollY - 90;
+      if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+    }, MS);
     if (!prices) fetch('/api/admin/hours?view=slots', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (x) { if (!x.prices) throw new Error(); prices = x.prices; if (step === 2) go(2); })
       .catch(function () { if (step === 2 && body) { body.textContent = ''; body.appendChild(el('p', 'ht-sub', 'Prices could not load: are you signed in as an owner?')); } });
     go(2);
   }
   function close() {
-    stage.classList.remove('is-shown');
-    place(card.getBoundingClientRect());
-    stage.classList.remove('is-open');
-    var s = stage; stage = null;
-    setTimeout(function () { s.remove(); document.documentElement.classList.remove('ht-lock'); }, reduce ? 0 : 460);
-    step = 1; dotsTo(1);
+    var s = stage; if (!s) return;
+    var from = box(s.getBoundingClientRect());
+    s.classList.remove('is-shown'); hero.classList.remove('ht-open');
+    place(from); void s.offsetWidth;
+    s.classList.add('is-moving'); place(box(card.getBoundingClientRect()));
+    stage = null; step = 1; dotsTo(1);
+    setTimeout(function () { s.remove(); card.style.visibility = ''; }, MS);
   }
   function dotsTo(n) {
     [$('dots'), $('ht-dots')].forEach(function (box) {
@@ -97,7 +112,8 @@
     if (n === 3) when(pane);
     if (n === 4) extras(pane);
     if (n === 5) done(pane);
-    body.scrollTop = 0;
+    /* A new step starts at its top, under the site's header. */
+    if (stage && stage.classList.contains('is-shown')) { var y = stage.getBoundingClientRect().top + window.scrollY - 90; if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); }
   }
 
   /* ---------- Step 3: a real free time for their postcode and survey length ---------- */
@@ -174,5 +190,4 @@
   }
 
   global.addEventListener('keydown', function (e) { if (e.key === 'Escape' && stage) close(); });
-  global.addEventListener('resize', function () { if (stage && !stage.classList.contains('is-open')) place(card.getBoundingClientRect()); });
 })(window);

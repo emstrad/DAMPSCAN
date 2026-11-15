@@ -51,22 +51,25 @@ export function trialForm(site) {
                 <span class="err">Please enter a UK number, 11 digits, e.g. 07700 900123.</span>
               </div>
             </div>
-            <div class="form-row">
-              <label for="f-email">Email address</label>
-              <input id="f-email" type="email" inputmode="email" autocomplete="email" required />
-              <span class="err">Please enter a valid email address.</span>
-            </div>
-            <div class="form-row addr">
-              <label for="f-addr1">Address for the survey</label>
-              <div class="addr-fields">
-                <input id="f-addr1" type="text" autocomplete="address-line1" placeholder="House number and street" required />
-                <span class="err">Please give the address for the survey.</span>
-                <div class="two-col">
-                  <input id="f-town" type="text" autocomplete="address-level2" placeholder="Town or city" />
-                  <input id="f-postcode" type="text" autocomplete="postal-code" placeholder="Postcode" required />
-                </div>
-                <span class="err" id="f-postcode-err">Please enter the postcode.</span>
+            <div class="two-col">
+              <div class="form-row">
+                <label for="f-email">Email address</label>
+                <input id="f-email" type="email" inputmode="email" autocomplete="email" required />
+                <span class="err">Please enter a valid email address.</span>
               </div>
+              <div class="form-row">
+                <label for="f-postcode">Postcode</label>
+                <input id="f-postcode" type="text" autocomplete="postal-code" required />
+                <span class="err">Please enter the postcode.</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="f-addr1">Address for the survey</label>
+              <div class="two-col">
+                <input id="f-addr1" type="text" autocomplete="address-line1" placeholder="House number and street" required />
+                <input id="f-town" type="text" autocomplete="address-level2" placeholder="Town or city" />
+              </div>
+              <span class="err">Please give the address for the survey.</span>
             </div>
             <div class="form-row">
               <label id="access-label">Who will let us in?</label>
