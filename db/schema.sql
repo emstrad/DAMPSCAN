@@ -1619,3 +1619,20 @@ create table if not exists paid_out (
   removed_by    text
 );
 create index if not exists paid_out_person_idx on paid_out (person_key, paid_on desc);
+
+-- Expenses (Company, Money, lib/company-money.js, the owners' plan 15 Nov 2026):
+-- every cost that is not a survey's own (Google Ads, bank fees, software,
+-- equipment...), with its receipt. Never edited; removed with who and when.
+create table if not exists expenses (
+  id            bigserial primary key,
+  spent_on      date   not null default current_date,
+  amount_pence  bigint not null check (amount_pence > 0),
+  category      text   not null,
+  what          text,
+  receipt_path  text,
+  added_by      text,
+  created_at    timestamptz not null default now(),
+  removed_at    timestamptz,
+  removed_by    text
+);
+create index if not exists expenses_day_idx on expenses (spent_on desc);
