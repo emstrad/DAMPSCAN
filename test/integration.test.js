@@ -300,23 +300,36 @@ test('invalid fields return 400 with a field-keyed error object', async () => {
   assert.equal(rows[0].n, 0, 'nothing is written on a validation failure');
 });
 
-test('rate limit: 8 leads allowed, the 9th is refused', async () => {
+test('rate limit: the form allowance is used, then refused', async () => {
+  const { LIMITS } = await import('../lib/ratelimit.js');
+  const n = LIMITS.lead.limit;
   const statuses = [];
-  for (let i = 0; i < 10; i += 1) {
+  for (let i = 0; i < n + 2; i += 1) {
     const res = await call(lead, {
-      body: validLead({ sessionId: `3333333${i}-3333-4333-8333-333333333333` }),
+      body: validLead({ sessionId: `33333333-3333-4333-8333-${String(i).padStart(12, '3')}` }),
       ip: '198.51.100.7'
     });
     statuses.push(res.statusCode);
   }
-  assert.deepEqual(statuses.slice(0, 8), Array(8).fill(200));
-  assert.equal(statuses[8], 429);
-  assert.equal(statuses[9], 429);
+  assert.deepEqual(statuses.slice(0, n), Array(n).fill(200));
+  assert.equal(statuses[n], 429);
+  assert.equal(statuses[n + 1], 429);
+});
+
+test('booking steps after the form never use up the form allowance (UAT, 15 Nov 2026)', async () => {
+  const { LIMITS } = await import('../lib/ratelimit.js');
+  for (let i = 0; i < LIMITS.lead.limit + 5; i += 1) {
+    const res = await call(lead, { body: { op: 'times', leadId: 999999, sessionId: SID_B }, ip: '198.51.100.20' });
+    assert.notEqual(res.statusCode, 429, 'looking at times is its own allowance');
+  }
+  const form = await call(lead, { body: validLead({ sessionId: '55555555-5555-4555-8555-555555555555' }), ip: '198.51.100.20' });
+  assert.equal(form.statusCode, 200, 'the form still goes after a lot of looking at times');
 });
 
 test('rate limit is per address, so one visitor cannot lock out another', async () => {
-  for (let i = 0; i < 9; i += 1) {
-    await call(lead, { body: validLead({ sessionId: `4444444${i}-4444-4444-8444-444444444444` }), ip: '198.51.100.8' });
+  const { LIMITS } = await import('../lib/ratelimit.js');
+  for (let i = 0; i < LIMITS.lead.limit + 1; i += 1) {
+    await call(lead, { body: validLead({ sessionId: `44444444-4444-4444-8444-${String(i).padStart(12, '4')}` }), ip: '198.51.100.8' });
   }
   const other = await call(lead, { body: validLead({ sessionId: SID_B }), ip: '198.51.100.9' });
   assert.equal(other.statusCode, 200);
