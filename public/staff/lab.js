@@ -53,16 +53,27 @@
     try {
       var pc = el('lab-pc') ? el('lab-pc').value.trim() : '';
       var data = await U.get('/api/admin/hours?view=slots' + (pc ? '&postcode=' + encodeURIComponent(pc) : ''));
-      prices = data.prices;
+      prices = data.prices; surveyPreview();
       el('sw-slots').checked = Boolean(data.live); el('sw-quiz').checked = Boolean(data.quiz); if (el('sw-instant')) el('sw-instant').checked = Boolean(data.instant);
       el('sw-slots').disabled = el('sw-quiz').disabled = false; if (el('sw-instant')) el('sw-instant').disabled = false;
       slots(data.slots);
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
   }
 
-  global.SurveyQuiz.mount(el('quiz'), { onChoose: function (r) {
-    el('quiz-out').textContent = 'On the website this would open the booking form with "' + r.survey.name + '" chosen' + (r.addOns.length ? ' and ' + r.addOns.map(function (x) { return x.name.toLowerCase(); }).join(' and ') + ' noted' : '') + '.';
-  } });
+  /* The new survey step with what the form would have told us: tick a box above it to see the recommendation change. */
+  function surveyPreview() {
+    if (!prices || !global.SurveyPick) return;
+    var known = {};
+    document.querySelectorAll('#quiz-known input').forEach(function (c) { known[c.dataset.k] = c.checked; });
+    el('quiz-out').textContent = '';
+    global.SurveyPick.mount(el('quiz'), { prices: prices, known: known, onChoose: function (r) {
+      var z = prices.sizes.filter(function (x) { return x.key === r.size; })[0];
+      var adds = prices.extras.filter(function (x) { return r.extras.indexOf(x.key) !== -1; }).map(function (x) { return x.name.toLowerCase(); });
+      el('quiz-out').textContent = 'Booked as ' + z.name + (r.service === 'timber' ? ' damp and timber' : ' damp') + ' survey' + (adds.length ? ' with ' + adds.join(' and ') : '') + ', £' + r.totalPounds
+        + (r.size !== r.recommended.size ? '. Not what we recommended: the card would say so.' : '') + '. Next on the website: the times that fit it.';
+    } });
+  }
+  document.querySelectorAll('#quiz-known input').forEach(function (c) { c.addEventListener('change', surveyPreview); });
   /* The two switches that put the time picker and the survey step on the sites. */
   ['sw-slots', 'sw-quiz', 'sw-instant'].forEach(function (id) {
     var box = el(id);
