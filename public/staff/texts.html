@@ -55,6 +55,7 @@
 <main class="wrap">
   <h1 class="sv-h1">Texts</h1>
   <p class="tx-live" id="live"></p>
+  <p class="tx-live" id="runner" hidden></p>
   <div class="state" id="state">Loading…</div>
   <div id="content" hidden>
     <div class="pills tx-brands" role="group" aria-label="Company" id="brands"></div>
@@ -64,6 +65,12 @@
       <button class="pill" type="button" data-tab="wording" aria-pressed="false">Wording</button>
     </div>
     <div id="list" class="tx-list"></div>
+    <details class="sheet-fold tx-fresh" id="fresh" hidden>
+      <summary>Start fresh before going live</summary>
+      <p class="meta">Stops every text waiting now. Surveys already visited (waiting on payment or their report) never get a text. Surveys still to come keep theirs.</p>
+      <button class="btn btn--sm" type="button" id="fresh-go">Start fresh</button>
+      <p class="meta" id="fresh-say" role="status"></p>
+    </details>
   </div>
   <dialog class="tx-dlg" id="phone" aria-labelledby="ph-title"></dialog>
 </main>

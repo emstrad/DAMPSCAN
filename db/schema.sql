@@ -1640,3 +1640,8 @@ create index if not exists expenses_day_idx on expenses (spent_on desc);
 -- check (lib/tide-check.js), so the next check matches it exactly.
 alter table paid_out add column if not exists bank_ref text;
 alter table expenses add column if not exists bank_ref text;
+
+-- The fresh start before customer texts go live (the owner, 15 Nov 2026): a
+-- survey whose visit had already passed gets no texts at all, so customers
+-- part way through (awaiting payment or their report) hear nothing new.
+alter table jobs add column if not exists texts_off boolean not null default false;
