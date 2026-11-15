@@ -269,7 +269,15 @@ checks the mechanical ones.
 - Company (`public/staff/company.html`, Scott and Tom only: the owners' code or
   whoever manages both damp brands, the owners' plan, 15 Nov 2026): one hub for
   running the business, tab by tab, replacing Bank, Dashboard, Insights and
-  Records as each tab lands. Pay first (`lib/pay-book.js`, `company-pay.js`,
+  Records as each tab lands. It opens on Overview (`lib/company-overview.js`,
+  `company-overview.js`, `?view=overview`; tabs in `company-tabs.js`, each
+  remembered in the address): Needs you now (the tax pot short, each person
+  owed, surveys done and not paid, a salary for Scott or Tom or the Google Ads
+  spend not logged for last month, the VAT threshold near), each opening where
+  it is put right; then this month against last (money in, surveys paid,
+  profit, enquiries and booked), booked ahead, the company year heading for
+  (the last three full months' pace for the months left, profit at this year's
+  margin, its corporation tax) and the last six months. Pay (`lib/pay-book.js`, `company-pay.js`,
   `/api/admin/pay`): cards for Corp tax, Scott, Tom, Ben and Ronnie with what is
   owed now (earned less paid out), each opening a statement with a running
   balance and Record a payment (paid_out, never edited, removed only with who and
@@ -300,6 +308,16 @@ checks the mechanical ones.
   (cash never expected). Nothing from the file is stored. It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
+  Growth (`lib/company-growth.js`, `company-growth.js`, `?view=growth`):
+  Google Ads first (this month, last month, the year): the spend logged on
+  Money against what paid clicks became (the session's paid channel or a Google
+  click id): enquiries, booked, money paid, cost per enquiry and per booking,
+  and the return per pound; then month by month (visitors, enquiries, booked
+  with its rate, paid, money) and every source over the company year, best
+  money first, phone callers apart. For ATi and DampScan the Leads page
+  (as Website), Insights and Records are no longer damp section tabs: they sit
+  in Company's tab row (`company-hub.js` draws the same row on those pages),
+  reached through ALSO in area.js; Verge and CoolRight keep their own.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).

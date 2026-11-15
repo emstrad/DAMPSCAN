@@ -1,8 +1,7 @@
 /* Company, Money (the owners' plan, 15 Nov 2026): money in, costs and profit
    for the period; the tax pot against corporation tax worked out on real
    profit; the VAT threshold; ways to lower this year's tax; and the expenses
-   log with receipts. Figures from lib/company-money.js. Also switches the
-   hub's tabs. */
+   log with receipts. Figures from lib/company-money.js. */
 (function (global) {
   'use strict';
   var U = global.DSUI, node = U.node;
@@ -17,19 +16,7 @@
     ['year', 'This year', function () { return [yearStart(), '']; }], ['12', 'Last 12 months', function () { return [shift(-11), '']; }]];
   var state = { range: 'year', data: null, loaded: false };
 
-  /* The hub's tabs, remembered in the address (#money, #bank). Each tab's script
-     may register a loader on DSCOTABS, run the first time it opens. */
-  var loaders = global.DSCOTABS = global.DSCOTABS || {};
-  loaders.money = function () { if (!state.loaded) load(); };
-  function show(tab) {
-    document.querySelectorAll('.co-tabs [data-tab]').forEach(function (b) {
-      var on = b.dataset.tab === tab, panel = el('tab-' + b.dataset.tab);
-      b.setAttribute('aria-pressed', String(on)); if (panel) panel.hidden = !on;
-    });
-    if (global.history && global.history.replaceState) global.history.replaceState(null, '', global.location.pathname + global.location.search + (tab === 'pay' ? '' : '#' + tab));
-    if (loaders[tab]) loaders[tab]();
-  }
-  document.querySelectorAll('.co-tabs [data-tab]').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
+  (global.DSCOTABS = global.DSCOTABS || {}).money = function () { if (!state.loaded) load(); };
 
   async function load() {
     var r = RANGES.filter(function (x) { return x[0] === state.range; })[0][2]();
@@ -132,8 +119,4 @@
           .then(function (r) { return r.json(); }).then(function (x) { if (!x.ok || !x.path) throw new Error(); return x.path; });
       });
   }
-
-  /* Loaded last, after the other tabs' scripts have registered. */
-  var start = global.location.hash.slice(1);
-  show(document.querySelector('.co-tabs [data-tab="' + start + '"]') ? start : 'pay');
 })(window);
