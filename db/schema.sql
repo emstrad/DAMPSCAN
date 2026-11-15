@@ -1602,3 +1602,20 @@ create table if not exists drive_times (
   minutes    numeric not null,
   looked_at  timestamptz not null default now()
 );
+
+-- Paid out (the pay logbook, lib/pay-book.js, the owners' brief 15 Nov 2026): every
+-- payment made to a person, or moved into the tax pot. Never edited; a mistake is
+-- removed with who and when, so the statement always shows what happened.
+create table if not exists paid_out (
+  id            bigserial primary key,
+  person_key    text   not null check (person_key in ('tax', 'scott', 'tom', 'ben', 'ronnie')),
+  amount_pence  bigint not null check (amount_pence <> 0),
+  paid_on       date   not null default current_date,
+  how           text,
+  note          text,
+  added_by      text,
+  created_at    timestamptz not null default now(),
+  removed_at    timestamptz,
+  removed_by    text
+);
+create index if not exists paid_out_person_idx on paid_out (person_key, paid_on desc);
