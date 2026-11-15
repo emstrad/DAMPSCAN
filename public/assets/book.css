@@ -256,3 +256,22 @@
 .sp-sum b{font-size:22px;line-height:1.1}
 .sp-sum span{font-size:.75em;opacity:.8}
 .sp-go{flex:none;min-height:48px;padding:0 18px;border-radius:12px;border:0;background:var(--accent,#4fa8e8);color:#06121f;font:inherit;font-weight:800;cursor:pointer}
+/* "Your survey plan" (survey-plan.js, option D): three choices, then the checks in plain words. */
+.pl{display:flex;flex-direction:column;gap:10px;text-align:left}
+.pl-lead{margin:0;font-weight:600}
+.pl-cards{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;padding-top:8px}
+.pl-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 4px 10px;border-radius:12px;border:1px solid rgba(127,127,127,.45);background:transparent;color:inherit;font:inherit;cursor:pointer}
+.pl-card b{font-size:.92em}
+.pl-card small{font-size:.7em;opacity:.75;text-align:center}
+.pl-price{font-size:1.15em;font-weight:800}
+.pl-card[aria-pressed="true"]{border:2px solid var(--accent-ring,#4fa8e8);background:var(--accent-soft,rgba(79,168,232,.14))}
+.pl-best{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-style:normal;font-size:.62em;font-weight:800;white-space:nowrap;padding:1px 7px;border-radius:999px;background:var(--accent,#4fa8e8);color:#06121f}
+.pl-h{margin:6px 0 0;font-weight:800}
+.pl-line{padding:10px 12px;border-radius:12px;border:1px solid rgba(127,127,127,.35)}
+.pl-line.is-off{opacity:.5}
+.pl-line-top{display:flex;justify-content:space-between;gap:10px}
+.pl-line-top span{font-weight:800;white-space:nowrap}
+.pl-why{margin:4px 0 0;font-size:.88em;color:var(--accent,#4fa8e8);font-weight:600}
+.pl-what{margin:3px 0 0;font-size:.85em;opacity:.85}
+.pl-toggle{min-height:44px;margin-top:2px;padding:0;background:none;border:0;color:inherit;font:inherit;font-size:.85em;text-decoration:underline;opacity:.8;cursor:pointer}
+.pl-get{margin:2px 0 0;font-size:.85em;opacity:.8}

@@ -9,8 +9,21 @@
   var FLOWS = {
     A: { name: 'A. Today\'s order', steps: ['you', 'problem', 'property', 'who', 'extras', 'survey', 'time', 'done'] },
     B: { name: 'B. Price first', steps: ['about', 'survey', 'time', 'details', 'done'] },
-    C: { name: 'C. Hybrid', steps: ['you', 'about', 'survey', 'time', 'finish', 'done'] }
+    C: { name: 'C. Hybrid', steps: ['you', 'about', 'survey', 'time', 'finish', 'done'] },
+    D: { name: 'D. Survey plan', steps: ['situation', 'see', 'home', 'plan', 'time', 'details', 'done'] }
   };
+  /* Test photos only, from Wikimedia Commons (CC BY-SA and public domain), until the owners' own survey photos replace them. */
+  var W = 'https://thumb.wikimedia.org/wikipedia/commons/thumb/';
+  var LOOKS = [
+    ['tide', 'A tide mark or bubbling paint low on the wall', W + '9/9c/Rising-damp.jpg/500px-Rising-damp.jpg'],
+    ['mould', 'Black mould in corners or on the ceiling', W + 'c/c0/Black_mold_in_a_building.JPG/500px-Black_mold_in_a_building.JPG'],
+    ['leak', 'Damp upstairs, on a ceiling or after rain', W + 'f/f8/A_water_damaged_public_house_wall_in_Broadstairs_Kent_England.jpg/500px-A_water_damaged_public_house_wall_in_Broadstairs_Kent_England.jpg'],
+    ['salts', 'White fluffy salts on the wall', W + '1/1c/Efflorescence_with_%C2%A31_coin_for_scale.jpg/500px-Efflorescence_with_%C2%A31_coin_for_scale.jpg'],
+    ['rot', 'Soft, rotten wood or a musty floor', W + '4/43/Serpula_lacrymans_1.jpg/500px-Serpula_lacrymans_1.jpg'],
+    ['woodworm', 'Small holes in wood (woodworm)', W + '9/95/FloorboardWithWoodwormDamage.JPG/500px-FloorboardWithWoodwormDamage.JPG'],
+    ['condensation', 'Streaming windows', W + '5/5e/Window_condensation_12022021.jpg/500px-Window_condensation_12022021.jpg'],
+    ['none', 'Nothing yet, or not sure', null]
+  ];
   var SEE = [['patch', 'Damp patches'], ['mould', 'Mould'], ['timber', 'Rot or woodworm'], ['floors', 'Soft or musty floors'], ['lowWall', 'Damp low on a wall'], ['high', 'Damp upstairs or ceiling']];
   var short = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   var nice = function (t) { var h = Number(t.slice(0, 2)); return (h % 12 || 12) + (t.slice(3) === '00' ? '' : ':' + t.slice(3)) + (h < 12 ? 'am' : 'pm'); };
@@ -132,6 +145,42 @@
         field(b, 'address', 'Property address');
         chips(b, 'Who will let us in?', [['me', 'Me'], ['agent', 'The estate agent']], 'who', false);
         go(b, 'Book it', function () { return d.address && d.who; });
+      },
+      situation: function () {
+        var b = shell('What is going on?');
+        [['buying', 'I am buying a home'], ['damp', 'I have damp or mould at home'], ['quote', 'I have been quoted for damp work and want a second opinion'], ['landlord', 'I am a landlord, or a tenant has complained'], ['other', 'Something else']].forEach(function (o) {
+          var c = node('button', 'lf-option', o[1]); c.type = 'button';
+          c.addEventListener('click', function () { d.situation = o[0]; if (o[0] === 'buying') d.why = 'buying'; next(); }); b.appendChild(c);
+        });
+      },
+      see: function () {
+        var b = shell('What can you see? Tap any');
+        var grid = node('div', 'lf-tiles');
+        LOOKS.forEach(function (l) {
+          var t = node('button', 'lf-tile'); t.type = 'button'; t.setAttribute('aria-pressed', String(d.see.indexOf(l[0]) !== -1));
+          if (l[2]) { var im = document.createElement('img'); im.src = l[2]; im.alt = ''; im.loading = 'lazy'; t.appendChild(im); }
+          t.appendChild(node('span', null, l[1]));
+          t.addEventListener('click', function () {
+            if (l[0] === 'none') d.see = d.see.indexOf('none') !== -1 ? [] : ['none'];
+            else d.see = (d.see.indexOf(l[0]) !== -1 ? d.see.filter(function (x) { return x !== l[0]; }) : d.see.concat(l[0])).filter(function (x) { return x !== 'none'; });
+            grid.querySelectorAll('.lf-tile').forEach(function (x, i) { x.setAttribute('aria-pressed', String(d.see.indexOf(LOOKS[i][0]) !== -1)); });
+          });
+          grid.appendChild(t);
+        });
+        b.appendChild(grid);
+        go(b, null, function () { return d.see.length; });
+      },
+      home: function () {
+        var b = shell('Your home');
+        field(b, 'postcode', 'Postcode');
+        chips(b, null, [['house', 'House'], ['flat', 'Flat'], ['bungalow', 'Bungalow']], 'type', false, function () { show(); });
+        if (d.type === 'flat') chips(b, 'Which floor?', [['ground', 'Ground floor'], ['upper', 'Upstairs']], 'floor', false);
+        chips(b, 'Bedrooms', [['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6+']], 'beds', false);
+        go(b, 'Show my survey plan', function () { return (d.postcode || '').trim().length >= 5 && d.type && d.beds && (d.type !== 'flat' || d.floor); });
+      },
+      plan: function () {
+        var b = shell('Your survey plan');
+        global.SurveyPlan.mount(b, { prices: prices, answers: { situation: d.situation, see: d.see, type: d.type, floor: d.floor, beds: d.beds }, onChoose: function (p) { d.pick = p; next(); } });
       },
       done: function () {
         var b = shell('Booked');
