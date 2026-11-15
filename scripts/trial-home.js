@@ -114,7 +114,7 @@ export function trialPage(html, site) {
     .replace(/(href|src)="assets\//g, '$1="/assets/')
     .replace('<head>', '<head>\n<meta name="robots" content="noindex, nofollow" />')
     .replace('</head>', '<link rel="stylesheet" href="/staff/home-trial.css" />\n</head>')
-    .replace('</body>', `<script src="/assets/survey-pick.js"></script>\n<script src="/staff/home-trial-need.js"></script>\n<script src="/staff/home-trial.js" data-site="${site}"></script>\n</body>`);
+    .replace('</body>', `<script src="/assets/survey-pick.js"></script>\n<script src="/staff/home-trial-need.js"></script>\n<script src="/staff/home-trial-done.js"></script>\n<script src="/staff/home-trial.js" data-site="${site}"></script>\n</body>`);
   return out;
 }
 

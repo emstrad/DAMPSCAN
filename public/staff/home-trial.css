@@ -73,7 +73,38 @@
 .ht-total div span { font-size: 13px; color: var(--muted); }
 .ht-total .ht-sub { margin: 0; }
 .ht-total .btn:disabled { opacity: .45; cursor: not-allowed; }
-.ht-hint { margin-top: 8px; }
+/* Numbered parts, each ticked once answered. */
+.ht-head { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
+.ht-head .ht-h { margin: 0; font-size: clamp(17px, 1.6vw, 20px); }
+.ht-need-pick .ht-head + .ht-opts { margin-bottom: 14px; }
+.ht-need-wide { margin-top: 16px; }
+.ht-num { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--accent); color: var(--accent); transition: background .2s ease-out, color .2s ease-out; }
+.ht-num.is-done { background: var(--accent); color: var(--on-accent, #06121f); }
+.ht-opt-note { font-size: 12.5px; color: var(--muted); }
+/* Equal heights in a row; a tag on the box's edge takes no room, so nothing moves. */
+.ht-opts { align-items: stretch; }
+.ht-opt { align-items: stretch; }
+.ht-opt .bt-survey { position: relative; height: 100%; justify-content: center; }
+.ht-rec--edge { position: absolute; top: -9px; right: 10px; padding: 2px 7px; background: var(--card-2, var(--card, #10233f)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--good, #52d39a) 55%, transparent); }
+.ht-rec--edge[hidden] { display: none; }
+/* The (i) note floats beside its button, or rises as a sheet on a phone. */
+.ht-pop { position: fixed; z-index: 1200; width: min(320px, calc(100vw - 24px)); padding: 14px 16px; border-radius: 14px; background: var(--card-2, #10233f); color: var(--text, #fff);
+  border: 1px solid var(--line-strong); box-shadow: 0 20px 50px -20px rgba(0,0,0,.7); animation: ht-pop .18s ease-out both; }
+.ht-pop b { display: block; margin-bottom: 4px; }
+.ht-pop p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.ht-pop .ht-pop-why { margin-top: 10px; color: inherit; }
+.ht-pop.is-sheet { left: 0; right: 0; bottom: 0; width: auto; border-radius: 18px 18px 0 0; padding: 18px 20px calc(18px + env(safe-area-inset-bottom, 0px)); animation-name: ht-sheet; }
+@keyframes ht-pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ht-sheet { from { transform: translateY(100%); } to { transform: none; } }
+/* The total pinned to the bottom of the screen while they scroll: the hero clips
+   rather than scrolls so it can stick, and the site's own phone bar steps aside. */
+.ht-booking .hero { overflow: clip; }
+.ht-stage.is-brand .ht-total, .ht-stage.is-brand .ht-rec--edge, .ht-pop.is-brand { background: var(--brand-card, #17325a); }
+.ht-pop.is-brand { color: #fff; border-color: rgba(255,255,255,.3); }
+.ht-pop.is-brand p { color: #cfdbee; }
+.ht-booking .action-bar { display: none !important; }
+.ht-pane--need .ht-total { position: sticky; bottom: 0; z-index: 3; background: var(--card-2, var(--card, #10233f)); margin-bottom: -4px; padding-bottom: 12px; }
 
 /* Step 3 and 4, and the end. */
 .ht-week { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
@@ -86,6 +117,17 @@
 .ht-dayb b { font-size: 17px; }
 .ht-days .bt-time[aria-pressed="true"] { background: var(--accent); color: var(--on-accent, #06121f); }
 .ht-day { font-weight: 700; margin: 4px 0 8px; }
+.ht-quick { margin: 0 0 12px; }
+.ht-earliest { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent-soft); color: inherit; font: inherit; cursor: pointer; }
+.ht-earliest span { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-weight: 700; }
+.ht-tgroup { display: grid; justify-items: center; gap: 6px; margin-bottom: 10px; }
+.ht-tlabel { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-2); font-weight: 600; }
+.ht-when-big { font-size: 18px; font-weight: 600; margin: 0 0 8px; max-width: 46ch; }
+.ht-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 2px 0 8px; }
+.ht-later { width: 100%; max-width: 560px; margin: 8px 0 12px; text-align: left; border: 1px solid var(--line-strong); border-radius: 12px; padding: 0 14px; }
+.ht-later summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.ht-later .ht-extras { padding-bottom: 14px; margin: 0; }
+.ht-trialnote { font-size: 13px; }
 .ht-times { min-height: 60px; margin-bottom: 6px; }
 .ht-times .bt-row { justify-content: center; }
 .ht-extras { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; margin-bottom: 16px; }
@@ -104,7 +146,12 @@
   .ht-tile { grid-template-columns: 1fr; row-gap: 6px; padding: 12px; min-height: 0; }
   .ht-tile-ico { grid-row: auto; }
   .ht-tile-say { display: none; }
+  /* One slim row: the total beside the button. */
+  .ht-pane--need .ht-total { flex-wrap: nowrap; gap: 10px; }
+  .ht-pane--need .ht-total b { font-size: 20px; }
+  .ht-pane--need .ht-total .btn { flex: 0 1 auto; max-width: 62%; min-height: 48px; padding: 10px 16px; font-size: 15px; white-space: normal; line-height: 1.2; text-align: center; }
 }
+.ht-booking .ht-badge { bottom: auto; top: 84px; }
 @media (prefers-reduced-motion: reduce) {
   .ht-stage.is-moving, .ht-inner, .ht-tile { transition: none; }
   .ht-pane { animation: none; }
