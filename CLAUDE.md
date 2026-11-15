@@ -350,7 +350,13 @@ checks the mechanical ones.
   told us (buying, the agent, a previous survey, rot, floors, low or high
   damp) with its reason, the four sizes as cards, timber as a switch, every
   extra with when you would want it (suggested ones flagged, never ticked for
-  them), what you get, the total and the deposit. The prices pages, the website's
+  them), what you get, the total and the deposit, all on one phone screen
+  with the total pinned at the bottom. The Lab's "Booking flows"
+  (`public/staff/lab-flows.js`, the owner's ask, 15 Nov 2026) runs three
+  orders to try as a customer with real free times and nothing saved: A
+  today's order, B price first and details last, C the hybrid (details,
+  about the home, survey, time, address and who lets us in), each ending with
+  its screens, taps and seconds. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table
   of extra checks added to a survey, and everything wordy folded

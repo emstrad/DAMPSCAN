@@ -60,20 +60,17 @@
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
   }
 
-  /* The new survey step with what the form would have told us: tick a box above it to see the recommendation change. */
+  /* The three booking flows (lab-flows.js), each started fresh from its button. */
   function surveyPreview() {
-    if (!prices || !global.SurveyPick) return;
-    var known = {};
-    document.querySelectorAll('#quiz-known input').forEach(function (c) { known[c.dataset.k] = c.checked; });
-    el('quiz-out').textContent = '';
-    global.SurveyPick.mount(el('quiz'), { prices: prices, known: known, onChoose: function (r) {
-      var z = prices.sizes.filter(function (x) { return x.key === r.size; })[0];
-      var adds = prices.extras.filter(function (x) { return r.extras.indexOf(x.key) !== -1; }).map(function (x) { return x.name.toLowerCase(); });
-      el('quiz-out').textContent = 'Booked as ' + z.name + (r.service === 'timber' ? ' damp and timber' : ' damp') + ' survey' + (adds.length ? ' with ' + adds.join(' and ') : '') + ', £' + r.totalPounds
-        + (r.size !== r.recommended.size ? '. Not what we recommended: the card would say so.' : '') + '. Next on the website: the times that fit it.';
-    } });
+    if (!prices || !global.DSLabFlows) return;
+    var frame = el('quiz');
+    var run = function (key) {
+      document.querySelectorAll('.lf-pick button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.flow === key)); });
+      global.DSLabFlows.start(frame, key, prices);
+    };
+    document.querySelectorAll('.lf-pick button').forEach(function (b) { b.onclick = function () { run(b.dataset.flow); }; });
+    if (!frame.firstChild) run('C');
   }
-  document.querySelectorAll('#quiz-known input').forEach(function (c) { c.addEventListener('change', surveyPreview); });
   /* The two switches that put the time picker and the survey step on the sites. */
   ['sw-slots', 'sw-quiz', 'sw-instant'].forEach(function (id) {
     var box = el(id);
