@@ -53,7 +53,7 @@
     var pc = Math.min(100, Math.round(100 * d.vat.rolling / d.vat.limit));
     var bar = node('div', 'mn-bar'), fill = node('i'); fill.style.width = pc + '%'; if (pc >= 80) bar.classList.add('is-near'); bar.appendChild(fill); v.appendChild(bar);
     v.appendChild(node('p', 'mn-say', money(d.vat.rolling) + ' of ' + money(d.vat.limit) + ' in the last 12 months (' + pc + '%).'));
-    v.appendChild(node('p', 'mn-say' + (pc >= 80 ? ' is-bad' : ''), d.vat.crossOn ? 'At ' + money(d.vat.perMonth) + ' a month you would reach it around ' + month(d.vat.crossOn) + '. Plan prices with your accountant before then.' : 'Not enough recent work to project.'));
+    v.appendChild(node('p', 'mn-say' + (pc >= 80 || d.vat.over ? ' is-bad' : ''), d.vat.over ? 'Over the threshold: register for VAT with your accountant now.' : d.vat.crossOn ? 'At ' + money(d.vat.perMonth) + ' a month you would reach it around ' + month(d.vat.crossOn) + '. Plan prices with your accountant before then.' : 'Not enough recent work to project.'));
 
     /* Costs: every line, biggest first, with the expenses log beneath. */
     var c = section('Costs');
