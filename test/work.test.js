@@ -151,6 +151,7 @@ test('an area filter narrows the list, and plain calendar requests are unchanged
 test('acting on an item takes it off the list', async () => {
   const w = await world();
   const tick = (body) => call(clients, { body, headers: { cookie: w.boss } });
+await pool.query("update jobs set report_path = 'reports/r.pdf' where id = $1", [w.report]);
   assert.equal((await tick({ id: w.report, surveySent: true })).statusCode, 200);
   assert.equal((await tick({ id: w.deposit, depositPaid: true })).statusCode, 200);
   assert.equal((await tick({ id: w.agent, jobTime: '10:00' })).statusCode, 200, 'a time clears the agent wait');

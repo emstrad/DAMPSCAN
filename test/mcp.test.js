@@ -134,6 +134,8 @@ test('the three marks work on damp cards and quoted jobs, each audited, and noth
   const t = await connect('both-code');
 
   assert.equal((await tool(t.access_token, 'mark_deposit_paid', { id: Number(damp) })).isError, false);
+  assert.equal((await tool(t.access_token, 'mark_report_sent', { id: Number(damp) })).isError, true, 'never sent without its file');
+  await pool.query("update jobs set report_path = 'reports/r.pdf' where id = $1", [damp]);
   assert.equal((await tool(t.access_token, 'mark_report_sent', { id: Number(damp) })).isError, false);
   assert.equal((await tool(t.access_token, 'mark_paid_in_full', { id: Number(damp) })).isError, false);
   const row = (await pool.query('select deposit_paid_at, paid_at, survey_sent_at from jobs where id = $1', [damp])).rows[0];

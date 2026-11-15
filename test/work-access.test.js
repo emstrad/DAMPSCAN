@@ -121,6 +121,8 @@ test('a work surveyor can mark surveyed and report sent, and nothing that touche
   const ronnie = await person('Ronnie', 'ron-1', ['dampscan', 'ati-london']);
   const id = await book('ronnie', 'Sam Lee', 'ME14 2AB', '07700 900222');
   assert.equal((await api(ronnie, 'POST', '/api/admin/surveys', { op: 'move', id, to: 'surveyed' })).statusCode, 200);
+  assert.equal((await api(ronnie, 'POST', '/api/admin/clients', { id, surveySent: true })).statusCode, 400, 'Report done needs the file');
+  await pool.query("update jobs set report_path = 'reports/r.pdf' where id = $1", [id]);
   assert.equal((await api(ronnie, 'POST', '/api/admin/clients', { id, surveySent: true })).statusCode, 200);
   const refusals = [
     ['/api/admin/clients', { id, paid: true }], ['/api/admin/clients', { id, depositPaid: true }], ['/api/admin/clients', { id, jobDate: D.today }],
@@ -155,6 +157,7 @@ test('a work surveyor\'s ChatGPT lists only reads (and mark_report_sent) and ref
   const paid = await callTool(scope, { name: 'mark_paid_in_full', arguments: { id } });
   assert.equal(paid.isError, true);
   assert.match(paid.content[0].text, /whoever manages/);
+await pool.query("update jobs set report_path = 'reports/r.pdf' where id = $1", [id]);
   const sent = await callTool(scope, { name: 'mark_report_sent', arguments: { id } });
   assert.ok(!sent.isError, JSON.stringify(sent.content));
   assert.equal((await pool.query('select paid_at from jobs where id = $1', [id])).rows[0].paid_at, null);
