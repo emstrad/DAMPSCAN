@@ -142,6 +142,22 @@
     } catch (e) { s.remove(); }
   }
 
+  /* Their page asked for a new time: one tap moves it there (drive check, surveyor told, the "as you asked" text after 2 minutes). */
+  function moveAsked(j) {
+    var a = j.moveAsked, box = U.node('div', 'sheet-ask'), it = { jobId: j.id, quoted: false, status: j.status };
+    box.appendChild(U.node('p', 'panel-note', 'They asked on their page to move to ' + shortDate(a.date) + ', ' + a.time + '.'));
+    var go = U.node('button', 'btn btn--primary btn--sm', 'Move to ' + shortDate(a.date) + ', ' + a.time); go.type = 'button';
+    go.addEventListener('click', async function () {
+      go.disabled = true;
+      var r = await U.send('/api/admin/clients', W.moveBody(it, a.date, a.time));
+      if (!r.ok && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Move it anyway?')) r = await U.send('/api/admin/clients', Object.assign(W.moveBody(it, a.date, a.time), { force: true }));
+      go.disabled = false;
+      if (!r.ok) { box.appendChild(U.node('p', 'panel-note', (r.data && (r.data.message || r.data.error)) || 'Not saved')); return; }
+      W.offerUndo(j.textsOn ? 'Moved as they asked. ' + (String(j.customerName || '').split(' ')[0] || 'They') + ' gets a text in 2 minutes: Undo stops it.' : 'Moved as they asked.', function () { return U.send('/api/admin/clients', W.moveBody(it, j.date, j.time)); }, changed);
+      changed();
+    });
+    box.appendChild(go); body.appendChild(box);
+  }
   function outstanding(j) {
     var items = [];
     (((ctx.work && ctx.work()) || {}).groups || []).forEach(function (g) { g.items.forEach(function (it) { if (it.jobId === j.id) items.push(it); }); });
@@ -196,7 +212,7 @@
 
     /* Most urgent first: the one next step, what needs doing, then how to reach them. */
     if (X.next) X.next(j, body);
-    if (j.moveAsked) body.appendChild(U.node('p', 'panel-note sheet-ask', 'They asked on their page to move to ' + shortDate(j.moveAsked.date) + ', ' + j.moveAsked.time + '. Change the date below if it suits.'));
+    if (j.moveAsked) moveAsked(j);
     outstanding(j);
     X.where(j, section('Where'));
     if (!j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);

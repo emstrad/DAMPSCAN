@@ -94,16 +94,22 @@
       else if (!touched && now - new Date(c.since).getTime() > 2 * 3600000) list.push([2, c, 'Nobody in touch, ' + ago(c.since).replace(' ago', '') + ' waiting']);
       else if (c.next && c.next.on <= todayIso()) list.push([c.next.why === 'Follow up' ? 4 : 3, c, (c.next.why || 'Follow up') + (c.next.on < todayIso() ? ', due ' + day(c.next.on) : ', due today')]);
     });
+    /* Booked customers who asked something on their page: first, and they open the job card. */
+    (data.asks || []).forEach(function (a) {
+      list.push([-1, { name: a.name, postcode: a.postcode, jobId: a.id }, a.ask.what === 'move' ? 'Asked to move to ' + day(a.ask.date) + ' ' + a.ask.time : 'Messaged: "' + a.ask.text + '"']);
+    });
     box.hidden = !list.length;
     if (!list.length) return;
     box.appendChild(U.node('h2', null, 'Needs you now (' + list.length + ')'));
-    list.sort(function (a, b) { return a[0] - b[0]; }).slice(0, 8).forEach(function (u) {
+    var shown = list.sort(function (a, b) { return a[0] - b[0]; }).slice(0, 8);
+    shown.forEach(function (u) {
       var b = U.node('button', 'sched-urgent-row'); b.type = 'button';
       b.appendChild(U.node('b', null, (u[1].name || 'No name') + (u[1].postcode ? ', ' + u[1].postcode : '')));
       b.appendChild(U.node('span', null, u[2]));
-      b.addEventListener('click', function () { global.DSSCHEDCARD.open(u[1], { act: act, book: openBook }); });
+      b.addEventListener('click', function () { if (u[1].jobId) global.DSPOP.open(u[1].jobId, { onChange: load }); else global.DSSCHEDCARD.open(u[1], { act: act, book: openBook }); });
       box.appendChild(b);
     });
+    if (list.length > shown.length) box.appendChild(U.node('p', 'panel-note', 'and ' + (list.length - shown.length) + ' more on the board'));
   }
 
   function render() {

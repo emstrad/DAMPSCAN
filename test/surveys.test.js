@@ -96,6 +96,8 @@ test('a card moves through the owners\' order, and Undo puts it back exactly', a
   await pool.query(`update jobs set paid_at = (((now() at time zone 'Europe/London')::date - 3) + time '12:00') at time zone 'Europe/London' where id = $1`, [id]);
   const late = (await boardOf(boss)).surveys[0];
   assert.deepEqual([late.reportDays, late.reportLate], [3, true], 'red after two days');
+  assert.equal((await op(boss, { op: 'move', id, to: 'sent' })).json().error, 'no_report_file', 'never sent without its file');
+  await pool.query("update jobs set report_path = 'reports/r.pdf' where id = $1", [id]);
   const sent = (await op(boss, { op: 'move', id, to: 'sent' })).json();
   assert.equal(sent.survey.stage, 'sent');
   assert.equal((await op(boss, sent.undo)).statusCode, 200);

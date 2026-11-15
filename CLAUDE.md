@@ -291,8 +291,10 @@ checks the mechanical ones.
   their page and no texts until let go, then the ready text goes if it never
   did), "Draft email in ChatGPT" and Report sent. The job pop-up has the same
   in its Report section (`public/staff/pop-report.js`; surveyors upload and
-  tick Report sent, Ready and Hold are the managers'). Report ready is refused
-  until the file is uploaded, and counts as reported everywhere (stage,
+  tick Report sent, Ready and Hold are the managers'). Report ready, Report
+  sent and a surveyor's Report done are all refused until the file is uploaded
+  (every survey keeps its report, the owner's rule, 15 Nov 2026,
+  `reportFileMissing` in lib/report-check.js). Report ready counts as reported everywhere (stage,
   countdown, overdue alert, Reports list once paid) (the owner's review,
   13 Nov 2026).
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
@@ -517,7 +519,9 @@ checks the mechanical ones.
   are folded, and no staff page has explaining paragraphs under its
   headings (headings and labels say enough; empty states are a few words).
   Urgent first: Scheduling opens with "Needs you now" (a time picked online
-  to confirm, a hold about to need a chase, a new enquiry untouched two hours); the
+  to confirm, a hold about to need a chase, a new enquiry untouched two hours,
+  and first of all a booked customer's move asked for or page message with no
+  reply logged since, `lib/page-asks.js`, opening the job pop-up); the
   job pop-up opens with its one next step (book, confirm the time, deposit,
   report, balance) and folds Notes, Enquiry, Photos, Messages, a changed date
   and History; the customer card leads with "Nobody in touch yet".
@@ -535,7 +539,11 @@ checks the mechanical ones.
   a to-do). Bank transfer shows a reference of their first name and the
   survey number (KIM0042) as the hero, with copy buttons; nobody ticks "I've
   sent it". No "before we arrive", no report due date (the owners' choice).
-  An agent booking says access is being arranged with the agent. Refunds: a
+  An agent booking says access is being arranged with the agent. "Your
+  enquiry" shows only what they wrote on the website form and their photos;
+  anything the team typed (a phone or email card) stays ours (the owner's
+  rule, 15 Nov 2026). A refund shows at once (paid net of it, "Refunded
+  £X", its own refund note in Payments). Refunds: a
   cancellation 48 hours or more before the survey is a full refund, later the
   deposit is kept (jobs.cancelled_at, set by trigger however it is cancelled).
   Paid on the page is the larger of the money recorded (payments, matched bank
@@ -546,7 +554,7 @@ checks the mechanical ones.
   ticks count card money too. Payments only while something is owed on a live
   survey; a payment still processing keeps confirming; a card notice we
   could not check answers 500 so Stripe sends it again, and the hourly run
-  sweeps open orders. A report emailed with no file shows done once paid.
+  sweeps open orders.
   Hourly money checks (`lib/money-todos.js`) make one owners' to-do each and
   never move money: a cancellation owing money back, an overpayment, and a
   survey booked 48 hours (jobs.booked_at) with no deposit (chase; the booking
@@ -592,8 +600,8 @@ checks the mechanical ones.
   when, and we reply by call or text, no two-way chat, the owner's choice,
   14 Nov 2026), Ask to move (a booked survey more than a
   day away, the surveyors' real free times from the website picker's engine,
-  never who; a to-do, an alert and an owners' text; the job pop-up shows it and
-  the team moves it, which texts 7; with the Lab's Book it straight away on,
+  never who; a to-do, an alert and an owners' text; the job pop-up shows it with
+  one tap "Move to" that time, which texts 7 "as you asked"; with the Lab's Book it straight away on,
   they move it themselves instead (`lib/portal-move.js`, the owner's choice,
   13 Nov 2026): only their own surveyor's real free times, moved there and
   then through the client card route (drive check, surveyor told, "as you

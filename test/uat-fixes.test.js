@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 mock.module('../lib/db.js', { namedExports: { sql: () => { throw new Error('not used'); }, query: async () => [], queryOne: async () => null, ping: async () => true } });
 const { cancelRule, moneyOf, buildView } = await import('../lib/portal-view.js');
 const { jobStage } = await import('../lib/journey.js');
+const { askOf } = await import('../lib/page-asks.js');
 
 const at = (ms) => new Date(Date.now() + ms);
 const day = (ms) => at(ms).toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
@@ -35,4 +36,21 @@ test('after the visit the balance can be paid on their page', () => {
   const v = buildView(j);
   assert.equal(v.state, 'writing');
   assert.equal(v.money.balancePence, 50);
+});
+
+test('Needs you now: a page message until the team logs a reply, a move while the survey is still where it was', () => {
+  const j = { day: '2026-11-21', job_time: '14:00:00', sched_log: [
+    { by: 'Scott', how: 'call', note: 'Booked' }, { by: 'Their page', how: 'note', note: 'They wrote on their page: Can you park on the drive?' },
+    { by: 'Their page', how: 'note', note: 'Added 1 photo on their page.' }] };
+  assert.deepEqual(askOf(j) && [askOf(j).what, askOf(j).text], ['message', 'Can you park on the drive?']);
+  assert.equal(askOf({ ...j, sched_log: [...j.sched_log, { by: 'Tom', how: 'text', note: 'Replied' }] }), null, 'answered');
+  assert.equal(askOf({ ...j, move_request: { date: '2026-11-24', time: '10:00', from: '2026-11-21 14:00' } }).what, 'move');
+  assert.equal(askOf({ ...j, sched_log: [], move_request: { date: '2026-11-24', time: '10:00', from: '2026-11-20 09:00' } }), null, 'moved already');
+});
+
+test('their page shows only what they wrote: a card the team made keeps its notes to us', () => {
+  const base = { site: 'ati-london', status: 'booked', survey_price_pence: 100, lead_notes: 'Rang about damp in the hall, sounded keen' };
+  assert.equal(buildView({ ...base, lead_source: 'phone' }).enquiry, null);
+  assert.equal(buildView({ ...base, lead_source: 'email' }).enquiry, null);
+  assert.equal(buildView({ ...base, lead_source: '/damp-survey-london' }).enquiry.said, base.lead_notes);
 });

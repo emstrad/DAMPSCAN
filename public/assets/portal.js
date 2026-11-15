@@ -45,11 +45,14 @@
     box.appendChild(lab); main.appendChild(box);
     requestAnimationFrame(function () { requestAnimationFrame(function () { fill.style.width = (20 * (at + 1)) + '%'; }); });
   }
+  /* What they have in with us now: anything refunded is taken off at once and said, so it is plain what happened. */
+  var net = function (m) { return Math.max(0, m.paidPence - (m.refundedPence || 0)); };
   function moneyBar(parent, m) {
     var box = h('div', 'pt-money'), bar = h('div', 'pt-bar'), fill = h('i'); bar.appendChild(fill); box.appendChild(bar);
-    var row = h('div'); row.appendChild(h('span', null, 'Paid <b>' + money(m.paidPence) + '</b>'));
-    row.appendChild(h('span', null, m.paidInFull ? '<b>Paid in full</b>' : 'Left <b>' + money(m.balancePence) + '</b>')); box.appendChild(row); parent.appendChild(box);
-    requestAnimationFrame(function () { requestAnimationFrame(function () { fill.style.width = Math.min(100, Math.round(100 * m.paidPence / Math.max(1, m.pricePence))) + '%'; }); });
+    var row = h('div'); row.appendChild(h('span', null, 'Paid <b>' + money(net(m)) + '</b>'));
+    row.appendChild(h('span', null, m.refundedPence ? 'Refunded <b>' + money(m.refundedPence) + '</b>' : m.paidInFull ? '<b>Paid in full</b>' : 'Left <b>' + money(m.balancePence) + '</b>')); box.appendChild(row);
+    parent.appendChild(box);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { fill.style.width = Math.min(100, Math.round(100 * net(m) / Math.max(1, m.pricePence))) + '%'; }); });
   }
   function lines(parent, m) {
     if (!m.lines) return;
@@ -180,7 +183,7 @@
       main.appendChild(P.payCard(p, false, pay)); if (p.visit) visitCard(p);
     } else if (s === 'booked') {
       card = h('div', 'pt-card center'); card.appendChild(h('div', 'pt-tick', I.tick));
-      card.appendChild(t('h2', null, p.money.paidPence ? money(p.money.paidPence) + ' received' : 'You\'re all set')); card.appendChild(t('p', null, 'Your survey is confirmed.'));
+      card.appendChild(t('h2', null, net(p.money) ? money(net(p.money)) + ' received' : 'You\'re all set')); card.appendChild(t('p', null, 'Your survey is confirmed.'));
       if (p.money.paidPence) moneyBar(card, p.money); main.appendChild(card); visitCard(p);
     } else if (s === 'writing') {
       card = h('div', 'pt-card'); card.appendChild(t('h2', null, 'Survey done'));

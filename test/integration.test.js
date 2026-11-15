@@ -841,6 +841,10 @@ test('survey sent is its own tick, after paid in full, and touches nothing else'
   const { job } = await bookedJob(cookie);
   const post = (body) => call(clientsRoute, { body, headers: { cookie } });
 
+  const none = await post({ id: job.id, surveySent: true });
+  assert.equal(none.statusCode, 400, 'never marked sent without the report file');
+  assert.match(none.json().error, /Upload the report first/);
+  await pool.query("update jobs set report_path = 'reports/r.pdf' where id = $1", [job.id]);
   const sent = (await post({ id: job.id, surveySent: true })).json().client;
   assert.ok(sent.surveySentAt, 'ticked means a timestamp');
   assert.equal(sent.money.paidAt, null, 'sending the survey is not a payment');
