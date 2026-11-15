@@ -136,10 +136,17 @@
       card.appendChild(payBtn);
       card.appendChild(h('div', 'pt-secure', I.lock + '<span>Apple Pay, Google Pay or card. Secure payment to Damp Surveying Limited.</span>'));
     }
-    var area = h('div'); area.style.display = 'grid'; area.style.gap = '10px'; card.appendChild(area);
+    var area = h('div', 'pt-bankarea'); card.appendChild(area);
     var amountRow;
     if (p.payTo) {
-      card.insertBefore(t('div', 'pt-label', payBtn ? 'Or pay by bank transfer' : 'Pay by bank transfer'), area);
+      /* With card payments on, bank transfer is one tap away, folded, so the page shows what else it offers (the owner, 15 Nov 2026). */
+      if (payBtn) {
+        var open = btn('pt-banktoggle', '<span>Or pay by bank transfer</span>' + I.chev, function () {
+          area.hidden = !area.hidden; open.setAttribute('aria-expanded', String(!area.hidden));
+        });
+        open.setAttribute('aria-expanded', 'false'); area.hidden = true;
+        card.insertBefore(open, area);
+      } else card.insertBefore(t('div', 'pt-label', 'Pay by bank transfer'), area);
       var ref = h('div', 'pt-ref');
       ref.appendChild(t('small', null, 'Your reference: use exactly this'));
       ref.appendChild(t('div', 'code', p.reference));

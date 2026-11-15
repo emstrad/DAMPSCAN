@@ -557,7 +557,9 @@ checks the mechanical ones.
   report unlocks only on the full balance and opens from the private link
   alone (no postcode to type, the owner's choice, 15 Nov 2026: the page shows
   the postcode, so it guarded nothing; every download is logged). Bank transfer shows a reference of their first name and the
-  survey number (KIM0042) as the hero, with copy buttons; nobody ticks "I've
+  survey number (KIM0042) as the hero, with copy buttons, folded under the
+  card buttons as "Or pay by bank transfer" while card payments are on (the
+  owner, 15 Nov 2026, so the rest of the page is seen); nobody ticks "I've
   sent it". No "before we arrive", no report due date (the owners' choice).
   An agent booking says access is being arranged with the agent. "Your
   enquiry" shows only what they wrote on the website form and their photos;

@@ -199,3 +199,9 @@ label.pt-btn { cursor:pointer; }
 .pt-sent { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:.82rem; margin:8px 0 0; }
 .pt-sent svg { width:15px; height:15px; color:var(--good); flex:none; }
 .pt-said { margin-bottom:12px; }
+/* Bank transfer folded under the card buttons: one quiet line that opens the details. */
+.pt-banktoggle { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:44px; margin-top:4px; background:none; border:0; color:var(--muted); font:inherit; font-size:.9rem; font-weight:600; cursor:pointer; }
+.pt-banktoggle .chev { transition:transform .2s ease-out; }
+.pt-banktoggle[aria-expanded="true"] .chev { transform:rotate(180deg); }
+.pt-bankarea { display:grid; gap:10px; }
+.pt-bankarea[hidden] { display:none; }
