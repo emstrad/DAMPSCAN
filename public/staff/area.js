@@ -22,7 +22,7 @@
   var AREAS = {
     damp: {
       name: 'ATi & DampScan', sites: ['dampscan', 'ati-london'], books: 'damp',
-      tabs: [['Surveys', 'surveys.html'], ['Scheduling', 'schedule.html'], ['Reports', 'reports.html'], ['Day sheet', 'day.html'], ['Agents', 'agents.html'], ['Leads', 'dashboard.html'], ['Company', 'company.html'], ['Money and rates', 'jobs.html'], ['Customers', 'clients.html'], ['Insights', 'insights.html'], ['Records', 'records.html'], ['My hours', 'hours.html'], ['Lab', 'lab.html']]
+      tabs: [['Surveys', 'surveys.html'], ['Scheduling', 'schedule.html'], ['Reports', 'reports.html'], ['Day sheet', 'day.html'], ['Agents', 'agents.html'], ['Company', 'company.html'], ['Money and rates', 'jobs.html'], ['Customers', 'clients.html'], ['My hours', 'hours.html'], ['Lab', 'lab.html']]
     },
     roofing: {
       name: 'Verge Roofing', sites: ['roofing'], books: 'roofing',
@@ -45,8 +45,10 @@
   var EXTRA = ['due.html', TODO];
   /* Pages a company keeps reachable without a tab: the old pipeline, which
      Verge's and CoolRight's new boards replaced, stays for anyone with it bookmarked;
-     the damp customers' Texts page, reached from the + menu and the Companies sheet. */
-  var ALSO = { damp: ['texts.html'], roofing: ['pipeline.html'], ac: ['pipeline.html'] };
+     the damp customers' Texts page, reached from the + menu and the Companies sheet;
+     and for ATi and DampScan the Leads, Insights and Records pages, now under
+     Company's tab row (company-hub.js). */
+  var ALSO = { damp: ['texts.html', 'dashboard.html', 'insights.html', 'records.html'], roofing: ['pipeline.html'], ac: ['pipeline.html'] };
 
   function stored() { try { return global.localStorage.getItem(KEY); } catch (e) { return null; } }
   function remember(a) { try { global.localStorage.setItem(KEY, a); } catch (e) {} }
