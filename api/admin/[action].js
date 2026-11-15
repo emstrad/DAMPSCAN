@@ -50,12 +50,13 @@ import snooze from '../../lib/routes/admin/snooze.js';
 import surveys from '../../lib/routes/admin/surveys.js';
 import summary from '../../lib/routes/admin/summary.js';
 import todos from '../../lib/routes/admin/todos.js';
+import pay from '../../lib/routes/admin/pay.js';
 import texts from '../../lib/routes/admin/texts.js';
 import usage from '../../lib/routes/admin/usage.js';
 
 export const config = { runtime: 'nodejs' };
 
-const ROUTES = { quick, conversions, hours, scheduling, attachment, bank, business, calendar, clients, contracts, coolright, due, insights, jobs, leads, mcp, me, oauth, people, photos, pricebook, push, quoted, rates, roofing, search, snooze, summary, surveys, texts, todos, usage };
+const ROUTES = { pay, quick, conversions, hours, scheduling, attachment, bank, business, calendar, clients, contracts, coolright, due, insights, jobs, leads, mcp, me, oauth, people, photos, pricebook, push, quoted, rates, roofing, search, snooze, summary, surveys, texts, todos, usage };
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, ['GET', 'POST', 'DELETE'])) return;

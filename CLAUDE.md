@@ -266,6 +266,20 @@ checks the mechanical ones.
   hourly, on each new form and the daily runs). Not when the same visit, email
   or phone finished the form or is already booked. Leads still reads it as
   Partial, and it never counts as a website booking.
+- Company (`public/staff/company.html`, Scott and Tom only: the owners' code or
+  whoever manages both damp brands, the owners' plan, 15 Nov 2026): one hub for
+  running the business, tab by tab, replacing Bank, Dashboard, Insights and
+  Records as each tab lands. Pay first (`lib/pay-book.js`, `company-pay.js`,
+  `/api/admin/pay`): cards for Corp tax, Scott, Tom, Ben and Ronnie with what is
+  owed now (earned less paid out), each opening a statement with a running
+  balance and Record a payment (paid_out, never edited, removed only with who and
+  when); below, every survey done in the period with its split, the name opening
+  the customer card. A survey counts once paid in full; its card fees come off
+  the top (all fees absorbed by everyone, the owners' choice), then the job's own
+  waterfall; a cancelled one drops out; unpaid work shows as coming. The check
+  line proves money in equals what is shared. The split for new surveys is the
+  owners' to change there (job_settings); booked ones keep theirs. Scott and Tom
+  take a salary (about £12,570 each) and dividends; Ben and Ronnie invoice.
 - Insights opens with all time: total earned, what every enquiry booked
   would have made, and what every unique visitor booked would have made,
   both at the average job won (managers only, `lib/potential.js`).

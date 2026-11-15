@@ -1,0 +1,51 @@
+/* Company, Pay (company-pay.js): the five cards, then the logbook. Calm and compact. */
+.co-tabs{margin:4px 0 16px}
+.pay-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.pay-card{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:120px;padding:14px;border-radius:16px;border:1px solid var(--line-strong);background:var(--navy-2,#132437);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.pay-card.is-owed{border-color:var(--accent-ring)}
+.pay-card.is-neg{border-color:var(--warn)}
+.pay-card-name{font-weight:700;color:var(--muted)}
+.pay-card-owed{font-size:26px;line-height:1.15;font-weight:800;margin-top:4px}
+.pay-card-sub{font-size:12px;color:var(--muted-2);margin-bottom:6px}
+.pay-card small{font-size:12px;color:var(--muted)}
+.pay-coming{color:var(--accent-hi)!important}
+.pay-range{margin:0 0 10px}
+.pay-book{display:flex;flex-direction:column;gap:6px}
+.pay-row{border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.pay-row.is-open{border-color:var(--line-strong)}
+.pay-row.is-unpaid{opacity:.75}
+.pay-row.is-odd{border-color:var(--warn)}
+.pay-row-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:4px 10px}
+.pay-day{font-size:13px;color:var(--muted);min-width:46px}
+.pay-name{min-height:44px;padding:0;background:none;border:0;color:var(--accent);font:inherit;font-weight:700;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.pay-name-t{font-weight:700}
+.pay-brand{grid-column:2;grid-row:2;font-size:12px;color:var(--muted-2);margin-top:-10px}
+.pay-price{font-weight:800}
+.pay-tag{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap}
+.pay-tag.is-paid{border-color:rgba(95,207,158,.5);color:var(--good)}
+.pay-parts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pay-chip{display:flex;flex-direction:column;padding:6px 10px;border-radius:10px;background:var(--accent-soft)}
+.pay-chip small{font-size:11px;color:var(--muted)}
+.pay-chip.is-neg{background:rgba(240,160,139,.15)}
+.pay-warn{flex-basis:100%;margin:4px 0 0;color:var(--warn);font-size:13px}
+.pay-total{cursor:default;background:var(--accent-soft);border-color:var(--accent-ring)}
+.pay-check{margin:12px 2px;font-size:13px;color:var(--good)}
+.pay-check.is-bad{color:var(--warn)}
+.pay-split{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.pay-split summary{min-height:48px;display:flex;align-items:center;font-weight:700;cursor:pointer}
+.pay-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end;padding:6px 0 12px}
+.pay-form input,.pay-form select{font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--navy,#0c1a2b);color:var(--text);width:100%;box-sizing:border-box}
+.pay-form .panel-note{grid-column:1/-1;margin:0}
+.pay-field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.pay-hero{display:flex;flex-direction:column;padding:4px 0 10px}
+.pay-hero small{color:var(--muted)}
+.pay-hero b{font-size:30px;font-weight:800}
+.pay-h{margin:14px 0 6px;font-size:15px}
+.pay-line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.pay-line.is-out{cursor:default}
+.pay-line-what{display:block;font-weight:600}
+.pay-line small{display:block;font-size:12px;color:var(--muted)}
+.pay-line-amt{text-align:right;white-space:nowrap}
+.pay-line.is-out .pay-line-amt b{color:var(--warn)}
+.pay-rm{min-height:44px;padding:0;background:none;border:0;color:var(--muted-2);font:inherit;font-size:12px;text-decoration:underline;cursor:pointer}
+.pay-form .btn{grid-column:1/-1;min-height:48px}
