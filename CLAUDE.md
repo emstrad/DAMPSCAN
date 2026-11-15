@@ -273,7 +273,8 @@ checks the mechanical ones.
   `company-overview.js`, `?view=overview`; tabs in `company-tabs.js`, each
   remembered in the address): Needs you now (the tax pot short, each person
   owed, surveys done and not paid, a salary for Scott or Tom or the Google Ads
-  spend not logged for last month, the VAT threshold near), each opening where
+  spend not logged for last month, last month's bank check not done from the
+  3rd, the VAT threshold near), each opening where
   it is put right; then this month against last (money in, surveys paid,
   profit, enquiries and booked), booked ahead, the company year heading for
   (the last three full months' pace for the months left, profit at this year's
@@ -296,7 +297,8 @@ checks the mechanical ones.
   £50k, 25% over £250k, marginal relief between) against what was set aside,
   the VAT threshold over the last 12 months with when it would be reached, and
   ways to lower the tax, each with its saving, as prompts for the accountant.
-  Expenses are never edited, removed only with who and when.
+  Expenses are never edited, removed only with who and when; a receipt opens
+  for the owners only (never a surveyor, though receipts are DampScan's files).
   Bank check (`lib/tide-check.js`, `company-tide.js`, `?op=tide`): the company
   account is Tide, with no feed, so once a month its statement (CSV) is
   uploaded and every line put beside the logbook: money in beside the survey
@@ -305,7 +307,9 @@ checks the mechanical ones.
   five days, or the line it was added from, bank_ref). What is left comes
   first: paid out and not logged (one select, a cost or who was paid, Add),
   paid in and not ticked, paid in and not placed, and logged but not in Tide
-  (cash never expected). Nothing from the file is stored. It replaced the Bank
+  (cash never matched or expected; money paid back matches its negative
+  payment). Nothing from the file is stored but how far the checks reach
+  (cron_beats bank_check_to). It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
   Growth (`lib/company-growth.js`, `company-growth.js`, `?view=growth`):
@@ -314,7 +318,7 @@ checks the mechanical ones.
   click id): enquiries, booked, money paid, cost per enquiry and per booking,
   and the return per pound; then month by month (visitors, enquiries, booked
   with its rate, paid, money) and every source over the company year, best
-  money first, phone callers apart. For ATi and DampScan the Leads page
+  money first, phone callers apart; a form sent twice counts once. For ATi and DampScan the Leads page
   (as Website), Insights and Records are no longer damp section tabs: they sit
   in Company's tab row (`company-hub.js` draws the same row on those pages),
   reached through ALSO in area.js; Verge and CoolRight keep their own.
