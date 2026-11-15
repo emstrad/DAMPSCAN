@@ -12,66 +12,128 @@
       .then(function (r) { return r.json().catch(function () { return {}; }); });
   };
 
-  /* On the day, first thing under the greeting: the surveyor's car driving to the house. */
-  var CAR = '<svg viewBox="0 0 64 30" width="56" height="26" aria-hidden="true"><path fill="currentColor" d="M6 20c0-3 1.6-4.6 4.6-5.2l6.8-1.4 7.2-6.2C26 6 27.6 5.4 29.4 5.4h12.2c1.8 0 3.4.7 4.6 2l6.2 6.6 4.4.9c2.6.5 4.2 2.4 4.2 5v2.6c0 1.4-1.1 2.5-2.5 2.5H8.5C7.1 25 6 23.9 6 22.5z"/><path fill="var(--card)" opacity=".85" d="M27 8.6c.6-.6 1.4-.9 2.3-.9h5.4v6H22zm10.2-.9h4.4c1 0 1.9.4 2.6 1.1l4.6 4.9h-11.6z"/><circle cx="18" cy="24.5" r="4.6" fill="var(--text)"/><circle cx="18" cy="24.5" r="1.8" fill="var(--card)"/><circle cx="48" cy="24.5" r="4.6" fill="var(--text)"/><circle cx="48" cy="24.5" r="1.8" fill="var(--card)"/></svg>';
-  var HOME = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3 2.5 11.2l1.3 1.5L5 11.7V20a1 1 0 0 0 1 1h4.5v-6h3v6H18a1 1 0 0 0 1-1v-8.3l1.2 1 1.3-1.5z"/></svg>';
-  function top(p, main) {
+  /* On the day, first thing under the greeting (the owners' chosen design from the
+     page preview, UAT 15 Nov 2026): who is coming, when and where, then the van
+     driving along a road to "On the way". */
+  var VAN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>';
+  /* "between 9 and 10am": the one-hour arrival window. */
+  function between(tm) {
+    var a = Number(tm.slice(0, 2)), b = (a + 1) % 24, ap = function (x) { return x < 12 ? 'am' : 'pm'; }, n = function (x) { return (x % 12 || 12) + (tm.slice(3) === '00' ? '' : ':' + tm.slice(3)); };
+    return 'between ' + (ap(a) === ap(b) ? n(a) + ' and ' + n(b) + ap(b) : n(a) + ap(a) + ' and ' + n(b) + ap(b));
+  }
+  var ctx = {};
+  function top(p, main, token, reload) {
+    ctx = { p: p, token: token, reload: reload, chips: false };
     if (!p.onWay) return;
     var card = h('div', 'pt-card pt-onway');
-    var road = h('div', 'pt-road'); road.setAttribute('role', 'img'); road.setAttribute('aria-label', 'A car driving to your home');
-    road.appendChild(h('span', 'pt-home', HOME)); road.appendChild(h('span', 'pt-car', CAR));
+    card.appendChild(t('h2', null, (p.onWay.surveyor || 'Your surveyor') + ' is on the way'));
+    var street = p.address ? String(p.address).split(',')[0].trim() : '';
+    var when = p.visit && p.visit.time ? 'Arriving ' + between(p.visit.time) : 'Heading to you now';
+    card.appendChild(t('p', null, when + (street ? ' at ' + street : '') + '.'));
+    var road = h('div', 'pt-road', '<i>' + VAN + '</i><span>On the way</span>'); road.setAttribute('role', 'img'); road.setAttribute('aria-label', 'Your surveyor driving to you');
     card.appendChild(road);
-    var words = h('div', 'pt-onway-words');
-    words.appendChild(t('h2', null, (p.onWay.surveyor || 'Your surveyor') + ' is on the way'));
-    words.appendChild(t('p', null, 'Heading to you now.'));
-    card.appendChild(words);
     main.appendChild(card);
   }
 
+  /* A sheet rising from the bottom over a dimmed page (the owners' chosen design
+     from the page preview, UAT 15 Nov 2026): the page stays where it was, and
+     the sheet closes by its cross, a tap on the dimmed page or Escape. */
+  function sheet(title, fill) {
+    var scrim = h('div', 'pt-scrim'), sh = h('div', 'pt-sheet'); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', title);
+    var head = h('div', 'pt-sheet-head'); head.appendChild(t('h2', null, title));
+    var x = btn('pt-sheet-x', '<span aria-hidden="true">&times;</span>', function () { close(); }); x.setAttribute('aria-label', 'Close'); head.appendChild(x);
+    sh.appendChild(h('div', 'pt-grab')); sh.appendChild(head);
+    var was = document.activeElement;
+    function key(e) { if (e.key === 'Escape') close(); }
+    function close() {
+      sh.classList.remove('open'); scrim.classList.remove('open'); document.removeEventListener('keydown', key); document.body.classList.remove('pt-sheet-on');
+      setTimeout(function () { sh.remove(); scrim.remove(); if (was && was.focus) was.focus(); }, 260);
+    }
+    scrim.addEventListener('click', close); document.addEventListener('keydown', key);
+    fill(sh, close);
+    document.body.appendChild(scrim); document.body.appendChild(sh); document.body.classList.add('pt-sheet-on');
+    void sh.offsetWidth; scrim.classList.add('open'); sh.classList.add('open'); x.focus();
+  }
+
+  /* The surveyors' real free times: days as tiles to swipe, then the times three across. */
+  function movePicker(p, box, token, reload, close) {
+    var area = h('div', 'pt-movearea'); box.appendChild(area);
+    var self = Boolean(p.move.self), pick = { date: null, time: null };
+    area.appendChild(h('div', 'pt-ring pt-ring--sm'));
+    ask(token, { op: 'times' }).then(function (d) {
+      area.textContent = '';
+      if (!d.ok || !d.days || !d.days.length) { area.appendChild(t('p', null, 'No other times free just now. Call us on ' + p.brand.phoneLabel + ' and we\'ll help.')); return; }
+      var days = h('div', 'pt-days'), times = h('div', 'pt-times');
+      var send = btn('pt-btn', '<span class="in">' + (self ? 'Move to this time' : 'Ask for this time') + '</span>', function () {
+        if (!pick.date || !pick.time) return;
+        send.classList.add('busy'); send.disabled = true;
+        ask(token, { op: 'move', date: pick.date, time: pick.time }).then(function (r) {
+          send.classList.remove('busy'); send.disabled = false;
+          if (r.ok) { if (close) close(); P.toast(r.moved ? 'Done: moved to ' + shortDay(r.moved.date) + ' at ' + r.moved.time + '. We\'ll text you the new time.' : 'Asked. We\'ll call to confirm.'); reload(); }
+          else P.toast(r.error === 'taken' ? 'That time has just gone. Pick another.' : 'That didn\'t send. Please try again.');
+        });
+      });
+      send.disabled = true;
+      var choose = function (wrap, b) { Array.prototype.forEach.call(wrap.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); }); };
+      d.days.forEach(function (day) {
+        var dt = new Date(day.date + 'T12:00:00Z'), o = function (f) { return dt.toLocaleDateString('en-GB', Object.assign({ timeZone: 'UTC' }, f)); };
+        var b = btn(null, '<small>' + o({ weekday: 'short' }) + '</small><b>' + o({ day: 'numeric' }) + '</b><small>' + o({ month: 'short' }) + '</small>', function () {
+          choose(days, b); pick.date = day.date; pick.time = null; send.disabled = true; times.textContent = '';
+          day.times.forEach(function (tm) {
+            var tb = btn(null, tm, function () { choose(times, tb); pick.time = tm; send.disabled = false; });
+            tb.setAttribute('aria-pressed', 'false'); times.appendChild(tb);
+          });
+        });
+        b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', o({ weekday: 'long', day: 'numeric', month: 'long' }));
+        days.appendChild(b);
+      });
+      area.appendChild(t('div', 'pt-label', 'Pick a day')); area.appendChild(days);
+      area.appendChild(t('div', 'pt-label', 'Then a time')); area.appendChild(times);
+      area.appendChild(send);
+      area.appendChild(t('p', 'pt-hint', self ? 'Your survey moves straight away, with the same surveyor.' : 'This asks us to move it. Your survey stays as it is until we call to confirm.'));
+    }, function () { area.textContent = ''; area.appendChild(t('p', null, 'No connection. Please try again.')); });
+  }
+
+  function messageForm(p, box, token, reload, close) {
+    var f = h('label', 'pt-field'), ta = t('textarea'); ta.rows = 4; ta.maxLength = 1000; ta.setAttribute('aria-label', 'Your message'); ta.placeholder = (p.messages || []).length ? 'Anything else?' : 'Your message';
+    f.appendChild(ta); box.appendChild(f);
+    var go = btn('pt-btn', '<span class="in">Send message</span>', function () {
+      if (ta.value.trim().length < 2) { ta.focus(); return; }
+      go.classList.add('busy'); go.disabled = true;
+      ask(token, { op: 'message', text: ta.value }).then(function (r) {
+        go.classList.remove('busy'); go.disabled = false;
+        if (r.ok) { ta.value = ''; if (close) close(); P.toast('Sent. We\'ll call or text you back.'); openNext = 'message'; reload(); }
+        else P.toast(r.error === 'too_many' ? 'Please call us on ' + p.brand.phoneLabel + '.' : 'That didn\'t send. Please try again.');
+      });
+    });
+    box.appendChild(go);
+    box.appendChild(t('p', 'pt-hint', 'Goes straight to the team, who will call or text you back. Urgent? Call ' + p.brand.phoneLabel + '.'));
+    return ta;
+  }
+
+  /* Ask to move it and Message us beside Add to calendar on the visit card. */
+  function chips(row) {
+    var p = ctx.p; if (!p || !ctx.token) return;
+    ctx.chips = true;
+    if (p.move && p.move.can && !p.move.asked) row.appendChild(btn('pt-chip', ICON.move + '<span>Ask to move it</span>', function () { sheet('Pick a new time', function (sh, close) { movePicker(p, sh, ctx.token, ctx.reload, close); }); }));
+    row.appendChild(btn('pt-chip', ICON.msg + '<span>Message us</span>', function () { sheet('Message us', function (sh, close) { var ta = messageForm(p, sh, ctx.token, ctx.reload, close); setTimeout(function () { ta.focus(); }, 280); }); }));
+  }
+  var ICON = {
+    move: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>',
+    msg: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg>'
+  };
+
+  /* A move asked for shows as a card; with no visit card to hold the chips, the picker sits in a fold. */
   function moveFold(p, main, token, reload) {
     if (!p.move) return;
     if (p.move.asked) {
       var c = h('div', 'pt-card soft'); c.appendChild(P.banner('', 'You asked to move to', shortDay(p.move.asked.date) + ' at ' + p.move.asked.time + '.'));
       c.appendChild(t('p', null, 'We\'ll call to confirm. Until then your survey stays as it is.')); main.appendChild(c); return;
     }
-    if (!p.move.can) return;
+    if (!p.move.can || ctx.chips) return;
     P.fold(main, 'Need a different time?', function (box) {
-      var area = h('div'); box.appendChild(area);
-      var go = btn('pt-btn ghost', '<span class="in">See other times</span>', function () {
-        go.classList.add('busy'); go.disabled = true;
-        ask(token, { op: 'times' }).then(function (d) {
-          go.remove();
-          if (!d.ok || !d.days || !d.days.length) { area.appendChild(t('p', null, 'No other times free just now. Call us and we\'ll help.')); return; }
-          var days = h('div', 'pt-chips pt-pick'), times = h('div', 'pt-chips pt-pick'), pick = { date: null, time: null };
-          var self = Boolean(p.move.self);
-          var send = btn('pt-btn', '<span class="in">' + (self ? 'Move to this time' : 'Ask for this time') + '</span>', function () {
-            if (!pick.date || !pick.time) return;
-            send.classList.add('busy'); send.disabled = true;
-            ask(token, { op: 'move', date: pick.date, time: pick.time }).then(function (r) {
-              send.classList.remove('busy'); send.disabled = false;
-              if (r.ok) { P.toast(r.moved ? 'Done: moved to ' + shortDay(r.moved.date) + ' at ' + r.moved.time + '. We\'ll text you the new time.' : 'Asked. We\'ll call to confirm.'); reload(); }
-              else P.toast(r.error === 'taken' ? 'That time has just gone. Pick another.' : 'That didn\'t send. Please try again.');
-            });
-          });
-          send.disabled = true;
-          var choose = function (wrap, b) { Array.prototype.forEach.call(wrap.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); }); };
-          d.days.forEach(function (day) {
-            var b = btn('pt-chip', '<span>' + shortDay(day.date) + '</span>', function () {
-              choose(days, b); pick.date = day.date; pick.time = null; send.disabled = true; times.textContent = '';
-              day.times.forEach(function (tm) {
-                var tb = btn('pt-chip', '<span>' + tm + '</span>', function () { choose(times, tb); pick.time = tm; send.disabled = false; });
-                times.appendChild(tb);
-              });
-            });
-            days.appendChild(b);
-          });
-          area.appendChild(t('div', 'pt-label', 'Pick a day')); area.appendChild(days);
-          area.appendChild(t('div', 'pt-label', 'Then a time')); area.appendChild(times);
-          area.appendChild(send);
-          area.appendChild(t('p', 'pt-hint', self ? 'Your survey moves straight away, with the same surveyor.' : 'This asks us to move it. Your survey stays as it is until we call to confirm.'));
-        }, function () { go.classList.remove('busy'); go.disabled = false; P.toast('No connection. Please try again.'); });
-      });
-      area.appendChild(go);
+      var go = btn('pt-btn ghost', '<span class="in">See other times</span>', function () { go.remove(); movePicker(p, box, token, reload, null); });
+      box.appendChild(go);
     });
   }
 
@@ -123,25 +185,15 @@
   function messageFold(p, main, token, reload) {
     var sent = p.messages || [], show = openNext === 'message';
     if (show) openNext = null;
-    P.fold(main, 'Message us', function (box) {
+    /* With the chip on the visit card, the fold only keeps what they sent. */
+    if (ctx.chips && !sent.length) return;
+    P.fold(main, ctx.chips ? 'Your messages (' + sent.length + ')' : 'Message us', function (box) {
       /* What they have sent, so they know it arrived and what they asked. We reply by phone or text. */
       sent.forEach(function (m) {
         var b = h('div', 'pt-said'); b.appendChild(t('div', 'pt-quote', m.text));
         b.appendChild(ticked('small', 'pt-sent', 'Sent ' + stamp(m.at))); box.appendChild(b);
       });
-      var f = h('label', 'pt-field'), ta = t('textarea'); ta.rows = 3; ta.maxLength = 1000; ta.setAttribute('aria-label', 'Your message'); ta.placeholder = sent.length ? 'Anything else?' : 'Your message';
-      f.appendChild(ta); box.appendChild(f);
-      var go = btn('pt-btn', '<span class="in">Send</span>', function () {
-        if (ta.value.trim().length < 2) { ta.focus(); return; }
-        go.classList.add('busy'); go.disabled = true;
-        ask(token, { op: 'message', text: ta.value }).then(function (r) {
-          go.classList.remove('busy'); go.disabled = false;
-          if (r.ok) { ta.value = ''; P.toast('Sent. We\'ll call or text you back.'); openNext = 'message'; reload(); }
-          else P.toast(r.error === 'too_many' ? 'Please call us on ' + p.brand.phoneLabel + '.' : 'That didn\'t send. Please try again.');
-        });
-      });
-      box.appendChild(go);
-      box.appendChild(t('p', 'pt-hint', 'Goes straight to the team, who will call or text you back. Urgent? Call ' + p.brand.phoneLabel + '.'));
+      if (!ctx.chips) messageForm(p, box, token, reload, null);
     }, show);
   }
 
@@ -151,5 +203,5 @@
     messageFold(p, main, token, reload);
   }
 
-  global.PTASK = { top: top, more: more };
+  global.PTASK = { top: top, more: more, chips: chips };
 })(window);

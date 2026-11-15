@@ -62,7 +62,7 @@
   }
   function message(slide, text, it) {
     slide.textContent = ''; var m = el('div', 'vw-msg'); m.appendChild(el('div', null, text));
-    if (it) { var d = el('button', 'vw-b', 'Download'); d.type = 'button'; d.addEventListener('click', function () { download(it); }); m.appendChild(d); }
+    if (it) { var d = el('button', 'vw-b', 'Download'); d.type = 'button'; d.addEventListener('click', function () { download(it, d); }); m.appendChild(d); }
     slide.appendChild(m);
   }
   function fill(i) {
@@ -90,8 +90,10 @@
       });
     }).catch(function () { message(slide, 'This file didn\'t open. Try downloading it.', it); });
   }
-  function download(it) {
-    fetchBlob(it).then(function (b) { var a = el('a'); a.href = urlFor(b); a.download = it.name || 'attachment'; document.body.appendChild(a); a.click(); a.remove(); });
+  /* The button says Saved for a moment, so a tap that seems to do nothing on a phone is answered. */
+  function download(it, b0) {
+    fetchBlob(it).then(function (b) { var a = el('a'); a.href = urlFor(b); a.download = it.name || 'attachment'; document.body.appendChild(a); a.click(); a.remove();
+      if (b0) { var was = b0.textContent; b0.textContent = 'Saved \u2713'; setTimeout(function () { b0.textContent = was; }, 2200); } });
   }
   function show(i) {
     at = Math.max(0, Math.min(items.length - 1, i));
@@ -135,7 +137,7 @@
     box.addEventListener('cancel', function (e) { e.preventDefault(); close(); });
     var bar = el('div', 'vw-bar');
     bar.appendChild(el('span', 'vw-name')); bar.appendChild(el('span', 'vw-count'));
-    bar.appendChild(button('Download', 'Download this file', function () { download(items[at]); }));
+    var dlb = button('Download', 'Download this file', function () { download(items[at], dlb); }); bar.appendChild(dlb);
     var x = button('\u2715', 'Close', close); bar.appendChild(x);
     box.appendChild(bar);
     var track = el('div', 'vw-track');

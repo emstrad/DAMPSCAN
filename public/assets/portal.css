@@ -205,20 +205,39 @@ label.pt-btn { cursor:pointer; }
 .pt-banktoggle[aria-expanded="true"] .chev { transform:rotate(180deg); }
 .pt-bankarea { display:grid; gap:10px; }
 .pt-bankarea[hidden] { display:none; }
-/* On my way (portal-asks.js): the surveyor's car drives along the road to the house, pauses, and goes again.
-   The owners' ask (UAT, 15 Nov 2026); parked halfway when the device asks for less motion. */
+/* On my way (portal-asks.js): the van drives along the road to "On the way" and back,
+   the owners' chosen design (UAT, 15 Nov 2026); parked when the device asks for less motion. */
 .pt-onway { gap:12px; }
-.pt-road { position:relative; height:58px; border-radius:14px; background:var(--good-soft); overflow:hidden; }
-.pt-road::after { content:""; position:absolute; left:0; right:0; bottom:9px; height:3px; border-radius:2px;
-  background:repeating-linear-gradient(90deg, color-mix(in srgb, var(--good) 45%, transparent) 0 14px, transparent 14px 28px); animation:pt-lane .7s linear infinite; }
-@keyframes pt-lane { to { background-position:-28px 0; } }
-.pt-car { position:absolute; bottom:11px; left:-60px; color:var(--good); display:block; line-height:0; animation:pt-drive 4.8s cubic-bezier(.45,.05,.35,1) infinite; }
-.pt-car svg { animation:pt-bob .35s ease-in-out infinite alternate; }
-.pt-home { position:absolute; right:12px; bottom:12px; color:var(--good); line-height:0; }
-@keyframes pt-drive { 0% { left:-60px; } 72% { left:calc(100% - 104px); } 100% { left:calc(100% - 104px); } }
-@keyframes pt-bob { to { transform:translateY(-1px); } }
-.pt-onway-words { display:grid; gap:2px; }
-@media (prefers-reduced-motion: reduce) {
-  .pt-car, .pt-car svg, .pt-road::after { animation:none; }
-  .pt-car { left:calc(50% - 28px); }
+.pt-road { position:relative; height:44px; border-radius:999px; background:var(--bg-2); overflow:hidden; }
+.pt-road i { position:absolute; top:50%; left:5px; width:34px; height:34px; margin-top:-17px; border-radius:50%; background:var(--accent); color:var(--on-accent);
+  display:grid; place-items:center; animation:pt-drive 3.2s var(--ease) infinite alternate; }
+.pt-road span { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:.82rem; font-weight:700; color:var(--muted); }
+@keyframes pt-drive { from { left:5px; } to { left:calc(62% - 34px); } }
+@media (prefers-reduced-motion: reduce) { .pt-road i { animation:none; left:calc(62% - 34px); } }
 }
+/* Ask to move it and Message us rise as a sheet from the bottom (portal-asks.js), the owners'
+   chosen design from the page preview (UAT, 15 Nov 2026): the page stays put underneath. */
+body.pt-sheet-on { overflow:hidden; }
+.pt-scrim { position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.4); opacity:0; transition:opacity var(--mid) linear; }
+.pt-scrim.open { opacity:1; }
+.pt-sheet { position:fixed; left:0; right:0; bottom:0; z-index:21; max-width:520px; margin:0 auto; max-height:88dvh; overflow:auto; overscroll-behavior:contain;
+  background:var(--card); color:var(--text); border-radius:24px 24px 0 0; border-top:1px solid var(--line-strong); box-shadow:0 -20px 40px -20px rgba(0,0,0,.5);
+  padding:10px 16px calc(20px + env(safe-area-inset-bottom)); display:grid; gap:12px; transform:translateY(105%); transition:transform var(--slow) var(--ease); }
+.pt-sheet.open { transform:none; }
+.pt-grab { width:40px; height:5px; border-radius:999px; background:var(--line-strong); justify-self:center; }
+.pt-sheet-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.pt-sheet-head h2 { margin:0; font-size:1.15rem; }
+.pt-sheet-x { width:44px; height:44px; border-radius:50%; border:1px solid var(--line-strong); background:transparent; color:var(--text); font-size:1.4rem; line-height:1; cursor:pointer; }
+.pt-movearea { display:grid; gap:10px; min-height:80px; }
+.pt-ring--sm { width:36px; height:36px; border-width:3px; justify-self:center; }
+.pt-days { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scroll-snap-type:x proximity; }
+.pt-days button { flex:none; width:64px; border:1.5px solid var(--line-strong); background:transparent; border-radius:14px; padding:8px 0; cursor:pointer; display:grid; gap:1px; color:var(--text); scroll-snap-align:start; transition:background var(--fast) linear; }
+.pt-days button small { font-size:.66rem; color:var(--muted); font-weight:700; text-transform:uppercase; }
+.pt-days button b { font-size:1.2rem; }
+.pt-days button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.pt-days button[aria-pressed="true"] small { color:inherit; }
+.pt-times { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+.pt-times:empty { display:none; }
+.pt-times button { min-height:46px; border:1.5px solid var(--line-strong); background:transparent; border-radius:12px; font-weight:700; cursor:pointer; color:var(--text); }
+.pt-times button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+@media (prefers-reduced-motion: reduce) { .pt-sheet, .pt-scrim { transition:none; } }
