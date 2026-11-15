@@ -19,6 +19,7 @@ import { requireScope } from '../../lib/access.js';
 import { workOnly, allowedWrite, allowedRead, REFUSED } from '../../lib/work-only.js';
 import { withActivity } from '../../lib/activity.js';
 import { flushDue } from '../../lib/texts.js';
+import { markSurveyed } from '../../lib/auto-surveyed.js';
 import { withFigures } from '../../lib/figures.js';
 import scheduling from '../../lib/routes/admin/scheduling.js';
 import hours from '../../lib/routes/admin/hours.js';
@@ -98,6 +99,8 @@ export default async function handler(req, res) {
      runs. Sent before answering, because the host can freeze a function once it
      has replied, which left texts stuck half sent. */
   if (action !== 'texts') await flushDue({ limit: 5 }).catch((err) => console.warn('text flush failed:', err.message));
+  /* A survey whose visit is over (or whose report is in) shows as Surveyed on every page without a tick (lib/auto-surveyed.js). */
+  await markSurveyed().catch((err) => console.warn('auto surveyed failed:', err.message));
   /* Each change made here is one phone alert, see lib/activity.js. Figures
      are taken out for anyone who only works on a business, lib/figures.js. */
   await withActivity(withFigures(route))(req, res);
