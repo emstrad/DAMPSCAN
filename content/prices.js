@@ -33,11 +33,19 @@ export const EXTRAS = [
   { key: 'timber-full', name: 'Full-house timber assessment', scope: 'An accessible standard home', alone: 250, withSurvey: 150, addable: false,
     info: 'The whole accessible home checked for timber decay and woodworm, with a timber report.' },
   { key: 'invasive', name: 'Targeted invasive investigation', scope: 'One straightforward area', alone: 145, withSurvey: 85, from: true, addable: true,
-    info: 'Where normal access is not enough: a small opening, agreed with you before we start.' },
+    info: 'Where normal access is not enough: a small opening, agreed with you before we start.',
+    when: 'Plaster or boarding hides the wall, or earlier damp work needs checking behind it. Only done if the surveyor agrees it is needed.' },
   { key: 'camera', name: 'Underfloor camera check', scope: 'One area, up to two straightforward access points', alone: 145, withSurvey: 85, addable: true,
-    info: 'A camera under suspended timber floors to see the joists and ventilation without lifting boards.' },
+    info: 'A camera under suspended timber floors to see the joists and ventilation without lifting boards.',
+    when: 'Wooden floors downstairs that feel soft, bounce or smell musty.' },
   { key: 'cavity', name: 'Low-level cavity bridging check', scope: 'One wall section up to 6 m, up to three points', alone: 160, withSurvey: 95, addable: true,
-    info: 'Checks for rubble or mortar in the bottom of a cavity wall bridging damp across.' }
+    info: 'Checks for rubble or mortar in the bottom of a cavity wall bridging damp across.',
+    when: 'Damp low down on a ground floor wall in a house with cavity walls.' },
+  /* Only ever added to a survey, so no price on its own (the owner, 15 Nov 2026). Flown only
+     where the rules and the site allow, so one we cannot fly on the day is not charged. */
+  { key: 'drone', name: 'Drone roof check', scope: 'Roof, chimneys, flashings, valleys and gutters from the air', alone: null, withSurvey: 149, addable: true,
+    info: 'Close-up photos and video of everything high up that lets water in, without ladders or scaffolding. Not charged if we cannot fly on the day.',
+    when: 'Damp on an upper floor, a ceiling or a chimney breast, or you are buying and cannot see the roof.' }
 ];
 
 /* Each extra on a survey adds this much time on site (the owners' choice,

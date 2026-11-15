@@ -342,7 +342,15 @@ checks the mechanical ones.
 - One price list (`content/prices.js`, the owners' 13 Sept 2026 list with the
   size bands): damp £215, £295, from £375, from £450; damp and timber £310,
   £445 (the two larger bands assume +£150, "from"); invasive, camera and
-  cavity checks added to a survey. The prices pages, the website's
+  cavity checks, and the drone roof check (£149, the owner, 15 Nov 2026: only
+  ever added to a survey, not charged if we cannot fly, its own page on each
+  site at /services/drone-roof-check) added to a survey. The new "Your
+  survey" step (`public/assets/survey-pick.js`, in the Lab for the owner to
+  try first): bedrooms asked every time, a recommendation from what the form
+  told us (buying, the agent, a previous survey, rot, floors, low or high
+  damp) with its reason, the four sizes as cards, timber as a switch, every
+  extra with when you would want it (suggested ones flagged, never ticked for
+  them), what you get, the total and the deposit. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table
   of extra checks added to a survey, and everything wordy folded
