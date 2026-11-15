@@ -37,12 +37,12 @@
   var KEY = 'ds_staff_area';
   var CALENDAR = 'calendar.html';
   var TODO = 'todo.html';
-  var MONEY = 'bank.html';
+  /* The owners' money is the Company hub (the bank check replaced the Bank page, 15 Nov 2026). */
+  var MONEY = 'company.html';
   var SETTINGS = 'settings.html';
   /* Pages every company has but which are not section tabs: Due and the
-     to-do list now live in Today and keep working for old links and alerts,
-     and the bank is Money, one level up. */
-  var EXTRA = ['due.html', TODO, MONEY];
+     to-do list now live in Today and keep working for old links and alerts. */
+  var EXTRA = ['due.html', TODO];
   /* Pages a company keeps reachable without a tab: the old pipeline, which
      Verge's and CoolRight's new boards replaced, stays for anyone with it bookmarked;
      the damp customers' Texts page, reached from the + menu and the Companies sheet. */
@@ -93,7 +93,7 @@
     /* Money (the bank, admin only on the server) and Settings are drawn once
        /api/admin/me says this person may have them, so somebody who only
        works on a business never sees either, not even for a moment. */
-    if (rights.money) nav.appendChild(link('Money', href(allowed.indexOf(area) !== -1 ? area : allowed[0], MONEY), page === MONEY, 'co-tab co-tab--money'));
+    if (rights.money && allowed.indexOf('damp') !== -1) nav.appendChild(link('Money', href('damp', MONEY), page === MONEY, 'co-tab co-tab--money'));
     if (rights.settings) {
       var cog = link('\u2699', '/staff/' + SETTINGS, page === SETTINGS, 'co-tab co-tab--settings');
       cog.setAttribute('aria-label', 'Settings');
@@ -105,8 +105,7 @@
   var held = ORDER;
   var rights = { money: false, settings: false, manages: {} };
 
-  /* The row under it: the chosen company's own sections. On Money it is the
-     company filter instead, since the books are kept per company. */
+  /* The row under it: the chosen company's own sections. */
   function drawSections() {
     if (overall || page === 'due.html' || page === TODO) return;
     var header = document.querySelector('header.top');
@@ -115,18 +114,13 @@
     if (old) old.remove();
     var bar = document.createElement('nav');
     bar.className = 'section-tabs';
-    if (page === MONEY) {
-      bar.setAttribute('aria-label', 'Money for');
-      held.forEach(function (a) { bar.appendChild(link(AREAS[a].name, href(a, MONEY), a === area, 'section-tab')); });
-    } else {
-      bar.setAttribute('aria-label', AREAS[area].name + ' sections');
-      /* Jobs (earnings), Lab and Scheduling (enquiry contact details): only for
-         whoever manages a damp brand. */
-      AREAS[area].tabs.forEach(function (t) {
-        if ((t[1] === 'jobs.html' || t[1] === 'lab.html' || t[1] === 'schedule.html' || t[1] === 'company.html') && rights.known && !AREAS[area].sites.some(function (x) { return rights.manages[x]; })) return;
-        bar.appendChild(link(t[0], href(area, t[1]), t[1] === page, 'section-tab'));
-      });
-    }
+    bar.setAttribute('aria-label', AREAS[area].name + ' sections');
+    /* Jobs (earnings), Lab and Scheduling (enquiry contact details): only for
+       whoever manages a damp brand. */
+    AREAS[area].tabs.forEach(function (t) {
+      if ((t[1] === 'jobs.html' || t[1] === 'lab.html' || t[1] === 'schedule.html' || t[1] === 'company.html') && rights.known && !AREAS[area].sites.some(function (x) { return rights.manages[x]; })) return;
+      bar.appendChild(link(t[0], href(area, t[1]), t[1] === page, 'section-tab'));
+    });
     header.parentNode.insertBefore(bar, header.nextSibling);
   }
 

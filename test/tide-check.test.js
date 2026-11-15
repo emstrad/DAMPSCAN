@@ -1,0 +1,70 @@
+/**
+ * The monthly bank check (the owners' plan, 15 Nov 2026): Tide's statement
+ * read whatever its columns are called, each line put beside the logbook, and
+ * what is left over listed to put right.
+ */
+import { test, before, beforeEach, after, mock } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import pg from 'pg';
+
+const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://dampscan@127.0.0.1:55432/dampscan';
+const pool = new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 4 });
+mock.module('../lib/db.js', { namedExports: { sql: () => { throw new Error('not used'); }, query: async (t, p = []) => (await pool.query(t, p)).rows, queryOne: async (t, p = []) => (await pool.query(t, p)).rows[0] || null, ping: async () => true } });
+const T = await import('../lib/tide-check.js');
+const M = await import('../lib/company-money.js');
+const P = await import('../lib/pay-book.js');
+
+before(async () => { await pool.query(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8')); });
+beforeEach(async () => { await pool.query('truncate jobs, paid_out, expenses restart identity cascade'); });
+after(async () => { await pool.end(); });
+
+test('dates and columns as Tide (and banks like it) write them', () => {
+  assert.equal(T.tideDay('2026-11-03'), '2026-11-03');
+  assert.equal(T.tideDay('03/11/2026'), '2026-11-03');
+  assert.equal(T.tideDay('03-11-2026'), '2026-11-03');
+  assert.equal(T.tideDay('3 Nov 2026'), '2026-11-03');
+  const a = T.tideLines('Date,Transaction description,Reference,Paid in,Paid out\n03/11/2026,GOOGLE ADS,,,"1,200.50"\n04/11/2026,K LEE,KIM0042,107.50,\n');
+  assert.deepEqual(a.lines.map((l) => [l.day, l.pence, l.what]), [['2026-11-03', -120050, 'GOOGLE ADS'], ['2026-11-04', 10750, 'K LEE']]);
+  const b = T.tideLines('Date,Description,Amount\n2026-11-05,Fee,-5.00\n2026-11-05,Fee,-5.00\n');
+  assert.notEqual(b.lines[0].ref, b.lines[1].ref, 'two identical lines stay two');
+  assert.match(b.lines[0].ref, /^[a-f0-9]{32}$/);
+  assert.ok(T.tideLines('Name,Colour\nKim,Blue\n').error);
+  assert.equal(T.guessOut('TRANSFER TO SCOTT ELSON'), 'pay:scott:Bank transfer');
+  assert.equal(T.guessOut('HMRC CORPORATION TAX'), 'pay:tax:Paid to HMRC');
+  assert.equal(T.guessOut('GOOGLE *ADS1234'), 'cost:Google Ads');
+});
+
+test('each line beside the logbook; what is left over listed; putting one right matches it next time', async () => {
+  const job = Number((await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, survey_type, survey_price_pence, surveyor, surveyor_fee_pence,
+      date_set, job_date, job_time, tax_bp, lead_bp, lead_earner, partner_a, partner_b) values ('dampscan', 'booked', 'Kim Lee', 'ME19 6AB', 'full-house', 21500, 'ronnie', 10000, true, '2026-11-10', '10:00', 2000, 1500, 'scott', 'tom', 'ben') returning id`)).rows[0].id);
+  await M.addExpense({ pence: 2999, day: '2026-11-02', category: 'Software' }, 'Scott');
+  await P.recordPayout({ who: 'tom', pence: 50000, day: '2026-11-20', how: 'Cash' }, 'Scott');
+  await P.recordPayout({ who: 'ben', pence: 8000, day: '2026-11-15', how: 'Bank transfer' }, 'Scott');
+  const ref = `KIM${String(job).padStart(4, '0')}`;
+  const csv = `Date,Transaction description,Reference,Paid in,Paid out
+01/11/2026,VERCEL INC,,,29.99
+04/11/2026,K LEE,${ref},107.50,
+06/11/2026,STRIPE PAYMENTS UK,,412.30,
+07/11/2026,GOOGLE ADS,,,250.00
+21/11/2026,UNKNOWN PAYER,,40.00,
+`;
+  const c = await T.tideCheck(csv);
+  const by = (w) => c.lines.find((l) => l.what === w);
+  assert.equal(by('VERCEL INC').status, 'matched', 'an expense of the same amount within five days');
+  assert.equal(by('K LEE').status, 'untick');
+  assert.equal(by('K LEE').survey.id, job);
+  assert.equal(by('STRIPE PAYMENTS UK').status, 'payout');
+  assert.equal(by('GOOGLE ADS').status, 'missing');
+  assert.equal(by('GOOGLE ADS').guess, 'cost:Google Ads');
+  assert.equal(by('UNKNOWN PAYER').status, 'unknown');
+  assert.deepEqual(c.notOnStatement.map((x) => x.label), ['Ben: Bank transfer'], 'cash is never expected on the statement');
+  assert.equal(c.totals.in, 10750 + 41230 + 4000);
+  assert.equal(c.totals.out, 2999 + 25000);
+
+  await M.addExpense({ pence: 25000, day: '2026-11-07', category: 'Google Ads', bankRef: by('GOOGLE ADS').ref }, 'Scott');
+  await pool.query("update jobs set deposit_paid_at = now() where id = $1", [job]);
+  const again = await T.tideCheck(csv);
+  assert.equal(again.lines.find((l) => l.what === 'GOOGLE ADS').status, 'matched');
+  assert.equal(again.lines.find((l) => l.what === 'K LEE').status, 'matched', 'ticked on their card now');
+});

@@ -4,6 +4,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/staff/bank.html",
+      "destination": "/staff/company.html#bank",
+      "permanent": false
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
