@@ -1,10 +1,11 @@
-/* The booking trial's step 2 (the owner's brief, 15 Nov 2026, second pass):
-   one clean screen. What they are dealing with as picture tiles, then the
-   survey as it is today (damp or damp and timber, the four sizes, every add-on),
-   each with its small (i), and a Recommended tag on whatever fits what they
-   ticked, never ticked for them. Nothing step 1 asked is asked again: the
-   estate agent letting us in already says they are buying. Prices from the one
-   list; drawn into the opened-out card by home-trial.js; nothing is sent. */
+/* The booking trial's step 2 (the owner's brief, 15 Nov 2026, third pass):
+   one clean screen in four numbered parts, each ticked once answered: 1 what
+   they are dealing with, 2 the survey, 3 how much of the home, 4 add-ons. Built
+   once and changed in place, so a tap never moves the page: a Recommended tag
+   sits on the box's edge (no height of its own) and an (i) opens a floating
+   note, a sheet from the bottom on a phone, with why it is recommended. Never
+   ticked for them; nothing step 1 asked is asked again. Prices from the one
+   list; nothing is sent. The total stays pinned to the bottom of the screen. */
 (function (global) {
   'use strict';
   var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -22,102 +23,147 @@
   var pounds = function (n, from) { return (from ? 'from ' : '') + '£' + n; };
 
   /* What fits what they ticked: nothing until they tick something, and only an
-     add-on the tick really points to (the owner, 15 Nov 2026: damp alone says
-     nothing about a cavity wall, so the cavity check is never suggested here). */
+     add-on the tick really points to (damp alone says nothing about a cavity
+     wall, so the cavity check is never suggested here). */
   function recommended(d) {
-    var r = { service: null, size: d.agent ? 'full-house' : null, extras: {} };
+    var r = { service: null, size: d.agent ? 'full-house' : null, extras: {}, why: {} };
+    if (d.agent) r.why.size = 'You are buying, so the whole home is worth seeing.';
     if (!d.issues.length) return r;
     r.service = has(d, 'Timber / Woodworm') ? 'timber' : 'damp';
+    r.why.service = r.service === 'timber' ? 'You ticked timber or woodworm.' : 'Every survey starts with damp.';
     if (has(d, 'Leak / Water damage') || d.agent) r.extras.drone = d.agent ? 'You are buying and cannot see the roof up close.' : 'A leak often starts on the roof, chimney or gutters.';
     if (has(d, 'Timber / Woodworm')) r.extras.camera = 'Woodworm and rot often start under suspended floors.';
     return r;
   }
 
-  function info(row, text, label) {
-    var i = el('button', 'bt-info', 'i'); i.type = 'button'; i.setAttribute('aria-label', 'What is ' + label + '?'); i.setAttribute('aria-expanded', 'false');
-    var p = el('p', 'bt-infotext ht-info', text); p.hidden = true;
-    i.addEventListener('click', function (e) { e.stopPropagation(); p.hidden = !p.hidden; i.setAttribute('aria-expanded', String(!p.hidden)); });
-    row.appendChild(i); row.appendChild(p);
+  /* One floating note for every (i): beside the button, or a sheet on a phone. */
+  var pop = null, popFor = null;
+  function closePop() { if (pop) { pop.remove(); pop = null; } if (popFor) popFor.setAttribute('aria-expanded', 'false'); popFor = null; }
+  function openPop(btn, title, text, why) {
+    if (popFor === btn) return closePop();
+    closePop();
+    pop = el('div', 'ht-pop'); pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', title);
+    pop.appendChild(el('b', null, title)); pop.appendChild(el('p', null, text));
+    if (why) { var w = el('p', 'ht-pop-why'); w.appendChild(el('span', 'ht-rec', 'Recommended')); w.appendChild(document.createTextNode(' ' + why)); pop.appendChild(w); }
+    if (btn.closest('.is-brand')) pop.classList.add('is-brand');
+    popY = global.scrollY;
+    document.body.appendChild(pop); popFor = btn; btn.setAttribute('aria-expanded', 'true');
+    if (global.innerWidth > 600) {
+      var r = btn.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+      var left = Math.max(12, Math.min(r.right - pw, global.innerWidth - pw - 12));
+      var top = r.bottom + 8 + ph > global.innerHeight ? r.top - ph - 8 : r.bottom + 8;
+      pop.style.left = left + 'px'; pop.style.top = top + 'px';
+    } else pop.classList.add('is-sheet');
   }
-  var tag = function () { return el('span', 'ht-rec', 'Recommended'); };
+  document.addEventListener('click', function (e) { if (pop && !pop.contains(e.target) && e.target !== popFor) closePop(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePop(); });
+  /* A floating note follows nothing, so a real scroll closes it (a nudge does not). */
+  var popY = 0;
+  global.addEventListener('scroll', function () { if (pop && !pop.classList.contains('is-sheet') && Math.abs(global.scrollY - popY) > 40) closePop(); }, { passive: true });
+
+  function infoBtn(title, text, why) {
+    var i = el('button', 'bt-info', 'i'); i.type = 'button'; i.setAttribute('aria-label', 'What is ' + title + '?'); i.setAttribute('aria-expanded', 'false');
+    i.addEventListener('click', function (e) { e.stopPropagation(); openPop(i, title, text, why()); });
+    return i;
+  }
+  function head(n, text, extra) {
+    var h = el('div', 'ht-head'); var num = el('span', 'ht-num', String(n)); num.dataset.n = n;
+    h.appendChild(num); h.appendChild(el('h2', 'ht-h', text)); if (extra) h.appendChild(el('span', 'ht-opt-note', extra));
+    return { row: h, num: num };
+  }
 
   /* d: the answers so far; P: the price list; done(): on to the times. */
   function draw(box, d, P, done) {
-    box.textContent = '';
-    var rec = recommended(d);
+    box.textContent = ''; closePop();
     if (!d.pick) d.pick = { service: null, size: null, extras: [] };
-    var pick = d.pick;
-    var redraw = function () { draw(box, d, P, done); };
+    var pick = d.pick, rec = recommended(d), parts = [];
+    var narrow = function () { return global.innerWidth <= 980; };
+    var grid = el('div', 'ht-need'), left = el('div', 'ht-need-q'), right = el('div', 'ht-need-pick'), wide = el('div', 'ht-need-wide');
+    grid.appendChild(left); grid.appendChild(right); box.appendChild(grid); box.appendChild(wide);
+    function option(row, b, recKey, why) {
+      var t = el('span', 'ht-rec ht-rec--edge', 'Recommended'); t.hidden = true; b.appendChild(t);
+      parts.push({ b: b, tag: t, recKey: recKey }); row.appendChild(b); return why;
+    }
+    function nextUp(target) { if (narrow() && target) setTimeout(function () { var y = target.getBoundingClientRect().top + global.scrollY - 90; global.scrollTo({ top: y, behavior: 'smooth' }); }, 120); }
 
-    var grid = el('div', 'ht-need');
-    var left = el('div', 'ht-need-q'), right = el('div', 'ht-need-pick');
-    grid.appendChild(left); grid.appendChild(right); box.appendChild(grid);
-
-    left.appendChild(el('h2', 'ht-h', 'What are you dealing with?'));
+    var h1 = head(1, 'What are you dealing with?'); left.appendChild(h1.row);
     var tiles = el('div', 'ht-tiles');
     ISSUES.forEach(function (it) {
-      var t = el('button', 'ht-tile'); t.type = 'button'; t.setAttribute('aria-pressed', String(has(d, it[0])));
+      var t = el('button', 'ht-tile'); t.type = 'button'; t.dataset.issue = it[0];
       t.innerHTML = '<span class="ht-tile-ico">' + it[2] + '</span>';
       t.appendChild(el('b', null, it[0])); t.appendChild(el('span', 'ht-tile-say', it[1]));
-      t.addEventListener('click', function () { var i = d.issues.indexOf(it[0]); if (i === -1) d.issues.push(it[0]); else d.issues.splice(i, 1); redraw(); });
+      t.addEventListener('click', function () { var i = d.issues.indexOf(it[0]); if (i === -1) d.issues.push(it[0]); else d.issues.splice(i, 1); sync(); });
       tiles.appendChild(t);
     });
     left.appendChild(tiles);
 
-    right.appendChild(el('h2', 'ht-h', 'Your survey'));
+    var h2 = head(2, 'Your survey'); right.appendChild(h2.row);
     var types = el('div', 'ht-opts ht-opts--2');
     [['damp', P.services.damp], ['timber', P.services.timber]].forEach(function (s) {
-      var row = el('div', 'bt-pick ht-opt');
-      var b = el('button', 'bt-survey'); b.type = 'button'; b.setAttribute('aria-pressed', String(pick.service === s[0]));
-      b.appendChild(el('b', null, s[1].name)); if (rec.service === s[0]) b.appendChild(tag());
-      b.addEventListener('click', function () { pick.service = s[0]; redraw(); });
-      row.appendChild(b); info(row, s[1].info, s[1].name); types.appendChild(row);
+      var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey'); b.type = 'button'; b.dataset.service = s[0];
+      b.appendChild(el('b', null, s[1].name));
+      b.addEventListener('click', function () { var first = !pick.service; pick.service = s[0]; sync(); if (first) nextUp(h3.row); });
+      option(row, b, 'service:' + s[0]);
+      row.appendChild(infoBtn(s[1].name, s[1].info, function () { return rec.service === s[0] ? rec.why.service : ''; })); types.appendChild(row);
     });
     right.appendChild(types);
 
-    right.appendChild(el('p', 'ht-label', 'How much of the home?'));
-    var sizes = el('div', 'ht-opts ht-opts--2');
+    var h3 = head(3, 'How much of the home?'); right.appendChild(h3.row);
+    var sizes = el('div', 'ht-opts ht-opts--2'), sizePrice = {};
     P.sizes.forEach(function (z) {
-      var row = el('div', 'bt-pick ht-opt');
-      var b = el('button', 'bt-survey'); b.type = 'button'; b.setAttribute('aria-pressed', String(pick.size === z.key));
-      var top = el('span', 'ht-opt-top'); top.appendChild(el('b', null, z.name)); top.appendChild(el('span', 'bt-price', pounds(z.damp + (pick.service === 'timber' ? z.timber : 0), z.from)));
-      b.appendChild(top); b.appendChild(el('span', 'ht-opt-say', z.scope)); if (rec.size === z.key) b.appendChild(tag());
-      b.addEventListener('click', function () { pick.size = z.key; redraw(); });
-      row.appendChild(b); info(row, z.info, z.name); sizes.appendChild(row);
+      var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey'); b.type = 'button'; b.dataset.size = z.key;
+      var top = el('span', 'ht-opt-top'); top.appendChild(el('b', null, z.name)); sizePrice[z.key] = el('span', 'bt-price'); top.appendChild(sizePrice[z.key]);
+      b.appendChild(top); b.appendChild(el('span', 'ht-opt-say', z.scope));
+      b.addEventListener('click', function () { var first = !pick.size; pick.size = z.key; sync(); if (first) nextUp(h4.row); });
+      option(row, b, 'size:' + z.key);
+      row.appendChild(infoBtn(z.name, z.info, function () { return rec.size === z.key ? rec.why.size : ''; })); sizes.appendChild(row);
     });
     right.appendChild(sizes);
 
-    /* The add-ons spread across the whole card, under both halves. */
-    var wide = el('div', 'ht-need-wide'); box.appendChild(wide);
-    wide.appendChild(el('p', 'ht-label', 'Add on the same visit'));
-    var adds = el('div', 'ht-opts ht-opts--adds');
+    var h4 = head(4, 'Add on the same visit', 'Optional'); wide.appendChild(h4.row);
+    var adds = el('div', 'ht-opts ht-opts--adds'), ticks = {};
     P.extras.filter(function (x) { return x.addable; }).forEach(function (x) {
-      var on = pick.extras.indexOf(x.key) !== -1, why = rec.extras[x.key];
-      var row = el('div', 'bt-pick ht-opt');
-      var b = el('button', 'bt-survey ht-add'); b.type = 'button'; b.setAttribute('aria-pressed', String(on));
-      var box2 = el('span', 'ht-box'); box2.innerHTML = on ? TICK : '';
-      var top = el('span', 'ht-opt-top'); top.appendChild(box2); top.appendChild(el('b', null, x.name)); top.appendChild(el('span', 'bt-price', '+' + pounds(x.withSurvey, x.from)));
-      b.appendChild(top); if (why) { b.appendChild(tag()); b.appendChild(el('span', 'ht-opt-say', why)); }
-      b.addEventListener('click', function () { var i = pick.extras.indexOf(x.key); if (i === -1) pick.extras.push(x.key); else pick.extras.splice(i, 1); redraw(); });
-      row.appendChild(b); info(row, x.scope + '. ' + x.info, x.name); adds.appendChild(row);
+      var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey ht-add'); b.type = 'button'; b.dataset.extra = x.key;
+      ticks[x.key] = el('span', 'ht-box');
+      var top = el('span', 'ht-opt-top'); top.appendChild(ticks[x.key]); top.appendChild(el('b', null, x.name)); top.appendChild(el('span', 'bt-price', '+' + pounds(x.withSurvey, x.from)));
+      b.appendChild(top);
+      b.addEventListener('click', function () { var i = pick.extras.indexOf(x.key); if (i === -1) pick.extras.push(x.key); else pick.extras.splice(i, 1); sync(); });
+      option(row, b, 'extra:' + x.key);
+      row.appendChild(infoBtn(x.name, x.scope + '. ' + x.info, function () { return rec.extras[x.key] || ''; })); adds.appendChild(row);
     });
     wide.appendChild(adds);
 
-    /* The total, the deposit and the way on, once a type and a size are chosen. */
-    var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
-    var bar = el('div', 'ht-total');
-    if (z && pick.service) {
-      var t = z.damp + (pick.service === 'timber' ? z.timber : 0), from = z.from;
-      P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) { t += x.withSurvey; from = from || Boolean(x.from); } });
-      pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
-      var sum = el('div'); sum.appendChild(el('b', null, pounds(t, from))); sum.appendChild(el('span', null, '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
-      bar.appendChild(sum);
-    } else bar.appendChild(el('span', 'ht-sub', !pick.service ? 'Choose damp, or damp and timber.' : 'Choose how much of the home.'));
-    var go = el('button', 'btn btn--primary btn--lg', 'Choose a time'); go.type = 'button'; go.disabled = !(z && pick.service && d.issues.length);
-    go.addEventListener('click', done);
-    bar.appendChild(go);
-    wide.appendChild(bar);
-    if (!d.issues.length) wide.appendChild(el('p', 'ht-sub ht-hint', 'Tick what you are dealing with first.'));
+    /* Pinned to the bottom of the screen: the total, the deposit and what is still missing. */
+    var bar = el('div', 'ht-total'), sum = el('div'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
+    bar.appendChild(sum); bar.appendChild(go); box.appendChild(bar);
+    go.addEventListener('click', function () { if (!go.disabled) done(); });
+
+    function sync() {
+      rec = recommended(d);
+      tiles.querySelectorAll('.ht-tile').forEach(function (t) { t.setAttribute('aria-pressed', String(has(d, t.dataset.issue))); });
+      parts.forEach(function (p) {
+        var k = p.recKey.split(':'), on = false, show = false;
+        if (k[0] === 'service') { on = pick.service === k[1]; show = rec.service === k[1]; }
+        if (k[0] === 'size') { on = pick.size === k[1]; show = rec.size === k[1]; }
+        if (k[0] === 'extra') { on = pick.extras.indexOf(k[1]) !== -1; show = Boolean(rec.extras[k[1]]); ticks[k[1]].innerHTML = on ? TICK : ''; }
+        p.b.setAttribute('aria-pressed', String(on)); p.tag.hidden = !show;
+      });
+      P.sizes.forEach(function (z) { sizePrice[z.key].textContent = pounds(z.damp + (pick.service === 'timber' ? z.timber : 0), z.from); });
+      [[h1, d.issues.length], [h2, pick.service], [h3, pick.size], [h4, pick.extras.length]].forEach(function (h) {
+        h[0].num.classList.toggle('is-done', Boolean(h[1])); h[0].num.innerHTML = h[1] ? TICK : h[0].num.dataset.n;
+      });
+      var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
+      sum.textContent = '';
+      if (z && pick.service) {
+        var t = z.damp + (pick.service === 'timber' ? z.timber : 0), from = z.from;
+        P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) { t += x.withSurvey; from = from || Boolean(x.from); } });
+        pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
+        sum.appendChild(el('b', null, pounds(t, from))); sum.appendChild(el('span', null, '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
+      } else sum.appendChild(el('span', null, 'Your total shows here'));
+      var missing = !d.issues.length ? 'Tick what you\'re dealing with' : !pick.service ? 'Pick your survey' : !pick.size ? 'Pick a size' : '';
+      go.textContent = missing || 'Choose a time'; go.disabled = Boolean(missing);
+    }
+    sync();
   }
 
   global.HTNEED = { draw: draw, recommended: recommended };

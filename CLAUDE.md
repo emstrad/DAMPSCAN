@@ -435,21 +435,29 @@ checks the mechanical ones.
   page, rebuilt from it on every build (/staff/home-trial-dampscan.html and
   -ati.html), with only the booking form swapped and nothing sent (the visit,
   half-finished form, enquiry, address and upload scripts and the ads tag left
-  out, never indexed, owners signed in). Four steps (the owner's second pass,
-  15 Nov 2026): 1 in the usual card, compact so it sits on the first screen of
-  a laptop (name and mobile, email and postcode, street and town, who lets us
-  in); then the card grows across the hero section, not over the page (longer
-  than 300 ms by the owner's ask, none with reduced motion), for 2 one clean
-  screen: what you are dealing with as picture tiles (on a phone, picture and
-  name only) beside the survey as it is today (damp or damp and timber, the
-  four sizes, every add-on), each with its (i), and a Recommended tag on what
-  fits what they ticked (nothing before a tick; the drone for a leak or an
-  agent, the camera for timber, never the cavity check, which a tile cannot
-  tell), never ticked for them, the add-ons across the card's width; nothing step 1 asked is asked
-  again (the estate agent letting us in says they are buying); 3 a real free
-  time for their postcode and survey length, a week at a time up to eight weeks
-  ahead (skipped for an agent); 4 anything
-  to add (the old last step). The end shows what the live form would have done. The prices pages, the website's
+  out, never indexed, owners signed in). Four steps (Details, Survey, Time,
+  Done; the owner's third pass, 15 Nov 2026): 1 in the usual card, compact so
+  it sits on the first screen of a laptop (name and mobile, email and postcode,
+  street and town, who lets us in); then the card grows across the hero
+  section, not over the page (longer than 300 ms by the owner's ask, none with
+  reduced motion), for 2 one clean screen in four numbered parts, each ticked
+  once answered: what you are dealing with as picture tiles (on a phone,
+  picture and name only), your survey (damp or damp and timber), how much of
+  the home, and add-ons across the card's width; built once and changed in
+  place so a tap never moves the page: equal-height boxes, a Recommended tag on
+  the box's edge (nothing before a tick; the drone for a leak or an agent, the
+  camera for timber, never the cavity check, which a tile cannot tell; never
+  ticked for them), and each (i) a floating note, a sheet from the bottom on a
+  phone, with why it is recommended; the total, deposit and what is still
+  missing pinned to the bottom of the screen; nothing step 1 asked is asked
+  again (the estate agent letting us in says they are buying); 3 When suits
+  you? with no sub-line: Earliest as one tap, then a week at a time up to
+  eight weeks ahead, times under Morning and Afternoon; the time tapped books
+  it (skipped for an agent); Done: booked, their survey page to open there and
+  then (pay the deposit), the link texted too and Add to calendar; for an
+  agent or "just call me", a text once confirmed; photos, a note and a
+  previous survey after the booking, all optional. Each end says what the
+  live form would have done. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table
   of extra checks added to a survey, and everything wordy folded

@@ -2,14 +2,14 @@
    of the home page (scripts/trial-home.js). Step 1 in the usual card, kept
    compact: name, mobile, email, the full address and who lets us in. Then the
    card grows across the hero for step 2, what they are dealing with and their
-   survey (home-trial-need.js), step 3, a real free time from the Lab's route, and
-   step 4, anything to add. Nothing is saved or sent: the end shows what the live
-   form would have done. Owners only; anyone else goes to the staff sign-in. */
+   survey (home-trial-need.js), step 3, a real free time from the Lab's route,
+   booked on the tap, then done (home-trial-done.js), with anything to add after.
+   Nothing is saved or sent: the end shows what the live form would have done. Owners only; anyone else goes to the staff sign-in. */
 (function (global) {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-  var STEPS = 4;
+  var STEPS = 4, NAMES = ['Details', 'Survey', 'Time', 'Done'];
   var d = { issues: [], where: [], why: '', scope: '', beds: '', agent: null, pick: null, when: null, previous: false, notes: '', files: [] };
   var prices = null, stage = null, body = null, step = 1;
   var card = $('book');
@@ -68,12 +68,12 @@
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && d.agent ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
     place(box(card.getBoundingClientRect()));
-    hero.appendChild(stage);
+    hero.appendChild(stage); document.body.classList.add('ht-booking');
     card.style.visibility = 'hidden';
     void stage.offsetWidth;
     stage.classList.add('is-moving'); place(full());
@@ -94,7 +94,7 @@
     s.classList.remove('is-shown'); hero.classList.remove('ht-open');
     place(from); void s.offsetWidth;
     s.classList.add('is-moving'); place(box(card.getBoundingClientRect()));
-    stage = null; step = 1; dotsTo(1);
+    stage = null; step = 1; dotsTo(1); document.body.classList.remove('ht-booking');
     setTimeout(function () { s.remove(); card.style.visibility = ''; }, MS);
   }
   function dotsTo(n) {
@@ -102,16 +102,15 @@
       if (!box) return;
       box.textContent = '';
       for (var i = 1; i <= STEPS; i += 1) box.appendChild(el('span', i <= n ? 'is-done' : null));
-      box.appendChild(el('span', 'step-label', 'Step ' + n + ' of ' + STEPS));
+      box.appendChild(el('span', 'step-label', 'Step ' + n + ' of ' + STEPS + ' \u00b7 ' + NAMES[n - 1]));
     });
   }
   function go(n) {
     step = n; dotsTo(n); body.textContent = '';
-    var pane = el('div', n === 2 ? 'ht-pane' : 'ht-pane ht-pane--c'); body.appendChild(pane);
-    if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, function () { go(3); }); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
+    var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : 'ht-pane ht-pane--c'); body.appendChild(pane);
+    if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, function () { go(d.agent ? 4 : 3); }); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
     if (n === 3) when(pane);
-    if (n === 4) extras(pane);
-    if (n === 5) done(pane);
+    if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again });
     /* A new step starts at its top, under the site's header. */
     if (stage && stage.classList.contains('is-shown')) { var y = stage.getBoundingClientRect().top + window.scrollY - 90; if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); }
   }
@@ -119,20 +118,19 @@
   /* ---------- Step 3: a real free time for their postcode and survey length ---------- */
   function when(pane) {
     pane.appendChild(el('h2', 'ht-h', 'When suits you?'));
-    if (d.agent) {
-      pane.appendChild(el('p', 'ht-sub', 'We\'ll arrange the time with ' + d.agent.name + ' and text you once it\'s confirmed.'));
-      var c = el('button', 'btn btn--primary btn--lg', 'Continue'); c.type = 'button'; c.addEventListener('click', function () { d.when = null; go(4); });
-      pane.appendChild(c); return;
-    }
-    pane.appendChild(el('p', 'ht-sub', 'Real free times near ' + d.postcode + ', up to eight weeks ahead.'));
-    var nav = el('div', 'ht-week'), days = el('div', 'ht-days'), times = el('div', 'ht-times');
-    pane.appendChild(nav); pane.appendChild(days); pane.appendChild(times);
+    var quick = el('div', 'ht-quick'), nav = el('div', 'ht-week'), days = el('div', 'ht-days'), times = el('div', 'ht-times');
+    pane.appendChild(quick); pane.appendChild(nav); pane.appendChild(days); pane.appendChild(times);
     var minutes = (d.pick && d.pick.minutes) || 60;
+    /* Tapping a time books it there and then (the live form with Book it straight away on). */
+    var book = function (dd, t) { d.when = { date: dd, time: t }; go(4); };
     fetch('/api/admin/hours?view=slots&days=56&postcode=' + encodeURIComponent(d.postcode) + '&minutes=' + minutes, { headers: { Accept: 'application/json' } })
       .then(function (r) { return r.json(); }).then(function (x) {
         var by = {}; (x.slots || []).forEach(function (s) { (by[s.date] = by[s.date] || []).push(s); });
         var free = Object.keys(by).sort();
         if (!free.length) { days.appendChild(el('p', 'ht-sub', 'No free times near there yet: the live form would say we\'ll call to arrange one.')); return; }
+        var e = by[free[0]][0], eb = el('button', 'ht-earliest'); eb.type = 'button';
+        eb.appendChild(el('span', null, 'Earliest')); eb.appendChild(el('b', null, short(free[0]) + ', ' + clock(e.time)));
+        eb.addEventListener('click', function () { book(free[0], e.time); }); quick.appendChild(eb);
         /* A week at a time, Monday first, opening on the first week with a free time. */
         var iso = function (t) { return new Date(t).toISOString().slice(0, 10); };
         var monday = function (dd) { var t = Date.parse(dd + 'T12:00:00Z'); return t - ((new Date(t).getUTCDay() + 6) % 7) * 864e5; };
@@ -142,10 +140,14 @@
         nav.appendChild(prev); nav.appendChild(label); nav.appendChild(next);
         function show(dd) {
           days.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-pressed', String(z.dataset.day === dd)); });
-          times.textContent = '';
-          var row = el('div', 'bt-row');
-          by[dd].forEach(function (s) { var t = el('button', 'bt-time', clock(s.time)); t.type = 'button'; t.addEventListener('click', function () { d.when = { date: dd, time: s.time }; go(4); }); row.appendChild(t); });
-          times.appendChild(el('p', 'ht-day', nice(dd))); times.appendChild(row);
+          times.textContent = ''; times.appendChild(el('p', 'ht-day', nice(dd)));
+          [['Morning', function (t) { return t < '12:00'; }], ['Afternoon', function (t) { return t >= '12:00'; }]].forEach(function (g) {
+            var list = by[dd].filter(function (s) { return g[1](s.time); }); if (!list.length) return;
+            var grp = el('div', 'ht-tgroup'); grp.appendChild(el('span', 'ht-tlabel', g[0]));
+            var row = el('div', 'bt-row');
+            list.forEach(function (s) { var t = el('button', 'bt-time', clock(s.time)); t.type = 'button'; t.addEventListener('click', function () { book(dd, s.time); }); row.appendChild(t); });
+            grp.appendChild(row); times.appendChild(grp);
+          });
         }
         function draw() {
           days.textContent = ''; var pick = null;
@@ -167,45 +169,7 @@
     pane.appendChild(skip);
   }
 
-  /* ---------- Step 4: anything to add, all optional (the old last step) ---------- */
-  function extras(pane) {
-    pane.appendChild(el('h2', 'ht-h', 'Anything to add?'));
-    pane.appendChild(el('p', 'ht-sub', 'All optional.'));
-    var f = el('div', 'ht-extras');
-    var prev = el('label', 'check'); var pc = el('input'); pc.type = 'checkbox'; pc.checked = d.previous; pc.addEventListener('change', function () { d.previous = pc.checked; });
-    var tick = el('span', 'box'); tick.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    prev.appendChild(pc); prev.appendChild(tick); prev.appendChild(document.createTextNode('I\'ve had a damp survey on this property before')); f.appendChild(prev);
-    var fr = el('div', 'form-row'); fr.appendChild(el('label', null, 'Photos or a previous report'));
-    var files = el('input'); files.type = 'file'; files.multiple = true; files.accept = 'image/*,application/pdf';
-    var list = el('ul', 'file-list');
-    files.addEventListener('change', function () { d.files = Array.prototype.map.call(files.files, function (x) { return x.name; }); list.textContent = ''; d.files.forEach(function (n) { list.appendChild(el('li', null, n)); }); });
-    fr.appendChild(files); fr.appendChild(list); f.appendChild(fr);
-    var nr = el('div', 'form-row'); nr.appendChild(el('label', null, 'Anything else we should know?'));
-    var notes = el('textarea'); notes.rows = 3; notes.placeholder = 'Where the problem is, when it started...'; notes.value = d.notes; notes.addEventListener('input', function () { d.notes = notes.value; });
-    nr.appendChild(notes); f.appendChild(nr); pane.appendChild(f);
-    var go4 = el('button', 'btn btn--primary btn--lg', 'Book My Survey'); go4.type = 'button'; go4.addEventListener('click', function () { go(5); });
-    pane.appendChild(go4);
-  }
-
-  /* ---------- The end: what the live form would have done ---------- */
-  function done(pane) {
-    dotsTo(STEPS);
-    var ring = el('div', 'check-ring'); ring.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    pane.appendChild(ring);
-    pane.appendChild(el('h2', 'ht-h', d.when ? 'You\'re booked in, ' + d.name : 'Got it, ' + d.name));
-    var s = d.pick ? prices.sizes.filter(function (z) { return z.key === d.pick.size; })[0] : null;
-    var lines = [
-      ['Survey', s ? (d.pick.service === 'timber' ? 'Damp and timber, ' : 'Damp, ') + s.name.toLowerCase() + (d.pick.extras.length ? ' + ' + d.pick.extras.length + ' extra' + (d.pick.extras.length > 1 ? 's' : '') : '') : 'To agree'],
-      ['Price', d.pick ? money(d.pick.totalPounds) + ', deposit ' + money(d.pick.totalPounds / 2) : 'To agree'],
-      ['When', d.when ? nice(d.when.date) + ' at ' + clock(d.when.time) : d.agent ? 'Arranged with ' + d.agent.name : 'We\'ll call to arrange'],
-      ['Where', d.address], ['Let in by', d.agent ? d.agent.name : d.name], ['Seeing', d.issues.join(', ')]
-    ];
-    var dl = el('dl', 'ht-sum'); lines.forEach(function (l) { dl.appendChild(el('dt', null, l[0])); dl.appendChild(el('dd', null, l[1])); }); pane.appendChild(dl);
-    pane.appendChild(el('p', 'ht-sub', 'Trial only: nothing was saved or sent. Live, this ' + (d.when ? 'books the time, tells the surveyor and texts ' + d.name + ' the deposit link.' : 'makes their card on Scheduling and alerts you.')));
-    var again = el('button', 'btn btn--primary btn--lg', 'Start again'); again.type = 'button';
-    again.addEventListener('click', function () { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; close(); });
-    pane.appendChild(again);
-  }
+  function again() { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; d.previous = false; d.notes = ''; d.files = []; close(); }
 
   global.addEventListener('keydown', function (e) { if (e.key === 'Escape' && stage) close(); });
 })(window);
