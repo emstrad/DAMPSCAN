@@ -325,7 +325,9 @@ checks the mechanical ones.
   click id): enquiries, booked, money paid, cost per enquiry and per booking,
   and the return per pound; then month by month (visitors, enquiries, booked
   with its rate, paid, money) and every source over the company year, best
-  money first, phone callers apart; a form sent twice counts once. For ATi and DampScan the Leads page
+  money first, phone callers apart; a form sent twice counts once; and the
+  booking form step by step over 30 days (who reached each step, how many left
+  there, form_step and form_submit events). For ATi and DampScan the Leads page
   (as Website), Insights and Records are no longer damp section tabs: they sit
   in Company's tab row (`company-hub.js` draws the same row on those pages),
   reached through ALSO in area.js; Verge and CoolRight keep their own.
@@ -438,7 +440,8 @@ checks the mechanical ones.
   out, never indexed, owners signed in). Four steps (Details, Survey, Time,
   Done; the owner's third pass, 15 Nov 2026): 1 in the usual card, compact so
   it sits on the first screen of a laptop (name and mobile, email and postcode,
-  street and town, who lets us in); then the card grows across the hero
+  street and town, who lets us in; the postcode tidied and checked as they
+  leave the box, with a soft word outside London and Kent); then the card grows across the hero
   section, not over the page (longer than 300 ms by the owner's ask, none with
   reduced motion), for 2 one clean screen in four numbered parts, each ticked
   once answered: what you are dealing with as picture tiles (on a phone,
@@ -449,14 +452,17 @@ checks the mechanical ones.
   camera for timber, never the cavity check, which a tile cannot tell; never
   ticked for them), and each (i) a floating note, a sheet from the bottom on a
   phone, with why it is recommended; the total, deposit and what is still
-  missing pinned to the bottom of the screen; nothing step 1 asked is asked
+  missing pinned to the bottom of the screen, the real rules beside it (50%
+  deposit, change your time free, full refund 48 hours before); nothing step 1 asked is asked
   again (the estate agent letting us in says they are buying); 3 When suits
   you? with no sub-line: Earliest as one tap, then a week at a time up to
-  eight weeks ahead, times under Morning and Afternoon; the time tapped books
-  it (skipped for an agent); Done: booked, their survey page to open there and
-  then (pay the deposit), the link texted too and Add to calendar; for an
+  eight weeks ahead, times under Morning and Afternoon, "change your time
+  anytime from your page"; the time tapped books it (skipped for an agent);
+  Done: booked, the deposit to pay by wallet there and then, their survey page
+  to open, the link texted too and Add to calendar; for an
   agent or "just call me", a text once confirmed; photos, a note and a
-  previous survey after the booking, all optional. Each end says what the
+  previous survey after the booking, all optional; a Call us chip on every
+  step. Each end says what the
   live form would have done. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table

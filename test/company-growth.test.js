@@ -52,3 +52,16 @@ test('Google Ads: spend against the enquiries, bookings and money its clicks bro
   assert.deepEqual(names, { 'Google Ads': 3, 'Google search': 1, 'Phone call': 1 });
   assert.equal(g.sources[0].name, 'Google Ads', 'best money first');
 });
+
+test('the booking form step by step: who reached each step and who sent it, damp sites only', async () => {
+  const visit = async (upTo, sent, site = 'dampscan') => {
+    const sid = randomUUID();
+    for (let s = 1; s <= upTo; s += 1) await pool.query("insert into events (session_id, type, detail, site) values ($1, 'form_step', $2, $3)", [sid, JSON.stringify({ step: s }), site]);
+    await pool.query("insert into events (session_id, type, detail, site) values ($1, 'form_step', $2, $3)", [sid, JSON.stringify({ step: 1 }), site]);
+    if (sent) await pool.query("insert into events (session_id, type, site) values ($1, 'form_submit', $2)", [sid, site]);
+  };
+  await visit(3, true); await visit(3, false); await visit(2, false); await visit(1, false, 'ati-london'); await visit(3, true, 'roofing');
+  const g = await G.growth();
+  assert.deepEqual(g.form.steps, [{ step: 1, n: 4 }, { step: 2, n: 3 }, { step: 3, n: 2 }], 'a session counts once per step');
+  assert.equal(g.form.sent, 1);
+});

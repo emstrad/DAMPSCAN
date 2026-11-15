@@ -128,6 +128,20 @@
 .ht-later summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
 .ht-later .ht-extras { padding-bottom: 14px; margin: 0; }
 .ht-trialnote { font-size: 13px; }
+.ht-small { font-size: 13.5px; margin: 4px 0 6px; }
+/* Call us on every step: a chip with words, just the phone on a narrow screen. */
+.ht-call { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--line-strong); color: inherit; text-decoration: none; font-size: 14px; font-weight: 600; flex: none; }
+.ht-call svg { color: var(--accent); }
+#ht-form .fnav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ht-pc-note { margin: 4px 0 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+/* The promise beside the price. */
+.ht-promise { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; padding: 0; font-size: 13.5px; color: var(--muted); }
+.ht-promise li { display: inline-flex; align-items: center; gap: 6px; }
+.ht-promise svg { color: var(--good, #52d39a); }
+.ht-pay { margin: 4px 0 10px; }
+.ht-paybtn { display: inline-grid; justify-items: center; gap: 2px; padding-top: 10px; padding-bottom: 10px; }
+.ht-paybtn span { font-size: 12.5px; font-weight: 500; opacity: .85; }
 .ht-times { min-height: 60px; margin-bottom: 6px; }
 .ht-times .bt-row { justify-content: center; }
 .ht-extras { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; margin-bottom: 16px; }
@@ -146,6 +160,9 @@
   .ht-tile { grid-template-columns: 1fr; row-gap: 6px; padding: 12px; min-height: 0; }
   .ht-tile-ico { grid-row: auto; }
   .ht-tile-say { display: none; }
+  .ht-top .ht-call { padding: 0; }
+  .ht-top .ht-call span { display: none; }
+  .ht-promise { flex-direction: column; }
   /* One slim row: the total beside the button. */
   .ht-pane--need .ht-total { flex-wrap: nowrap; gap: 10px; }
   .ht-pane--need .ht-total b { font-size: 20px; }

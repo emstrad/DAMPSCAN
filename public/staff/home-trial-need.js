@@ -134,6 +134,10 @@
     wide.appendChild(adds);
 
     /* Pinned to the bottom of the screen: the total, the deposit and what is still missing. */
+    /* Your real rules, beside the price: people book more when they can see them. */
+    var promise = el('ul', 'ht-promise');
+    ['50% deposit, the rest after the visit', 'Change your time free from your page', 'Full refund up to 48 hours before'].forEach(function (t) { var li = el('li'); li.innerHTML = TICK; li.appendChild(document.createTextNode(t)); promise.appendChild(li); });
+    box.appendChild(promise);
     var bar = el('div', 'ht-total'), sum = el('div'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
     bar.appendChild(sum); bar.appendChild(go); box.appendChild(bar);
     go.addEventListener('click', function () { if (!go.disabled) done(); });

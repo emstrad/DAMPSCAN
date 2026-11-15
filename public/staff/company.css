@@ -93,3 +93,4 @@
 .gr-row span:not(:first-child){text-align:right}
 .gr-head{border-top:0;font-size:12px;color:var(--muted)}
 a.pill{display:inline-flex;align-items:center;text-decoration:none}
+.mn-cost.is-bad > span{color:var(--warn)}
