@@ -741,9 +741,10 @@ checks the mechanical ones.
   the fold becomes "Your photos (N)" showing every one they sent).
   On my way: the surveyor taps it on the day in the job pop-up (their own
   surveys too); the page shows it two minutes later (Undo before then), for
-  four hours, never a text, as the surveyor's car driving along to the house
-  (the owners' ask, UAT 15 Nov 2026; parked when the device asks for less
-  motion). The open page checks for news every 30 seconds and on coming back
+  four hours, never a text, as "Tom is on the way, arriving between 9 and
+  10am at" their street, with the van driving along a road to "On the way"
+  (the owners' chosen design from the page preview, UAT 15 Nov 2026; parked
+  when the device asks for less motion). The open page checks for news every 30 seconds and on coming back
   to it (poll=1: never logged as an open, and it sends any text now due), redrawn
   only when something they would notice changed and never while they type;
   back from Stripe's page it starts afresh (Safari's back-forward cache kept the
