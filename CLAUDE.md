@@ -394,7 +394,10 @@ checks the mechanical ones.
   never a request, and a time taken a moment before shows the fresh times.
   With the switch off, picks stay requests (the customer is told it is not
   booked until we call to confirm); the team confirms, decides who goes and
-  sends the deposit by hand. The Lab shows the same. The form is saved before any
+  sends the deposit by hand. The Lab shows the same. The form and the booking
+  steps after it (times, survey, pick) have their own per-address allowances
+  (`LIMITS.lead` 30 and `LIMITS.booking` 80 per 10 minutes; UAT 15 Nov 2026: one
+  shared allowance of 8 refused a second booking). The form is saved before any
   of this, so leaving part way loses nothing and makes no second enquiry.
   Time first (least friction), then, with the Lab's survey quiz switch on,
   "What do you need?": damp survey, damp and timber, or not sure; then the

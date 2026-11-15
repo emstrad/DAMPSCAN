@@ -69,15 +69,16 @@ export default async function handler(req, res) {
   if (!requireSameOrigin(req, res)) return;
 
   const hash = ipHash(req);
-  const limit = await rateLimit({ ...LIMITS.lead, ipHash: hash });
+  const body = await readJson(req);
+  /* The booking steps after the form have their own allowance, so they never use up the form's. */
+  const bucket = ['times', 'pick', 'survey'].includes(body && body.op) ? LIMITS.booking : LIMITS.lead;
+  const limit = await rateLimit({ ...bucket, ipHash: hash });
   if (!limit.ok) {
-    res.setHeader('Retry-After', String(LIMITS.lead.windowSeconds));
+    res.setHeader('Retry-After', String(bucket.windowSeconds));
     json(res, 429, { ok: false, error: 'too_many_requests' });
     return;
   }
   pruneRateHits();
-
-  const body = await readJson(req);
 
   /* After the enquiry: the survey times to pick from, and the pick itself
      (lib/web-booking.js). Here rather than a new file: the plan allows twelve. */
