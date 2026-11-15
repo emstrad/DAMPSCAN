@@ -43,7 +43,10 @@
       });
       f.appendChild(amt); f.appendChild(go);
       d.appendChild(f); d.appendChild(note);
-    } else d.appendChild(U.node('p', 'panel-note', 'Paid by bank: send it back from the bank app, then add the refund on the job.'));
+    } else if (!(m.payments || []).some(function (p) { return p.online; })) {
+      /* Only for a survey paid by bank transfer alone: anything paid by card goes back through Stripe above. */
+      d.appendChild(U.node('p', 'panel-note', 'Paid by bank transfer: send it back from Tide, then add the refund on the job.'));
+    }
     box.appendChild(d);
   }
 
