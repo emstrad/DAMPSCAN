@@ -443,9 +443,12 @@ checks the mechanical ones.
   screen: what you are dealing with as picture tiles (on a phone, picture and
   name only) beside the survey as it is today (damp or damp and timber, the
   four sizes, every add-on), each with its (i), and a Recommended tag on what
-  fits what they ticked, never ticked for them; nothing step 1 asked is asked
+  fits what they ticked (nothing before a tick; the drone for a leak or an
+  agent, the camera for timber, never the cavity check, which a tile cannot
+  tell), never ticked for them, the add-ons across the card's width; nothing step 1 asked is asked
   again (the estate agent letting us in says they are buying); 3 a real free
-  time for their postcode and survey length (skipped for an agent); 4 anything
+  time for their postcode and survey length, a week at a time up to eight weeks
+  ahead (skipped for an agent); 4 anything
   to add (the old last step). The end shows what the live form would have done. The prices pages, the website's
   survey step and the Lab quiz all use it (test/prices.test.js). The prices
   page is kept simple: one table by size (damp, damp and timber), one table

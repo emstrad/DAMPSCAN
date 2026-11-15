@@ -107,7 +107,7 @@
   }
   function go(n) {
     step = n; dotsTo(n); body.textContent = '';
-    var pane = el('div', 'ht-pane'); body.appendChild(pane);
+    var pane = el('div', n === 2 ? 'ht-pane' : 'ht-pane ht-pane--c'); body.appendChild(pane);
     if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, function () { go(3); }); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
     if (n === 3) when(pane);
     if (n === 4) extras(pane);
@@ -124,26 +124,44 @@
       var c = el('button', 'btn btn--primary btn--lg', 'Continue'); c.type = 'button'; c.addEventListener('click', function () { d.when = null; go(4); });
       pane.appendChild(c); return;
     }
-    pane.appendChild(el('p', 'ht-sub', 'Pick a day, then a time. These are our surveyors\' real free times near ' + d.postcode + '.'));
-    var days = el('div', 'bt-row ht-days'), times = el('div', 'ht-times');
-    pane.appendChild(days); pane.appendChild(times);
+    pane.appendChild(el('p', 'ht-sub', 'Real free times near ' + d.postcode + ', up to eight weeks ahead.'));
+    var nav = el('div', 'ht-week'), days = el('div', 'ht-days'), times = el('div', 'ht-times');
+    pane.appendChild(nav); pane.appendChild(days); pane.appendChild(times);
     var minutes = (d.pick && d.pick.minutes) || 60;
-    fetch('/api/admin/hours?view=slots&postcode=' + encodeURIComponent(d.postcode) + '&minutes=' + minutes, { headers: { Accept: 'application/json' } })
+    fetch('/api/admin/hours?view=slots&days=56&postcode=' + encodeURIComponent(d.postcode) + '&minutes=' + minutes, { headers: { Accept: 'application/json' } })
       .then(function (r) { return r.json(); }).then(function (x) {
         var by = {}; (x.slots || []).forEach(function (s) { (by[s.date] = by[s.date] || []).push(s); });
-        var list = Object.keys(by).sort().slice(0, 14);
-        if (!list.length) { days.appendChild(el('p', 'ht-sub', 'No free times near there yet: the live form would say we\'ll call to arrange one.')); return; }
-        list.forEach(function (dd) {
-          var b = el('button', 'bt-time', short(dd)); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
-          b.addEventListener('click', function () {
-            days.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-pressed', String(z === b)); });
-            times.textContent = ''; times.appendChild(el('p', 'ht-day', nice(dd)));
-            var row = el('div', 'bt-row');
-            by[dd].forEach(function (s) { var t = el('button', 'bt-time', clock(s.time)); t.type = 'button'; t.addEventListener('click', function () { d.when = { date: dd, time: s.time }; go(4); }); row.appendChild(t); });
-            times.appendChild(row);
-          });
-          days.appendChild(b);
-        });
+        var free = Object.keys(by).sort();
+        if (!free.length) { days.appendChild(el('p', 'ht-sub', 'No free times near there yet: the live form would say we\'ll call to arrange one.')); return; }
+        /* A week at a time, Monday first, opening on the first week with a free time. */
+        var iso = function (t) { return new Date(t).toISOString().slice(0, 10); };
+        var monday = function (dd) { var t = Date.parse(dd + 'T12:00:00Z'); return t - ((new Date(t).getUTCDay() + 6) % 7) * 864e5; };
+        var first = monday(free[0]), last = monday(free[free.length - 1]), week = first;
+        var prev = el('button', 'bt-time ht-arrow', '\u2039'), next = el('button', 'bt-time ht-arrow', '\u203a'), label = el('b', 'ht-week-label');
+        prev.type = next.type = 'button'; prev.setAttribute('aria-label', 'Earlier week'); next.setAttribute('aria-label', 'Later week');
+        nav.appendChild(prev); nav.appendChild(label); nav.appendChild(next);
+        function show(dd) {
+          days.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-pressed', String(z.dataset.day === dd)); });
+          times.textContent = '';
+          var row = el('div', 'bt-row');
+          by[dd].forEach(function (s) { var t = el('button', 'bt-time', clock(s.time)); t.type = 'button'; t.addEventListener('click', function () { d.when = { date: dd, time: s.time }; go(4); }); row.appendChild(t); });
+          times.appendChild(el('p', 'ht-day', nice(dd))); times.appendChild(row);
+        }
+        function draw() {
+          days.textContent = ''; var pick = null;
+          label.textContent = short(iso(week)).replace(/^\w+,? /, '') + ' to ' + short(iso(week + 6 * 864e5)).replace(/^\w+,? /, '');
+          prev.disabled = week <= first; next.disabled = week >= last;
+          for (var i = 0; i < 7; i += 1) {
+            var dd = iso(week + i * 864e5), b = el('button', 'bt-time ht-dayb'); b.type = 'button'; b.dataset.day = dd;
+            var p = short(dd).replace(',', '').split(' '); b.appendChild(el('span', null, p[0])); b.appendChild(el('b', null, p[1]));
+            if (!by[dd]) b.disabled = true; else { if (!pick) pick = dd; b.addEventListener('click', show.bind(null, dd)); }
+            days.appendChild(b);
+          }
+          if (pick) show(pick); else { times.textContent = ''; times.appendChild(el('p', 'ht-sub', 'Nothing free this week.')); }
+        }
+        prev.addEventListener('click', function () { week -= 7 * 864e5; draw(); });
+        next.addEventListener('click', function () { week += 7 * 864e5; draw(); });
+        draw();
       }).catch(function () { days.appendChild(el('p', 'ht-sub', 'Times could not load.')); });
     var skip = el('button', 'bt-skip', 'Skip, just call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
     pane.appendChild(skip);
