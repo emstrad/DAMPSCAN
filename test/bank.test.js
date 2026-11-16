@@ -199,3 +199,11 @@ test('the reference from the customer page (KIM0042) settles a transfer, and so 
   assert.equal(autoMatch(tx('Survey 0043'), [kim, other]), 43);
   assert.equal(autoMatch(tx('deposit'), [kim, other]), null, 'same amount, no reference: a person decides');
 });
+
+test('a house number in the reference is not a survey number (the money audit, 16 Nov 2026)', () => {
+  const twelve = { id: 12, jobDate: '2026-11-20', customerName: 'Kim Lee', postcode: 'ME19 6AB', surveyPricePence: 29500, receivedPence: 0 };
+  const patel = { id: 117, jobDate: '2026-11-20', customerName: 'J Patel', postcode: 'N4 4ED', surveyPricePence: 29500, receivedPence: 0 };
+  const tx = { postedOn: '2026-11-15', amountPence: 29500, reference: '12 Oak Road', counterparty: 'J PATEL', description: '' };
+  assert.ok(scoreJob(tx, patel) > scoreJob(tx, twelve), 'the payer\'s name beats a house number');
+  assert.notEqual(autoMatch(tx, [twelve, patel]), 12);
+});

@@ -216,7 +216,15 @@ checks the mechanical ones.
   same top and tiles, Book it in in its own box with the best times).
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
-  visible screen; checked at phone size before shipping.
+  visible screen; checked at phone size before shipping. Locked in by CI (the
+  owner, 16 Nov 2026: "every new build has to fit these rules"):
+  `test/pages-phone.test.js` opens every staff page at 390 x 844 in a real
+  browser and fails on sideways scroll, a field under 16px or white, a tap
+  under 44px, a stripe on one edge or a heading repeating its tab (and proves
+  it catches each); `test/guardrails-rules.test.js` fails on free-text
+  matching that stops at a full stop, a system to-do the sweep cannot close,
+  pill tabs, a repeated heading and white fields. Headings are sentence case;
+  no emoji on staff screens.
 - Nothing reaches a customer by itself (see The businesses).
 
 ## Alerts (staff app, texts, ntfy being retired)

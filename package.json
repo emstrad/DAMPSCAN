@@ -28,6 +28,7 @@
     "nodemailer": "^6.9.16"
   },
   "devDependencies": {
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "playwright": "1.63.0"
   }
 }

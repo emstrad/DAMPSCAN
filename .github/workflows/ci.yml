@@ -45,6 +45,10 @@ jobs:
 
       - run: npm ci
 
+      # The phone-size check of every staff page (test/pages-phone.test.js) needs a browser.
+      - name: Browser for the page checks
+        run: npx playwright install --with-deps chromium
+
       # The generated HTML is committed and served as it sits, so content that
       # was edited without running the build ships nothing and a page edited by
       # hand is silently undone the next time somebody does run it. Neither
@@ -69,6 +73,8 @@ jobs:
       # Unit tests, API integration tests, and the split-and-apply migration path.
       - name: Run tests
         run: npm test
+        env:
+          PAGES_CHECK_REQUIRED: '1'
 
       # The site deliberately uses no em dashes. git grep exits 0 when it finds a
       # match and 1 when it does not, so anything else is a broken check rather
