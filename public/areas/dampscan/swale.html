@@ -165,100 +165,49 @@
           <h2>Book your survey</h2>
           <p>Takes about 30 seconds.</p>
         </div>
-        <div class="dots" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" id="dots">
-          <span class="is-done"></span><span></span><span></span><span></span><span></span>
-          <span class="step-label" id="step-label">Step 1 of 5</span>
+        <div class="dots" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" id="dots">
+          <span class="is-done"></span><span></span><span></span><span></span>
+          <span class="step-label" id="step-label">Step 1 of 4</span>
         </div>
-
-        <form id="book-form" novalidate>
+        <form id="ht-form" novalidate>
           <!-- Bot trap. Hidden from sight and from the tab order, so only a script fills it in. -->
           <div class="sr-only" aria-hidden="true">
             <label for="f-hp">Leave this field empty</label>
             <input id="f-hp" name="honeypot" type="text" tabindex="-1" autocomplete="off" />
           </div>
-          <!-- STEP 1, the lead capture. Name + phone + postcode is enough to follow up. -->
           <div class="fstep is-active" data-step="1">
-            <div class="form-row">
-              <label for="f-name">First name</label>
-              <input id="f-name" name="First name" type="text" autocomplete="given-name" required />
-              <span class="err">Please enter your first name.</span>
+            <div class="two-col">
+              <div class="form-row">
+                <label for="f-name">First name</label>
+                <input id="f-name" type="text" autocomplete="given-name" required />
+                <span class="err">Please enter your first name.</span>
+              </div>
+              <div class="form-row">
+                <label for="f-phone">Mobile</label>
+                <input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required />
+                <span class="err">Please enter a UK number, 11 digits, e.g. 07700 900123.</span>
+              </div>
             </div>
             <div class="two-col">
               <div class="form-row">
                 <label for="f-email">Email address</label>
-                <input id="f-email" name="Email" type="email" inputmode="email" autocomplete="email" required />
+                <input id="f-email" type="email" inputmode="email" autocomplete="email" required />
                 <span class="err">Please enter a valid email address.</span>
               </div>
               <div class="form-row">
                 <label for="f-postcode">Postcode</label>
-                <input id="f-postcode" name="Postcode" type="text" autocomplete="postal-code" required />
-                <span class="err">Please enter your postcode.</span>
-              </div>
-            </div>
-            <div class="fnav">
-              <button type="button" class="btn btn--primary btn--lg" data-next>
-                Get My Survey Booked
-                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 2, issue type -->
-          <div class="fstep" data-step="2">
-            <div class="form-row" data-require-one>
-              <label id="issue-label">What are you dealing with? Tick anything that applies.</label>
-              <div class="checks" role="group" aria-labelledby="issue-label">
-                <label class="check"><input type="checkbox" name="Issue" value="Damp" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Damp</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Mould" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mould</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Timber / Woodworm" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Timber / Woodworm</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Leak / Water damage" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Leak / Water damage</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Cold / condensation" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Cold / condensation</label>
-                <label class="check"><input type="checkbox" name="Issue" value="Not sure" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Not sure</label>
-              </div>
-              <span class="err">Pick at least one, "Not sure" is fine.</span>
-            </div>
-            <div class="fnav">
-              <button type="button" class="back-link" data-back>← Back</button>
-              <button type="button" class="btn btn--primary btn--lg" data-next>
-                Continue
-                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 3, the property and how to reach them. Typed by hand: there is
-               no address finder, so nothing loads and falls back. -->
-          <div class="fstep" data-step="3">
-            <div class="form-row addr">
-              <label for="f-addr1">Address for the survey</label>
-              <div class="addr-fields" id="f-addr-fields">
-                <input id="f-addr1" name="Address line 1" type="text" autocomplete="address-line1"
-                  placeholder="House number and street" required />
-                <span class="err">Please give the address for the survey.</span>
-                <input id="f-town" name="Town" type="text" autocomplete="address-level2"
-                  placeholder="Town or city" />
-                <!-- The postcode of the property, prefilled from step 1 (book.js). -->
-                <input id="f-addr-postcode" name="Address postcode" type="text"
-                  autocomplete="postal-code" aria-label="Postcode" placeholder="Postcode" />
+                <input id="f-postcode" type="text" autocomplete="postal-code" required />
+                <span class="err">Please enter the postcode.</span>
               </div>
             </div>
             <div class="form-row">
-              <label for="f-phone">Phone number</label>
-              <input id="f-phone" name="Phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" />
-              <span class="err">Please enter a UK number, 11 digits, e.g. 07700 900123.</span>
+              <label for="f-addr1">Address for the survey</label>
+              <div class="two-col">
+                <input id="f-addr1" type="text" autocomplete="address-line1" placeholder="House number and street" required />
+                <input id="f-town" type="text" autocomplete="address-level2" placeholder="Town or city" />
+              </div>
+              <span class="err">Please give the address for the survey.</span>
             </div>
-            <div class="fnav">
-              <button type="button" class="back-link" data-back>← Back</button>
-              <button type="button" class="btn btn--primary btn--lg" data-next>
-                Continue
-                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 4, who lets the surveyor in. The agent's details only when
-               it is the agent, and then the time is settled with them (book.js). -->
-          <div class="fstep" data-step="4">
             <div class="form-row">
               <label id="access-label">Who will let us in?</label>
               <div class="access-pick" role="radiogroup" aria-labelledby="access-label">
@@ -272,71 +221,18 @@
                 <input id="f-agent" type="text" autocomplete="off" />
                 <span class="err">Please enter the estate agent's name or branch.</span>
               </div>
-              <div class="two-col">
-                <div class="form-row">
-                  <label for="f-agent-phone">Agent's phone</label>
-                  <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" maxlength="16" />
-                  <span class="err">Please enter a UK number, 11 digits, e.g. 01732 123456.</span>
-                </div>
-                <div class="form-row">
-                  <label for="f-agent-email">Agent's email <span class="opt">(optional)</span></label>
-                  <input id="f-agent-email" type="email" inputmode="email" autocomplete="off" />
-                  <span class="err">Please enter a valid email address.</span>
-                </div>
+              <div class="form-row">
+                <label for="f-agent-phone">Agent's phone</label>
+                <input id="f-agent-phone" type="tel" inputmode="tel" autocomplete="off" maxlength="16" />
+                <span class="err">Please enter a UK number, 11 digits, e.g. 01732 123456.</span>
               </div>
             </div>
             <div class="fnav">
-              <button type="button" class="back-link" data-back>← Back</button>
-              <button type="button" class="btn btn--primary btn--lg" data-next>
-                Continue
-                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- LAST STEP, anything to add, all optional. -->
-          <div class="fstep" data-step="5">
-            <div class="form-row">
-              <label class="check" for="f-prev"><input type="checkbox" id="f-prev" /><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>I've had a damp survey on this property before</label>
-            </div>
-            <details class="fold">
-              <summary>Add photos or a previous report <span class="opt">(optional)</span></summary>
-              <div class="form-row">
-                <label for="f-files" class="sr-only">Previous surveys or photos</label>
-                <input id="f-files" name="Files" type="file" multiple
-                  accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" />
-                <p class="file-hint">Up to 10 photos or PDFs, 25MB each. An earlier report or a
-                  shot of the affected wall often says more than a paragraph.</p>
-                <ul class="file-list" id="f-file-list" aria-live="polite"></ul>
-              </div>
-            </details>
-            <details class="fold">
-              <summary>Anything else we should know? <span class="opt">(optional)</span></summary>
-              <div class="form-row">
-                <label for="f-notes" class="sr-only">Anything we should know?</label>
-                <textarea id="f-notes" name="Notes" rows="3" placeholder="Property type, where the problem is, when it started…"></textarea>
-              </div>
-            </details>
-            <!-- What the submit button is saying, for anyone not looking at it. -->
-            <p class="sr-only" role="status" id="submit-status"></p>
-            <div class="fnav">
-              <button type="button" class="back-link" data-back>← Back</button>
-              <button type="submit" class="btn btn--primary btn--lg">
-                Book My Survey
-                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
+              <button type="button" class="btn btn--primary btn--lg" id="ht-next">Continue <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
             </div>
           </div>
         </form>
         <p class="form-foot">We only use your details to arrange your survey. No marketing lists, no third parties.</p>
-      </div>
-
-      <div class="book-success" role="status">
-        <div class="check-ring" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
-        <h3>Got it, we'll call to confirm a time.</h3>
-        <p>One of our surveyors will contact you today to confirm a time. Nothing else to do for now.</p>
       </div>
     </div>
       <a class="smate-badge" href="https://survey-mate.co.uk/find-a-surveyor/dampscan"
@@ -381,9 +277,11 @@ window.DS_CONFIG = {
 </script>
 <script src="/assets/visit.js?v=f2407dfa"></script>
 <script src="/assets/partial.js?v=98b6b5bc"></script>
-<script src="/assets/book.js?v=6564181d"></script>
-<script src="/assets/address.js?v=bf5b6e92" defer></script>
-<script src="/assets/upload.js?v=cd55909c" defer></script>
+<link rel="stylesheet" href="/assets/bf.css?v=71e124ba" />
+<script src="/assets/bf-need.js?v=d95e7c65"></script>
+<script src="/assets/bf-done.js?v=25bb85b4"></script>
+<script src="/assets/bf-live.js?v=1afc4204"></script>
+<script src="/assets/bf.js?v=b5307730"></script>
 <script src="/assets/menu.js?v=adadb473" defer></script>
 <script src="/assets/season.js?v=a69f3a69" defer></script>
 </body>

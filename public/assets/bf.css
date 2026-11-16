@@ -173,3 +173,10 @@
   .ht-stage.is-moving, .ht-inner, .ht-tile { transition: none; }
   .ht-pane { animation: none; }
 }
+/* Live: a time being booked, and the deposit and page links as buttons. */
+.ht-pane.is-busy { opacity: .55; pointer-events: none; transition: opacity .15s; }
+a.ht-paybtn, .ht-acts a.btn { text-decoration: none; }
+a.ht-paybtn b { font-size: 17px; }
+/* Outline buttons read on either brand's card (ATi's light-on-navy card made them white on white). */
+.ht-stage .btn--ghost { background: transparent; color: inherit; border: 1.5px solid var(--line-strong); box-shadow: none; }
+.ht-stage .btn--ghost:hover { border-color: var(--accent); }

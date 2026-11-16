@@ -1,4 +1,4 @@
-/* The booking trial's step 2 (the owner's brief, 15 Nov 2026, third pass):
+/* The booking form's step 2 (bf.js; the owner's brief, 15 Nov 2026, third pass):
    one clean screen in four numbered parts, each ticked once answered: 1 what
    they are dealing with, 2 the survey, 3 how much of the home, 4 add-ons. Built
    once and changed in place, so a tap never moves the page: a Recommended tag
@@ -140,7 +140,7 @@
     box.appendChild(promise);
     var bar = el('div', 'ht-total'), sum = el('div'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
     bar.appendChild(sum); bar.appendChild(go); box.appendChild(bar);
-    go.addEventListener('click', function () { if (!go.disabled) done(); });
+    go.addEventListener('click', function () { if (!go.disabled) done(go); });
 
     function sync() {
       rec = recommended(d);
@@ -165,7 +165,7 @@
         sum.appendChild(el('b', null, pounds(t, from))); sum.appendChild(el('span', null, '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
       } else sum.appendChild(el('span', null, 'Your total shows here'));
       var missing = !d.issues.length ? 'Tick what you\'re dealing with' : !pick.service ? 'Pick your survey' : !pick.size ? 'Pick a size' : '';
-      go.textContent = missing || 'Choose a time'; go.disabled = Boolean(missing);
+      go.textContent = missing || (d.agent || d.outside ? 'Send' : 'Choose a time'); go.disabled = Boolean(missing);
     }
     sync();
   }

@@ -35,10 +35,18 @@ window.DS_CONFIG = {
 };
 </scr` + `ipt>
 <scr` + `ipt src="/assets/visit.js"></scr` + `ipt>
-<scr` + `ipt src="/assets/partial.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/partial.js"></scr` + `ipt>` + (site.key === 'dampscan' || site.key === 'ati'
+    /* The damp sites' booking form (public/assets/bf.js); the quoted trades keep book.js. */
+    ? `
+<link rel="stylesheet" href="/assets/bf.css" />
+<scr` + `ipt src="/assets/bf-need.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/bf-done.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/bf-live.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/bf.js"></scr` + `ipt>`
+    : `
 <scr` + `ipt src="/assets/book.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/address.js" defer></scr` + `ipt>
-<scr` + `ipt src="/assets/upload.js" defer></scr` + `ipt>`;
+<scr` + `ipt src="/assets/upload.js" defer></scr` + `ipt>`);
 }
 
 /* SurveyMate serves the badge live from its own endpoint, so it reflects the

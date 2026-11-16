@@ -21,6 +21,7 @@ import { agentFromLead } from '../lib/estate-agents.js';
 import { londonToday } from '../lib/pipeline.js';
 import { labFlag } from '../lib/availability.js';
 import { queuePartial } from '../lib/text-nudges.js';
+import { priceList } from '../content/prices.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -71,7 +72,7 @@ export default async function handler(req, res) {
   const hash = ipHash(req);
   const body = await readJson(req);
   /* The booking steps after the form have their own allowance, so they never use up the form's. */
-  const bucket = ['times', 'pick', 'survey'].includes(body && body.op) ? LIMITS.booking : LIMITS.lead;
+  const bucket = ['times', 'pick', 'survey', 'prices'].includes(body && body.op) ? LIMITS.booking : LIMITS.lead;
   const limit = await rateLimit({ ...bucket, ipHash: hash });
   if (!limit.ok) {
     res.setHeader('Retry-After', String(bucket.windowSeconds));
@@ -82,12 +83,14 @@ export default async function handler(req, res) {
 
   /* After the enquiry: the survey times to pick from, and the pick itself
      (lib/web-booking.js). Here rather than a new file: the plan allows twelve. */
+  /* The booking form's survey step (public/assets/bf-need.js): the one price list, before any enquiry exists. */
+  if (body.op === 'prices') { json(res, 200, { ok: true, prices: priceList() }); return; }
   if (body.op === 'times' || body.op === 'pick' || body.op === 'survey') {
     const today = londonToday();
     try {
       const out = body.op === 'survey' ? await saveSurvey({ leadId: body.leadId, sessionId: body.sessionId, choice: body.choice })
         : body.op === 'times'
-        ? await timesFor({ leadId: body.leadId, sessionId: body.sessionId, today })
+        ? await timesFor({ leadId: body.leadId, sessionId: body.sessionId, today, days: body.days })
         : await pickTime({ leadId: body.leadId, sessionId: body.sessionId, date: str(body.date, 10), time: str(body.time, 5), ticket: str(body.ticket, 80), today });
       /* Sent before answering: a function can be frozen once it has replied. */
       await flushDue({ limit: 3 }).catch(() => {});
