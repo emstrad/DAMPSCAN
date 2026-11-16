@@ -60,8 +60,9 @@ enforces the mechanical ones in CI.
   replaces it), one the customer caused goes at once; each is checked again
   and worded just before it goes, once per survey, kind and moment; a change
   to a payment or report more than two days old never texts. Sent from the
-  brand name (TWILIO_FROM_ATI, TWILIO_FROM_DAMPSCAN); customers cannot reply,
-  so each text is friendly and, once booked, points to their own page (pay,
+  brand name (TWILIO_FROM_ATI, TWILIO_FROM_DAMPSCAN); customers cannot reply
+  (a reply typed by the team is the one text not from a template, see Message
+  us), so each text is friendly and, once booked, points to their own page (pay,
   on my way, message us, ask to move) instead of a phone number (the owner's
   choice, 13 Nov 2026); the enquiry texts, with no page yet, give the number. Off until SMS_AUTO=on with
   TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN; while off the outbox keeps what
@@ -741,9 +742,14 @@ checks the mechanical ones.
   on the page and texts the customer. The bank feed runs hourly with
   report-due, so a transfer shows within the hour. From the page (`lib/portal-asks.js`, `public/assets/portal-asks.js`), all
   requests, never a change: Message us (on the card's history, an app alert
-  and an owners' text, five a day; the page shows each message they sent with
-  when, and we reply by call or text, no two-way chat, the owner's choice,
-  14 Nov 2026), Ask to move (a booked survey more than a
+  and an owners' text, five a day; we reply from the job pop-up's "Reply to
+  their message" box (`public/staff/pop-reply.js`, `lib/text-reply.js`, the
+  owner's ask, 16 Nov 2026: managers, a text typed by hand from the brand's
+  name, signed with the sender's first name (the owners' code signs as the
+  brand), ending with their page to write back, two minutes to undo, never at
+  night, never to the agent's number); once gone it is on their history (off
+  Needs you now) and the page shows theirs and ours in order as Messages, with
+  Write back), Ask to move (a booked survey more than a
   day away, the surveyors' real free times from the website picker's engine,
   never who; a to-do, an alert and an owners' text; the job pop-up shows it with
   one tap "Move to" that time, which texts 7 "as you asked"; with the Lab's Book it straight away on,

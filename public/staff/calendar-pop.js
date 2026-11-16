@@ -213,6 +213,7 @@
     /* Most urgent first: the one next step, what needs doing, then how to reach them. */
     if (X.next) X.next(j, body);
     if (j.moveAsked) moveAsked(j);
+    if (j.phone && /^(dampscan|ati-london)$/.test(j.site) && (!global.DSAREA.rights || !global.DSAREA.rights.known || global.DSAREA.rights.manages[j.site])) part('DSPOPREPLY', '/staff/pop-reply.js', function (sec) { global.DSPOPREPLY.render(j, sec, changed); });
     outstanding(j);
     X.where(j, section('Where'));
     if (!j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);

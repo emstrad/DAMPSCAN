@@ -102,12 +102,12 @@
       go.classList.add('busy'); go.disabled = true;
       ask(token, { op: 'message', text: ta.value }).then(function (r) {
         go.classList.remove('busy'); go.disabled = false;
-        if (r.ok) { ta.value = ''; if (close) close(); P.toast('Sent. We\'ll call or text you back.'); openNext = 'message'; reload(); }
+        if (r.ok) { ta.value = ''; if (close) close(); P.toast('Sent. We\'ll reply by text, and it shows here too.'); openNext = 'message'; reload(); }
         else P.toast(r.error === 'too_many' ? 'Please call us on ' + p.brand.phoneLabel + '.' : 'That didn\'t send. Please try again.');
       });
     });
     box.appendChild(go);
-    box.appendChild(t('p', 'pt-hint', 'Goes straight to the team, who will call or text you back. Urgent? Call ' + p.brand.phoneLabel + '.'));
+    box.appendChild(t('p', 'pt-hint', 'Goes straight to the team. We reply by text, and it shows here too. Urgent? Call ' + p.brand.phoneLabel + '.'));
     return ta;
   }
 
@@ -187,14 +187,19 @@
     if (show) openNext = null;
     /* With the chip on the visit card, the fold only keeps what they sent. */
     if (ctx.chips && !sent.length) return;
-    P.fold(main, ctx.chips ? 'Your messages (' + sent.length + ')' : 'Message us', function (box) {
-      /* What they have sent, so they know it arrived and what they asked. We reply by phone or text. */
+    /* Our replies came by text too; the newest one opens the fold so it is seen. */
+    var last = sent[sent.length - 1];
+    P.fold(main, ctx.chips ? 'Messages (' + sent.length + ')' : 'Message us', function (box) {
+      /* Theirs and ours in order, so they know it arrived and what we said. */
       sent.forEach(function (m) {
-        var b = h('div', 'pt-said'); b.appendChild(t('div', 'pt-quote', m.text));
-        b.appendChild(ticked('small', 'pt-sent', 'Sent ' + stamp(m.at))); box.appendChild(b);
+        var ours = m.from === 'us';
+        var b = h('div', ours ? 'pt-said pt-said--us' : 'pt-said'); b.appendChild(t('div', 'pt-quote', m.text));
+        b.appendChild(ours ? t('small', 'pt-sent', (m.who || p.brand.name) + ', ' + stamp(m.at)) : ticked('small', 'pt-sent', 'Sent ' + stamp(m.at)));
+        box.appendChild(b);
       });
       if (!ctx.chips) messageForm(p, box, token, reload, null);
-    }, show);
+      else box.appendChild(btn('pt-chip', ICON.msg + '<span>Write back</span>', function () { sheet('Message us', function (sh, close) { var ta = messageForm(p, sh, ctx.token, ctx.reload, close); setTimeout(function () { ta.focus(); }, 280); }); }));
+    }, show || Boolean(last && last.from === 'us'));
   }
 
   function more(p, main, token, reload, api) {
