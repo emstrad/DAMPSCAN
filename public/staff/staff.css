@@ -559,3 +559,12 @@ main .ranges[role="group"] .pill[aria-pressed="true"],main .pills[role="group"]:
 /* A button given no look of its own reads as plain words: every one is at least the soft tile. */
 main .btn:not(.btn--primary):not(.btn--ghost):not(.is-main){min-height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);font-weight:700}
 main .btn:not(.btn--primary):not(.btn--ghost):not(.is-main):hover{background:var(--slate-2)}
+/* The Lab, now everything in it is live (the owner, 16 Nov 2026): what is on as tags, switching off folded and asked first, previews folded away. */
+.lab-on{list-style:none;margin:0;padding:0}
+.lab-on li{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;border-bottom:1px solid var(--line);font-weight:600}
+.lab-on li:last-child{border-bottom:0}
+.lab-fold > summary{min-height:52px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;font-weight:700;color:var(--text)}
+.lab-fold > summary::-webkit-details-marker{display:none}
+.lab-fold > summary::after{content:'\203A';color:var(--accent);font-size:1.4rem;font-weight:700}
+.lab-fold[open] > summary::after{transform:rotate(90deg)}
+.lab-previews > .panel{margin:12px 0 0;padding:0;background:none;border:0}

@@ -55,6 +55,7 @@
       var data = await U.get('/api/admin/hours?view=slots' + (pc ? '&postcode=' + encodeURIComponent(pc) : ''));
       prices = data.prices; surveyPreview();
       el('sw-slots').checked = Boolean(data.live); el('sw-quiz').checked = Boolean(data.quiz); if (el('sw-instant')) el('sw-instant').checked = Boolean(data.instant);
+      [['slots', data.live], ['quiz', data.quiz], ['instant', data.instant]].forEach(function (x) { var t = el('st-' + x[0]); if (t) { t.textContent = x[1] ? 'Live' : 'Off'; t.className = 'c-tag ' + (x[1] ? 'is-good' : 'is-warn'); } });
       el('sw-slots').disabled = el('sw-quiz').disabled = false; if (el('sw-instant')) el('sw-instant').disabled = false;
       slots(data.slots);
     } catch (e) { el('slots').textContent = e.message === 'unauthorised' ? '' : 'The Lab is for the owners.'; }
@@ -75,9 +76,12 @@
   ['sw-slots', 'sw-quiz', 'sw-instant'].forEach(function (id) {
     var box = el(id);
     box.addEventListener('change', async function () {
+      /* Everything here is live now (the owner, 16 Nov 2026): turning one off asks first, so a stray tap never takes it off the websites. */
+      if (!box.checked && !global.confirm('Take this off both websites now?')) { box.checked = true; return; }
       box.disabled = true;
       var res = await U.send('/api/admin/hours', { op: 'flag', key: box.getAttribute('data-key'), enabled: box.checked });
       if (!res.ok) box.checked = !box.checked;
+      var tag = el('st-' + id.slice(3)); if (tag && res.ok) { tag.textContent = box.checked ? 'Live' : 'Off'; tag.className = 'c-tag ' + (box.checked ? 'is-good' : 'is-warn'); }
       el('sw-note').textContent = res.ok ? (box.checked ? 'Now live on the websites.' : 'Taken off the websites.') : (res.data && res.data.error) || 'That did not save.';
       box.disabled = false;
     });
