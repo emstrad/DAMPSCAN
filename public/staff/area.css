@@ -15,12 +15,20 @@
 .tabs .co-tab--damp[aria-current="page"]{border-color:#4fa8e8;background:rgba(79,168,232,.12)}
 .tabs .co-tab--roofing[aria-current="page"]{border-color:#f4581c;background:rgba(244,88,28,.13)}
 .tabs .co-tab--ac[aria-current="page"]{border-color:#38bdf8;background:rgba(56,189,248,.12)}
-.section-tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:var(--maxw);margin:14px auto 0;padding:0 var(--pad)}
-.section-tab{display:inline-flex;align-items:center;min-height:38px;padding:0 15px;border-radius:999px;
-  border:1px solid var(--line-strong, rgba(255,255,255,.15));color:var(--muted);font-weight:600;font-size:14px}
-.section-tab:hover{color:var(--text);border-color:var(--accent-ring)}
-.section-tab[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f}
-:root[data-area="roofing"] .section-tab[aria-current="page"]{color:#fff}
+/* The company's sections as underline tabs (the owner's pick, 16 Nov 2026):
+   one line that scrolls sideways on a phone, a fade showing there is more. */
+.section-tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:var(--maxw);margin:8px auto 0;
+  padding:0 var(--pad);box-shadow:inset 0 -1px 0 var(--line-strong, rgba(255,255,255,.2))}
+.section-tabs::-webkit-scrollbar{display:none}
+.section-tab{flex:none;position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0 12px;
+  color:var(--muted);font-weight:600;font-size:15px;text-decoration:none;transition:color .18s ease-out}
+.section-tab:hover{color:var(--text)}
+.section-tab[aria-current="page"]{color:var(--text)}
+.section-tab[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;border-radius:3px;
+  background:var(--accent);animation:tab-line .25s ease-out}
+@keyframes tab-line{from{transform:scaleX(.3);opacity:0}}
+@media (max-width:759px){.section-tabs{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}}
+@media (prefers-reduced-motion:reduce){.section-tab[aria-current="page"]::after{animation:none}}
 
 /* area.js hides the brand row in a one-brand area; .ranges sets display:flex,
    which would otherwise beat the hidden attribute. */
