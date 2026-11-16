@@ -444,6 +444,9 @@ checks the mechanical ones.
   only offered at the end, and only once the owners switch it on after the
   Lab. The Lab (owners only) previews that picker for any postcode and the
   survey quiz (ATi and DampScan share one price list).
+  Everything in the Lab is live now (the owner, 16 Nov 2026): it opens on what is
+  live as tags, switching one off is folded and asks first (never a stray tap),
+  and every preview and trial is folded beneath.
 - The website time picker (`lib/web-booking.js`, `public/assets/book-times.js`,
   through `api/lead.js` op times/pick) uses the same best-fit engine as the
   phone: the customer's postcode, real drive, no hop over 75 minutes, two
