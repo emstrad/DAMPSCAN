@@ -35,35 +35,40 @@
     box.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.kind + ':' + c.id); });
     /* A tap on the card itself (not its buttons or boxes) opens the full customer card. */
     box.addEventListener('click', function (e) { if (!e.target.closest('button,a,input,select,textarea,summary,details,label')) global.DSSCHEDCARD.open(c, { act: act, book: openBook }); });
-    box.appendChild(U.node('h3', null, c.name || 'No name'));
+    /* A row you can see is a button (the owner, 16 Nov 2026): the name with an arrow, the address,
+       where contact stands, then small tags; the phone is a Call chip. */
+    var top = U.node('div', 'sc-top');
+    top.appendChild(U.node('h3', null, c.name || 'No name'));
+    top.appendChild(U.node('span', 'c-chev', '›'));
+    box.appendChild(top);
     box.appendChild(U.node('p', 'meta', [c.street, c.postcode].filter(Boolean).join(', ') || 'No address yet'));
-    if (c.phone) { var a = U.node('a', 'sched-phone', c.phone); a.href = 'tel:' + c.phone; box.appendChild(a); }
-    /* Where contact stands, in one short line: the latest call, email or note,
-       or how long it has waited with nobody in touch. */
     var last = c.log.length ? c.log[c.log.length - 1] : null;
     var brand = c.site === 'ati-london' ? 'ATi' : 'DampScan';
     box.appendChild(U.node('p', 'sched-status' + (last ? '' : ' is-cold'), brand + ' · ' + (last
       ? (HOW.find(function (h) { return h[0] === last.how; }) || ['', 'Note'])[1] + ' ' + ago(last.at) + ' by ' + last.by
       : 'nobody in touch yet, ' + ago(c.since).replace(' ago', '') + ' waiting')));
-    /* A tap opens everything else: notes, history, times to offer, Book, Move to. */
     var flags = [];
-    if (c.awaitingAgent) flags.push('Waiting on ' + (c.agent || 'the agent'));
-    else if (c.agent) flags.push('Agent: ' + c.agent);
-    if (c.deadline) flags.push('Report by ' + c.deadline);
-    if (c.partial) flags.push('Didn\'t finish the form');
-    if (c.next) flags.push(c.next.on <= todayIso() ? (c.next.why || 'Follow up') + ' now' : 'Next contact ' + day(c.next.on));
-    if (c.chose) flags.push(c.chose.unsure ? 'Not sure which survey' : c.chose.name);
-    if (c.wanted) flags.push('Wants ' + c.wanted);
-    if (c.pencil) flags.push('Pencilled ' + day(c.pencil.date) + ' ' + c.pencil.time);
-    if (c.held) flags.push('Picked a time online');
-    if ((c.same || []).length) flags.push('Same person on another card');
-    if ((c.best || []).length && !c.pencil) flags.push('Best: ' + day(c.best[0].date) + ' ' + c.best[0].time + ' ' + cap(c.best[0].surveyor));
-    if (flags.length) box.appendChild(U.node('p', 'sched-flags', flags.join(' · ')));
+    var add = function (text, tone) { flags.push([text, tone || '']); };
+    if (c.awaitingAgent) add('Waiting on ' + (c.agent || 'the agent'), 'is-info');
+    else if (c.agent) add('Agent: ' + c.agent, 'is-info');
+    if (c.deadline) add('Report by ' + c.deadline, 'is-warn');
+    if (c.partial) add('Didn\'t finish the form', 'is-warn');
+    if (c.next) add(c.next.on <= todayIso() ? (c.next.why || 'Follow up') + ' now' : 'Next contact ' + day(c.next.on), c.next.on <= todayIso() ? 'is-warn' : '');
+    if (c.chose) add(c.chose.unsure ? 'Not sure which survey' : c.chose.name);
+    if (c.wanted) add('Wants ' + c.wanted);
+    if (c.pencil) add('Pencilled ' + day(c.pencil.date) + ' ' + c.pencil.time, 'is-info');
+    if (c.held) add('Picked a time online', 'is-warn');
+    if ((c.same || []).length) add('Same person on another card', 'is-warn');
+    if ((c.best || []).length && !c.pencil) add('Best ' + day(c.best[0].date) + ' ' + c.best[0].time + ' ' + cap(c.best[0].surveyor), 'is-good');
+    var tags = U.node('div', 'sc-tags');
+    if (c.phone) { var a = U.node('a', 'sc-call', 'Call'); a.href = 'tel:' + c.phone; a.setAttribute('aria-label', 'Call ' + (c.name || '') + ' ' + c.phone); tags.appendChild(a); }
+    flags.forEach(function (f) { tags.appendChild(U.node('span', 'c-tag ' + f[1], f[0])); });
+    if (tags.children.length) box.appendChild(tags);
     return box;
   }
 
   function column(key, title, cards) {
-    var col = U.node('section', 'sched-col');
+    var col = U.node('section', 'sched-col' + (cards.length ? '' : ' is-empty') + (key === 'booked' ? ' is-drop' : ''));
     var h = U.node('h2', null, title); h.appendChild(U.node('span', 'tag', String(cards.length)));
     col.appendChild(h);
     if (key) {
@@ -123,6 +128,7 @@
     /* Gone quiet: kept, folded at the end, to try again later. */
     var cold = data.cards.filter(function (c) { return c.stage === 'cold'; });
     var fold = document.createElement('details'); fold.className = 'sched-coldfold';
+    if (!cold.length) fold.classList.add('is-empty');
     fold.appendChild(U.node('summary', null, 'Gone cold (' + cold.length + ')'));
     fold.appendChild(column('cold', 'Gone cold', cold));
     b.appendChild(fold);
@@ -215,7 +221,7 @@
     reload: function () { load(); },
     go: function (d, w) { view.day = d; view.week = w; load(); },
     book: function (c, slot) { openBook(c, slot); },
-    focusCard: function (kind, id) { var n = document.getElementById(kind + '-' + id); if (n) { n.scrollIntoView({ block: 'center' }); n.classList.add('is-hit'); } },
+    focusCard: function (kind, id) { if (global.DSSCHVIEW) global.DSSCHVIEW.show('book'); var n = document.getElementById(kind + '-' + id); if (n) { n.scrollIntoView({ block: 'center' }); n.classList.add('is-hit'); } },
     /* A board card dropped on a free start books that card at that time. */
     dropOn: function (ref, slot) {
       var p = String(ref).split(':');

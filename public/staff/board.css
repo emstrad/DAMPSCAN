@@ -262,3 +262,29 @@
 .tl-job.is-pencil{border-style:dashed;background:var(--navy-2);color:var(--muted)}
 .tl-job.is-pencil .tl-who{color:var(--muted)}
 .tl-clash{color:var(--warn)}
+
+/* Today, made calm (the owner's preview, 16 Nov 2026): Who's free is a button,
+   the company filter one quiet line, each visit a row with its stage as a tag. */
+.cal-free{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);font-size:15px;font-weight:700}
+.cal-free:hover{background:var(--panel-2)}
+.cal-filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px;padding:3px;border-radius:12px;background:var(--panel);margin-bottom:12px}
+.cal-filters::-webkit-scrollbar{display:none}
+.cal-filters .pill{flex:none;min-height:40px;border:0;border-radius:9px;background:none;color:var(--muted);font-weight:600;font-size:14px}
+.cal-filters .pill[aria-pressed="true"]{background:var(--panel-2);color:var(--text)}
+.tl-job{min-height:60px;padding:10px 12px;border-radius:12px;background:var(--panel);border-color:var(--line)}
+.tl-job:hover,.tl-job:focus-visible{background:var(--panel-2)}
+.tl-right{display:flex;align-items:center;gap:6px;flex:none;margin-left:auto}
+.tl-right .c-tag{font-size:11.5px}
+.tl-job .tl-who{font-size:15px}
+.tl-job--compact .tl-right{gap:4px}
+@media (max-width:420px){.tl-right .c-tag{max-width:96px;white-space:normal;text-align:center;line-height:1.2}}
+/* Up next: the next visit with what you need for it. */
+.up-next{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:16px;border-radius:16px;background:var(--panel);border:1px solid var(--accent-ring, var(--line-strong))}
+.up-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.up-top .c-label{color:var(--accent-hi)}
+.up-who{font-size:20px;font-weight:800}
+.up-sub{font-size:14px;color:var(--muted)}
+.up-next .j-quick{margin-top:8px}
+.j-quick-b.is-main{background:var(--accent);border-color:var(--accent);color:var(--navy)}
+.up-next .j-quick-b:not(.is-main){background:var(--panel-2)}
+.up-next .j-quick-b{font:inherit;font-weight:700;cursor:pointer}

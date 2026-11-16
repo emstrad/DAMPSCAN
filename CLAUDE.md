@@ -564,6 +564,18 @@ checks the mechanical ones.
   half-finished form, or a customer ChatGPT finds again, is merged into the
   existing card the same way (missing details filled, the history says so),
   or noted on their job card.
+- Scheduling and Today, made calm (the owner, 16 Nov 2026: "Who's free should be
+  at the top with New customer as actual buttons"): Scheduling opens with the
+  search, then New customer and Who's free? as two buttons (Who's free a sheet,
+  `public/staff/sched-views.js`; Today's Who's free? opens it), Needs you now as
+  one panel, then To book, Day plan and After as a three-way switch on a phone
+  (all three side by side on a wide screen, so cards still drag onto a free
+  time); board cards are tiles with an arrow, tags and a Call chip, empty
+  columns hidden on a phone; a free start is a green "+ 10:00 free ... Book"
+  button. Today opens with Up next (`public/staff/today-next.js`: Directions,
+  Call, Open), the company filter one quiet line, each visit a row with its
+  stage as a tag (Deposit due, Deposit in, Surveyed not paid, Paid). Anything
+  you can tap looks like a button.
 - Scheduling is the one overview for ATi and DampScan (Today and Surveys stay
   as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
   hours, surveys with the drive to the next, holds, free starts to tap or drop
