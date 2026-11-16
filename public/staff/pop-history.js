@@ -26,9 +26,13 @@
   function pin(box, noteSec) {
     var form = noteSec && noteSec.querySelector('form');
     if (!form) return;
-    var p = U.node('div', 'pop-pin');
-    p.appendChild(U.node('p', 'meta', 'Note for the surveyor'));
-    p.appendChild(form);
+    /* Folded to one line saying what it holds, so an empty box never fills the screen. */
+    var p = document.createElement('details'); p.className = 'pop-pin';
+    var ta = form.querySelector('textarea'), words = ta && ta.value.trim();
+    var s = U.node('summary'), l = U.node('span', 'c-l');
+    l.appendChild(U.node('b', null, 'Note for the surveyor'));
+    l.appendChild(U.node('small', null, words ? words.split('\n')[0].slice(0, 60) : 'None yet'));
+    s.appendChild(l); p.appendChild(s); p.appendChild(form);
     box.insertBefore(p, box.children[1] || null);
     noteSec.remove();
     var sum = box.querySelector('summary'); if (sum) sum.textContent = 'History and notes';
@@ -38,15 +42,18 @@
     if (DAMP.indexOf(j.site) === -1 || !global.DSSCHEDCARD) return;
     var box = section('History', 'closed');
     box.hidden = true;
-    var row = U.node('div', 'sched-row scc');
+    /* One composer, the same shape as the reply and to-do boxes: what happened, the words, send. */
+    var row = U.node('form', 'hist-log scc');
     var how = document.createElement('select'); how.setAttribute('aria-label', 'What happened');
     [['call', 'Called'], ['email', 'Emailed'], ['text', 'Texted'], ['note', 'Note']].forEach(function (h) { var o = document.createElement('option'); o.value = h[0]; o.textContent = h[1]; how.appendChild(o); });
     var said = document.createElement('input'); said.placeholder = 'What was said'; said.setAttribute('aria-label', 'What was said');
-    var go = U.node('button', 'btn btn--sm', 'Log'); go.type = 'button';
+    var go = U.node('button', 'td-plus hist-go'); go.type = 'submit'; go.setAttribute('aria-label', 'Log it');
+    go.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
     row.appendChild(how); row.appendChild(said); row.appendChild(go);
     var list = U.node('ol', 'scc-list');
     box.appendChild(row); box.appendChild(list);
-    go.addEventListener('click', async function () {
+    row.addEventListener('submit', async function (ev) {
+      ev.preventDefault();
       go.disabled = true;
       await U.send('/api/admin/scheduling', { op: 'log', kind: 'job', id: j.id, how: how.value, note: said.value });
       said.value = ''; go.disabled = false;

@@ -202,13 +202,17 @@ checks the mechanical ones.
   (`public/staff/seg-tabs.js`); never rows of pills that wrap. A page its tab
   already names shows no second heading (sr-only, or .tab-h1 where surveyors,
   who have no tab row, still need it). Pay is a
-  summary then one row per person, surveys folded; the bank check shows one
+  summary then one row per person (Corp tax once, in the summary), the book
+  as one line with the other a tap away, surveys and the split folded as rows; the bank check shows one
   line at a time (Skip or OK), everything settled folded beneath. The damp customer
   card (`public/staff/pop-journey.js`) is in journey order: Call, Text,
   Directions and Email tiles, the one next step, a page message to reply to,
   needs doing and to-dos, then one line each for Visit, Money (or The survey
   for surveyors), Report, Messages and history and Details, each saying what
-  it holds beneath, Not going ahead last; the Scheduling card matches it (the
+  it holds beneath, Not going ahead last; to-dos are rows with a round tick
+  and one add line, the history a quiet timeline of dots under one composer
+  (what happened, the words, send) with the note for the surveyor folded, and
+  buttons in pop-ups one soft style (blue only for the one next step); the Scheduling card matches it (the
   same top and tiles, Book it in in its own box with the best times).
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
@@ -579,11 +583,15 @@ checks the mechanical ones.
 - One stage per damp customer (`lib/journey.js`): New, Contacted, Waiting for
   time, Pencilled, Booked, Surveyed, Report to send (paid, report owed), Report sent
   (not paid yet, on After the visit until paid in full), Paid (or Closed, Cancelled),
-  worked out one way for every page; the job pop-up shows it. To-dos that the
-  facts look to have overtaken (deposit, booking, report, payment) are never
-  cleared on their own: the job pop-up asks "These look done now. Clear them?"
-  and ChatGPT gets todosLookDone and asks before complete_todo (the owners'
-  choice).
+  worked out one way for every page; the job pop-up shows it. A to-do a person
+  or ChatGPT added that the facts look to have overtaken (deposit, booking,
+  report, payment) is never cleared on its own: the job pop-up asks "These look
+  done now. Clear them?" (each to-do shown once) and ChatGPT gets todosLookDone
+  and asks before complete_todo (the owners' choice). The system's own to-dos
+  (money checks, failed texts, Scheduling's holds, the card company, the page)
+  close themselves once done (`lib/todo-sweep.js`, the owner, 16 Nov 2026:
+  hourly and as the card opens): the fact chased is in, the survey cancelled or
+  the enquiry closed, nothing left to refund or overpaid, a later text through.
 - Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
   customers on the board: name, postcode, phone, email, address, message;
   typos and spacing forgiven; a result opens the customer card.

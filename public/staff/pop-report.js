@@ -17,8 +17,16 @@
   function render(j, section, tick, changed) {
     var r = j.report || {};
     var surveyed = j.status === 'completed' || (j.dateSet && j.date && j.date <= new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' }));
-    var title = j.reportSent ? 'Report (sent)' : r.ready ? 'Report (ready' + (r.held ? ', on hold)' : ')') : r.file ? 'Report (uploaded)' : 'Report';
-    var s = section(title, surveyed && !j.reportSent && !r.ready ? 'open' : 'closed');
+    var s = section('Report', surveyed && !j.reportSent && !r.ready ? 'open' : 'closed');
+    /* One line like Visit and Money: what it holds beneath, a tag for where it stands. */
+    var sum = s.querySelector('summary');
+    if (sum) {
+      var sub = r.file ? r.file : surveyed ? 'Not uploaded yet' : 'After the visit';
+      var tag = j.reportSent ? ['Sent', 'is-good'] : r.ready ? [r.held ? 'On hold' : 'Ready', r.held ? 'is-warn' : 'is-good'] : r.file ? ['Uploaded', 'is-info'] : surveyed ? ['To do', 'is-warn'] : null;
+      s.classList.add('j-group'); sum.textContent = '';
+      var l = U.node('span', 'c-l'); l.appendChild(U.node('b', null, 'Report')); l.appendChild(U.node('small', null, sub)); sum.appendChild(l);
+      if (tag) sum.appendChild(U.node('span', 'c-tag ' + tag[1], tag[0]));
+    }
     var first = String(j.customerName || '').trim().split(/\s+/)[0] || 'them';
     var said = U.node('p', 'panel-note');
     var row = U.node('div', 'sheet-row');

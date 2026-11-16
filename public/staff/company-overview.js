@@ -20,17 +20,23 @@
     var sec = function (title) { var s = node('section', 'mn-sec'); if (title) s.appendChild(node('h2', null, title)); box.appendChild(s); return s; };
     var tile = function (into, label, value, sub, cls) { var t = node('div', 'mn-tile' + (cls ? ' ' + cls : '')); t.appendChild(node('small', null, label)); t.appendChild(node('b', null, value)); if (sub) t.appendChild(node('span', null, sub)); into.appendChild(t); };
 
+    /* One panel of rows (the owner's clean-up, 16 Nov 2026): what it is, the amount at the right, a blue arrow. */
     var now = sec('Needs you now');
     if (!d.attention.length) now.appendChild(node('p', 'mn-say tide-ok', 'Nothing needs you.'));
+    var rows = node('div', 'c-rows ov-rows');
     d.attention.forEach(function (a) {
-      var b = node('button', 'ov-item' + (a.bad ? ' is-bad' : ''), a.text); b.type = 'button';
+      var b = node('button', 'c-row' + (a.bad ? ' is-bad' : '')); b.type = 'button';
+      var l = node('span', 'c-l'); l.appendChild(node('b', null, a.label || a.text)); if (a.sub) l.appendChild(node('small', null, a.sub));
+      var r = node('span', 'c-r'); if (a.figure) r.appendChild(node('span', 'c-amt', a.figure)); r.appendChild(node('span', 'c-chev', '›'));
+      b.appendChild(l); b.appendChild(r);
       b.addEventListener('click', function () {
         if (a.href) { global.location.href = a.href; return; }
         if (global.DSCOSHOW) global.DSCOSHOW(a.tab);
         if (a.who && global.DSCOPAY) global.DSCOPAY.open(a.who);
       });
-      now.appendChild(b);
+      rows.appendChild(b);
     });
+    if (d.attention.length) now.appendChild(rows);
 
     var m = d.month, grid = node('div', 'mn-tiles');
     tile(grid, 'Money in, ' + m.name, money(m.in), m.lastName + ' ' + money(m.lastIn));

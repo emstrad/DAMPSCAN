@@ -38,20 +38,19 @@
   /* Which book: the fresh one from the cut-over, or the Revolut one kept as it was. */
   function books() {
     var box = el('books'); box.textContent = '';
-    var seg = node('div', 'c-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Which book');
-    [['new', 'Tide and Stripe'], ['old', 'Revolut (old)']].forEach(function (b) {
-      var x = node('button', null, b[1]); x.type = 'button'; x.setAttribute('aria-pressed', String(state.book === b[0]));
-      x.addEventListener('click', function () { if (state.book === b[0]) return; state.book = b[0]; state.range = b[0] === 'old' ? 'all' : 'month'; load(); });
-      seg.appendChild(x);
-    });
-    box.appendChild(seg);
-    var o = state.data.other;
-    var line = node('p', 'pay-books-note', state.book === 'new' ? 'From ' + day(state.data.cutover) + '.' : 'Before ' + day(state.data.cutover) + ', kept as it was.');
-    if (o && o.owed > 0) {
-      var go = node('button', 'pay-books-link', (o.book === 'old' ? 'Revolut' : 'Tide and Stripe') + ': ' + money(o.owed) + ' still owed'); go.type = 'button';
-      go.addEventListener('click', function () { state.book = o.book; state.range = o.book === 'old' ? 'all' : 'month'; load(); });
-      line.appendChild(document.createTextNode(' ')); line.appendChild(go);
-    }
+    /* Which book, as one quiet line (the owner's clean-up, 16 Nov 2026): this
+       book and its dates at the left, the other one tap away at the right. */
+    var o = state.data.other, line = node('div', 'pay-bookline');
+    var here = node('span', 'c-l');
+    here.appendChild(node('b', null, state.book === 'new' ? 'Tide and Stripe' : 'Revolut (old)'));
+    here.appendChild(node('small', null, state.book === 'new' ? 'From ' + day(state.data.cutover) : 'Before ' + day(state.data.cutover) + ', kept as it was'));
+    line.appendChild(here);
+    var other = state.book === 'new' ? 'old' : 'new';
+    var go = node('button', 'pay-booklink'); go.type = 'button';
+    go.appendChild(node('span', null, other === 'old' ? 'Revolut (old)' : 'Tide and Stripe'));
+    if (o && o.owed > 0) go.appendChild(node('small', null, money(o.owed) + ' owed'));
+    go.addEventListener('click', function () { state.book = other; state.range = other === 'old' ? 'all' : 'month'; load(); });
+    line.appendChild(go);
     box.appendChild(line);
   }
 
@@ -63,18 +62,19 @@
     var owed = people.reduce(function (t, c) { return t + Math.max(0, c.owed); }, 0), coming = list.reduce(function (t, c) { return t + (c.coming || 0); }, 0);
     var sum = node('div', 'c-summary');
     var big = node('div', 'c-big'); big.appendChild(node('span', 'c-label', state.book === 'old' ? 'Owed from Revolut' : 'Owed to people')); big.appendChild(node('b', null, money(owed))); sum.appendChild(big);
-    var t = node('div'); t.appendChild(node('span', 'c-label', 'Tax to set aside')); t.appendChild(node('b', null, money(tax ? Math.max(0, tax.owed) : 0))); sum.appendChild(t);
+    /* Corp tax lives here once, opening its statement, rather than again as a row. */
+    var t = node('button', 'c-sumbtn'); t.type = 'button'; t.appendChild(node('span', 'c-label', 'Tax to set aside')); t.appendChild(node('b', null, money(tax ? Math.max(0, tax.owed) : 0)));
+    t.addEventListener('click', function () { openCard('tax'); }); sum.appendChild(t);
     if (state.book === 'new') { var c = node('div'); c.appendChild(node('span', 'c-label', 'Coming once paid')); c.appendChild(node('b', null, money(coming))); sum.appendChild(c); }
     box.appendChild(sum);
     var rows = node('div', 'c-rows pay-people');
-    people.concat(tax ? [tax] : []).forEach(function (p) {
+    people.forEach(function (p) {
       var r = node('button', 'c-row' + (!p.owed && !p.coming ? ' is-zero' : '')); r.type = 'button';
       var l = node('span', 'c-l'); l.appendChild(node('b', null, p.name));
       var bits = [];
       if (p.owed < 0) bits.push('Paid ahead');
       if (p.coming) bits.push(money(p.coming) + ' coming');
-      if (p.key === 'tax') bits.push('To set aside');
-      else if (p.lastPaid) bits.push('Last paid ' + day(p.lastPaid.day));
+      if (p.lastPaid) bits.push('Last paid ' + day(p.lastPaid.day));
       if (bits.length) l.appendChild(node('small', null, bits.join(' · ')));
       var rr = node('span', 'c-r'); rr.appendChild(node('span', 'c-amt', money(Math.abs(p.owed)))); rr.appendChild(node('span', 'c-chev', '›'));
       r.appendChild(l); r.appendChild(rr);
