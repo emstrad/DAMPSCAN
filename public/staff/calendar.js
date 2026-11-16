@@ -60,22 +60,30 @@
     return e.kind === 'job' ? n : 0;
   }
 
-  /* One job on the timeline: a button, so it is a tap target, never a stripe of colour. */
-  function jobButton(e, compact) {
+  function stageTag(e) { /* where a damp survey stands, as a small tag: green done, amber owed */
+    if (e.kind !== 'job' || e.quoted) return null;
+    return e.status === 'cancelled' ? ['Cancelled', ''] : e.paid ? [e.reportSent ? 'Done' : 'Paid', 'is-good'] : e.awaitingAgent ? ['Agent to confirm', 'is-info']
+      : e.status === 'completed' ? ['Surveyed, not paid', 'is-warn'] : e.depositPaid ? ['Deposit in', 'is-good'] : ['Deposit due', 'is-warn'];
+  }
+
+  function jobButton /* one job on the timeline: a button, a tap target, never a stripe */(e, compact) {
     var b = U.node('button', 'tl-job' + (e.status === 'completed' || e.status === 'paid' ? ' is-done' : '') + (e.kind === 'service' ? ' is-service' : '') + (compact ? ' tl-job--compact' : ''));
     b.type = 'button';
     if (!compact) b.appendChild(U.node('span', 'tl-time', e.time || (e.kind === 'service' ? 'Due' : '')));
     var main = U.node('span', 'tl-main');
-    main.appendChild(U.node('span', 'tl-who', (compact && e.time ? e.time + ' ' : '') + (e.kind === 'service' ? 'Service: ' : '') + [e.customerName || 'No name', e.postcode].filter(Boolean).join(', ')));
-    /* Survey type and who is going, so the day reads at a glance. */
-    var kind = [e.surveyLabel, e.surveyor && e.surveyor.charAt(0).toUpperCase() + e.surveyor.slice(1)].filter(Boolean).join(' · ');
+    main.appendChild(U.node('span', 'tl-who', (compact && e.time ? e.time + ' ' : '') + (e.kind === 'service' ? 'Service: ' : '') + (e.customerName || 'No name')));
+    var kind = [e.postcode && String(e.postcode).split(' ')[0], e.surveyLabel, e.surveyor && e.surveyor.charAt(0).toUpperCase() + e.surveyor.slice(1)].filter(Boolean).join(' · ');
     if (kind) main.appendChild(U.node('span', 'tl-biz tl-kind', kind));
-    if (e.todoCount && global.DSTODOS) main.appendChild(global.DSTODOS.tag(e.todoCount));
-    if (!compact && e.phone) main.appendChild(U.node('span', 'tl-biz', e.phone));
-    main.appendChild(U.node('span', 'tl-biz', W.NAME[e.site] + (e.status && e.kind === 'job' ? ' · ' + e.status : '')));
+    if (!compact && !e.surveyLabel) main.appendChild(U.node('span', 'tl-biz', W.NAME[e.site]));
     b.appendChild(main);
+    var right = U.node('span', 'tl-right');
+    var st = stageTag(e);
+    if (st && !compact) right.appendChild(U.node('span', 'c-tag ' + st[1], st[0]));
+    if (e.todoCount && global.DSTODOS) right.appendChild(global.DSTODOS.tag(e.todoCount));
     var n = outstanding(e);
-    if (n) { var c = U.node('span', 'tl-count', String(n)); c.setAttribute('aria-label', n + ' outstanding'); b.appendChild(c); }
+    if (n) { var c = U.node('span', 'tl-count', String(n)); c.setAttribute('aria-label', n + ' outstanding'); right.appendChild(c); }
+    if (!compact) right.appendChild(U.node('span', 'c-chev', '›'));
+    b.appendChild(right);
     b.addEventListener('click', function (ev) { ev.stopPropagation(); open(e); });
     if (compact && e.kind === 'job' && e.status !== 'paid') {
       b.draggable = true;
@@ -202,6 +210,7 @@
     var mount = el('cal-view');
     mount.textContent = '';
     if (state.view === 'month') drawMonth(mount); else drawWeek(mount);
+    if (state.view !== 'month' && global.DSTODAYNEXT) global.DSTODAYNEXT.draw(mount, state.events, open);
     drawLists();
   }
 

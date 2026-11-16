@@ -112,3 +112,66 @@
 .sched-dialog label.b-extra { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0; }
 .sched-dialog .b-extra input { width: 22px; height: 22px; min-height: 0; flex: none; padding: 0; accent-color: var(--accent); }
 .sched-dialog { max-height: calc(100dvh - 32px); overflow-y: auto; }
+
+/* Scheduling, made calm (the owner's preview, 16 Nov 2026). Actions you can
+   see are buttons; three views on a phone; rows with tags and an arrow. */
+.sch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 16px; }
+.sch-act { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 12px; border-radius: 14px; border: 1px solid var(--line-strong);
+  background: var(--panel); color: var(--text); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; transition: background .18s ease-out, transform .18s ease-out; }
+.sch-act:hover { background: var(--panel-2); }
+.sch-act:active { transform: scale(.98); }
+.sch-act.is-main { background: var(--accent); border-color: var(--accent); color: var(--navy); }
+.sch-act span { font-size: 20px; line-height: 1; }
+.sch-views { margin: 0 0 16px; }
+.sch-views span { color: var(--muted-2); font-weight: 700; margin-left: 4px; }
+.sch-views button[aria-pressed="true"] span { color: var(--accent-hi); }
+.sch-pane.is-off { display: none; }
+.sch-pane .sched-h { display: none; }
+@media (min-width: 1100px) {
+  .sch-views { display: none; }
+  .sch-pane.is-off { display: block; }
+  .sch-pane .sched-h { display: block; }
+}
+/* Needs you now: one panel of rows. */
+.sched-urgent { padding: 4px 16px; border: 0; border-radius: 14px; background: var(--warn-soft); }
+.sched-urgent h2 { font-size: 13px; font-weight: 800; color: var(--warn); margin: 10px 0 2px; text-transform: none; letter-spacing: 0; }
+.sched-urgent-row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 56px; padding: 8px 24px 8px 0; border: 0; border-bottom: 1px solid var(--line);
+  background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; position: relative; }
+.sched-urgent-row:last-of-type { border-bottom: 0; }
+.sched-urgent-row::after { content: '›'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 20px; font-weight: 700; }
+.sched-urgent-row span { font-size: 13px; color: var(--muted); }
+/* Board cards: a tile you tap, its name and arrow, tags beneath. */
+.sched-col { background: none; border: 0; padding: 0; min-height: 0; }
+.sched-col h2 { font-size: 13px; font-weight: 800; color: var(--muted); margin: 8px 0; align-items: center; }
+.sched-col h2 .tag { background: var(--panel); border: 0; color: var(--text); text-transform: none; letter-spacing: 0; }
+.sched-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; transition: background .18s ease-out; }
+.sched-card:hover { background: var(--panel-2); }
+.sc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sc-top h3 { font-size: 16px; }
+.sched-card .meta { font-size: 13px; margin: 2px 0 6px; }
+.sched-card .sched-status { display: block; margin: 0 0 8px; padding: 0; background: none; font-size: 13px; color: var(--muted); }
+.sched-card .sched-status.is-cold { background: none; color: var(--warn); }
+.sc-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sc-tags .c-tag { font-size: 12px; white-space: normal; }
+.sc-call { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-hi); font-weight: 700; font-size: 14px; text-decoration: none; position: relative; }
+.sc-call::after { content: ''; position: absolute; inset: -4px 0; }
+/* The day lane: one line of hours, drive pills, green free starts that read as buttons. */
+.dsp-lane { background: var(--panel); border: 0; border-radius: 14px; padding: 12px 14px; }
+.dsp-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.dsp-head h3 { font-size: 17px; }
+.dsp-head .dsp-hours { margin: 0; font-size: 13px; color: var(--muted); }
+.dsp-lane > .c-drive { margin: 6px 0 8px; }
+.dsp-lane .dsp-drive { margin: 2px 0 6px 14px; }
+.dsp-free { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; margin: 0 0 6px; padding: 0 14px; border-radius: 12px;
+  border: 1px dashed rgba(124,211,138,.5); background: var(--good-soft); color: var(--good); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .18s ease-out; }
+.dsp-free b { font-size: 14px; }
+.dsp-free:hover, .dsp-free.is-over { background: rgba(124,211,138,.22); }
+/* Who's free, as a sheet. */
+.sch-free { width: min(560px, calc(100vw - 24px)); max-height: 86dvh; overflow-y: auto; }
+.sch-free-top { display: flex; align-items: center; justify-content: space-between; }
+.sch-free-top h2 { margin: 0; font-size: 18px; }
+.sch-free-ask { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; margin: 8px 0 12px; }
+.sch-free-ask .btn { grid-column: 1 / -1; }
+@media (prefers-reduced-motion: reduce) { .sch-act, .sched-card, .dsp-free { transition: none; } }
+/* On a phone an empty column or the drop-only Booked one is just space; a wide screen keeps them as drop targets. */
+@media (max-width: 1099px) { .sched-board .sched-col.is-empty, .sched-board .sched-col.is-drop, .sched-coldfold.is-empty { display: none; } }

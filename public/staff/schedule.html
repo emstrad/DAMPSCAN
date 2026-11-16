@@ -60,22 +60,28 @@
     <input id="ss-q" type="search" autocomplete="off" placeholder="Find a customer: name, postcode, phone, email" />
     <ul class="ss-list" id="ss-list" hidden></ul>
   </div>
-  <p><button class="btn" type="button" id="newc-open">+ New customer</button></p>
+  <div class="sch-actions">
+    <button class="sch-act is-main" type="button" id="newc-open"><span aria-hidden="true">+</span> New customer</button>
+    <button class="sch-act" type="button" id="free-open">Who's free?</button>
+  </div>
   <p class="panel-note" id="note" role="status"></p>
   <section class="sched-urgent" id="urgent" aria-label="Needs you now" hidden></section>
-  <div class="dsp" id="dispatch"></div>
-  <details class="sched-fold" id="free-fold"><summary>Who's free over the next two weeks</summary>
-  <section class="sched-free" id="free" aria-labelledby="free-h">
-    <h2 id="free-h">Who's free</h2>
-    <div class="ranges"><label for="free-who">Show</label> <select id="free-who"><option value="">Everyone</option><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select>
-      <label for="free-pc">Caller's postcode</label> <input id="free-pc" autocomplete="off" placeholder="e.g. SE15 4AB" /> <button class="btn btn--ghost btn--sm" id="free-go" type="button">Check travel</button></div>
-    <ol class="free-days" id="free-days"></ol>
-  </section>
-  </details>
-  <h2 class="sched-h">To book</h2>
-  <div class="sched-board" id="board"></div>
-  <h2 class="sched-h">After the visit</h2>
-  <div class="sched-board sched-after" id="after"></div>
+  <div class="c-seg sch-views" role="group" aria-label="View">
+    <button type="button" data-view="book" aria-pressed="true">To book <span id="n-book"></span></button>
+    <button type="button" data-view="plan" aria-pressed="false">Day plan</button>
+    <button type="button" data-view="after" aria-pressed="false">After <span id="n-after"></span></button>
+  </div>
+  <div class="sch-pane" data-pane="book"><h2 class="sched-h">To book</h2><div class="sched-board" id="board"></div></div>
+  <div class="sch-pane is-off" data-pane="plan"><div class="dsp" id="dispatch"></div></div>
+  <div class="sch-pane is-off" data-pane="after"><h2 class="sched-h">After the visit</h2><div class="sched-board sched-after" id="after"></div></div>
+  <dialog class="sched-dialog sch-free" id="free-dlg" aria-labelledby="free-h">
+    <div class="sch-free-top"><h2 id="free-h">Who's free</h2><button class="scc-x" type="button" id="free-close" aria-label="Close">×</button></div>
+    <section class="sched-free" id="free">
+      <div class="sch-free-ask"><label for="free-who">Show</label><select id="free-who"><option value="">Everyone</option><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select>
+        <label for="free-pc">Caller's postcode</label><input id="free-pc" autocomplete="off" placeholder="e.g. SE15 4AB" /><button class="btn btn--ghost btn--sm" id="free-go" type="button">Check travel</button></div>
+      <ol class="free-days" id="free-days"></ol>
+    </section>
+  </dialog>
   <dialog class="sched-dialog" id="book">
     <form method="dialog" id="book-form">
       <h2 id="book-title">Book</h2>
@@ -110,6 +116,6 @@
 </main>
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
 <script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script><script src="/staff/pop-history.js"></script>
-<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/sched-detail.js"></script><script src="/staff/sched-next.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/sched-search.js"></script><script src="/staff/sched-new.js"></script><script src="/staff/sched-extras.js"></script><script src="/staff/schedule.js"></script>
+<script src="/staff/dispatch.js"></script><script src="/staff/after-visit.js"></script><script src="/staff/sched-detail.js"></script><script src="/staff/sched-next.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/sched-search.js"></script><script src="/staff/sched-new.js"></script><script src="/staff/sched-extras.js"></script><script src="/staff/schedule.js"></script><script src="/staff/sched-views.js"></script>
 </body>
 </html>

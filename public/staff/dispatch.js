@@ -54,9 +54,14 @@
 
   function lane(l, date, opts) {
     var box = U.node('section', 'dsp-lane');
-    box.appendChild(U.node('h3', null, cap(l.surveyor)));
-    if (l.home) box.appendChild(U.node('p', 'dsp-hours', 'From ' + l.home.area + (l.home.toFirst != null ? ', ' + l.home.toFirst + ' min to the first survey' : '') + (l.home.fromLast != null ? ', ' + l.home.fromLast + ' min home after the last' : '')));
-    box.appendChild(U.node('p', 'dsp-hours', l.hours.length ? 'Hours ' + l.hours.map(function (h) { return h.start + ' to ' + h.end; }).join(', ') : 'No hours set'));
+    /* One line under the name: their hours, and the drive from home and back (the owner's calmer screens). */
+    var head = U.node('div', 'dsp-head');
+    head.appendChild(U.node('h3', null, cap(l.surveyor)));
+    head.appendChild(U.node('span', 'dsp-hours', l.hours.length ? l.hours.map(function (h) { return h.start + ' to ' + h.end; }).join(', ') : 'No hours set'));
+    box.appendChild(head);
+    if (l.home && (l.home.toFirst != null || l.home.fromLast != null)) {
+      box.appendChild(U.node('span', 'c-drive', 'From ' + l.home.area + (l.home.toFirst != null ? ' · ' + l.home.toFirst + ' min there' : '') + (l.home.fromLast != null ? ', ' + l.home.fromLast + ' back' : '')));
+    }
     var rows = [];
     l.surveys.forEach(function (s) {
       rows.push({ at: s.time ? toMin(s.time) : -1, draw: function () {
@@ -66,7 +71,7 @@
         return b;
       } });
       if (s.driveNext && s.time) rows.push({ at: toMin(s.time) + 59, draw: function () {
-        return U.node('p', 'dsp-drive', 'About ' + s.driveNext.minutes + ' min drive to ' + (s.driveNext.to || 'the next survey') + (s.driveNext.known ? '' : ' (postcode unknown, an hour allowed)'));
+        return U.node('span', 'c-drive dsp-drive', s.driveNext.minutes + ' min drive' + (s.driveNext.known ? '' : ' (postcode unknown, an hour allowed)'));
       } });
     });
     l.pencils.forEach(function (p) {
@@ -79,7 +84,10 @@
     });
     l.free.forEach(function (t) {
       rows.push({ at: toMin(t), draw: function () {
-        var b = item('is-free', t, 'Free', 'Tap to pencil in or book, or drop a card here');
+        /* A free start reads as a button: green, a +, Book at the right; nothing to explain. */
+        var b = U.node('button', 'dsp-free'); b.type = 'button';
+        b.appendChild(U.node('span', null, '+ ' + t + ' free')); b.appendChild(U.node('b', null, 'Book'));
+        b.setAttribute('aria-label', 'Book or pencil in ' + cap(l.surveyor) + ' at ' + t);
         var slot = { date: date, time: t, surveyor: l.surveyor };
         b.addEventListener('click', function () { opts.book(null, slot); });
         b.addEventListener('dragover', function (e) { e.preventDefault(); b.classList.add('is-over'); });
