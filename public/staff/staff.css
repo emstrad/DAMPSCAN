@@ -514,3 +514,23 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 .split .pill{min-height:44px}
 #pt-q{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line-strong);background:var(--navy-2);color:var(--text);font-size:16px}
 .rp-done{min-height:44px;padding:0 6px;font-size:14px}
+/* Reports to send (reports.js): one tile per survey, the one next step as the big button, the rest as soft chips. */
+.rs-sites{margin:4px 0 16px}
+.rs-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.rs-card{display:flex;flex-direction:column;gap:10px;padding:12px 14px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.rs-head{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:0;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.rs-head .c-l{display:flex;flex-direction:column;min-width:0}
+.rs-head .c-l b{font-size:16px}
+.rs-head .c-l small{font-size:13px;color:var(--muted)}
+.rs-head .c-r{display:flex;align-items:center;gap:8px;flex:none}
+.rs-head .card-countdown{margin:0;padding:3px 9px;border-radius:999px;background:var(--panel-2);color:var(--muted);font-size:12px}
+.rs-head .card-countdown.is-soon{background:var(--warn-soft);color:var(--warn)}
+.rs-head .card-countdown.is-over{background:var(--warn-soft);color:var(--warn)}
+.rs-tags{display:flex;flex-wrap:wrap;gap:6px}
+.rs-next{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:0 16px;border:0;border-radius:12px;background:var(--accent);color:var(--navy);font:inherit;font-size:15px;font-weight:700;cursor:pointer;text-align:center}
+.rs-next:disabled{opacity:.6}
+.rs-chips{display:flex;flex-wrap:wrap;gap:8px}
+.rs-chip{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font:inherit;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer}
+.rs-chip:hover{border-color:var(--line-strong)}
+.rs-say{margin:0;font-size:13px;color:var(--muted)}
+.rs-say:empty{display:none}

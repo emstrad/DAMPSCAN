@@ -413,7 +413,9 @@ checks the mechanical ones.
   and board cards, and as a list with tick boxes and an add box in the Today
   pop-up and the client card (`public/staff/job-todos.js`).
 - Reports page (ATi & DampScan): every survey done and not reported, oldest
-  first, with countdown, upload, Report ready (texts 5 or 6 after the two
+  first, each a tile (the owner's calmer screens, 16 Nov 2026: the name and countdown
+  open the card; the one next step, Upload, Report ready or Report sent, as the big
+  button; Open report, Hold, Draft email as soft chips beneath), with countdown, upload, Report ready (texts 5 or 6 after the two
   minutes; their page unlocks it once paid in full), Hold (managers: locked on
   their page and no texts until let go, then the ready text goes if it never
   did), "Draft email in ChatGPT" and Report sent. The job pop-up has the same

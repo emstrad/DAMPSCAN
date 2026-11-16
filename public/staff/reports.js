@@ -27,27 +27,40 @@
     return 'https://chatgpt.com/?q=' + encodeURIComponent(q);
   }
 
+  /* One survey as one tile (the owner's calmer screens, 16 Nov 2026): the name and countdown open
+     its customer card; then the one next step as the big button (upload, Report ready, Report sent),
+     and everything else as small soft chips beneath. */
   function row(s) {
-    var li = U.node('li', 'jobs-row');
-    var top = U.node('div', 'jobs-top');
-    /* The name opens the same customer card as Today and Scheduling. */
-    var who = U.node('button', 'jobs-who link-btn', [s.name || s.firstName || 'No name', s.postcode].filter(Boolean).join(', '));
-    who.type = 'button';
-    who.addEventListener('click', function () { if (global.DSPOP) global.DSPOP.open(s.id, { onChange: load }); });
-    top.appendChild(who);
-    var cd = countdown(s);
-    if (cd) top.appendChild(cd);
-    li.appendChild(top);
-    if (s.submittedBy && !s.reportReady) li.appendChild(U.node('span', 'tag', s.submittedBy + ' has finished it: check, then Report ready'));
-    li.appendChild(U.node('p', 'jobs-meta', [day(s.date), s.surveyLabel, cap(s.surveyor), BRAND[s.site]].filter(Boolean).join(' · ') + (s.paid ? ' · Paid' : ' · Not paid in full')));
-    var foot = U.node('div', 'jobs-foot');
-    var status = U.node('span', 'panel-note');
-    if (s.reportFile) {
-      var a = U.node('a', 'pill', 'Report: ' + s.reportFile);
-      a.href = '/api/admin/attachment?report=' + s.id;
-      foot.appendChild(a);
-    } else {
-      var lab = U.node('label', 'btn btn--ghost btn--sm', 'Upload report');
+    var li = U.node('li', 'rs-card');
+    var head = U.node('button', 'rs-head'); head.type = 'button';
+    var l = U.node('span', 'c-l');
+    l.appendChild(U.node('b', null, [s.name || s.firstName || 'No name', s.postcode].filter(Boolean).join(', ')));
+    l.appendChild(U.node('small', null, [day(s.date), s.surveyLabel, cap(s.surveyor), BRAND[s.site]].filter(Boolean).join(' · ')));
+    head.appendChild(l);
+    var r = U.node('span', 'c-r'); var cd = countdown(s); if (cd) r.appendChild(cd); r.appendChild(U.node('span', 'c-chev', '›'));
+    head.appendChild(r);
+    head.addEventListener('click', function () { if (global.DSPOP) global.DSPOP.open(s.id, { onChange: load }); });
+    li.appendChild(head);
+    var tags = U.node('div', 'rs-tags');
+    tags.appendChild(U.node('span', 'c-tag ' + (s.paid ? 'is-good' : 'is-warn'), s.paid ? 'Paid' : 'Not paid in full'));
+    if (s.reportReady) tags.appendChild(U.node('span', 'c-tag is-good', 'Ready'));
+    if (s.reportHeld) tags.appendChild(U.node('span', 'c-tag is-warn', 'On hold'));
+    if (s.submittedBy && !s.reportReady) tags.appendChild(U.node('span', 'c-tag is-info', s.submittedBy + ' finished it: check it'));
+    li.appendChild(tags);
+    var status = U.node('p', 'rs-say', '');
+    var first = s.firstName || 'them';
+    var chips = U.node('div', 'rs-chips');
+    var chip = function (text, fn) { var c = U.node('button', 'rs-chip', text); c.type = 'button'; c.addEventListener('click', fn); return c; };
+    var sentBtn = function (cls) {
+      var b = U.node('button', cls, 'Report sent' + (textsOn && !s.reportReady ? ' (texts ' + first + ' in 2 min)' : '')); b.type = 'button';
+      b.addEventListener('click', async function () {
+        b.disabled = true;
+        try { await U.send('/api/admin/clients', { id: s.id, surveySent: true }); load(); } catch (e) { b.disabled = false; status.textContent = 'Could not tick it. Try again.'; }
+      });
+      return b;
+    };
+    if (!s.reportFile) {
+      var lab = U.node('label', 'rs-next', 'Upload report');
       var input = document.createElement('input');
       input.type = 'file'; input.accept = 'application/pdf,.pdf,.docx'; input.hidden = true;
       input.addEventListener('change', async function () {
@@ -56,34 +69,21 @@
         try { await global.DSREPORT.upload(s.id, input.files[0]); load(); } catch (e) { status.textContent = e.message; }
       });
       lab.appendChild(input);
-      foot.appendChild(lab);
-    }
+      li.appendChild(lab);
+    } else if (!s.reportReady) {
+      var ready = U.node('button', 'rs-next', 'Report ready (texts ' + first + ' in 2 min)'); ready.type = 'button';
+      ready.addEventListener('click', function () { report(s, { ready: true }, ready, status, s.reportHeld ? 'Ready, on hold: nothing sent.' : 'Ready. ' + first + ' gets a text in 2 minutes.'); });
+      li.appendChild(ready);
+    } else li.appendChild(sentBtn('rs-next'));
     if (s.reportFile) {
-      var first = s.firstName || 'them';
-      var ready = U.node('button', 'btn btn--sm' + (s.reportReady ? ' is-on' : ''), s.reportReady ? 'Ready ✓' : 'Report ready (texts ' + first + ' in 2 min)');
-      ready.type = 'button';
-      ready.setAttribute('aria-pressed', String(s.reportReady));
-      ready.addEventListener('click', function () { report(s, { ready: !s.reportReady }, ready, status, s.reportReady ? 'Not ready.' : (s.reportHeld ? 'Ready, on hold: nothing sent.' : 'Ready. ' + first + ' gets a text in 2 minutes.')); });
-      foot.appendChild(ready);
-      var hold = U.node('button', 'btn btn--ghost btn--sm' + (s.reportHeld ? ' is-on' : ''), s.reportHeld ? 'On hold: let go' : 'Hold');
-      hold.type = 'button';
-      hold.setAttribute('aria-pressed', String(s.reportHeld));
-      hold.addEventListener('click', function () { report(s, { hold: !s.reportHeld }, hold, status, s.reportHeld ? 'Let go.' : 'On hold: locked on their page, no texts.'); });
-      foot.appendChild(hold);
+      var a = U.node('a', 'rs-chip', 'Open report'); a.href = '/api/admin/attachment?report=' + s.id; chips.appendChild(a);
+      if (s.reportReady) chips.appendChild(chip('Not ready', function (ev) { report(s, { ready: false }, ev.currentTarget, status, 'Not ready.'); }));
+      chips.appendChild(chip(s.reportHeld ? 'Let go' : 'Hold', function (ev) { report(s, { hold: !s.reportHeld }, ev.currentTarget, status, s.reportHeld ? 'Let go.' : 'On hold: locked on their page, no texts.'); }));
     }
-    var draft = U.node('a', 'btn btn--ghost btn--sm', 'Draft email in ChatGPT');
-    draft.href = draftLink(s); draft.target = '_blank'; draft.rel = 'noopener';
-    foot.appendChild(draft);
-    /* Report sent texts them too (the report text), unless Report ready already did. */
-    var sent = U.node('button', 'btn btn--primary btn--sm', 'Report sent' + (textsOn && !s.reportReady ? ' (texts ' + (s.firstName || 'them') + ' in 2 min)' : ''));
-    sent.type = 'button';
-    sent.addEventListener('click', async function () {
-      sent.disabled = true;
-      try { await U.send('/api/admin/clients', { id: s.id, surveySent: true }); load(); } catch (e) { sent.disabled = false; status.textContent = 'Could not tick it. Try again.'; }
-    });
-    foot.appendChild(sent);
-    foot.appendChild(status);
-    li.appendChild(foot);
+    var draft = U.node('a', 'rs-chip', 'Draft email'); draft.href = draftLink(s); draft.target = '_blank'; draft.rel = 'noopener'; chips.appendChild(draft);
+    if (!s.reportReady && s.reportFile) chips.appendChild(sentBtn('rs-chip'));
+    li.appendChild(chips);
+    li.appendChild(status);
     return li;
   }
 
