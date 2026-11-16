@@ -327,8 +327,9 @@ checks the mechanical ones.
   owners' to change there (job_settings); booked ones keep theirs. Two books (the
   owners' fresh start, 16 Nov 2026): the money moved from Revolut (pots) to
   Tide and Stripe on 15 Nov 2026 (CUTOVER, the first card payment), so Pay
-  opens on Tide and Stripe: surveys paid in full from that day and payments
-  made from it, every balance starting from nothing (deposits show as
+  opens on Tide and Stripe: surveys whose money came in there (a card payment,
+  a reconciled Tide line, or a tick by hand from 16 Nov; ticks on the 15th were
+  Revolut money caught up, the owner, 16 Nov 2026) and payments made from it, every balance starting from nothing (deposits show as
   coming); the Revolut book before it is kept as it was, one tap away
   ("Revolut (old)", its balance said in one line on the new view), and a
   payment recorded there settles a Revolut balance (paid_out.book). Every

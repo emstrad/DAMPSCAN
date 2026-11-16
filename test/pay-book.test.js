@@ -96,3 +96,14 @@ test('two books: Revolut before 15 Nov, Tide and Stripe from then, each with its
   assert.ok(s.lines.every((l) => ['Stripe', 'Tide'].includes(l.via)));
   assert.ok(s.old.lines.every((l) => l.via === 'Revolut'));
 });
+
+test('a tick by hand on the cut-over evening is Revolut money caught up; a card payment that day is the new book', async () => {
+  const caught = await survey();
+  await pool.query("update jobs set paid_at = '2026-11-15T19:15:00Z' where id = $1", [caught]);
+  const card = await survey();
+  await pool.query("update jobs set paid_at = '2026-11-15T18:27:00Z' where id = $1", [card]);
+  await pool.query("insert into job_payments (job_id, amount_pence, label, external_ref) values ($1, 29500, 'payment', 'stripe:pi_15')", [card]);
+  const rows = await P.surveysDone(await P.splitSettings());
+  assert.equal(rows.find((r) => r.id === caught).book, 'old');
+  assert.deepEqual([rows.find((r) => r.id === card).book, rows.find((r) => r.id === card).via], ['new', 'Stripe']);
+});
