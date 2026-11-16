@@ -224,7 +224,9 @@ checks the mechanical ones.
   it catches each); `test/guardrails-rules.test.js` fails on free-text
   matching that stops at a full stop, a system to-do the sweep cannot close,
   pill tabs, a repeated heading and white fields. Headings are sentence case;
-  no emoji on staff screens.
+  no emoji on staff screens. Every filter row on a page (`.ranges` or `.pills` with
+  role="group") is the sliding switch, never wrapping pills; capitals only on the
+  logo, `.c-label`, table heads and tiny figure labels (guardrail-checked).
 - Nothing reaches a customer by itself (see The businesses).
 
 ## Alerts (staff app, texts, ntfy being retired)

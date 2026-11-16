@@ -89,7 +89,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 
 /* ---------- Form rows ---------- */
 .form-row{display:flex;flex-direction:column;gap:6px}
-.form-row label{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
+.form-row label{font-size:11.5px;text-transform:none;color:var(--muted-2);font-weight:600}
 .form-row input,.form-row select{width:100%;background:var(--navy);border:1px solid var(--line-strong);border-radius:10px;
   color:var(--text);padding:13px 15px;font:inherit;font-size:16px;min-height:50px;transition:border-color .16s,background .16s}
 .form-row input:focus{outline:none;border-color:var(--accent);background:var(--slate-2)}
@@ -160,7 +160,7 @@ td.wrap-cell{white-space:normal;min-width:220px;color:var(--muted)}
 .email-raw{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
 .num{text-align:right;font-variant-numeric:tabular-nums}
 
-.tag{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;
+.tag{display:inline-block;font-size:11px;text-transform:none;font-weight:600;
   border-radius:999px;padding:3px 9px;border:1px solid var(--line-strong);color:var(--muted)}
 .tag--good{color:var(--good);border-color:rgba(95,207,158,.4);background:rgba(95,207,158,.1)}
 .tag--accent{color:var(--accent);border-color:var(--accent-ring);background:var(--accent-soft)}
@@ -175,7 +175,7 @@ tbody tr.is-stale td:first-child{color:var(--warn);font-weight:600}
 /* Attachments sit above the timeline in the same expanded row. Each link goes
    to /api/admin/attachment, which serves the private blob behind the session. */
 .attachments{margin-bottom:14px}
-.attachments h4{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}
+.attachments h4{font-size:11.5px;text-transform:none;color:var(--muted-2);margin-bottom:6px}
 .attachments ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
 .attachments a{display:inline-block;font-size:12.5px;padding:5px 12px;border-radius:999px;
   border:1px solid var(--accent-ring);background:var(--accent-soft);color:var(--accent);text-decoration:none}
@@ -220,7 +220,7 @@ tbody tr.is-stale td:first-child{color:var(--warn);font-weight:600}
 .ccard:hover{border-color:var(--accent-ring);transform:translateY(-1px);box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
 .ccard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ccard-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.ccard-when{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.ccard-when{font-size:12px;text-transform:none;font-weight:700;color:var(--accent)}
 .ccard-name{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
 .ccard-addr{font-size:14px;color:var(--muted);line-height:1.45}
 .ccard-survey{font-size:13px;color:var(--muted-2)}
@@ -237,7 +237,7 @@ tbody tr.is-stale td:first-child{color:var(--warn);font-weight:600}
 .client-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:22px 28px 0}
 @media (max-width:640px){.client-grid{grid-template-columns:minmax(0,1fr);padding:16px 16px 0;gap:12px}.client-head{padding:18px 16px 14px}.client-block{padding:14px}} /* Phones and iPads: iOS zooms into any field under 16px and the zoomed page then runs off the edge, so fields are 16px; grid and flex children may shrink below their content; long names and links wrap. */ @media (max-width:1024px){input,select,textarea{font-size:16px!important;max-width:100%}.client-block,.client-grid>*,.top-end>*{min-width:0}.client-head h2,.client-sub,.client-lines{overflow-wrap:anywhere}img,video{max-width:100%;height:auto}}
 .client-block{background:var(--slate);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
-.client-block h3{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-2);font-weight:600;margin:0 0 10px}
+.client-block h3{font-size:11.5px;text-transform:none;color:var(--muted-2);font-weight:600;margin:0 0 10px}
 .client-lines{margin:0;font-size:15px;line-height:1.6}
 .client-lines a{color:var(--accent);text-decoration:none}
 .client-lines a:hover{text-decoration:underline}
@@ -325,7 +325,7 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 #tiles{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
 
 /* Jobs page: the hand form and rate card fold away; jobs read as rows. */
-.jobs-sub{margin:22px 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+.jobs-sub{margin:22px 0 10px;font-size:13px;text-transform:none;color:var(--muted-2)}
 .tile.is-warn{border-color:#b45309}
 .jobs-fold>summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:4px;min-height:44px;justify-content:center}
 .jobs-fold>summary::-webkit-details-marker{display:none}
@@ -534,3 +534,28 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 .rs-chip:hover{border-color:var(--line-strong)}
 .rs-say{margin:0;font-size:13px;color:var(--muted)}
 .rs-say:empty{display:none}
+/* Every remaining page, made calm in one place (the owner, 16 Nov 2026: "same as customers and
+   probably a few other"). A row of filter pills becomes one sliding switch that never wraps (it
+   scrolls on a phone); labels and tags are sentence case, never shouting. */
+main .ranges[role="group"],main .pills[role="group"]:not(.co-tabs):not(.cal-switch):not(.cal-filters){display:flex;flex-wrap:nowrap;gap:2px;padding:3px;margin:0 0 12px;
+  border-radius:12px;background:var(--panel);overflow-x:auto;scrollbar-width:none;max-width:100%}
+main .ranges[role="group"]::-webkit-scrollbar,main .pills[role="group"]::-webkit-scrollbar{display:none}
+main .ranges[role="group"] .pill,main .pills[role="group"]:not(.co-tabs):not(.cal-switch):not(.cal-filters) .pill{flex:1 0 auto;min-height:40px;padding:0 14px;border:0;border-radius:9px;
+  background:none;color:var(--muted);font-size:14px;font-weight:600;white-space:nowrap}
+main .ranges[role="group"] .pill[aria-pressed="true"],main .pills[role="group"]:not(.co-tabs):not(.cal-switch):not(.cal-filters) .pill[aria-pressed="true"]{background:var(--panel-2);color:var(--text)}
+.toolbar .ranges[role="group"]{margin:0}
+.tag,.ccard-when,.client-block h3,.jobs-sub,.sv-top h2,.pb-sub,.search-sub,.taken-head,.tl-sub,.attachments h4,.photo-field,.quiz-step,.form-row label,.work-owed-row .k{text-transform:none;letter-spacing:0}
+.tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:0;background:var(--panel-2);color:var(--text)}
+.ccard-when{font-size:14px;color:var(--accent-hi)}
+.client-block h3,.jobs-sub,.sv-top h2,.pb-sub,.search-sub,.taken-head{font-size:15px;font-weight:700;color:var(--text)}
+.form-row label{font-size:13px;color:var(--muted)}
+.attachments h4{font-size:14px;font-weight:700;color:var(--text)}
+.tag.tag--good{background:var(--good-soft);color:var(--good)}
+.tag.tag--warn{background:var(--warn-soft);color:var(--warn)}
+.tag.tag--accent{background:var(--accent-soft);color:var(--accent-hi)}
+.tag.tag--muted{background:var(--panel-2);color:var(--muted)}
+.ccard-name{font-size:17px}
+.ccard-chips .tag:not([class*="tag--"]){background:var(--warn-soft);color:var(--warn)}
+/* A button given no look of its own reads as plain words: every one is at least the soft tile. */
+main .btn:not(.btn--primary):not(.btn--ghost):not(.is-main){min-height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);font-weight:700}
+main .btn:not(.btn--primary):not(.btn--ghost):not(.is-main):hover{background:var(--slate-2)}

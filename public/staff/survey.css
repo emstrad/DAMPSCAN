@@ -60,7 +60,7 @@
 .day-photos{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .day-photos label{cursor:pointer}
 .sv-top{background:var(--slate);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin:12px 0}
-.sv-top h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px}
+.sv-top h2{font-size:12px;text-transform:none;color:var(--accent);font-weight:600;margin-bottom:6px}
 .sv-toplist{margin:0;padding-left:20px}
 .ag-list{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media (min-width:900px){.ag-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
