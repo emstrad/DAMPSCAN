@@ -29,7 +29,7 @@ test('free-text matching never stops at a full stop (an amount like £357.50 bro
 /* Every way the system makes a to-do is known to lib/todo-sweep.js, so it closes itself once done.
    A person's own (lib/todos.js) and a surveyor's report check (named after them) wait for a person. */
 test('every to-do the system makes can close itself (lib/todo-sweep.js knows who set it)', async () => {
-  const PERSON = ['lib/todos.js', 'lib/report-check.js'];
+  const PERSON = ['lib/todos.js'];
   for (const f of await files('lib', (p) => p.endsWith('.js'))) {
     const text = await read(f);
     if (!/insert into todos/.test(text) || PERSON.includes(f)) continue;

@@ -1416,6 +1416,8 @@ create or replace function jobs_cancelled_at() returns trigger language plpgsql 
 begin
   if new.status = 'cancelled' and (tg_op = 'INSERT' or old.status is distinct from 'cancelled') then new.cancelled_at := now(); end if;
   if new.status <> 'cancelled' then new.cancelled_at := null; end if;
+  -- Brought back: a later cancellation is checked for a refund afresh (the to-dos audit, 16 Nov 2026).
+  if tg_op = 'UPDATE' and old.status = 'cancelled' and new.status <> 'cancelled' then new.refund_todo_at := null; end if;
   return new;
 end $$;
 drop trigger if exists jobs_cancelled_at_trg on jobs;
@@ -1510,6 +1512,8 @@ alter table jobs add column if not exists booked_at timestamptz;
 create or replace function jobs_booked_at() returns trigger language plpgsql as $$
 begin
   if new.date_set and new.booked_at is null then new.booked_at := now(); end if;
+  -- Unbooked and booked again: the deposit chase counts from the new booking.
+  if tg_op = 'UPDATE' and new.date_set and not coalesce(old.date_set, false) and old.booked_at is not null then new.booked_at := now(); new.deposit_chased_at := null; end if;
   return new;
 end $$;
 drop trigger if exists jobs_booked_at_trg on jobs;
