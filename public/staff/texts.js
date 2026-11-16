@@ -117,16 +117,16 @@
     });
   }
 
-  /* No text goes 9pm to 7am (lib/texts.js QUIET): one due then waits for the morning. */
+  /* No text goes 9pm to 9am (lib/texts.js QUIET): one due then waits for the morning. */
   var hourOf = function (d) { return Number(new Date(d).toLocaleString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false })); };
   function quiet(sendAfter) {
     var at = new Date(Math.max(Date.now(), new Date(sendAfter).getTime())), h = hourOf(at);
-    return h >= 21 || h < 7;
+    return h >= 21 || h < 9;
   }
 
   /* ---------- the lists ---------- */
   function status(t) {
-    return t.status === 'waiting' ? (quiet(t.sendAfter) ? 'Goes at 7am: no texts between 9pm and 7am' : 'Goes ' + when(t.sendAfter)) : t.status === 'sending' ? 'Sending now' : t.status === 'off' ? 'Not sent: texts were off (this is what would have gone)'
+    return t.status === 'waiting' ? (quiet(t.sendAfter) ? 'Goes at 9am: no texts between 9pm and 9am' : 'Goes ' + when(t.sendAfter)) : t.status === 'sending' ? 'Sending now' : t.status === 'off' ? 'Not sent: texts were off (this is what would have gone)'
       : t.status === 'cancelled' ? 'Stopped: ' + (t.error || '') : t.status === 'failed' ? 'Failed: ' + (t.error || '')
       : 'Sent ' + when(t.sentAt) + (t.delivery === 'delivered' ? ', delivered' : t.delivery ? ', ' + t.delivery : '');
   }
