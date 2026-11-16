@@ -57,7 +57,7 @@ export function adsTag(siteKey) {
 
   gtag('config', '${tag.id}');
 </script>
-<!-- Which conversion action a booking counts as. Read by public/assets/book.js
+<!-- Which conversion action a booking counts as. Read by public/assets/bf-live.js (damp) and book.js
      on a successful submission: see the note above on why not in the head. -->
 <script>window.DS_ADS_CONVERSION = ${JSON.stringify(tag.conversion || '')};</script>`;
 }

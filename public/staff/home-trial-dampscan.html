@@ -298,7 +298,6 @@ html{scroll-padding-top:88px}
 
 </style>
 <script>document.documentElement.classList.remove('no-js')</script>
-<link rel="stylesheet" href="/staff/home-trial.css" />
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -369,6 +368,11 @@ html{scroll-padding-top:88px}
           <span class="step-label" id="step-label">Step 1 of 4</span>
         </div>
         <form id="ht-form" novalidate>
+          <!-- Bot trap. Hidden from sight and from the tab order, so only a script fills it in. -->
+          <div class="sr-only" aria-hidden="true">
+            <label for="f-hp">Leave this field empty</label>
+            <input id="f-hp" name="honeypot" type="text" tabindex="-1" autocomplete="off" />
+          </div>
           <div class="fstep is-active" data-step="1">
             <div class="two-col">
               <div class="form-row">
@@ -946,6 +950,11 @@ window.DS_CONFIG = {
   dataLayerEvent: 'dampscan'
 };
 </script>
+<link rel="stylesheet" href="/assets/bf.css?v=71e124ba" />
+<script src="/assets/bf-need.js?v=d95e7c65"></script>
+<script src="/assets/bf-done.js?v=25bb85b4"></script>
+<script src="/assets/bf-live.js?v=1afc4204"></script>
+<script src="/assets/bf.js?v=b5307730" data-mode="trial"></script>
 <script>
 
 /* =========================================================================
@@ -1077,9 +1086,5 @@ window.DS_CONFIG = {
 <script src="/assets/season.js?v=a69f3a69" defer></script>
 <script src="/assets/menu.js?v=adadb473" defer></script>
 <script src="/assets/reviews.js?v=a93ee132" defer></script>
-<script src="/assets/survey-pick.js?v=17ef5938"></script>
-<script src="/staff/home-trial-need.js"></script>
-<script src="/staff/home-trial-done.js"></script>
-<script src="/staff/home-trial.js" data-site="dampscan"></script>
 </body>
 </html>

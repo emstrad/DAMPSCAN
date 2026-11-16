@@ -47,7 +47,7 @@ test('unpaid work is coming, not owed; a cancelled survey drops out', async () =
 
 test('a payment comes off what is owed, shows on the statement, and can be removed', async () => {
   await survey();
-  const r = await P.recordPayout({ who: 'ronnie', pence: 6000, day: '2026-11-15', how: 'Bank transfer' }, 'Scott');
+  const r = await P.recordPayout({ who: 'ronnie', pence: 6000, day: new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' }), how: 'Bank transfer' }, 'Scott');
   assert.ok(r.ok);
   assert.equal((await P.payBook()).cards.find((c) => c.key === 'ronnie').owed, 4000);
   const s = await P.statement('ronnie');

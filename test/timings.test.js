@@ -69,13 +69,18 @@ test('booked online straight away: the survey first, only times that fit it, and
   const first = await W.timesFor({ ...l, today: TODAY });
   assert.equal(first.surveyFirst, true, 'no times until the survey is chosen');
   assert.equal((await W.saveSurvey({ ...l, choice: { service: 'unsure', size: 'full-house', extras: [] } })).ok, true, 'not sure still gives the size');
-  const t = await W.timesFor({ ...l, today: TODAY });
+  const t = await W.timesFor({ ...l, today: TODAY, days: 56 });
+  assert.ok(t.days.length, 'eight weeks asked for, times come back');
   const day = t.days.find((d) => d.date === DAY);
   const times = day.times.map((x) => x.time);
   assert.ok(!times.includes('10:00') && !times.includes('11:00'), 'a two hour survey is never offered into the 12:00');
   const pick = day.times[day.times.length - 1];
   const out = await W.pickTime({ ...l, date: DAY, time: pick.time, ticket: pick.ticket, today: TODAY });
   assert.deepEqual([out.ok, out.booked], [true, true]);
+  /* The new booking form's Done opens their own page there and then: the same link the booked text carries. */
+  assert.match(out.page || '', /^https:\/\/dampscan\.co\.uk\/my\.html\?t=[\w-]{32}$/);
+  const tok = (await pool.query('select portal_token from jobs where lead_id = $1', [l.leadId])).rows[0].portal_token;
+  assert.ok(out.page.endsWith(tok));
   const j = (await pool.query('select status, survey_type, surveyor, to_char(job_time, \'HH24:MI\') as t from jobs where lead_id = $1', [l.leadId])).rows[0];
   assert.deepEqual(j, { status: 'booked', survey_type: 'full-house', surveyor: 'ben', t: pick.time });
   assert.equal((await pool.query('select pencil_date from leads where id = $1', [l.leadId])).rows[0].pencil_date, null, 'a booking, not a held request');

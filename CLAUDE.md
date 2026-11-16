@@ -148,7 +148,11 @@ enforces the mechanical ones in CI.
   The websites too. `public/assets/fit.css` (imported with motion.css) keeps
   every field inside its box, iOS date and time fields included. Every pop-up
   fits the visible screen (dvh, not vh, for iOS) and scrolls inside itself.
-  The booking form has no buyer box and no "report needed by" (removed by the
+  The damp sites' booking form is the four-step one below (went live 16 Nov
+  2026, the owner's go-live: `scripts/book-form.js` dampForm on every ATi and
+  DampScan page, `public/assets/bf.js`, `bf-need.js`, `bf-done.js`, `bf-live.js`,
+  `bf.css`); Verge and CoolRight keep the old form (`book.js`). The old form
+  has no buyer box and no "report needed by" (removed by the
   owner). It is one small question per screen, nothing to scroll: you (name,
   email, postcode), the problem, the property (address typed by hand, no
   address finder, then "Phone number", optional with no hint text), "Who will
@@ -435,13 +439,21 @@ checks the mechanical ones.
   Complete, each check in plain words with the reason from their answers and
   its price, never a check that cannot apply). Its photos are Wikimedia
   Commons test pictures until the owners' own replace them.
-  The home page booking trial (the owner's brief, 15 Nov 2026,
-  `scripts/trial-home.js`, `public/staff/home-trial.js`, `home-trial-need.js`,
-  `home-trial.css`; linked from the Lab): an exact copy of each site's real home
-  page, rebuilt from it on every build (/staff/home-trial-dampscan.html and
-  -ati.html), with only the booking form swapped and nothing sent (the visit,
-  half-finished form, enquiry, address and upload scripts and the ads tag left
-  out, never indexed, owners signed in). Four steps (Details, Survey, Time,
+  The booking form (the owner's brief, 15 Nov 2026; live on every ATi and
+  DampScan page from 16 Nov, `public/assets/bf*.js`, through /api/lead: step 1
+  saved quietly at once and a dropout sent as they leave (partial.js), the
+  enquiry with its alerts, email, the customer's thanks and the Google Ads
+  conversion sent when they choose a time (or Send, for an agent or outside
+  our area), the survey choice (op survey), prices (op prices), up to eight
+  weeks of times (op times, days) and the tap (op pick: booked with Book it
+  straight away on, returning their page link; a request otherwise); photos,
+  a note and a previous survey after it on the same enquiry, no second
+  alert). Its staff copy, the home page booking trial (`scripts/trial-home.js`,
+  bf.js with data-mode="trial"; linked from the Lab): an exact copy of each
+  site's real home page, rebuilt from it on every build
+  (/staff/home-trial-dampscan.html and -ati.html), nothing sent (the visit and
+  half-finished form scripts and the ads tag left out, never indexed, owners
+  signed in). Four steps (Details, Survey, Time,
   Done; the owner's third pass, 15 Nov 2026): 1 in the usual card, compact so
   it sits on the first screen of a laptop (name and mobile, email and postcode,
   street and town, who lets us in; the postcode tidied and checked as they

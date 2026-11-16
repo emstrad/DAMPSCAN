@@ -27,9 +27,12 @@ test('every brand the request side knows has an enquiry definition', () => {
 });
 
 test('the issues a brand\'s form offers are exactly the ones its validator accepts', async () => {
+  /* The damp sites' tiles live in their form script (public/assets/bf-need.js), the trades' boxes in the page. */
+  const tiles = [...(await readFile(new URL('../public/assets/bf-need.js', import.meta.url), 'utf8')).matchAll(/^\s*\['([^']+)', '[^']*', svg\(/gm)].map((m) => m[1]);
   for (const [key, path] of Object.entries(SAMPLE)) {
     const html = await readFile(new URL(path, import.meta.url), 'utf8');
-    assert.deepEqual(offered(html), enquiryFor(key).issues, `${key}: form and validator disagree`);
+    const list = ['dampscan', 'ati-london'].includes(key) ? (html.includes('/assets/bf-need.js') ? tiles : []) : offered(html);
+    assert.deepEqual(list, enquiryFor(key).issues, `${key}: form and validator disagree`);
   }
 });
 

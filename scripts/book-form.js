@@ -12,6 +12,9 @@
  */
 
 import { enquiryFor } from '../lib/enquiry.js';
+import { dampForm } from './book-form-damp.js';
+
+export { dampForm };
 
 /* The wording is the only thing that differs between the sites, because the
    businesses differ. Both are survey only now; DampScan books a visit in a
@@ -106,6 +109,8 @@ function issueBoxes(site) {
 }
 
 export function bookForm(site) {
+  /* ATi and DampScan have the new form (bf.js); the quoted trades keep this one (book.js). */
+  if (site === 'dampscan' || site === 'ati') return dampForm(site);
   const brand = site === 'ati' ? ' is-brand' : '';
   /* Each site's example landline is its own area's: London's on ATi. */
   const landline = site === 'ati' ? '020 7946 0123' : '01732 123456';

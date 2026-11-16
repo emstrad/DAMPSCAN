@@ -1,28 +1,28 @@
-/* The home page booking trial (the owner's brief, 15 Nov 2026), on an exact copy
-   of the home page (scripts/trial-home.js). Step 1 in the usual card, kept
-   compact: name, mobile, email, the full address and who lets us in. Then the
-   card grows across the hero for step 2, what they are dealing with and their
-   survey (home-trial-need.js), step 3, a real free time from the Lab's route,
-   booked on the tap, then done (home-trial-done.js), with anything to add after.
-   Nothing is saved or sent: the end shows what the live form would have done. Owners only; anyone else goes to the staff sign-in. */
+/* The damp sites' booking form (the owner's brief, 15 Nov 2026), on every page
+   that carries it (scripts/book-form.js). Step 1 in the usual card, compact:
+   name, mobile, email, the full address and who lets us in. Then the card grows
+   across the hero for step 2, what they are dealing with and their survey
+   (bf-need.js), step 3, a real free time, booked on the tap, then done
+   (bf-done.js), with anything to add after. Live it talks to /api/lead
+   (bf-live.js); on the staff trial copy (data-mode="trial") nothing is sent. */
 (function (global) {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   var STEPS = 4, NAMES = ['Details', 'Survey', 'Time', 'Done'];
   var d = { issues: [], where: [], why: '', scope: '', beds: '', agent: null, pick: null, when: null, previous: false, notes: '', files: [] };
-  var prices = null, stage = null, body = null, step = 1;
+  var prices = null, stage = null, body = null, step = 1, backBtn = null;
   var card = $('book');
-  var site = (document.currentScript && document.currentScript.dataset.site) || 'dampscan';
+  var me = document.currentScript || {}, mode = (me.dataset && me.dataset.mode) || 'live';
+  var api = global.BFAPI[mode === 'trial' ? 'trial' : 'live'];
+  if (!card || !$('ht-next')) return;
   var reduce = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var money = function (p) { var n = Number(p); return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
   var nice = function (iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); };
   var short = function (iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   var clock = function (t) { var h = Number(t.slice(0, 2)); return (h % 12 || 12) + (t.slice(3) === '00' ? '' : ':' + t.slice(3)) + (h < 12 ? 'am' : 'pm'); };
 
-  /* The owners only: the free times come from their route, and signed-out visitors go to sign in. */
-  fetch('/api/admin/me', { headers: { Accept: 'application/json' } }).then(function (r) { if (r.status === 401) location.replace('/staff?next=' + encodeURIComponent(location.pathname)); });
-  var badge = el('div', 'ht-badge', 'Staff trial: nothing is sent'); document.body.appendChild(badge);
+  api.init(d, card);
 
   /* A small Call us chip on every step, to the number in the site's own header. */
   var telA = document.querySelector('a[href^="tel:"]'), TEL = telA ? telA.getAttribute('href') : '';
@@ -75,17 +75,20 @@
   $('ht-next').addEventListener('click', function () {
     if (!checkOne()) return;
     d.name = $('f-name').value.trim(); d.phone = $('f-phone').value.trim(); d.email = $('f-email').value.trim();
-    d.address = [$('f-addr1').value.trim(), $('f-town').value.trim(), $('f-postcode').value.trim().toUpperCase()].filter(Boolean).join(', ');
-    d.postcode = tidyPc($('f-postcode').value);
+    d.postcode = tidyPc($('f-postcode').value); d.street = $('f-addr1').value.trim(); d.town = $('f-town').value.trim();
+    d.address = [d.street, d.town, d.postcode].filter(Boolean).join(', ');
+    d.honeypot = $('f-hp') ? $('f-hp').value : '';
     /* Outside London and Kent: no times to offer, so the time step is skipped and we confirm by phone. */
     d.outside = !ours(d.postcode);
     d.agent = $('f-agent-on').checked ? { name: $('f-agent').value.trim(), phone: $('f-agent-phone').value.trim() } : null;
+    api.step1(d);
     open();
   });
 
   /* The card grows across the hero, from where it sits to the hero's whole width,
      then settles into the page so the hero simply grows with what it holds. */
   var hero = card.closest('.hero-grid') || card.parentNode;
+  if (getComputedStyle(hero).position === 'static') hero.style.position = 'relative';
   function box(r) { var c = hero.getBoundingClientRect(); return { top: r.top - c.top, left: r.left - c.left, width: r.width, height: r.height }; }
   function place(b) { stage.style.top = b.top + 'px'; stage.style.left = b.left + 'px'; stage.style.width = b.width + 'px'; stage.style.height = b.height + 'px'; }
   function full() {
@@ -98,7 +101,7 @@
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside) ? 2 : step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside) ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); if (TEL) top.appendChild(callChip()); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
@@ -114,8 +117,8 @@
       var y = hero.getBoundingClientRect().top + window.scrollY - 90;
       if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
     }, MS);
-    if (!prices) fetch('/api/admin/hours?view=slots', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (x) { if (!x.prices) throw new Error(); prices = x.prices; if (step === 2) go(2); })
-      .catch(function () { if (step === 2 && body) { body.textContent = ''; body.appendChild(el('p', 'ht-sub', 'Prices could not load: are you signed in as an owner?')); } });
+    if (!prices) api.prices().then(function (x) { prices = x; if (step === 2) go(2); })
+      .catch(function () { if (step === 2 && body) { body.textContent = ''; body.appendChild(el('p', 'ht-sub', 'That didn\'t load. Please try again, or call us.')); } });
     go(2);
   }
   function close() {
@@ -137,12 +140,27 @@
   }
   function go(n) {
     step = n; dotsTo(n); body.textContent = '';
+    /* Live, a booking made is final here: no way back into the steps (their page moves it). */
+    if (backBtn) backBtn.hidden = api.live && n === 4;
     var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : 'ht-pane ht-pane--c'); body.appendChild(pane);
-    if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, function () { go(d.agent || d.outside ? 4 : 3); }); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
+    if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, submit); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
     if (n === 3) when(pane);
-    if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again });
+    if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again, live: api.live, extras: api.extras });
     /* A new step starts at its top, under the site's header. */
     if (stage && stage.classList.contains('is-shown')) { var y = stage.getBoundingClientRect().top + window.scrollY - 90; if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); }
+  }
+
+  /* The enquiry goes the moment they choose a time (or, for an agent or outside our area, straight to done). */
+  var sending = false;
+  function submit(btn) {
+    if (sending) return; sending = true; if (btn) { btn.disabled = true; btn.textContent = 'One moment...'; }
+    api.submit(d).then(function (r) {
+      sending = false;
+      if (r.ok) { go(d.agent || d.outside ? 4 : 3); return; }
+      if (btn) { btn.disabled = false; btn.textContent = d.agent || d.outside ? 'Send' : 'Choose a time'; }
+      if (r.errors && Object.keys(r.errors).length) { close(); var f = { firstName: 'f-name', email: 'f-email', postcode: 'f-postcode', phone: 'f-phone' }; Object.keys(r.errors).forEach(function (k) { if (f[k]) mark($(f[k]), true); }); return; }
+      global.alert('That didn\'t send. Please try again, or call us.');
+    });
   }
 
   /* ---------- Step 3: a real free time for their postcode and survey length ---------- */
@@ -150,14 +168,24 @@
     pane.appendChild(el('h2', 'ht-h', 'When suits you?'));
     var quick = el('div', 'ht-quick'), nav = el('div', 'ht-week'), days = el('div', 'ht-days'), times = el('div', 'ht-times');
     pane.appendChild(quick); pane.appendChild(nav); pane.appendChild(days); pane.appendChild(times);
-    var minutes = (d.pick && d.pick.minutes) || 60;
-    /* Tapping a time books it there and then (the live form with Book it straight away on). */
-    var book = function (dd, t) { d.when = { date: dd, time: t }; go(4); };
-    fetch('/api/admin/hours?view=slots&days=56&postcode=' + encodeURIComponent(d.postcode) + '&minutes=' + minutes, { headers: { Accept: 'application/json' } })
-      .then(function (r) { return r.json(); }).then(function (x) {
-        var by = {}; (x.slots || []).forEach(function (s) { (by[s.date] = by[s.date] || []).push(s); });
+    /* Tapping a time books it there and then (with the Lab's Book it straight away on; otherwise it is asked for). */
+    var busy = false, instant = true;
+    var book = function (dd, t) {
+      if (busy) return; busy = true; pane.classList.add('is-busy');
+      var s = (by[dd] || []).filter(function (x) { return x.time === t; })[0] || { date: dd, time: t };
+      api.pick(d, s).then(function (r) {
+        busy = false; pane.classList.remove('is-busy');
+        if (r.ok) { d.when = { date: dd, time: t }; d.requested = !r.booked; d.page = r.page || null; go(4); return; }
+        global.alert(r.error === 'taken' ? 'That time has just gone. Please pick another.' : 'That didn\'t go through. Please try again, or call us.');
+        go(3);
+      });
+    };
+    var by = {};
+    api.times(d).then(function (x) {
+        instant = x.instant !== false;
+        (x.slots || []).forEach(function (s) { (by[s.date] = by[s.date] || []).push(s); });
         var free = Object.keys(by).sort();
-        if (!free.length) {
+        if (x.off || !free.length) {
           /* Nothing free near them: leave it with us rather than a dead end. */
           quick.appendChild(el('p', 'ht-sub', 'We\'ll find a time that works and call you to arrange it.'));
           var leave = el('button', 'btn btn--primary btn--lg', 'Leave it with us'); leave.type = 'button'; leave.addEventListener('click', function () { d.when = null; go(4); });
@@ -199,13 +227,13 @@
         prev.addEventListener('click', function () { week -= 7 * 864e5; draw(); });
         next.addEventListener('click', function () { week += 7 * 864e5; draw(); });
         draw();
-      }).catch(function () { days.appendChild(el('p', 'ht-sub', 'Times could not load.')); });
+      }).catch(function () { quick.appendChild(el('p', 'ht-sub', 'Times could not load. Leave it with us and we\'ll call you.')); });
     var anytime = el('p', 'ht-sub ht-small', 'Change your time anytime from your page.'); pane.appendChild(anytime);
     var skip = el('button', 'bt-skip', 'Skip, just call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
     pane.appendChild(skip);
   }
 
-  function again() { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; d.previous = false; d.notes = ''; d.files = []; close(); }
+  function again() { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; d.previous = false; d.notes = ''; d.files = []; d.fileObjs = []; d.requested = false; d.page = null; close(); }
 
-  global.addEventListener('keydown', function (e) { if (e.key === 'Escape' && stage) close(); });
+  global.addEventListener('keydown', function (e) { if (e.key === 'Escape' && stage && !(api.live && step === 4)) close(); });
 })(window);
