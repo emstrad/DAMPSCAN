@@ -38,7 +38,7 @@
   /* Which book: the fresh one from the cut-over, or the Revolut one kept as it was. */
   function books() {
     var box = el('books'); box.textContent = '';
-    var seg = node('div', 'pay-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Which book');
+    var seg = node('div', 'c-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Which book');
     [['new', 'Tide and Stripe'], ['old', 'Revolut (old)']].forEach(function (b) {
       var x = node('button', null, b[1]); x.type = 'button'; x.setAttribute('aria-pressed', String(state.book === b[0]));
       x.addEventListener('click', function () { if (state.book === b[0]) return; state.book = b[0]; state.range = b[0] === 'old' ? 'all' : 'month'; load(); });
@@ -55,18 +55,33 @@
     box.appendChild(line);
   }
 
+  /* One summary, then one row per person (most owed first, tax last); a row at nothing fades back. */
   function cards() {
     var box = el('cards'); box.textContent = '';
-    state.data.cards.forEach(function (c) {
-      var b = node('button', 'pay-card' + (c.owed < 0 ? ' is-neg' : c.owed > 0 ? ' is-owed' : '')); b.type = 'button';
-      b.appendChild(node('span', 'pay-card-name', c.name));
-      b.appendChild(node('b', 'pay-card-owed', money(c.owed)));
-      b.appendChild(node('span', 'pay-card-sub', c.owed < 0 ? 'Paid ahead' : c.key === 'tax' ? 'To set aside' : state.book === 'old' ? 'Owed from Revolut' : 'Owed now'));
-      b.appendChild(node('small', null, c.lastPaid ? 'Last paid ' + day(c.lastPaid.day) + ', ' + money(c.lastPaid.pence) : 'Nothing paid yet'));
-      if (c.coming) b.appendChild(node('small', 'pay-coming', money(c.coming) + ' coming once paid'));
-      b.addEventListener('click', function () { openCard(c.key); });
-      box.appendChild(b);
+    var list = state.data.cards, tax = list.filter(function (c) { return c.key === 'tax'; })[0];
+    var people = list.filter(function (c) { return c.key !== 'tax'; }).sort(function (a, b) { return b.owed - a.owed; });
+    var owed = people.reduce(function (t, c) { return t + Math.max(0, c.owed); }, 0), coming = list.reduce(function (t, c) { return t + (c.coming || 0); }, 0);
+    var sum = node('div', 'c-summary');
+    var big = node('div', 'c-big'); big.appendChild(node('span', 'c-label', state.book === 'old' ? 'Owed from Revolut' : 'Owed to people')); big.appendChild(node('b', null, money(owed))); sum.appendChild(big);
+    var t = node('div'); t.appendChild(node('span', 'c-label', 'Tax to set aside')); t.appendChild(node('b', null, money(tax ? Math.max(0, tax.owed) : 0))); sum.appendChild(t);
+    if (state.book === 'new') { var c = node('div'); c.appendChild(node('span', 'c-label', 'Coming once paid')); c.appendChild(node('b', null, money(coming))); sum.appendChild(c); }
+    box.appendChild(sum);
+    var rows = node('div', 'c-rows pay-people');
+    people.concat(tax ? [tax] : []).forEach(function (p) {
+      var r = node('button', 'c-row' + (!p.owed && !p.coming ? ' is-zero' : '')); r.type = 'button';
+      var l = node('span', 'c-l'); l.appendChild(node('b', null, p.name));
+      var bits = [];
+      if (p.owed < 0) bits.push('Paid ahead');
+      if (p.coming) bits.push(money(p.coming) + ' coming');
+      if (p.key === 'tax') bits.push('To set aside');
+      else if (p.lastPaid) bits.push('Last paid ' + day(p.lastPaid.day));
+      if (bits.length) l.appendChild(node('small', null, bits.join(' · ')));
+      var rr = node('span', 'c-r'); rr.appendChild(node('span', 'c-amt', money(Math.abs(p.owed)))); rr.appendChild(node('span', 'c-chev', '›'));
+      r.appendChild(l); r.appendChild(rr);
+      r.addEventListener('click', function () { openCard(p.key); });
+      rows.appendChild(r);
     });
+    box.appendChild(rows);
   }
 
   function range() {
@@ -80,7 +95,9 @@
   /* One row per survey done: tap the name for their card, tap the row for the split. */
   function book() {
     var box = el('book'); box.textContent = '';
-    var rows = state.data.rows;
+    var rows = state.data.rows, paidN = rows.filter(function (r) { return r.paid; }).length;
+    var head = el('surveys-sum').querySelector('.c-l'); head.textContent = '';
+    head.appendChild(node('b', null, 'Surveys')); head.appendChild(node('small', null, rows.length ? paidN + ' paid, ' + (rows.length - paidN) + ' coming' : 'None in this period'));
     if (!rows.length) { box.appendChild(node('p', 'panel-note', 'No surveys in this period.')); return; }
     rows.forEach(function (s) {
       var row = node('div', 'pay-row' + (s.paid ? '' : ' is-unpaid') + (s.odd ? ' is-odd' : ''));
