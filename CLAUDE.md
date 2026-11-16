@@ -536,7 +536,7 @@ checks the mechanical ones.
   Done; the owner's third pass, 15 Nov 2026): 1 in the usual card, compact so
   it sits on the first screen of a laptop (name and mobile, email and postcode,
   street and town, who lets us in; the postcode tidied and checked as they
-  leave the box, with a soft word outside London and Kent); then the card grows across the hero
+  leave the box, with a soft word outside the South East: London, Kent, Essex, Herts, Beds, Bucks, Berks, Oxon, Surrey, Sussex and Hampshire are all ours, the owner, 16 Nov 2026); then the card grows across the hero
   section, not over the page (longer than 300 ms by the owner's ask, none with
   reduced motion), for 2 one clean screen in four numbered parts, each ticked
   once answered: what you are dealing with as picture tiles (on a phone,
@@ -559,7 +559,7 @@ checks the mechanical ones.
   again (the estate agent letting us in says they are buying); 3 When suits
   you? with no sub-line: Earliest as one tap, then a week at a time up to
   eight weeks ahead, times under Morning and Afternoon, "change your time
-  anytime from your page"; the time tapped books it (skipped for an agent, and outside London and Kent,
+  anytime from your page"; the time tapped books it (skipped for an agent, and outside the South East,
   where we confirm by phone; no free times near them offers Leave it with us);
   Done: booked, the deposit to pay by wallet there and then, their survey page
   to open, the link texted too and Add to calendar; for an
