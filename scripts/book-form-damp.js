@@ -38,7 +38,7 @@ export function dampForm(site) {
               </div>
               <div class="form-row">
                 <label for="f-phone">Mobile</label>
-                <input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required />
+                <input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="So we can text your survey page" required />
                 <span class="err">Please enter a UK number, 11 digits, e.g. 07700 900123.</span>
               </div>
             </div>
