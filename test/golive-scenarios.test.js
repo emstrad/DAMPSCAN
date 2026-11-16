@@ -190,3 +190,25 @@ test('the enquiry thanks: plain, a time asked for, the agent, or dropped once th
   assert.match(all, /arrange a time with your estate agent and text you as soon as it's confirmed/);
   assert.ok((await outbox()).some((r) => r.status === 'cancelled' && /^Booked meanwhile/.test(r.error)));
 });
+
+test('a 9 o\'clock survey has its morning text at 8:15; one before 9 has none; the rest wait for 9', async () => {
+  const T = await import('../lib/texts.js');
+  const nine = await job({ date: london(), time: '23:00' });
+  await pool.query("update jobs set job_time = '09:30' where id = $1", [nine]);
+  const eight = await job({ date: london(), time: '23:00' });
+  await pool.query("update jobs set job_time = '08:30' where id = $1", [eight]);
+  const later = await job({ date: london(), time: '23:00' });
+  await pool.query("update jobs set job_time = '11:00' where id = $1", [later]);
+  assert.equal(await morningTexts(undefined, { at: '07:00', early: true }), 1, 'only the 9 o\'clock one goes early');
+  const q = (await pool.query("select job_id, payload from sms_outbox where kind in ('today', 'today_unpaid')")).rows;
+  assert.deepEqual(q.map((r) => [Number(r.job_id), r.payload && r.payload.early]), [[nine, true]]);
+  assert.equal(await morningTexts(undefined, { at: '07:00' }), 1, 'the 9 o\'clock one is not queued twice; the 8:30 one never');
+  assert.ok(T.isEarly(new Date('2026-11-16T08:20:00Z')) && !T.isEarly(new Date('2026-11-16T08:10:00Z')) && !T.isEarly(new Date('2026-11-16T09:00:00Z')), '8:15 to 9 London (GMT in November)');
+  delete process.env.SMS_QUIET_HOURS;
+  await pool.query("update sms_outbox set send_after = now() - interval '1 minute'");
+  await flushDue({ now: new Date('2026-11-16T08:20:00Z') });
+  const st = (await pool.query("select job_id, status from sms_outbox order by job_id")).rows.map((r) => [Number(r.job_id), r.status]);
+  process.env.SMS_QUIET_HOURS = 'off';
+  assert.deepEqual(st.find((r) => r[0] === nine)[1] !== 'waiting', true, 'the early one goes at 8:20');
+  assert.equal(st.find((r) => r[0] === later)[1], 'waiting', 'the 11 o\'clock one waits for 9');
+});

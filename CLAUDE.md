@@ -46,7 +46,8 @@ enforces the mechanical ones in CI.
   deposit reminder two days after booking while the survey is over a day
   away, 3 payment received (a deposit or part, paid in full, before or after
   the visit; online by card, a matched transfer or a tick by hand), 4 the survey
-  morning at 9 (asking for the deposit when unpaid, the agent letting us in
+  morning at 9 (one starting 9:00 to 9:59 at 8:15 instead, from the every-minute
+  call; one starting before 9 has none, the owner, 16 Nov 2026; asking for the deposit when unpaid, the agent letting us in
   said; none if booked or moved that day; no evening-before text), 5 report
   ready (balance due, or ready to view when paid), with one reminder three
   days on while the balance is owed, 6 your report once paid, 7 survey moved
