@@ -506,7 +506,9 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 .sheet .btn--sm{min-height:44px;font-size:15px;border-radius:12px}
 .td-add select{min-height:40px}
 .rp-undo{min-height:44px;padding:0 8px}
-.top .logo{min-height:44px;display:inline-flex;align-items:center}
+/* Only the brand you are on shows: the tap size must never undo .brand-ati{display:none}. */
+.top .logo{min-height:44px;align-items:center}
+:root:not([data-brand="ati"]) .top .logo.brand-dampscan,:root[data-brand="ati"] .top .logo.brand-ati{display:inline-flex}
 .today-sched{display:inline-flex;align-items:center;min-height:44px;margin:-4px 0 4px}
 #who-free{min-height:44px;display:inline-flex;align-items:center}
 .split .pill{min-height:44px}
