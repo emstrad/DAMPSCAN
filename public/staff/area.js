@@ -124,6 +124,9 @@
       bar.appendChild(link(t[0], href(area, t[1]), t[1] === page, 'section-tab'));
     });
     header.parentNode.insertBefore(bar, header.nextSibling);
+    /* On a phone the row scrolls: bring the one you are on into view. */
+    var cur = bar.querySelector('[aria-current]');
+    if (cur && cur.offsetLeft + cur.offsetWidth > bar.clientWidth) bar.scrollLeft = cur.offsetLeft - 24;
   }
 
   /* The header lockup is the business you are working in. The damp area keeps
