@@ -473,7 +473,9 @@ checks the mechanical ones.
   ticked for them), and each (i) a floating note, a sheet from the bottom on a
   phone, with why it is recommended; the total, deposit and what is still
   missing pinned to the bottom of the screen, the real rules beside it (50%
-  deposit, change your time free, full refund 48 hours before); nothing step 1 asked is asked
+  deposit, change your time free, full refund 48 hours before); ticking "Not sure" lets them carry
+  straight on without a survey or size (Continue, then Done: we call to help
+  choose; the owner, 16 Nov 2026); nothing step 1 asked is asked
   again (the estate agent letting us in says they are buying); 3 When suits
   you? with no sub-line: Earliest as one tap, then a week at a time up to
   eight weeks ahead, times under Morning and Afternoon, "change your time

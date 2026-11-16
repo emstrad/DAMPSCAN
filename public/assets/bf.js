@@ -101,7 +101,7 @@
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside) ? 2 : step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside || d.unsure) ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); if (TEL) top.appendChild(callChip()); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
@@ -156,8 +156,8 @@
     if (sending) return; sending = true; if (btn) { btn.disabled = true; btn.textContent = 'One moment...'; }
     api.submit(d).then(function (r) {
       sending = false;
-      if (r.ok) { go(d.agent || d.outside ? 4 : 3); return; }
-      if (btn) { btn.disabled = false; btn.textContent = d.agent || d.outside ? 'Send' : 'Choose a time'; }
+      if (r.ok) { go(d.agent || d.outside || d.unsure ? 4 : 3); return; }
+      if (btn) { btn.disabled = false; btn.textContent = d.agent || d.outside || d.unsure ? 'Send' : 'Choose a time'; }
       if (r.errors && Object.keys(r.errors).length) { close(); var f = { firstName: 'f-name', email: 'f-email', postcode: 'f-postcode', phone: 'f-phone' }; Object.keys(r.errors).forEach(function (k) { if (f[k]) mark($(f[k]), true); }); return; }
       global.alert('That didn\'t send. Please try again, or call us.');
     });

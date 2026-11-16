@@ -158,14 +158,18 @@
       });
       var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
       sum.textContent = '';
+      /* "Not sure" ticked (the owner, 16 Nov 2026): they can carry straight on and we call to help choose; a survey and size they did pick still books a time. */
+      var lost = has(d, 'Not sure') && !(z && pick.service);
+      d.unsure = lost;
+      pick.totalPounds = null; pick.minutes = null;
       if (z && pick.service) {
         var t = z.damp + (pick.service === 'timber' ? z.timber : 0), from = z.from;
         P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) { t += x.withSurvey; from = from || Boolean(x.from); } });
         pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
         sum.appendChild(el('b', null, pounds(t, from))); sum.appendChild(el('span', null, '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
-      } else sum.appendChild(el('span', null, 'Your total shows here'));
-      var missing = !d.issues.length ? 'Tick what you\'re dealing with' : !pick.service ? 'Pick your survey' : !pick.size ? 'Pick a size' : '';
-      go.textContent = missing || (d.agent || d.outside ? 'Send' : 'Choose a time'); go.disabled = Boolean(missing);
+      } else sum.appendChild(el('span', null, lost ? 'No need to pick: we\'ll call to help you choose' : 'Your total shows here'));
+      var missing = !d.issues.length ? 'Tick what you\'re dealing with' : lost ? '' : !pick.service ? 'Pick your survey' : !pick.size ? 'Pick a size' : '';
+      go.textContent = missing || (lost ? 'Continue' : d.agent || d.outside ? 'Send' : 'Choose a time'); go.disabled = Boolean(missing);
     }
     sync();
   }
