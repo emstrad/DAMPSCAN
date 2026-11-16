@@ -78,7 +78,7 @@
         pay.appendChild(link('btn btn--primary btn--lg ht-paybtn', '<b>Pay ' + h.money(d.pick.totalPounds / 2) + ' deposit</b><span>Apple Pay, Google Pay or card</span>',
           'Trial: live, this opens their own page with Apple Pay or Google Pay: Face ID and it is paid.'));
         pane.appendChild(pay);
-        acts.appendChild(link('btn btn--ghost btn--lg', 'Open your survey page', 'Trial: live, this opens their own page: the visit, payments, messages and their report.'));
+        acts.appendChild(link('btn btn--ghost btn--lg', 'Your survey page', 'Trial: live, this opens their own page: the visit, payments, messages and their report.'));
       }
       var cal = el('button', 'btn btn--ghost btn--lg', 'Add to calendar'); cal.type = 'button';
       cal.addEventListener('click', function () { ics(d, { title: 'Damp survey' }); });

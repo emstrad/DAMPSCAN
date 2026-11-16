@@ -180,3 +180,20 @@ a.ht-paybtn b { font-size: 17px; }
 /* Outline buttons read on either brand's card (ATi's light-on-navy card made them white on white). */
 .ht-stage .btn--ghost { background: transparent; color: inherit; border: 1.5px solid var(--line-strong); box-shadow: none; }
 .ht-stage .btn--ghost:hover { border-color: var(--accent); }
+/* Done: one calm centred column (the owner's ask): the summary as a soft panel,
+   the deposit full width, the page and calendar side by side, the extras beneath. */
+.ht-done { width: 100%; max-width: 460px; margin: 0 auto; gap: 0; }
+.ht-done .check-ring { margin-bottom: 12px; }
+.ht-done .ht-h { margin-bottom: 4px; }
+.ht-done .ht-when-big { margin: 0 0 16px; font-size: 17px; color: var(--muted); font-weight: 500; }
+.ht-done .ht-sum { max-width: none; margin: 0 0 16px; padding: 14px 16px; border-radius: 14px; background: rgba(127,127,127,.08); gap: 8px 16px; }
+.ht-done .ht-sum dt { text-align: left; }
+.ht-done .ht-sum dd { text-align: right; }
+.ht-done .ht-pay { width: 100%; margin: 0 0 10px; }
+.ht-done a.ht-paybtn { display: grid; width: 100%; box-sizing: border-box; }
+.ht-done .ht-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin: 0 0 10px; }
+.ht-done .ht-acts .btn { width: 100%; min-width: 0; padding-left: 10px; padding-right: 10px; font-size: 15px; white-space: normal; line-height: 1.2; }
+.ht-done .ht-acts .btn:only-child { grid-column: 1 / -1; }
+.ht-done > .ht-sub { margin: 0 0 14px; font-size: 13.5px; }
+.ht-done .ht-later { max-width: none; margin: 0 0 12px; }
+@media (max-width: 360px) { .ht-done .ht-acts { grid-template-columns: 1fr; } }
