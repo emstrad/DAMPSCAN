@@ -1667,6 +1667,6 @@ delete from leads where id in (2, 10, 12, 18, 19, 37, 73, 75, 107, 108, 110, 170
 -- The rest the search found once those were gone (the same ask).
 delete from todos
  where job_id in (select id from jobs where id = 37 and customer_name ilike 'scott%')
-    or lead_id in (select id from leads where id in (38, 44, 46, 47, 48, 74, 119, 181, 183) and first_name ilike 'scott%');
+    or lead_id in (select id from leads where id in (1, 9, 11, 38, 44, 46, 47, 48, 74, 119, 181, 183) and first_name ilike 'scott%');
 delete from jobs where id = 37 and customer_name ilike 'scott%';
-delete from leads where id in (38, 44, 46, 47, 48, 74, 119, 181, 183) and first_name ilike 'scott%';
+delete from leads where id in (1, 9, 11, 38, 44, 46, 47, 48, 74, 119, 181, 183) and first_name ilike 'scott%';
