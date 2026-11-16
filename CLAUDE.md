@@ -46,7 +46,7 @@ enforces the mechanical ones in CI.
   deposit reminder two days after booking while the survey is over a day
   away, 3 payment received (a deposit or part, paid in full, before or after
   the visit; online by card, a matched transfer or a tick by hand), 4 the survey
-  morning at 7 (asking for the deposit when unpaid, the agent letting us in
+  morning at 9 (asking for the deposit when unpaid, the agent letting us in
   said; none if booked or moved that day; no evening-before text), 5 report
   ready (balance due, or ready to view when paid), with one reminder three
   days on while the balance is owed, 6 your report once paid, 7 survey moved
@@ -74,8 +74,9 @@ enforces the mechanical ones in CI.
   for itself); the
   page link in a text is the short form (/m/<token>, middleware.js rewrites it
   to my.html). The go-live audit's rules (11 Nov 2026): no text between 21:00
-  and 07:00 (it waits; SMS_QUIET_HOURS=off only in tests); the morning text
-  goes from any hourly run 7 until noon, once a day, never once the visit has
+  and 09:00 (the owner, 16 Nov 2026: 7am was too early; it waits;
+  SMS_QUIET_HOURS=off only in tests); the morning text
+  goes from any hourly run 9 until noon, once a day, never once the visit has
   begun or for a time still with the agent; a booked text is held while the
   estate agent confirms and goes once they have; a rebooking is texted, a
   booked text still waiting carries a quick move; the report texts go once per
@@ -85,7 +86,7 @@ enforces the mechanical ones in CI.
   whose two minutes are up, and so does /api/cron/texts, which cron-job.org calls
   every minute (UAT, 15 Nov 2026: a held text sat waiting once the staff page
   closed); Settings and the Texts page show whether it runs, and a text due
-  overnight says it goes at 7am. Start fresh on the Texts page (owners, the
+  overnight says it goes at 9am. Start fresh on the Texts page (owners, the
   owner's ask before going live, 15 Nov 2026) stops everything waiting and
   takes every survey already visited out of texts for good (jobs.texts_off),
   so customers part way through hear nothing new. Every survey counted as texted for its money once,
