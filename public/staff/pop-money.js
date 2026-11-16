@@ -15,6 +15,7 @@
     try { m = (await U.get('/api/admin/surveys?view=money&id=' + j.id)).money; } catch (e) { return; }
     if (!m) return;
     if (m.page && m.page.link) box.appendChild(pageRow(j, m.page));
+    if (m.remind) box.appendChild(remindRow(j, m.remind));
     if (!m.owedBackPence && !m.cardPence) return;
     var d = document.createElement('details'); d.className = 'sheet-fold';
     d.appendChild(U.node('summary', null, m.owedBackPence ? 'Owed back ' + pounds(m.owedBackPence) : 'Refund'));
@@ -67,6 +68,38 @@
     }
     row.appendChild(chips);
     row.appendChild(U.node('p', 'meta', pg.opened ? 'Their page: opened ' + pg.opened.times + ' time' + (pg.opened.times === 1 ? '' : 's') + ', last ' + new Date(pg.opened.last).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Their page: not opened yet'));
+    return row;
+  }
+
+  var when = function (at) { return new Date(at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+  var quiet = function () { var h = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false })); return h >= 21 || h < 9; };
+
+  /* The deposit reminder by hand: through the texts outbox, two minutes to undo (overnight it waits for 9am). */
+  function remindRow(j, r) {
+    var row = U.node('div', 'pop-page');
+    var first = j.firstName || String(j.customerName || '').split(' ')[0] || 'them';
+    var go = U.node('button', 'btn btn--sm', 'Send deposit reminder'); go.type = 'button';
+    var undo = U.node('button', 'btn btn--ghost btn--sm', 'Undo'); undo.type = 'button'; undo.hidden = true;
+    var note = U.node('p', 'meta', r.last ? (r.last.status === 'waiting' ? 'Reminder waiting, goes ' : 'Reminder sent ') + when(r.last.at) : 'Texts them the deposit and their page link');
+    var id = null;
+    go.addEventListener('click', async function () {
+      go.disabled = true; note.textContent = 'Sending…';
+      var x;
+      try { x = await U.send('/api/admin/texts', { op: 'remind', jobId: j.id }); } catch (e) { x = { ok: false, data: null }; }
+      if (!x.ok) { go.disabled = false; note.textContent = (x.data && x.data.error) || 'Not sent. Try again.'; return; }
+      id = x.data.textId; go.hidden = true; undo.hidden = false;
+      note.textContent = quiet() ? 'Texts ' + first + ' at 9am: Undo stops it' : 'Texts ' + first + ' in 2 min: Undo stops it';
+    });
+    undo.addEventListener('click', async function () {
+      undo.disabled = true;
+      var x;
+      try { x = await U.send('/api/admin/texts', { op: 'cancel', id: id }); } catch (e) { x = { ok: false }; }
+      undo.disabled = false;
+      if (!x.ok) { note.textContent = 'Too late: it has gone.'; undo.hidden = true; return; }
+      undo.hidden = true; note.textContent = 'Stopped. Nothing sent.';
+    });
+    var chips = U.node('div', 'sheet-grid'); chips.appendChild(go); chips.appendChild(undo);
+    row.appendChild(chips); row.appendChild(note);
     return row;
   }
 

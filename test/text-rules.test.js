@@ -23,7 +23,7 @@ globalThis.fetch = async (url, o = {}) => {
 };
 
 const { queueText, textBookedOrMoved, flushDue, morningTexts } = await import('../lib/texts.js');
-const { queuePartial, queueReminders } = await import('../lib/text-nudges.js');
+const { queuePartial, queueReminders, remindDeposit } = await import('../lib/text-nudges.js');
 
 before(async () => { await pool.query(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8')); });
 beforeEach(async () => { await pool.query('truncate jobs, leads, todos, notifications, sms_outbox, estate_agents restart identity cascade'); texts = []; });
@@ -110,6 +110,28 @@ test('reminders: the deposit once after two days, the balance once after three, 
   await flushDue();
   assert.equal(texts.length, 2, 'paid meanwhile: the reminder never goes');
   assert.match((await outbox()).at(-1).error, /^Paid, held or no longer ready/);
+});
+
+test('the deposit reminder by hand: tomorrow is fine, today is not, once a day, Undo stops it, never once paid', async () => {
+  const id = await job({ date: day(1) });
+  const r = await remindDeposit(id, 'Scott');
+  assert.ok(r.ok, 'the day before the survey, sent by hand');
+  assert.match((await remindDeposit(id, 'Scott')).error, /today/, 'once a day');
+  const w = (await pool.query('select send_after > now() + interval \'100 seconds\' as later from sms_outbox where id = $1', [r.textId])).rows[0];
+  assert.ok(w.later, 'two minutes to undo');
+  await due(); await flushDue();
+  assert.match(texts[0].body, /^Hi Kim, a friendly reminder from DampScan: your survey \(tomorrow/);
+  const today = await job({ date: day(0) });
+  assert.ok((await remindDeposit(today, 'Scott')).error, 'on the day the morning text asks');
+  const paid = await job({ date: day(4) });
+  await pool.query('update jobs set deposit_paid_at = now(), tick_deposit_pence = 14750 where id = $1', [paid]);
+  assert.ok((await remindDeposit(paid, 'Scott')).error, 'paid: nothing to remind');
+  const later = await job({ date: day(4) });
+  const q = await remindDeposit(later, 'Scott');
+  await pool.query('update jobs set deposit_paid_at = now(), tick_deposit_pence = 14750 where id = $1', [later]);
+  await due(); await flushDue();
+  assert.equal(texts.length, 1, 'paid meanwhile: it never goes');
+  assert.ok(q.ok);
 });
 
 test('a move undone back to the time they were told texts nothing; Report ready undone stops the "ready to view" text', async () => {
