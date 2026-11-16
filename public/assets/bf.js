@@ -42,10 +42,13 @@
   telIn.addEventListener('blur', function () { var n = telIn.value.replace(/[\s()-]/g, '').replace(/^\+44/, '0'); telNote.hidden = !phoneOk(n) || /^07/.test(n); telNote.textContent = 'A mobile is best: we text you a link to your survey page.'; });
   document.querySelectorAll('input[name="Access"]').forEach(function (r) { r.addEventListener('change', function () { $('f-agent-fields').hidden = !$('f-agent-on').checked; }); });
   /* The postcode tidied as they leave the box (me196ab becomes ME19 6AB), checked
-     against postcodes.io, and a soft word when it is outside London and Kent. */
+     against postcodes.io, and a soft word when it is outside the South East
+     (the owner, 16 Nov 2026: "anywhere in the southeast is okay for us"). */
   var tidyPc = function (v) { var t = String(v || '').toUpperCase().replace(/\s+/g, ''); return t.length > 4 ? t.slice(0, -3) + ' ' + t.slice(-3) : t; };
-  var LONDON = ['E', 'EC', 'N', 'NW', 'SE', 'SW', 'W', 'WC', 'BR', 'CR', 'EN', 'HA', 'IG', 'KT', 'RM', 'SM', 'TW', 'UB'], KENT = ['ME', 'TN', 'CT'];
-  function ours(pc) { var m = /^([A-Z]{1,2})(\d{1,2})/.exec(pc.replace(/\s+/g, '')); if (!m) return true; return m[1] === 'DA' || LONDON.indexOf(m[1]) !== -1 || KENT.indexOf(m[1]) !== -1; }
+  /* London, Kent, Essex, Herts, Beds, Bucks, Berks, Oxon, Surrey, Sussex and Hampshire by postcode area. */
+  var SOUTH_EAST = ['E', 'EC', 'N', 'NW', 'SE', 'SW', 'W', 'WC', 'BR', 'CR', 'DA', 'EN', 'HA', 'IG', 'KT', 'RM', 'SM', 'TW', 'UB', 'WD',
+    'ME', 'TN', 'CT', 'CM', 'CO', 'SS', 'AL', 'SG', 'HP', 'LU', 'MK', 'SL', 'RG', 'OX', 'GU', 'RH', 'BN', 'PO', 'SO', 'SP'];
+  function ours(pc) { var m = /^([A-Z]{1,2})(\d{1,2})/.exec(pc.replace(/\s+/g, '')); if (!m) return true; return SOUTH_EAST.indexOf(m[1]) !== -1; }
   var pcIn = $('f-postcode'), pcRow = pcIn.closest('.form-row'), pcErr = pcRow.querySelector('.err'), pcNote = el('p', 'ht-pc-note'), pcBad = null;
   pcNote.hidden = true; pcRow.appendChild(pcNote);
   pcIn.addEventListener('blur', function () {
@@ -57,7 +60,7 @@
       if (!r.ok) return;
       pcBad = null; pcErr.textContent = 'Please enter the postcode.'; mark(pcIn, false);
       pcNote.hidden = ours(v);
-      if (!ours(v)) { pcNote.textContent = 'That\'s outside London and Kent, where we usually work. Carry on and we\'ll confirm we can reach you.'; }
+      if (!ours(v)) { pcNote.textContent = 'That\'s outside the South East, where we usually work. Carry on and we\'ll confirm we can reach you.'; }
     }).catch(function () {});
   });
   function mark(input, bad, row) { input.setAttribute('aria-invalid', String(bad)); (row || input.closest('.form-row')).classList.toggle('has-err', bad); return bad; }
@@ -81,7 +84,7 @@
     d.postcode = tidyPc($('f-postcode').value); d.street = $('f-addr1').value.trim(); d.town = $('f-town').value.trim();
     d.address = [d.street, d.town, d.postcode].filter(Boolean).join(', ');
     d.honeypot = $('f-hp') ? $('f-hp').value : '';
-    /* Outside London and Kent: no times to offer, so the time step is skipped and we confirm by phone. */
+    /* Outside the South East: no times to offer, so the time step is skipped and we confirm by phone. */
     d.outside = !ours(d.postcode);
     d.agent = $('f-agent-on').checked ? { name: $('f-agent').value.trim(), phone: $('f-agent-phone').value.trim() } : null;
     api.step1(d);
