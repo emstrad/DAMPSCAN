@@ -1,7 +1,10 @@
 /* Company, Pay (the owners' brief, 15 Nov 2026): a card each for Corp tax,
    Scott, Tom, Ben and Ronnie with what is owed now, a statement behind each
    card with Record a payment, and below every survey done with its split.
-   Worked out on the server (lib/pay-book.js); Scott and Tom only. */
+   Two books (the owners' fresh start, 16 Nov 2026): Tide and Stripe from
+   15 Nov first, the Revolut book before it one tap away, each survey tagged
+   with where its money came in. Worked out on the server (lib/pay-book.js);
+   Scott and Tom only. */
 (function (global) {
   'use strict';
   var U = global.DSUI;
@@ -18,15 +21,38 @@
   var monthEnd = function (back) { var d = new Date(monthStart(back - 1) + 'T12:00:00Z'); d.setUTCDate(0); return d.toISOString().slice(0, 10); };
   var RANGES = [['month', 'This month', function () { return [monthStart(0), null]; }], ['last', 'Last month', function () { return [monthStart(1), monthEnd(1)]; }],
     ['year', 'This year', function () { return [yearStart(), null]; }], ['all', 'All', function () { return [null, null]; }]];
-  var state = { range: 'month', data: null };
+  var state = { range: 'month', book: 'new', data: null };
+  var BOOK = { new: 'Tide and Stripe', old: 'Revolut' };
+  var LONG = { Stripe: 'Paid by card', Tide: 'Paid into Tide', Revolut: 'Paid into Revolut' };
+  var via = function (v, long) { return node('span', 'pay-via is-' + String(v || '').toLowerCase(), long ? LONG[v] || v : v); };
 
   async function load() {
     var r = RANGES.filter(function (x) { return x[0] === state.range; })[0][2]();
-    var q = [r[0] ? 'from=' + r[0] : '', r[1] ? 'to=' + r[1] : ''].filter(Boolean).join('&');
+    var q = [r[0] ? 'from=' + r[0] : '', r[1] ? 'to=' + r[1] : '', state.book === 'old' ? 'book=old' : ''].filter(Boolean).join('&');
     try { state.data = await U.get('/api/admin/pay' + (q ? '?' + q : '')); }
     catch (e) { el('state').textContent = e.message === 'unauthorised' ? '' : 'Pay is for the owners.'; return; }
     el('state').hidden = true; el('content').hidden = false;
-    cards(); range(); book(); check(); split();
+    books(); cards(); range(); book(); check(); split();
+  }
+
+  /* Which book: the fresh one from the cut-over, or the Revolut one kept as it was. */
+  function books() {
+    var box = el('books'); box.textContent = '';
+    var seg = node('div', 'pay-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Which book');
+    [['new', 'Tide and Stripe'], ['old', 'Revolut (old)']].forEach(function (b) {
+      var x = node('button', null, b[1]); x.type = 'button'; x.setAttribute('aria-pressed', String(state.book === b[0]));
+      x.addEventListener('click', function () { if (state.book === b[0]) return; state.book = b[0]; state.range = b[0] === 'old' ? 'all' : 'month'; load(); });
+      seg.appendChild(x);
+    });
+    box.appendChild(seg);
+    var o = state.data.other;
+    var line = node('p', 'pay-books-note', state.book === 'new' ? 'From ' + day(state.data.cutover) + '.' : 'Before ' + day(state.data.cutover) + ', kept as it was.');
+    if (o && o.owed > 0) {
+      var go = node('button', 'pay-books-link', (o.book === 'old' ? 'Revolut' : 'Tide and Stripe') + ': ' + money(o.owed) + ' still owed'); go.type = 'button';
+      go.addEventListener('click', function () { state.book = o.book; state.range = o.book === 'old' ? 'all' : 'month'; load(); });
+      line.appendChild(document.createTextNode(' ')); line.appendChild(go);
+    }
+    box.appendChild(line);
   }
 
   function cards() {
@@ -35,7 +61,7 @@
       var b = node('button', 'pay-card' + (c.owed < 0 ? ' is-neg' : c.owed > 0 ? ' is-owed' : '')); b.type = 'button';
       b.appendChild(node('span', 'pay-card-name', c.name));
       b.appendChild(node('b', 'pay-card-owed', money(c.owed)));
-      b.appendChild(node('span', 'pay-card-sub', c.owed < 0 ? 'Paid ahead' : c.key === 'tax' ? 'To set aside' : 'Owed now'));
+      b.appendChild(node('span', 'pay-card-sub', c.owed < 0 ? 'Paid ahead' : c.key === 'tax' ? 'To set aside' : state.book === 'old' ? 'Owed from Revolut' : 'Owed now'));
       b.appendChild(node('small', null, c.lastPaid ? 'Last paid ' + day(c.lastPaid.day) + ', ' + money(c.lastPaid.pence) : 'Nothing paid yet'));
       if (c.coming) b.appendChild(node('small', 'pay-coming', money(c.coming) + ' coming once paid'));
       b.addEventListener('click', function () { openCard(c.key); });
@@ -65,7 +91,7 @@
       top.appendChild(who);
       top.appendChild(node('span', 'pay-brand', BRAND[s.site] || ''));
       top.appendChild(node('b', 'pay-price', money(s.price)));
-      top.appendChild(node('span', 'pay-tag' + (s.paid ? ' is-paid' : ''), s.paid ? 'Paid' : 'Not paid yet'));
+      top.appendChild(s.paid ? via(s.via, true) : node('span', 'pay-tag', 'Not paid yet'));
       row.appendChild(top);
       var parts = node('div', 'pay-parts'); parts.hidden = true;
       if (s.fees) parts.appendChild(chip('Card fee', s.fees));
@@ -106,13 +132,29 @@
     var shut = node('button', 'btn btn--ghost btn--sm', 'Close'); shut.type = 'button'; shut.addEventListener('click', function () { dlg.close(); }); top.appendChild(shut);
     head.appendChild(top); dlg.appendChild(head);
     var body = node('div', 'sheet-body');
-    var hero = node('div', 'pay-hero'); hero.appendChild(node('small', null, s.owed < 0 ? 'Paid ahead by' : who === 'tax' ? 'To set aside' : 'Owed now')); hero.appendChild(node('b', null, money(Math.abs(s.owed)))); body.appendChild(hero);
-    body.appendChild(payForm(who, s.owed, function () { dlg.close(); load().then(function () { openCard(who); }); }));
-    body.appendChild(node('h3', 'pay-h', 'Statement'));
+    /* The book being looked at leads; the other is under the line, never mixed into its balance. */
+    var owed = state.book === 'old' ? s.old.owed : s.owed;
+    var hero = node('div', 'pay-hero'); hero.appendChild(node('small', null, (owed < 0 ? 'Paid ahead by' : who === 'tax' ? 'To set aside' : 'Owed now') + ', ' + BOOK[state.book])); hero.appendChild(node('b', null, money(Math.abs(owed)))); body.appendChild(hero);
+    body.appendChild(payForm(who, owed, function () { dlg.close(); load().then(function () { openCard(who); }); }));
+    if (s.coming && s.coming.length) {
+      body.appendChild(node('h3', 'pay-h', 'Coming once paid in full'));
+      s.coming.forEach(function (c) { var r = node('div', 'pay-line is-coming'); var lft = node('div'); lft.appendChild(node('span', 'pay-line-what', c.what)); r.appendChild(lft); var amt = node('div', 'pay-line-amt'); amt.appendChild(node('b', null, money(c.pence))); r.appendChild(amt); r.addEventListener('click', function () { if (global.DSPOP) global.DSPOP.open(c.jobId, { onChange: load }); }); body.appendChild(r); });
+    }
+    body.appendChild(node('h3', 'pay-h', 'Statement, Tide and Stripe'));
     if (!s.lines.length) body.appendChild(node('p', 'panel-note', 'Nothing yet.'));
-    s.lines.forEach(function (l) {
-      var row = node('div', 'pay-line' + (l.kind === 'paid' ? ' is-out' : ''));
-      var left = node('div'); left.appendChild(node('span', 'pay-line-what', l.what)); left.appendChild(node('small', null, day(l.day) + (l.by ? ', by ' + l.by : '')));
+    s.lines.forEach(function (l) { body.appendChild(line(l, false)); });
+    var cut = node('div', 'pay-cut'); cut.appendChild(node('span', null, 'Moved to Tide and Stripe, ' + day(s.cutover))); body.appendChild(cut);
+    var oldBox = node('details', 'pay-old'); oldBox.open = state.book === 'old';
+    oldBox.appendChild(node('summary', null, 'Revolut, before ' + day(s.cutover) + (s.old.owed ? ': ' + (s.old.owed < 0 ? 'paid ahead ' : 'owed ') + money(Math.abs(s.old.owed)) : ': settled')));
+    if (!s.old.lines.length) oldBox.appendChild(node('p', 'panel-note', 'Nothing in Revolut.'));
+    s.old.lines.forEach(function (l) { oldBox.appendChild(line(l, true)); });
+    body.appendChild(oldBox);
+    dlg.appendChild(body);
+    if (!dlg.open) dlg.showModal();
+
+    function line(l, old) {
+      var row = node('div', 'pay-line' + (l.kind === 'paid' ? ' is-out' : '') + (old ? ' is-old' : ''));
+      var left = node('div'); var what = node('span', 'pay-line-what', l.what); what.appendChild(via(l.via)); left.appendChild(what); left.appendChild(node('small', null, day(l.day) + (l.by ? ', by ' + l.by : '')));
       row.appendChild(left);
       var right = node('div', 'pay-line-amt'); right.appendChild(node('b', null, (l.pence > 0 ? '+' : '') + money(l.pence))); right.appendChild(node('small', null, money(l.balance)));
       row.appendChild(right);
@@ -125,10 +167,8 @@
         });
         left.appendChild(rm);
       }
-      body.appendChild(row);
-    });
-    dlg.appendChild(body);
-    if (!dlg.open) dlg.showModal();
+      return row;
+    }
   }
 
   function payForm(who, owed, done) {
@@ -138,7 +178,7 @@
     var how = document.createElement('select'); how.setAttribute('aria-label', 'How');
     (who === 'tax' ? ['Moved to tax savings', 'Paid to HMRC'] : ['Bank transfer', 'Salary', 'Dividend', 'Cash', 'Other']).forEach(function (h) { var o = document.createElement('option'); o.textContent = h; how.appendChild(o); });
     var note = document.createElement('input'); note.type = 'text'; note.placeholder = 'Note (optional)'; note.setAttribute('aria-label', 'Note');
-    var go = node('button', 'btn btn--primary', who === 'tax' ? 'Record it' : 'Record a payment'); go.type = 'submit';
+    var go = node('button', 'btn btn--primary', (who === 'tax' ? 'Record it' : 'Record a payment') + (state.book === 'old' ? ' from Revolut' : '')); go.type = 'submit';
     var msg = node('p', 'panel-note');
     f.appendChild(amt); f.appendChild(on); f.appendChild(how); f.appendChild(note); f.appendChild(go); f.appendChild(msg);
     f.addEventListener('submit', async function (e) {
@@ -146,7 +186,7 @@
       var pence = Math.round(Number(amt.value) * 100);
       if (!(pence > 0)) { msg.textContent = 'Enter the amount.'; amt.focus(); return; }
       go.disabled = true;
-      var r = await U.send('/api/admin/pay', { op: 'pay', who: who, pence: pence, day: on.value, how: how.value, note: note.value });
+      var r = await U.send('/api/admin/pay', { op: 'pay', who: who, pence: pence, day: on.value, how: how.value, note: note.value, book: state.book });
       go.disabled = false;
       if (!r.ok) { msg.textContent = (r.data && r.data.error) || 'Not saved.'; return; }
       done();

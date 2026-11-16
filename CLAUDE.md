@@ -306,7 +306,19 @@ checks the mechanical ones.
   the top (all fees absorbed by everyone, the owners' choice), then the job's own
   waterfall; a cancelled one drops out; unpaid work shows as coming. The check
   line proves money in equals what is shared. The split for new surveys is the
-  owners' to change there (job_settings); booked ones keep theirs. Scott and Tom
+  owners' to change there (job_settings); booked ones keep theirs. Two books (the
+  owners' fresh start, 16 Nov 2026): the money moved from Revolut (pots) to
+  Tide and Stripe on 15 Nov 2026 (CUTOVER, the first card payment), so Pay
+  opens on Tide and Stripe: surveys paid in full from that day and payments
+  made from it, every balance starting from nothing (deposits show as
+  coming); the Revolut book before it is kept as it was, one tap away
+  ("Revolut (old)", its balance said in one line on the new view), and a
+  payment recorded there settles a Revolut balance (paid_out.book). Every
+  survey is tagged with where its money came in (Paid by card for Stripe,
+  Paid into Tide, Paid into Revolut), and each statement shows the new book,
+  a "Moved to Tide and Stripe" line, then the Revolut lines folded beneath,
+  each book with its own running balance; Overview's owed figures are the
+  new book's. Scott and Tom
   take a salary (about £12,570 each) and dividends; Ben and Ronnie invoice.
   Money (`lib/company-money.js`, `company-money.js`, `?view=money`): money in
   (surveys paid in full), every cost (Ronnie's and Ben's shares, card fees,
