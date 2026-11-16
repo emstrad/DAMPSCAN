@@ -72,7 +72,7 @@ test('a deposit ticked then unticked inside the two minutes sends nothing; ticke
   await due(); await T.flushDue();
   r = await rows();
   assert.equal(r[1].status, 'off', 'texts are off: kept as what would have gone');
-  assert.match(r[1].body, /£147\.50 paid so far/);
+  assert.match(r[1].body, /your payment's come through and your ATi Damp Survey survey is all set for/);
 });
 
 test('a move texts the new time, a second quick move replaces it, an old survey edited texts nothing', async () => {

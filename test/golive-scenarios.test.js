@@ -157,7 +157,7 @@ test('a bank transfer with the page\'s reference: matched, on their page, texted
   assert.equal(v.state, 'booked');
   await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /received your payment \(£147\.50 paid so far\)\. Your DampScan survey \(.+\) is secured/);
+  assert.match(texts[0].body, /your payment's come through and your DampScan survey is all set for .+, arriving /);
 });
 
 test('the database out for a moment: the text waits and goes on the next try, never lost', async () => {
