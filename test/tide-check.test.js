@@ -52,8 +52,11 @@ test('each line beside the logbook; what is left over listed; putting one right 
   const c = await T.tideCheck(csv);
   const by = (w) => c.lines.find((l) => l.what === w);
   assert.equal(by('VERCEL INC').status, 'matched', 'an expense of the same amount within five days');
-  assert.equal(by('K LEE').status, 'untick');
+  assert.equal(by('K LEE').status, 'auto', 'their own reference: reconciled at upload');
   assert.equal(by('K LEE').survey.id, job);
+  assert.deepEqual(by('K LEE').ticked, ['deposit']);
+  const j = (await pool.query("select (deposit_paid_at at time zone 'Europe/London')::date::text as d, paid_at from jobs where id = $1", [job])).rows[0];
+  assert.deepEqual([j.d, j.paid_at], ['2026-11-04', null], 'dated the day the money arrived');
   assert.equal(by('STRIPE PAYMENTS UK').status, 'payout');
   assert.equal(by('GOOGLE ADS').status, 'missing');
   assert.equal(by('GOOGLE ADS').guess, 'cost:Google Ads');
@@ -63,8 +66,33 @@ test('each line beside the logbook; what is left over listed; putting one right 
   assert.equal(c.totals.out, 2999 + 25000);
 
   await M.addExpense({ pence: 25000, day: '2026-11-07', category: 'Google Ads', bankRef: by('GOOGLE ADS').ref }, 'Scott');
-  await pool.query("update jobs set deposit_paid_at = now() where id = $1", [job]);
   const again = await T.tideCheck(csv);
   assert.equal(again.lines.find((l) => l.what === 'GOOGLE ADS').status, 'matched');
-  assert.equal(again.lines.find((l) => l.what === 'K LEE').status, 'matched', 'ticked on their card now');
+  assert.equal(again.lines.find((l) => l.what === 'K LEE').status, 'reconciled', 'the same file again records nothing twice');
+  assert.equal(Number((await pool.query('select count(*) from job_payments where job_id = $1', [job])).rows[0].count), 1);
+});
+
+test('a transfer without their reference: suggested, OK records it and ticks, Undo takes back only what it set', async () => {
+  const R = await import('../lib/tide-reconcile.js');
+  const job = Number((await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, survey_type, survey_price_pence, surveyor, surveyor_fee_pence,
+      date_set, job_date, job_time, tax_bp, lead_bp, lead_earner, partner_a, partner_b) values ('ati-london', 'booked', 'Danya Smith', 'SE4 1XZ', 'full-house', 29500, 'tom', 13000, true, '2026-11-19', '09:00', 2000, 1500, 'scott', 'tom', 'ben') returning id`)).rows[0].id);
+  const csv = 'Date,Transaction description,Reference,Paid in,Paid out\n16/11/2026,D SMITH,survey,147.50,\n';
+  const c = await T.tideCheck(csv, 'Scott');
+  const l = c.lines[0];
+  assert.equal(l.status, 'suggest');
+  assert.equal(l.survey.id, job);
+  assert.ok(c.open.some((s) => s.id === job), 'and every survey still owed to find another');
+  const r = await R.reconcile(l, job, 'Scott');
+  assert.deepEqual(r.ticked, ['deposit']);
+  assert.equal((await T.tideCheck(csv)).lines[0].status, 'reconciled');
+  const hist = (await pool.query('select sched_log from jobs where id = $1', [job])).rows[0].sched_log;
+  assert.match(hist.at(-1).note, /£147\.50 into Tide on 16\/11\/2026 \(ref survey\) matched by Scott: deposit paid\./);
+  assert.ok((await R.unreconcile(l.ref, 'Scott')).ok);
+  const after = (await pool.query('select deposit_paid_at from jobs where id = $1', [job])).rows[0];
+  assert.equal(after.deposit_paid_at, null, 'the tick it set is taken back');
+  assert.equal((await T.tideCheck(csv)).lines[0].status, 'suggest');
+  /* A hand tick is never taken back by Undo. */
+  await pool.query('update jobs set deposit_paid_at = now() where id = $1', [job]);
+  await R.reconcile(l, job, 'Scott'); await R.unreconcile(l.ref, 'Scott');
+  assert.ok((await pool.query('select deposit_paid_at from jobs where id = $1', [job])).rows[0].deposit_paid_at);
 });

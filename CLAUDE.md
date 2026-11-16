@@ -330,11 +330,18 @@ checks the mechanical ones.
   ways to lower the tax, each with its saving, as prompts for the accountant.
   Expenses are never edited, removed only with who and when; a receipt opens
   for the owners only (never a surveyor, though receipts are DampScan's files).
-  Bank check (`lib/tide-check.js`, `company-tide.js`, `?op=tide`): the company
-  account is Tide, with no feed, so once a month its statement (CSV) is
-  uploaded and every line put beside the logbook: money in beside the survey
-  it pays (only pointed at their card, never ticked from here) or a Stripe
-  payout; money out beside a payment on Pay or an expense (same amount within
+  Bank check (`lib/tide-check.js`, `lib/tide-reconcile.js`, `company-tide.js`,
+  `?op=tide`): the company account is Tide, with no feed, so its statement
+  (CSV, any dates, as often as liked) is uploaded and every line put beside
+  the logbook, reconciled like Xero (the owner's ask, 16 Nov 2026): each line
+  left to do is a card, the bank line beside its likeliest match and OK. Money
+  in carrying the customer's own reference (KIM0042) is reconciled at upload:
+  recorded on their survey (job_payments, external_ref tide:<line>, so a
+  statement uploaded twice records nothing twice), dated the day it arrived,
+  ticking deposit or paid in full, on their history with Undo (which takes
+  back only the ticks it set); any other transfer comes with its likeliest
+  survey for one tap, or Find and match from every survey still owed; a
+  transfer over two days old never texts; a Stripe payout is set aside; money out beside a payment on Pay or an expense (same amount within
   five days, or the line it was added from, bank_ref). What is left comes
   first: paid out and not logged (one select, a cost or who was paid, Add),
   paid in and not ticked, paid in and not placed, and logged but not in Tide
@@ -837,7 +844,9 @@ checks the mechanical ones.
   Surveying Limited's company number, registered office, directors, HMRC
   references, Government Gateway user ID, filing dates, bank and insurance,
   for the owners and ChatGPT (company_details). Fixed fields only; never a
-  password, PIN or security answer (the server refuses them).
+  password, PIN or security answer (the server refuses them), except the
+  Companies House authentication code, its own field (the owner's ask, in so
+  many words, 16 Nov 2026).
 
 ## ChatGPT connector (`/api/admin/mcp`)
 - "Strictly ChatGPT, no extra parts on the site" for assistant features.
