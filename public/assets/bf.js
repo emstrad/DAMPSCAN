@@ -142,7 +142,7 @@
     step = n; dotsTo(n); body.textContent = '';
     /* Live, a booking made is final here: no way back into the steps (their page moves it). */
     if (backBtn) backBtn.hidden = api.live && n === 4;
-    var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : 'ht-pane ht-pane--c'); body.appendChild(pane);
+    var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : n === 4 ? 'ht-pane ht-pane--c ht-done' : 'ht-pane ht-pane--c'); body.appendChild(pane);
     if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, submit); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
     if (n === 3) when(pane);
     if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again, live: api.live, extras: api.extras });
