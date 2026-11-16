@@ -77,7 +77,7 @@ test('one customer, start to finish', async () => {
   assert.equal(v.money.paidPence, 14750);
   assert.equal(v.receipts.items.length, 1);
   assert.equal(texts.length, 2);
-  assert.match(texts[1].body, /£147\.50/);
+  assert.match(texts[1].body, /payment's come through.*all set for/, 'text 3 says it is set, not the amount');
 
   /* Surveyed, report written and made ready: text 5 asks for the balance; the report stays locked. */
   await pool.query(`update jobs set status = 'completed', job_date = current_date - 1, report_path = 'r/kim.pdf', report_name = 'Kim.pdf' where id = $1`, [id]);
