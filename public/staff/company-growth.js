@@ -12,6 +12,35 @@
 
   (global.DSCOTABS = global.DSCOTABS || {}).growth = function () { if (!loaded) load(); };
 
+  /* Paid customers sent back to Google Ads (lib/ads-conversions.js): when Google last came for each
+     brand's file, how many are in it, and the address to give it once. Owners only, like the page. */
+  var BRAND = { 'ati-london': 'ATi', dampscan: 'DampScan' };
+  function feedFold(feeds) {
+    var d = document.createElement('details'); d.className = 'pay-surveys';
+    var seen = feeds.filter(function (f) { return f.lastFetched; });
+    var s = document.createElement('summary'); s.className = 'c-row';
+    var l = node('span', 'c-l'); l.appendChild(node('b', null, 'Paid customers sent to Google Ads'));
+    l.appendChild(node('small', null, seen.length ? 'Google reads it daily' : 'Not set up in Google Ads yet'));
+    var r = node('span', 'c-r'); r.appendChild(node('span', 'c-tag ' + (seen.length ? 'is-good' : 'is-warn'), seen.length ? 'On' : 'To set up')); r.appendChild(node('span', 'c-chev', '›'));
+    s.appendChild(l); s.appendChild(r); d.appendChild(s);
+    var body = node('div', 'ag-body');
+    feeds.forEach(function (f) {
+      body.appendChild(node('span', 'c-label', BRAND[f.site] || f.site));
+      body.appendChild(node('small', 'c-sub', (f.lastFetched ? 'Last read ' + new Date(f.lastFetched).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not read yet') + ', ' + f.paid + ' paid in the last 90 days'));
+      if (!f.url) { body.appendChild(node('small', 'c-sub', 'Needs SESSION_SECRET in Vercel.')); return; }
+      body.appendChild(node('small', 'ag-link', f.url));
+      var c = node('button', 'btn', 'Copy address'); c.type = 'button';
+      c.addEventListener('click', function () { if (navigator.clipboard) navigator.clipboard.writeText(f.url).then(function () { c.textContent = 'Copied'; }); });
+      body.appendChild(c);
+    });
+    var how = node('ol', 'ag-steps');
+    ['Google Ads: Goals, Conversions, New, Import, Other data sources, Track conversions from clicks. Name it Paid job, value: use different values.',
+      'Goals, Uploads, Schedules, New, HTTPS: paste the address, daily.'].forEach(function (t) { how.appendChild(node('li', null, t)); });
+    body.appendChild(how);
+    d.appendChild(body);
+    return d;
+  }
+
   async function load() {
     var box = document.getElementById('tab-growth');
     var d;
@@ -22,10 +51,10 @@
 
     /* Google Ads, with the period picked by pill: this month, last month, the year. */
     var ads = sec('Google Ads');
-    var pills = node('div', 'pills pay-range'), body = node('div');
+    var pills = node('div', 'c-seg'), body = node('div');
     ads.appendChild(pills); ads.appendChild(body);
     var show = function (key) {
-      pills.querySelectorAll('.pill').forEach(function (p) { p.setAttribute('aria-pressed', String(p.dataset.k === key)); });
+      pills.querySelectorAll('button').forEach(function (p) { p.setAttribute('aria-pressed', String(p.dataset.k === key)); });
       var a = d.googleAds[key], t = node('div', 'mn-tiles'); body.textContent = '';
       tile(t, 'Spent', money(a.spend));
       tile(t, 'Enquiries', String(a.enquiries), a.perEnquiry !== null ? money(a.perEnquiry) + ' each' : '');
@@ -35,9 +64,13 @@
       if (!a.spend) body.appendChild(node('p', 'mn-say', 'Log the spend on Money (Add cost, Google Ads) to see the cost per booking.'));
     };
     [['month', 'This month'], ['last', 'Last month'], ['year', 'This year']].forEach(function (k) {
-      var b = node('button', 'pill', k[1]); b.type = 'button'; b.dataset.k = k[0]; b.addEventListener('click', function () { show(k[0]); }); pills.appendChild(b);
+      var b = node('button', null, k[1]); b.type = 'button'; b.dataset.k = k[0]; b.addEventListener('click', function () { show(k[0]); }); pills.appendChild(b);
     });
     show('last');
+    ads.appendChild(feedFold(d.adsFeed || []));
+
+    /* Estate agents, one brand at a time (company-agents.js). */
+    if (global.DSAGENTS) global.DSAGENTS.mount(box);
 
     /* The funnel, month by month: how many came, asked, booked and paid. */
     var f = sec('Month by month');

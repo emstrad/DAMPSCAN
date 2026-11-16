@@ -1674,3 +1674,13 @@ delete from todos
     or lead_id in (select id from leads where id in (1, 9, 11, 38, 44, 46, 47, 48, 74, 119, 181, 183) and first_name ilike 'scott%');
 delete from jobs where id = 37 and customer_name ilike 'scott%';
 delete from leads where id in (1, 9, 11, 38, 44, 46, 47, 48, 74, 119, 181, 183) and first_name ilike 'scott%';
+
+-- Estate agents as a referral channel (the owner, 16 Nov 2026): each agent's
+-- own booking link (?ag=code on either damp site), and the agent whose link
+-- sent an enquiry (leads.referred_by), kept apart from the agent who lets us in
+-- (estate_agent_id), which changes the texts. An agent added before any survey
+-- notes the brand they work with (site).
+alter table estate_agents add column if not exists ref_code text;
+alter table estate_agents add column if not exists site text;
+create unique index if not exists estate_agents_ref_idx on estate_agents (ref_code) where ref_code is not null;
+alter table leads add column if not exists referred_by bigint references estate_agents (id) on delete set null;

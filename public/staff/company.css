@@ -137,3 +137,11 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .pay-booklink{display:flex;flex-direction:column;align-items:flex-end;min-height:44px;justify-content:center;padding:4px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--accent-hi);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .pay-booklink small{color:var(--muted);font-size:12px;font-weight:500}
 .pay-booklink:hover{background:var(--panel-2)}
+/* Growth: an estate agent's link and statement, and the Google Ads address (company-agents.js, company-growth.js). */
+.ag-body{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:8px 0 16px}
+.ag-body .c-seg{align-self:stretch}
+.ag-link{font-size:13px;color:var(--muted);word-break:break-all}
+.ag-text{align-self:stretch;margin:0;padding:12px;border-radius:12px;background:var(--panel);color:var(--text);font:inherit;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.ag-acts{display:flex;flex-wrap:wrap;gap:8px}
+.ag-steps{margin:0;padding-left:20px;font-size:13px;color:var(--muted)}
+.ag-brands{margin-bottom:8px}

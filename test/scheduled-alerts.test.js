@@ -142,9 +142,13 @@ test('the Monday summary counts the week, goes once, and only on a London Monday
   assert.equal(weekLine({ enquiries: 0, partials: 0, won: 0, moneyInPence: 0, ratings: 0, overdue: 0, todos: 0 }), null);
 
   assert.equal(await runWeekly(new Date('2026-10-13T06:30:00Z')), 0, 'not on a Tuesday');
-  assert.equal(await runWeekly(MONDAY), 1, 'only Verge had a week to speak of');
-  assert.equal(pushes[0].title, 'Last week: Verge Roofing');
-  assert.ok(!/sarah|late payer|scaffolder/i.test(visible(pushes[0])), 'counts only');
+  /* ATi and DampScan get one Monday briefing between them (lib/company-week.js), not a line each. */
+  assert.equal(await runWeekly(MONDAY), 2, 'Verge had a week to speak of, and the damp brands their briefing');
+  const verge = pushes.find((p) => p.title === 'Last week: Verge Roofing'), brief = pushes.find((p) => p.title === 'Monday briefing');
+  assert.ok(verge && brief);
+  assert.ok(!pushes.some((p) => /Last week: (DampScan|ATi)/.test(p.title)), 'no second line for a damp brand');
+  assert.match(brief.click, /\/staff\/company\.html#week$/);
+  for (const p of [verge, brief]) assert.ok(!/sarah|late payer|scaffolder/i.test(visible(p)), 'counts only');
   assert.equal(await runWeekly(MONDAY), 0, 'once per Monday');
 });
 

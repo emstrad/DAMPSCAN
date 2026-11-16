@@ -18,6 +18,7 @@ import { alertPartials } from '../lib/daily-alerts.js';
 import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { agentFromLead } from '../lib/estate-agents.js';
+import { referralFromLead } from '../lib/agent-referrals.js';
 import { londonToday } from '../lib/pipeline.js';
 import { labFlag } from '../lib/availability.js';
 import { queuePartial } from '../lib/text-nudges.js';
@@ -197,6 +198,8 @@ export default async function handler(req, res) {
   if (value.stage === 'complete' && row.inserted) {
     /* The agent typed on the form becomes the enquiry's agent at once (Scheduling's Agent section). */
     try { await agentFromLead(id); } catch (err) { console.warn('agent from form failed:', err.message); }
+    /* Through an agent's own booking link: put down to them on Growth (lib/agent-referrals.js). */
+    try { await referralFromLead(id); } catch (err) { console.warn('agent link failed:', err.message); }
     try { await mergeDuplicates(id); } catch (err) { console.warn('duplicate merge failed:', err.message); }
   }
 
