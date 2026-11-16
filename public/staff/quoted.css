@@ -13,7 +13,7 @@
 .work-owed{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .work-owed-row{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:10px;
   background:var(--accent-soft);border:1px solid var(--accent-ring);min-width:150px}
-.work-owed-row .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.work-owed-row .k{font-size:11px;text-transform:none;color:var(--muted);font-weight:600}
 .work-owed-row .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
 .work-frozen{margin-top:12px;font-size:13px;color:var(--good);padding:10px 14px;border-radius:10px;
   border:1px solid rgba(95,207,158,.4);background:rgba(95,207,158,.08)}

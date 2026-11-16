@@ -144,14 +144,14 @@
 .pb-manage{margin-top:6px}
 .pb-manage summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600}
 .pb-manage .lines{margin-top:10px}
-.pb-sub{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin:16px 0 6px}
+.pb-sub{font-size:12px;text-transform:none;color:var(--muted-2);margin:16px 0 6px}
 
 /* ---------- job photos ---------- */
 .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:12px}
 .photo-card{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--navy)}
 .photo-card.is-public{border-color:var(--accent-ring)}
 .photo-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:var(--slate)}
-.photo-field{display:flex;flex-direction:column;gap:4px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);font-weight:600}
+.photo-field{display:flex;flex-direction:column;gap:4px;font-size:11.5px;text-transform:none;color:var(--muted-2);font-weight:600}
 .photo-field input,.photo-field select{text-transform:none;letter-spacing:0;font-weight:400;font:inherit;font-size:16px;width:100%;
   background:var(--slate);border:1px solid var(--line-strong);border-radius:8px;color:var(--text);padding:8px 10px}
 .photo-field input:focus,.photo-field select:focus{outline:none;border-color:var(--accent)}
@@ -179,7 +179,7 @@
 .form-row[hidden]{display:none}
 .search-site + .search-site{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
 .search-title{font-size:16px;margin-bottom:10px}
-.search-sub{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin:16px 0 8px}
+.search-sub{font-size:12px;text-transform:none;color:var(--muted-2);margin:16px 0 8px}
 /* ---------- business details and the VAT meter ---------- */
 .biz + .biz{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
 .biz textarea{width:100%;background:var(--navy);border:1px solid var(--line-strong);border-radius:10px;color:var(--text);padding:12px 14px;font:inherit;font-size:16px}
@@ -188,7 +188,7 @@
 .vat-bar span{display:block;height:100%;background:var(--good)}
 .vat-bar span.is-near{background:var(--warn)}
 /* ---------- the Bank page: what each person has taken out ---------- */
-.taken-head{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin:22px 0 10px}
+.taken-head{font-size:12px;text-transform:none;color:var(--muted-2);margin:22px 0 10px}
 .taken{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 .taken-person{background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px}
 .taken-person h3{font-size:15px;margin-bottom:8px}
@@ -226,7 +226,7 @@
 .tl-dow{font-weight:800}
 .tl-date{font-size:13px;color:var(--muted);font-weight:600}
 .tl-day.is-today .tl-date{color:var(--accent);font-weight:800}
-.tl-sub{margin:4px 0 0;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);font-weight:700}
+.tl-sub{margin:4px 0 0;font-size:11.5px;text-transform:none;color:var(--warn);font-weight:700}
 .tl-empty{margin:0;font-size:13px;color:var(--muted-2)}
 .tl-job{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;
   background:var(--navy);color:var(--text);font:inherit;text-align:left;cursor:pointer;min-width:0}

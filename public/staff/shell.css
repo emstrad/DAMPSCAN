@@ -202,7 +202,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 /* Lab previews: drawn as a customer would see them. */
 .lab-preview{border:1px dashed var(--accent-ring);border-radius:14px;padding:16px;display:grid;gap:10px}
 .lab-day{font-weight:700;margin:6px 0 0}
-.quiz-step{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin:0}
+.quiz-step{font-size:12px;text-transform:none;color:var(--muted-2);margin:0}
 .quiz-q{margin:0}
 .quiz-options{display:flex;flex-wrap:wrap;gap:8px}
 .quiz-opt{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--navy);color:inherit;font:inherit;cursor:pointer;text-align:left}

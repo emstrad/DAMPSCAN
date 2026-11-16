@@ -69,3 +69,17 @@ test('no field is a white box in the dark staff area (the login page keeps its l
     }
   }
 });
+
+/* No shouting (the owner's calm screens): uppercase only on the logo, the small c-label, table heads and the few tiny figure labels. */
+test('no new uppercase labels or headings on staff screens', async () => {
+  const OK = /logo-word|logo-tag|\.c-label|^th$|\.cal-dow|\.tile \.k|\.preview-cell \.k/;
+  for (const f of await files('public/staff', (p) => p.endsWith('.css'))) {
+    const css = await read(f);
+    for (const m of css.matchAll(/([^{}]+)\{[^}]*text-transform:\s*uppercase/g)) {
+      const sel = m[1].trim().split('\n').pop().trim();
+      if (OK.test(sel)) continue;
+      assert.fail(
+        `${f}: "${sel}" shouts in capitals; use sentence case (or .c-label for a small label)`);
+    }
+  }
+});
