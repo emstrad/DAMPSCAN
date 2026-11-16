@@ -123,7 +123,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .pill[aria-pressed="true"]{background:var(--accent);color:#06121f;border-color:var(--accent);font-weight:600}
 
 .panel{background:var(--slate);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:22px}
-.panel > h2{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:16px}
+.panel > h2{font-size:17px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:700;margin-bottom:16px}
 .panel-note{font-size:12.5px;color:var(--muted-2);margin-top:10px}
 
 /* ---------- Counter tiles ---------- */
@@ -277,7 +277,7 @@ tbody tr.is-stale td:first-child{color:var(--warn);font-weight:600}
 .recon tr.is-why td:first-child::before{content:'↳ ';opacity:.6}
 .recon tr.is-total:last-child td{border-top:1px solid var(--line-strong)}
 .from-row{flex:0 0 200px}
-.from-row input{min-height:40px;padding:8px 12px;font-size:14px}
+.from-row input{min-height:44px;padding:8px 12px}
 .upload{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
 .file-btn{position:relative;overflow:hidden;cursor:pointer}
 .file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
@@ -404,7 +404,6 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 .j-contact{margin:6px 0 4px}
 .sheet-next{margin:12px 0!important;padding:16px!important;border-radius:14px!important;background:var(--warn-soft)!important;border:1px solid rgba(240,160,139,.4)!important;font-size:16px}
 .sheet-fold>summary{color:var(--text)!important;min-height:56px!important}
-.sheet-fold>summary::after{color:var(--accent)!important;font-weight:700}
 .j-group>summary .c-l{display:flex;flex-direction:column;min-width:0;flex:1}
 .j-group>summary .c-l small{font-size:12px;font-weight:500;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .j-group>summary .c-tag{margin-left:auto}
@@ -501,3 +500,14 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 .c-sumbtn{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer}
 .c-sumbtn b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
 .c-sumbtn:hover b{color:var(--accent-hi)}
+/* The screens audit (16 Nov 2026): every tap 44px, pop-up buttons one soft style, fields 16px. */
+.sheet .btn:not(.btn--primary):not(.btn--ghost){display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:15px;font-weight:600}
+.sheet .btn:not(.btn--primary):not(.btn--ghost):hover{background:var(--panel-2)}
+.sheet .btn--sm{min-height:44px;font-size:15px;border-radius:12px}
+.td-add select{min-height:40px}
+.rp-undo{min-height:44px;padding:0 8px}
+.top .logo{min-height:44px;display:inline-flex;align-items:center}
+.today-sched{display:inline-flex;align-items:center;min-height:44px;margin:-4px 0 4px}
+#who-free{min-height:44px;display:inline-flex;align-items:center}
+.split .pill{min-height:44px}
+#pt-q{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line-strong);background:var(--navy-2);color:var(--text);font-size:16px}

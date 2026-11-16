@@ -272,7 +272,7 @@
     var f = document.createElement('form'); f.className = 'pop-date';
     var t = document.createElement('select'); t.setAttribute('aria-label', 'Survey');
     var p = document.createElement('input'); p.type = 'number'; p.min = '0'; p.step = '0.01'; p.inputMode = 'decimal'; p.placeholder = 'Price £ (optional)'; p.setAttribute('aria-label', 'Price in pounds');
-    var go = U.node('button', 'btn btn--primary btn--sm', 'Save'); go.type = 'submit';
+    var go = U.node('button', 'btn btn--ghost btn--sm', 'Save'); go.type = 'submit';
     var note = U.node('p', 'panel-note');
     d.addEventListener('toggle', function () {
       if (!d.open || t.options.length) return;

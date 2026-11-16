@@ -27,7 +27,7 @@
     rows.forEach(function (r, i) {
       var li = U.node('li', i === 0 ? 'is-top' : null);
       var head = U.node('div', 'dash-bar-head');
-      head.appendChild(U.node('span', 'dash-bar-name', (i === 0 ? '🏆 ' : '') + label(r)));
+      head.appendChild(U.node('span', 'dash-bar-name', label(r)));
       head.appendChild(U.node('span', 'dash-bar-num', plural(value(r), 'survey')));
       li.appendChild(head);
       var bar = U.node('div', 'dash-bar'); var fill = U.node('span');

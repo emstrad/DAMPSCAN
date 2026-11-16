@@ -27,7 +27,7 @@
       amt.max = String(m.cardPence / 100);
       amt.value = String(Math.min(m.owedBackPence || m.cardPence, m.cardPence) / 100);
       amt.setAttribute('aria-label', 'Refund in pounds');
-      var go = U.node('button', 'btn btn--primary btn--sm', 'Refund to card'); go.type = 'submit';
+      var go = U.node('button', 'btn btn--ghost btn--sm', 'Refund to card'); go.type = 'submit';
       var note = U.node('p', 'panel-note', 'Up to ' + pounds(m.cardPence) + ' was paid by card.');
       f.addEventListener('submit', async function (ev) {
         ev.preventDefault();

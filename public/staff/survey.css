@@ -25,9 +25,9 @@
 .sv-badge--agent{background:var(--muted-2);color:#06121f}
 .sv-badge--ok{background:rgba(37,211,102,.25)}
 .sv-ticks{display:flex;gap:6px;flex-wrap:wrap}
-.sv-tick{background:var(--slate);border:1px solid var(--line-strong);color:var(--muted);border-radius:999px;padding:5px 10px;font:inherit;font-size:12.5px;min-height:34px;cursor:pointer}
+.sv-tick{background:var(--slate);border:1px solid var(--line-strong);color:var(--muted);border-radius:999px;padding:0 12px;font:inherit;font-size:14px;min-height:44px;cursor:pointer}
 .sv-tick.is-on{border-color:rgba(37,211,102,.6);color:var(--text);background:rgba(37,211,102,.14)}
-.sv-card .pill.act{min-height:36px;padding:6px 11px;font-size:12.5px}
+.sv-card .pill.act{min-height:44px;padding:0 14px;font-size:14px}
 .sv-back{opacity:.75}
 .sv-card.is-compact{cursor:pointer;gap:4px}
 .sv-marks{display:flex;gap:4px 10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted-2)}

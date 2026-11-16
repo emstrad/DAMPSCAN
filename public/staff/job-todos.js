@@ -82,7 +82,7 @@
   /* A small "1 to-do" tag for a card. */
   function tag(n) {
     if (!n) return null;
-    return U.node('span', 'tag todo-tag', '📝 ' + n + ' to-do' + (n === 1 ? '' : 's'));
+    return U.node('span', 'tag todo-tag', n + ' to-do' + (n === 1 ? '' : 's'));
   }
 
   global.DSTODOS = { render: render, tag: tag };

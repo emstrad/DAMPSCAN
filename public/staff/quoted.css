@@ -23,11 +23,11 @@
 .work .lines th,.work .lines td{padding:8px 10px}
 .work-add{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:8px}
 .work-add .form-row{flex:1 1 120px}
-.work-add .form-row input,.work-add .form-row select{min-height:40px;padding:8px 12px;font-size:14px}
+.work-add .form-row input,.work-add .form-row select{min-height:44px;padding:8px 12px}
 .work-add .btn{flex:0 0 auto}
 .work-money{font-size:14px;color:var(--muted);margin-top:4px}
 .work-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
-.work-grid .form-row input,.work-grid .form-row select{min-height:40px;padding:8px 12px;font-size:14px}
+.work-grid .form-row input,.work-grid .form-row select{min-height:44px;padding:8px 12px}
 .work-day{display:grid;grid-template-columns:1fr 80px 100px auto auto;gap:8px;align-items:center;padding:8px 0;
   border-bottom:1px solid var(--line)}
 .work-day:last-child{border-bottom:0}
@@ -36,7 +36,7 @@
 .work-day input:focus{outline:none;border-color:var(--accent)}
 .work-day-name{font-size:14.5px;font-weight:600}
 .work-day-wage{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:64px;text-align:right}
-.work-day .pill{padding:5px 12px;min-height:32px;font-size:12.5px}
+.work-day .pill{padding:0 14px;min-height:44px;font-size:14px}
 @media (max-width:640px){.work-day{grid-template-columns:1fr 1fr;row-gap:6px}.work-day-name,.work-day-wage{grid-column:1/-1}.work-day-wage{text-align:left}}
 .work-foot{padding:16px 28px 26px;border-top:1px solid var(--line);margin-top:22px;display:flex;flex-direction:column;gap:10px}
 .work-foot .work-add{margin-top:0}

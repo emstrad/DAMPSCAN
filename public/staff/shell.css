@@ -14,7 +14,7 @@
 .gs-sub,.gs-note{margin:2px 0 0;font-size:13px;color:var(--muted)}
 .gs-note{padding:8px}
 .gs-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.gs-links .pill{min-height:34px;padding:6px 12px;font-size:13px;overflow-wrap:anywhere}
+.gs-links .pill{min-height:44px;padding:6px 14px;font-size:14px;overflow-wrap:anywhere;border-radius:12px}
 /* The header's + on a tablet or desktop: the phone's lit tile, a cross while open, its menu rising beneath. */
 .shell-plus{width:44px;height:44px;flex:none;padding:0;border:0;border-radius:14px;color:#06121f;cursor:pointer;display:inline-grid;place-items:center;
   background:linear-gradient(155deg,#b9dcff 0%,var(--accent) 55%,#4b8fd6 100%);
@@ -157,7 +157,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 .sheet-msgs li:first-child{border-top:0}
 .sheet-sec{padding:10px 0;border-bottom:1px solid var(--line);min-width:0}
 .sheet-sec:last-child{border-bottom:0}
-.sheet-sec h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+.sheet-sec h3{font-size:16px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:700;margin:0 0 8px}
 .sheet-tick{display:flex;align-items:center;gap:10px;min-height:44px;font-size:15px}
 .sheet-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .sheet-row select,.sheet-row input{flex:1 1 140px;min-width:0}
@@ -213,7 +213,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 .sheet-fold>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-weight:700;color:var(--accent)}
 /* A flex summary loses the browser's arrow (iOS too), so it gets its own: it reads as something to tap. */
 .sheet-fold>summary::-webkit-details-marker{display:none}
-.sheet-fold>summary::after{content:'\203A';flex:none;font-size:1.4rem;line-height:1;color:var(--muted)}
+.sheet-fold>summary::after{content:'\203A';flex:none;font-size:1.4rem;line-height:1;color:var(--accent);font-weight:700}
 .sheet-fold[open]>summary::after{transform:rotate(90deg)}
 .sheet-sec:has(> .sheet-fold){padding:2px 0}
 .sheet .meta,.scc .meta{font-size:13px;color:var(--muted);margin:2px 0 6px}
