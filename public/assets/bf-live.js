@@ -87,7 +87,7 @@
       if (global.DS_HELD_PARTIAL) partial = global.DS_HELD_PARTIAL({ payload: function () { return payload(d, 'partial'); }, send: function () { return post(payload(d, 'partial')); }, email: function () { return false; }, endpoint: '/api/lead' });
       card.addEventListener('input', function () { if (partial) partial.bump(); });
     },
-    step1: function () { if (partial) partial.arm(); send('form_step', { step: 2 }); },
+    step1: function (d) { if (partial && !(d && d.leadId)) partial.arm(); send('form_step', { step: 2 }); },
     prices: function () { return post({ op: 'prices' }).then(function (x) { if (!x.prices) throw new Error('no prices'); return x.prices; }); },
     /* The enquiry, once they have said what is going on and which survey: alerts, email, the customer's thanks and the ads count. */
     submit: function (d) {
@@ -95,20 +95,20 @@
         if (x.status === 400) return { ok: false, errors: x.errors || {} };
         if (!x.ok || !x.id) return { ok: false };
         /* Back from the time step and Continue again updates the same enquiry: the backup email and the counts go once. */
-        var again = leadId === x.id; leadId = x.id; if (partial) partial.cancel();
+        var again = (leadId || d.leadId) === x.id; leadId = d.leadId = x.id; if (partial) partial.cancel();
         if (!again) { conversion(x.id); send('form_submit'); send('form_step', { step: 3 }); if (!x.emailed) email(d, cfg.subjectComplete || 'NEW survey booking', {}); }
         var c = d.pick || {};
         return post({ op: 'survey', leadId: leadId, sessionId: V.id, choice: { service: c.service, size: c.size, extras: c.extras } }).then(function () { return { ok: true }; }, function () { return { ok: true }; });
       }, function () { if (partial) partial.rearm(); return { ok: false }; });
     },
-    times: function () {
-      return post({ op: 'times', leadId: leadId, sessionId: V.id, days: 56 }).then(function (x) {
+    times: function (d) {
+      return post({ op: 'times', leadId: leadId || d.leadId, sessionId: V.id, days: 56 }).then(function (x) {
         var slots = []; (x.days || []).forEach(function (dd) { (dd.times || []).forEach(function (t) { slots.push({ date: dd.date, time: t.time, ticket: t.ticket }); }); });
         return { slots: slots, instant: Boolean(x.instant), off: Boolean(x.off || x.held) };
       });
     },
     pick: function (d, s) {
-      return post({ op: 'pick', leadId: leadId, sessionId: V.id, date: s.date, time: s.time, ticket: s.ticket }).then(function (x) {
+      return post({ op: 'pick', leadId: leadId || d.leadId, sessionId: V.id, date: s.date, time: s.time, ticket: s.ticket }).then(function (x) {
         if (!x.ok) return { ok: false, error: x.error || 'failed' };
         send('form_step', { step: 4 });
         email(d, 'UPDATE, ' + (x.booked ? 'booked' : 'time asked for'), { Time: x.said || s.date + ' ' + s.time });

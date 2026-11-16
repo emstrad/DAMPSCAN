@@ -37,6 +37,9 @@
   var phoneOk = function (v) { var n = String(v || '').replace(/[\s()-]/g, '').replace(/^\+44/, '0'); return /^0\d{10}$/.test(n); };
   var pcOk = function (v) { return /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i.test(String(v || '').trim()); };
   ['f-phone', 'f-agent-phone'].forEach(function (id) { var i = $(id); i.addEventListener('input', function () { var v = i.value.replace(/[^\d\s+]/g, ''); i.value = v.charAt(0) + v.slice(1).replace(/\+/g, ''); }); });
+  /* A landline still books; a soft word says a mobile gets their survey page by text. */
+  var telIn = $('f-phone'), telNote = el('p', 'ht-pc-note'); telNote.hidden = true; telIn.closest('.form-row').appendChild(telNote);
+  telIn.addEventListener('blur', function () { var n = telIn.value.replace(/[\s()-]/g, '').replace(/^\+44/, '0'); telNote.hidden = !phoneOk(n) || /^07/.test(n); telNote.textContent = 'A mobile is best: we text you a link to your survey page.'; });
   document.querySelectorAll('input[name="Access"]').forEach(function (r) { r.addEventListener('change', function () { $('f-agent-fields').hidden = !$('f-agent-on').checked; }); });
   /* The postcode tidied as they leave the box (me196ab becomes ME19 6AB), checked
      against postcodes.io, and a soft word when it is outside London and Kent. */
@@ -82,7 +85,7 @@
     d.outside = !ours(d.postcode);
     d.agent = $('f-agent-on').checked ? { name: $('f-agent').value.trim(), phone: $('f-agent-phone').value.trim() } : null;
     api.step1(d);
-    open();
+    open(2);
   });
 
   /* The card grows across the hero, from where it sits to the hero's whole width,
@@ -97,11 +100,11 @@
     return { top: pt, left: pl, width: c.width - pl - pr, height: Math.max(c.height - pt - pb, card.offsetHeight) };
   }
   var MS = reduce ? 0 : 480;
-  function open() {
+  function open(first) {
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside || d.unsure) ? 2 : step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (global.history.state && global.history.state.bf) global.history.back(); else if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside || d.unsure) ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); if (TEL) top.appendChild(callChip()); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
@@ -117,9 +120,9 @@
       var y = hero.getBoundingClientRect().top + window.scrollY - 90;
       if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
     }, MS);
-    if (!prices) api.prices().then(function (x) { prices = x; if (step === 2) go(2); })
-      .catch(function () { if (step === 2 && body) { body.textContent = ''; body.appendChild(el('p', 'ht-sub', 'That didn\'t load. Please try again, or call us.')); } });
-    go(2);
+    if (!prices) api.prices().then(function (x) { prices = x; if (stage) go(step, true); })
+      .catch(function () { if (body) { body.textContent = ''; body.appendChild(el('p', 'ht-sub', 'That didn\'t load. Please try again, or call us.')); } });
+    go(first || 2);
   }
   function close() {
     var s = stage; if (!s) return;
@@ -127,7 +130,7 @@
     s.classList.remove('is-shown'); hero.classList.remove('ht-open');
     place(from); void s.offsetWidth;
     s.classList.add('is-moving'); place(box(card.getBoundingClientRect()));
-    stage = null; step = 1; dotsTo(1); document.body.classList.remove('ht-booking');
+    stage = null; step = 1; dotsTo(1); document.body.classList.remove('ht-booking'); keep();
     setTimeout(function () { s.remove(); card.style.visibility = ''; }, MS);
   }
   function dotsTo(n) {
@@ -138,8 +141,17 @@
       box.appendChild(el('span', 'step-label', 'Step ' + n + ' of ' + STEPS + ' \u00b7 ' + NAMES[n - 1]));
     });
   }
-  function go(n) {
-    step = n; dotsTo(n); body.textContent = '';
+  /* Each step is a page in the browser's history, so the phone's back gesture steps back
+     through the form, and the answers are kept for the tab, so a refresh comes back here. */
+  var KEY = 'bf-state';
+  function keep() { try { var c = {}; Object.keys(d).forEach(function (k) { if (k !== 'fileObjs') c[k] = d[k]; }); sessionStorage.setItem(KEY, JSON.stringify({ step: step, d: c })); } catch (e) {} }
+  function go(n, quiet) {
+    /* After a refresh the browser already holds this step's entry: reused, never doubled. */
+    var here = global.history.state && global.history.state.bf === n;
+    if (!quiet && n !== step && !here && global.history.pushState) global.history.pushState({ bf: n }, '');
+    else if (!quiet && global.history.replaceState) global.history.replaceState({ bf: n }, '');
+    step = n; dotsTo(n); body.textContent = ''; keep();
+    if (n > 2 && !prices) { body.appendChild(el('p', 'ht-sub', 'Loading...')); return; }
     /* Live, a booking made is final here: no way back into the steps (their page moves it). */
     if (backBtn) backBtn.hidden = api.live && n === 4;
     var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : n === 4 ? 'ht-pane ht-pane--c ht-done' : 'ht-pane ht-pane--c'); body.appendChild(pane);
@@ -233,7 +245,26 @@
     pane.appendChild(skip);
   }
 
-  function again() { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; d.previous = false; d.notes = ''; d.files = []; d.fileObjs = []; d.requested = false; d.page = null; close(); }
+  function again() { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; d.previous = false; d.notes = ''; d.files = []; d.fileObjs = []; d.requested = false; d.page = null; d.leadId = null; close(); try { sessionStorage.removeItem(KEY); } catch (e) {} }
+
+  global.addEventListener('popstate', function (e) {
+    var to = e.state && e.state.bf;
+    if (!stage) return;
+    /* A booking made is final here: back stays on Done (their page moves it). */
+    if (api.live && step === 4 && d.when && !d.requested) { global.history.pushState({ bf: 4 }, ''); return; }
+    if (!to || to < 2) { close(); return; }
+    go(to, true);
+  });
+  /* Back after a refresh: the answers so far, on the step they were on. */
+  (function restore() {
+    var saved = null; try { saved = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) {}
+    if (!saved || !saved.d || !(saved.step >= 2)) return;
+    Object.keys(saved.d).forEach(function (k) { d[k] = saved.d[k]; });
+    [['f-name', d.name], ['f-phone', d.phone], ['f-email', d.email], ['f-postcode', d.postcode], ['f-addr1', d.street], ['f-town', d.town]].forEach(function (f) { if ($(f[0]) && f[1]) $(f[0]).value = f[1]; });
+    if (d.agent && $('f-agent-on')) { $('f-agent-on').checked = true; $('f-agent-fields').hidden = false; $('f-agent').value = d.agent.name || ''; $('f-agent-phone').value = d.agent.phone || ''; }
+    api.step1(d);
+    open(saved.step === 3 && !d.leadId ? 2 : saved.step);
+  })();
 
   global.addEventListener('keydown', function (e) { if (e.key === 'Escape' && stage && !(api.live && step === 4)) close(); });
 })(window);

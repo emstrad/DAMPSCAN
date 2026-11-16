@@ -169,7 +169,8 @@
         pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
         sum.appendChild(el('b', null, pounds(t, from))); sum.appendChild(el('span', null, '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
       } else sum.appendChild(el('span', null, lost ? 'No need to pick: we\'ll call to help you choose' : 'Your total shows here'));
-      var missing = !d.issues.length ? 'Tick what you\'re dealing with' : lost ? '' : !pick.service ? 'Pick your survey' : !pick.size ? 'Pick a size' : '';
+      /* The tiles help, but are never a must (the owner, 16 Nov 2026): a survey and size they already know is enough to book. */
+      var missing = lost ? '' : !pick.service ? (d.issues.length ? 'Pick your survey' : 'Tick what you\'re dealing with') : !pick.size ? 'Pick a size' : '';
       go.textContent = missing || (lost ? 'Continue' : d.agent || d.outside ? 'Send' : 'Choose a time'); go.disabled = Boolean(missing);
     }
     sync();
