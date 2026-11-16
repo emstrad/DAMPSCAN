@@ -1653,3 +1653,14 @@ alter table expenses add column if not exists bank_ref text;
 -- survey whose visit had already passed gets no texts at all, so customers
 -- part way through (awaiting payment or their report) hear nothing new.
 alter table jobs add column if not exists texts_off boolean not null default false;
+
+-- The owner's live tests cleared (the owner, 16 Nov 2026: "clear any Scott
+-- items ... these were live tests"): his own test surveys and enquiries across
+-- the four businesses, and the to-dos they raised. Keyed by id and checked by
+-- name, so it touches nothing else and is a no-op once done. Everything hung
+-- on a job or enquiry (payments, texts, page events) goes with it.
+delete from todos
+ where job_id in (select id from jobs where id in (37, 55, 92, 93, 94, 95, 96, 97, 99, 100, 102) and customer_name in ('Scott', 'Scott Test'))
+    or lead_id in (select id from leads where id in (2, 10, 12, 18, 19, 37, 73, 75, 107, 108, 110, 170, 172, 180, 187) and first_name = 'Scott');
+delete from jobs where id in (37, 55, 92, 93, 94, 95, 96, 97, 99, 100, 102) and customer_name in ('Scott', 'Scott Test');
+delete from leads where id in (2, 10, 12, 18, 19, 37, 73, 75, 107, 108, 110, 170, 172, 180, 187) and first_name = 'Scott';
