@@ -94,9 +94,9 @@
       return post(payload(d, 'complete')).then(function (x) {
         if (x.status === 400) return { ok: false, errors: x.errors || {} };
         if (!x.ok || !x.id) return { ok: false };
-        leadId = x.id; if (partial) partial.cancel();
-        conversion(x.id); send('form_submit'); send('form_step', { step: 3 });
-        if (!x.emailed) email(d, cfg.subjectComplete || 'NEW survey booking', {});
+        /* Back from the time step and Continue again updates the same enquiry: the backup email and the counts go once. */
+        var again = leadId === x.id; leadId = x.id; if (partial) partial.cancel();
+        if (!again) { conversion(x.id); send('form_submit'); send('form_step', { step: 3 }); if (!x.emailed) email(d, cfg.subjectComplete || 'NEW survey booking', {}); }
         var c = d.pick || {};
         return post({ op: 'survey', leadId: leadId, sessionId: V.id, choice: { service: c.service, size: c.size, extras: c.extras } }).then(function () { return { ok: true }; }, function () { return { ok: true }; });
       }, function () { if (partial) partial.rearm(); return { ok: false }; });

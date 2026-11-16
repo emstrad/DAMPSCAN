@@ -153,11 +153,11 @@
   /* The enquiry goes the moment they choose a time (or, for an agent or outside our area, straight to done). */
   var sending = false;
   function submit(btn) {
-    if (sending) return; sending = true; if (btn) { btn.disabled = true; btn.textContent = 'One moment...'; }
+    if (sending) return; sending = true; var said = btn ? btn.textContent : ''; if (btn) { btn.disabled = true; btn.textContent = 'One moment...'; }
     api.submit(d).then(function (r) {
       sending = false;
       if (r.ok) { go(d.agent || d.outside || d.unsure ? 4 : 3); return; }
-      if (btn) { btn.disabled = false; btn.textContent = d.agent || d.outside || d.unsure ? 'Send' : 'Choose a time'; }
+      if (btn) { btn.disabled = false; btn.textContent = said; }
       if (r.errors && Object.keys(r.errors).length) { close(); var f = { firstName: 'f-name', email: 'f-email', postcode: 'f-postcode', phone: 'f-phone' }; Object.keys(r.errors).forEach(function (k) { if (f[k]) mark($(f[k]), true); }); return; }
       global.alert('That didn\'t send. Please try again, or call us.');
     });
