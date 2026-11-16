@@ -820,7 +820,8 @@ checks the mechanical ones.
   owner's ask, 16 Nov 2026: managers, a text typed by hand from the brand's
   name, signed with the sender's first name (the owners' code signs as the
   brand), ending with their page to write back, two minutes to undo, never at
-  night, never to the agent's number); once gone it is on their history (off
+  night, never to the agent's number), or "No reply needed" (a note, no follow-up) for a
+  thank-you; once gone it is on their history (off
   Needs you now) and the page shows theirs and ours in order as Messages, with
   Write back), Ask to move (a booked survey more than a
   day away, the surveyors' real free times from the website picker's engine,

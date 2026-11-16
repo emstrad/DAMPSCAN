@@ -24,6 +24,16 @@
       var said = U.node('div', 'rp-them');
       said.appendChild(U.node('p', 'rp-bubble', m.text + (m.text.length >= 120 ? '…' : '')));
       if (m.at) said.appendChild(U.node('small', 'rp-meta', 'On their page · ' + when(m.at) + (m.count > 1 ? ' · ' + m.count + ' messages' : '')));
+      /* A thank-you needs no answer (the owner, 16 Nov 2026): one tap notes it was read, which takes it
+         off Needs you now, with no follow-up date set. */
+      var done = U.node('button', 'c-link rp-done', 'No reply needed'); done.type = 'button';
+      done.addEventListener('click', async function () {
+        done.disabled = true;
+        var x; try { x = await U.send('/api/admin/scheduling', { op: 'log', kind: 'job', id: j.id, how: 'note', note: 'Read their message: no reply needed', next: 'none' }); } catch (e) { x = { ok: false }; }
+        if (!x.ok) { done.disabled = false; done.textContent = 'Could not save. Try again'; return; }
+        if (changed) changed();
+      });
+      said.appendChild(done);
       chat.appendChild(said);
     }
     var box = U.node('form', 'rp-box');
