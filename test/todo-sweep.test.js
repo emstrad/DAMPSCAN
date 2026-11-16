@@ -52,3 +52,13 @@ test('a failed text closes once a later text goes through; a cancelled survey cl
   assert.equal(await isDone(chase), true);
   assert.equal(await isDone(refund), false, 'money still owed back keeps its to-do');
 });
+
+test('a "no mobile" to-do closes once the survey is paid and reported', async () => {
+  const id = await job();
+  const t = await todo(id, 'No mobile for Kim: they get no texts. Email or call them instead.', 'Texts');
+  await S.sweepSystemTodos();
+  assert.equal(await isDone(t), false);
+  await pool.query('update jobs set paid_at = now(), survey_sent_at = now() where id = $1', [id]);
+  await S.sweepSystemTodos();
+  assert.equal(await isDone(t), true);
+});
