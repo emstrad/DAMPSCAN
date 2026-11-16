@@ -445,7 +445,7 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 @keyframes rp-pulse{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.rp-dot{animation:none}.rp-send,.rp-box{transition:none}}
 /* Company's tabs as a sliding switch with More (seg-tabs.js). */
-.seg-tabs{position:relative;display:flex;gap:2px;padding:3px;margin:4px 0 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.seg-tabs{position:relative;display:flex;gap:2px;padding:3px;margin:16px 0;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
 .seg-tab{position:relative;z-index:1;flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:40px;padding:0 8px;
   border:0;border-radius:9px;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:14px;white-space:nowrap;text-decoration:none;cursor:pointer;transition:color .18s ease-out}
 .seg-tab:hover,.seg-tab[aria-pressed="true"],.seg-tab[aria-current="page"]{color:var(--text)}
