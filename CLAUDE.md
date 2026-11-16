@@ -199,7 +199,9 @@ checks the mechanical ones.
   only for meaning (green done, amber owed, blue the one action). Tabs (the owner's pick, 16 Nov 2026): a company's
   sections are underline tabs on one line that scrolls on a phone (area.css);
   Company's tabs are a sliding switch of four with the rest under More
-  (`public/staff/seg-tabs.js`); never rows of pills that wrap. Pay is a
+  (`public/staff/seg-tabs.js`); never rows of pills that wrap. A page its tab
+  already names shows no second heading (sr-only, or .tab-h1 where surveyors,
+  who have no tab row, still need it). Pay is a
   summary then one row per person, surveys folded; the bank check shows one
   line at a time (Skip or OK), everything settled folded beneath. The damp customer
   card (`public/staff/pop-journey.js`) is in journey order: Call, Text,

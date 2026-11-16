@@ -56,3 +56,6 @@
 .tc-things { margin: 6px 0; padding-left: 18px; font-size: .9rem; }
 .tc-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .tc-row .btn { min-height: 44px; }
+/* A page whose tab already names it shows no second heading (the owner, 16 Nov
+   2026); surveyors have no tab row, so theirs stays. Kept for screen readers. */
+html:not(.is-worker) .tab-h1{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
