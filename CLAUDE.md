@@ -579,11 +579,15 @@ checks the mechanical ones.
 - One stage per damp customer (`lib/journey.js`): New, Contacted, Waiting for
   time, Pencilled, Booked, Surveyed, Report to send (paid, report owed), Report sent
   (not paid yet, on After the visit until paid in full), Paid (or Closed, Cancelled),
-  worked out one way for every page; the job pop-up shows it. To-dos that the
-  facts look to have overtaken (deposit, booking, report, payment) are never
-  cleared on their own: the job pop-up asks "These look done now. Clear them?"
-  and ChatGPT gets todosLookDone and asks before complete_todo (the owners'
-  choice).
+  worked out one way for every page; the job pop-up shows it. A to-do a person
+  or ChatGPT added that the facts look to have overtaken (deposit, booking,
+  report, payment) is never cleared on its own: the job pop-up asks "These look
+  done now. Clear them?" (each to-do shown once) and ChatGPT gets todosLookDone
+  and asks before complete_todo (the owners' choice). The system's own to-dos
+  (money checks, failed texts, Scheduling's holds, the card company, the page)
+  close themselves once done (`lib/todo-sweep.js`, the owner, 16 Nov 2026:
+  hourly and as the card opens): the fact chased is in, the survey cancelled or
+  the enquiry closed, nothing left to refund or overpaid, a later text through.
 - Scheduling has a forgiving search (`public/staff/sched-search.js`) over the
   customers on the board: name, postcode, phone, email, address, message;
   typos and spacing forgiven; a result opens the customer card.
