@@ -16,7 +16,7 @@
   var COSTS = ['Google Ads', 'Bank fees', 'Software', 'Equipment', 'Insurance', 'Vehicle and fuel', 'Phone', 'Accountant', 'Other'];
   var PAYS = [['scott', 'Salary', 'Scott: salary'], ['scott', 'Dividend', 'Scott: dividend'], ['tom', 'Salary', 'Tom: salary'], ['tom', 'Dividend', 'Tom: dividend'],
     ['ben', 'Bank transfer', 'Ben'], ['ronnie', 'Bank transfer', 'Ronnie'], ['tax', 'Moved to tax savings', 'Tax savings'], ['tax', 'Paid to HMRC', 'Paid to HMRC']];
-  var state = { text: null, name: '', data: null, error: '', drawn: false, busy: false };
+  var state = { text: null, name: '', data: null, error: '', drawn: false, busy: false, skipped: [] };
 
   (global.DSCOTABS = global.DSCOTABS || {}).bank = function () { if (!state.drawn) draw(); };
 
@@ -56,11 +56,11 @@
     run();
   }
 
-  /* The bank line, as Tide shows it. */
+  /* The bank line, as Tide shows it: the amount big, who from, the date and reference. */
   function bankSide(l) {
     var s = node('div', 'rec-bank');
-    var amt = node('b', 'rec-amt ' + (l.pence < 0 ? 'is-out' : 'is-in'), (l.pence < 0 ? 'Spent ' : 'Received ') + money(l.pence));
-    s.appendChild(amt);
+    s.appendChild(node('span', 'c-label', l.pence < 0 ? 'Money out' : 'Money in'));
+    s.appendChild(node('b', 'rec-amt ' + (l.pence < 0 ? 'is-out' : 'is-in'), (l.pence < 0 ? '−' : '+') + money(l.pence)));
     s.appendChild(node('span', 'rec-what', l.what || 'No description'));
     s.appendChild(node('small', null, day(l.day) + (l.reference ? ' · ref ' + l.reference : '')));
     return s;
@@ -70,7 +70,7 @@
     var m = node('div', 'rec-match'); matchSide(m); c.appendChild(m);
     return c;
   }
-  function okBtn(text) { var b = node('button', 'btn btn--primary rec-ok', text || 'OK'); b.type = 'button'; return b; }
+  function okBtn(text) { var b = node('button', 'c-ok rec-ok', text || 'OK'); b.type = 'button'; return b; }
   var line = function (l) { return { ref: l.ref, day: l.day, pence: l.pence, reference: l.reference, what: l.what }; };
 
   /* Every survey still owed, best guesses first, as "Kim Lee, ME19 6AB · owes £147.50". */
@@ -83,68 +83,84 @@
     return sel;
   }
 
+  /* A folded line: a count at the right, the list beneath when opened. */
+  function foldRow(b, title, sub, count, tagCls, fill) {
+    var r = node('button', 'c-row'); r.type = 'button'; r.setAttribute('aria-expanded', 'false');
+    var l = node('span', 'c-l'); l.appendChild(node('b', null, title)); if (sub) l.appendChild(node('small', null, sub));
+    var rr = node('span', 'c-r'); rr.appendChild(node('span', 'c-tag ' + (tagCls || ''), String(count))); rr.appendChild(node('span', 'c-chev', '›'));
+    r.appendChild(l); r.appendChild(rr);
+    var f = node('div', 'c-fold'); f.hidden = true; fill(f);
+    r.addEventListener('click', function () { f.hidden = !f.hidden; r.setAttribute('aria-expanded', String(!f.hidden)); });
+    b.appendChild(r); b.appendChild(f);
+  }
+
+  /* One line at a time (the owner's calmer screens, 16 Nov 2026): the one decision on screen,
+     OK or Skip, the bar filling; everything settled folds into a line each underneath. */
   function result(b, d) {
-    var done = d.totals.matched, all = d.totals.lines;
-    var head = node('div', 'rec-head');
-    var bar = node('div', 'rec-bar'); var fill = node('span'); fill.style.width = (all ? Math.round(done / all * 100) : 100) + '%'; bar.appendChild(fill);
-    head.appendChild(node('b', null, done === all ? 'All ' + all + ' lines reconciled' : done + ' of ' + all + ' lines reconciled'));
-    head.appendChild(bar);
-    head.appendChild(node('small', null, day(d.from) + ' to ' + day(d.to) + ' · in ' + money(d.totals.in) + ' · out ' + money(d.totals.out) + (d.unreadable ? ' · ' + d.unreadable + ' unreadable' : '')));
-    b.appendChild(head);
-    var sec = function (title, cls) { var s = node('section', 'mn-sec ' + (cls || '')); s.appendChild(node('h2', null, title)); b.appendChild(s); return s; };
+    var settledN = d.totals.matched, all = d.totals.lines;
     var todo = d.lines.filter(function (l) { return ['suggest', 'unknown', 'missing'].indexOf(l.status) !== -1; });
+    todo.sort(function (a, c) { return (state.skipped.indexOf(a.ref) !== -1) - (state.skipped.indexOf(c.ref) !== -1); });
+    var head = node('div', 'rec-head');
+    var top = node('div', 'rec-headline');
+    top.appendChild(node('b', null, todo.length ? settledN + ' of ' + all + ' done' : 'All ' + all + ' lines reconciled'));
+    top.appendChild(node('span', 'c-sub', todo.length ? todo.length + ' to go' : 'The books match Tide'));
+    head.appendChild(top);
+    var bar = node('div', 'rec-bar'); var fill = node('span'); fill.style.width = (all ? Math.round(settledN / all * 100) : 100) + '%'; bar.appendChild(fill); head.appendChild(bar);
+    head.appendChild(node('small', 'c-sub', day(d.from) + ' to ' + day(d.to) + ' · in ' + money(d.totals.in) + ' · out ' + money(d.totals.out) + (d.unreadable ? ' · ' + d.unreadable + ' unreadable' : '')));
+    b.appendChild(head);
     if (todo.length) {
-      var t = sec('To reconcile (' + todo.length + ')');
-      todo.forEach(function (l) { t.appendChild(l.pence < 0 ? outCard(l) : inCard(l, d.open || [])); });
+      var l = todo[0];
+      var one = l.pence < 0 ? outCard(l) : inCard(l, d.open || []);
+      b.appendChild(one);
     }
-    if (d.notOnStatement.length) {
-      var n = sec('In the books, not in Tide (' + d.notOnStatement.length + ')');
-      d.notOnStatement.forEach(function (x) { n.appendChild(card({ day: x.day, pence: -x.pence, what: x.label }, function (m) { m.appendChild(node('small', 'rec-note', 'Recorded, but no line in this statement. Cash, a later date, or a mistake?')); })); });
-    }
-    var auto = d.lines.filter(function (l) { return l.status === 'auto'; });
-    if (auto.length) {
-      var a = sec('Reconciled for you (' + auto.length + ')', 'rec-auto');
-      auto.forEach(function (l) { a.appendChild(card(l, function (m) { matched(m, l, l.ticked && l.ticked.indexOf('paid') !== -1 ? 'Paid in full' : l.ticked && l.ticked.length ? 'Deposit paid' : 'Recorded', true); })); });
-    }
-    if (!todo.length && !d.notOnStatement.length) b.appendChild(node('p', 'mn-say tide-ok', 'All matched.'));
-    var settled = d.lines.filter(function (l) { return ['matched', 'payout', 'reconciled'].indexOf(l.status) !== -1; });
-    if (settled.length) {
-      var f = node('details', 'pay-split'); f.appendChild(node('summary', null, 'Already in the books (' + settled.length + ')'));
-      settled.forEach(function (l) {
-        f.appendChild(card(l, function (m) {
-          if (l.status === 'payout') m.appendChild(node('span', 'rec-to', 'Stripe card payout'));
-          else if (l.status === 'reconciled') matched(m, l, 'Matched', true);
-          else m.appendChild(node('span', 'rec-to', l.survey ? l.survey.name + ' (ticked by hand)' : l.logbook.label));
+    var rows = node('div', 'c-rows rec-folds');
+    var auto = d.lines.filter(function (x) { return x.status === 'auto'; });
+    if (auto.length) foldRow(rows, 'Matched for you', 'By their reference', auto.length, 'is-good', function (f) {
+      auto.forEach(function (x) { f.appendChild(card(x, function (m) { matched(m, x, x.ticked && x.ticked.indexOf('paid') !== -1 ? 'Paid in full' : x.ticked && x.ticked.length ? 'Deposit paid' : 'Recorded', true); })); });
+    });
+    if (d.notOnStatement.length) foldRow(rows, 'In the books, not in Tide', 'Cash, a later date, or a mistake', d.notOnStatement.length, 'is-warn', function (f) {
+      d.notOnStatement.forEach(function (x) { f.appendChild(card({ day: x.day, pence: -x.pence, what: x.label }, function (m) { m.appendChild(node('small', 'c-sub', 'No line in this statement')); })); });
+    });
+    var settled = d.lines.filter(function (x) { return ['matched', 'payout', 'reconciled'].indexOf(x.status) !== -1; });
+    if (settled.length) foldRow(rows, 'Already in the books', null, settled.length, '', function (f) {
+      settled.forEach(function (x) {
+        f.appendChild(card(x, function (m) {
+          if (x.status === 'payout') m.appendChild(node('span', 'c-tag', 'Stripe card payout'));
+          else if (x.status === 'reconciled') matched(m, x, 'Matched', true);
+          else m.appendChild(node('span', 'c-tag', x.survey ? x.survey.name + ' (ticked by hand)' : x.logbook.label));
         }));
       });
-      b.appendChild(f);
-    }
+    });
+    if (rows.childNodes.length) b.appendChild(rows);
   }
 
   /* A matched transfer: who it paid, Open their card, and Undo when this page matched it. */
   function matched(m, l, what, undo) {
-    var who = node('button', 'rec-who', l.survey.name + (l.survey.postcode ? ', ' + l.survey.postcode : '')); who.type = 'button';
+    var who = node('button', 'c-link', l.survey.name + (l.survey.postcode ? ', ' + l.survey.postcode : '')); who.type = 'button';
     who.addEventListener('click', function () { if (global.DSPOP) global.DSPOP.open(l.survey.id, { onChange: function () { run(); } }); });
-    m.appendChild(who); m.appendChild(node('span', 'rec-tag', what));
-    if (undo) { var u = node('button', 'rec-undo', 'Undo'); u.type = 'button'; u.addEventListener('click', function () { act(u, { op: 'unreconcile', ref: l.ref }); }); m.appendChild(u); }
+    m.appendChild(who); m.appendChild(node('span', 'c-tag is-good', what));
+    if (undo) { var u = node('button', 'c-link', 'Undo'); u.type = 'button'; u.addEventListener('click', function () { act(u, { op: 'unreconcile', ref: l.ref }); }); m.appendChild(u); }
   }
+  /* Skip puts a line to the back of the queue for this file. */
+  function skipBtn(l) { var s = node('button', 'c-quiet', 'Skip'); s.type = 'button'; s.addEventListener('click', function () { state.skipped = state.skipped.filter(function (r) { return r !== l.ref; }).concat([l.ref]); draw(); }); return s; }
+  function buttons(m, l, ok) { var row = node('div', 'rec-actions'); row.appendChild(skipBtn(l)); row.appendChild(ok); m.appendChild(row); }
 
   /* Money in: the likeliest survey with OK, or find it in the list. */
   function inCard(l, open) {
     return card(l, function (m) {
       var pickBox = node('div', 'rec-find'), sel = surveyPicker(l, open, l.survey && l.survey.id);
-      var ok = okBtn('OK');
+      var ok = okBtn(l.status === 'suggest' ? 'OK, match' : 'Match');
       ok.addEventListener('click', function () { var id = l.status === 'suggest' && pickBox.hidden ? l.survey.id : Number(sel.value); if (!id) { sel.focus(); return; } act(ok, { op: 'reconcile', line: line(l), jobId: id }); });
       if (l.status === 'suggest') {
-        m.appendChild(node('small', 'rec-label', 'Match to'));
+        m.appendChild(node('span', 'c-label', 'Match to'));
         var who = node('b', 'rec-sugg', l.survey.name + (l.survey.postcode ? ', ' + l.survey.postcode : '')); m.appendChild(who);
-        var other = node('button', 'rec-other', 'Not them? Find another'); other.type = 'button';
+        var other = node('button', 'c-link', 'Not them? Find another'); other.type = 'button';
         other.addEventListener('click', function () { pickBox.hidden = false; other.hidden = true; who.classList.add('is-off'); sel.focus(); });
         pickBox.hidden = true; pickBox.appendChild(sel);
-        m.appendChild(pickBox); m.appendChild(ok); m.appendChild(other);
+        m.appendChild(pickBox); buttons(m, l, ok); m.appendChild(other);
       } else {
-        m.appendChild(node('small', 'rec-label', 'Find and match'));
-        pickBox.appendChild(sel); m.appendChild(pickBox); m.appendChild(ok);
+        m.appendChild(node('span', 'c-label', 'No clear match: find it'));
+        pickBox.appendChild(sel); m.appendChild(pickBox); buttons(m, l, ok);
       }
     });
   }
@@ -160,15 +176,15 @@
       PAYS.forEach(function (p) { var o = document.createElement('option'); o.value = 'pay:' + p[0] + ':' + p[1]; o.textContent = p[2]; g2.appendChild(o); });
       sel.appendChild(g1); sel.appendChild(g2);
       if (l.guess) sel.value = l.guess;
-      m.appendChild(node('small', 'rec-label', l.guess ? 'Looks like' : 'Record as'));
-      var ok = okBtn('OK');
+      m.appendChild(node('span', 'c-label', l.guess ? 'Looks like' : 'Record as'));
+      var ok = okBtn('OK, record it');
       ok.addEventListener('click', function () {
         if (!sel.value) { sel.focus(); return; }
         var v = sel.value.split(':'), pence = -l.pence;
         act(ok, v[0] === 'cost' ? { op: 'expense', pence: pence, day: l.day, category: v[1], what: l.what, bankRef: l.ref }
           : { op: 'pay', who: v[1], how: v[2], pence: pence, day: l.day, note: l.what, bankRef: l.ref });
       });
-      var row = node('div', 'rec-find'); row.appendChild(sel); m.appendChild(row); m.appendChild(ok);
+      var row = node('div', 'rec-find'); row.appendChild(sel); m.appendChild(row); buttons(m, l, ok);
     });
   }
 })(window);
