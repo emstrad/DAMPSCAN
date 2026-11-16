@@ -102,7 +102,8 @@
     [['damp', P.services.damp], ['timber', P.services.timber]].forEach(function (s) {
       var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey'); b.type = 'button'; b.dataset.service = s[0];
       b.appendChild(el('b', null, s[1].name));
-      b.addEventListener('click', function () { var first = !pick.service; pick.service = s[0]; sync(); if (first) nextUp(h3.row); });
+      /* A second tap unticks it, so changing their mind to Not sure leaves nothing stuck on. */
+      b.addEventListener('click', function () { var first = !pick.service; pick.service = pick.service === s[0] ? null : s[0]; sync(); if (first && pick.service) nextUp(h3.row); });
       option(row, b, 'service:' + s[0]);
       row.appendChild(infoBtn(s[1].name, s[1].info, function () { return rec.service === s[0] ? rec.why.service : ''; })); types.appendChild(row);
     });
@@ -114,7 +115,7 @@
       var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey'); b.type = 'button'; b.dataset.size = z.key;
       var top = el('span', 'ht-opt-top'); top.appendChild(el('b', null, z.name)); sizePrice[z.key] = el('span', 'bt-price'); top.appendChild(sizePrice[z.key]);
       b.appendChild(top); b.appendChild(el('span', 'ht-opt-say', z.scope));
-      b.addEventListener('click', function () { var first = !pick.size; pick.size = z.key; sync(); if (first) nextUp(h4.row); });
+      b.addEventListener('click', function () { var first = !pick.size; pick.size = pick.size === z.key ? null : z.key; sync(); if (first && pick.size) nextUp(h4.row); });
       option(row, b, 'size:' + z.key);
       row.appendChild(infoBtn(z.name, z.info, function () { return rec.size === z.key ? rec.why.size : ''; })); sizes.appendChild(row);
     });
