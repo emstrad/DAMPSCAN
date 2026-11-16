@@ -38,8 +38,15 @@ const DS = (function visitContext(){
     const utm = {};
     try {
       new URLSearchParams(location.search).forEach((v, k) => {
-        if (/^(utm_|gclid|fbclid)/i.test(k)) utm[k.toLowerCase()] = v.slice(0, 120);
+        if (/^(utm_|gclid$|gbraid$|wbraid$|fbclid$|ag$)/i.test(k)) utm[k.toLowerCase()] = v.slice(0, 120);
       });
+      /* Back days after an ad click: Google's own tag keeps the click id (_gcl_aw, _gcl_gb), so a
+         paying customer is still told to Google Ads. Read only; nothing new is stored. */
+      if (!utm.gclid && !utm.gbraid && !utm.wbraid) {
+        const jar = document.cookie || '';
+        const got = (name) => { const m = jar.match(new RegExp('(?:^|;\\s*)' + name + '=GCL\\.\\d+\\.([^;]+)')); return m ? decodeURIComponent(m[1]).slice(0, 120) : ''; };
+        if (got('_gcl_aw')) utm.gclid = got('_gcl_aw'); else if (got('_gcl_gb')) utm.gbraid = got('_gcl_gb');
+      }
     } catch (e) {}
     attr = { referrer: document.referrer || '', utm, landingPage: location.pathname + location.search };
     try { sessionStorage.setItem(ATTR, JSON.stringify(attr)); } catch (e) {}

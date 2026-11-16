@@ -215,7 +215,9 @@
   el('b-cancel').addEventListener('click', function () { el('book').close(); });
 
   /* The dispatch day: which day and week are on screen, and what its buttons do. */
-  var view = { day: '', week: '' };
+  /* ?day=YYYY-MM-DD (the Monday briefing's days) opens that day's plan. */
+  var asked = (new URLSearchParams(global.location.search).get('day') || '').match(/^\d{4}-\d{2}-\d{2}$/);
+  var view = { day: asked ? asked[0] : '', week: '' };
   var dispatchOpts = {
     get today() { return data && data.today; },
     reload: function () { load(); },

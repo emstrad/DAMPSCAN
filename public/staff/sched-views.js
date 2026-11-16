@@ -35,5 +35,8 @@
   /* Today's Who's free? button lands here with the sheet open. */
   if (location.hash === '#free') { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
 
+  /* A day from the Monday briefing opens on its plan. */
+  if (/[?&]day=\d{4}-\d{2}-\d{2}/.test(location.search)) show('plan');
+
   global.DSSCHVIEW = { show: show };
 })(window);

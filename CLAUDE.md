@@ -392,7 +392,24 @@ checks the mechanical ones.
   with its rate, paid, money) and every source over the company year, best
   money first, phone callers apart; a form sent twice counts once; and the
   booking form step by step over 30 days (who reached each step, how many left
-  there, form_step and form_submit events). For ATi and DampScan the Leads page
+  there, form_step and form_submit events). Under Google Ads, "Paid customers sent to Google Ads"
+  (`lib/ads-conversions.js`, the owner, 16 Nov 2026): each brand's private file
+  address for Google Ads' scheduled upload (Paid job, valued at the money that
+  came in, less refunds; cancelled ones drop out), when Google last read it
+  (cron_beats ads_feed_<site>, also in Settings' Left to set up); iPhone click
+  ids (gbraid, wbraid) count as Google Ads, and a visitor back days after an ad
+  click keeps its click id from Google's own cookie (read only). Estate agents
+  (`lib/agent-referrals.js`, `company-agents.js`), one brand at a time: each
+  agent's own booking link (?ag=code on that brand's site) puts an enquiry down
+  to them (leads.referred_by, never estate_agent_id, which means the agent lets
+  us in and changes the texts), Estate agent links as a source, and a month's
+  statement (first name and postcode district only) to Email or Copy, never sent
+  by itself; Add an agent hands out a link before they send anyone. Week
+  (`lib/company-week.js`, `company-week.js`, `?view=week`, the Monday briefing):
+  last week against the week before, Needs you now, the week ahead day by day
+  (a day opens Scheduling's plan, ?day=), customers to book and Ads this month;
+  the Monday 06:30 run sends one "Monday briefing" push for ATi and DampScan
+  together instead of a weekly line each (Verge and CoolRight keep theirs). For ATi and DampScan the Leads page
   (as Website), Insights and Records are no longer damp section tabs: they sit
   in Company's tab row (`company-hub.js` draws the same row on those pages),
   reached through ALSO in area.js; Verge and CoolRight keep their own.

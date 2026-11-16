@@ -7,7 +7,7 @@
   var A = global.DSAREA;
   if (!A || A.area !== 'damp') return;
   var TABS = [['Overview', 'company.html'], ['Pay', 'company.html#pay'], ['Money', 'company.html#money'], ['Bank check', 'company.html#bank'],
-    ['Growth', 'company.html#growth'], ['Website', 'dashboard.html'], ['Insights', 'insights.html'], ['Records', 'records.html']];
+    ['Growth', 'company.html#growth'], ['Week', 'company.html#week'], ['Website', 'dashboard.html'], ['Insights', 'insights.html'], ['Records', 'records.html']];
   var main = document.querySelector('main');
   if (!main) return;
   var row = document.createElement('nav');
