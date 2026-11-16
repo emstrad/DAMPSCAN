@@ -61,6 +61,8 @@ function check() {
     const w = ['Top', 'Right', 'Bottom', 'Left'].map((k) => (s['border' + k + 'Style'] !== 'none' ? parseFloat(s['border' + k + 'Width']) : 0));
     if (Math.max(...w) >= 3 && w.filter((x) => x >= 3).length === 1 && w.filter((x) => x > 0).length <= 3) out.push(`stripe on one edge: ${name(el)}`);
   }
+  const logos = [...document.querySelectorAll('header.top > a.logo')].filter(seen);
+  if (logos.length > 1) out.push(`${logos.length} logos in the header`);
   const tab = document.querySelector('.section-tab[aria-current="page"], .seg-tab[aria-pressed="true"]');
   for (const h of document.querySelectorAll('h1')) if (seen(h) && h.getBoundingClientRect().width > 1 && tab && h.textContent.trim() === tab.textContent.trim()) out.push(`heading repeats the tab: ${h.textContent.trim()}`);
   return out;
@@ -88,12 +90,13 @@ test('the phone check catches each kind of break', async (t) => {
   if (!chromium) { t.skip('playwright is not installed here'); return; }
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.setContent(`<body style="margin:0;background:#0c1a2b">
+    <header class="top"><a class="logo" href="#" style="display:inline-block;height:44px">A</a><a class="logo" href="#" style="display:inline-block;height:44px">B</a></header>
     <nav><a class="section-tab" aria-current="page" href="#">Reports</a></nav><h1>Reports</h1>
     <input style="font-size:14px;background:#fff">
     <button style="height:30px">Tiny</button>
     <div style="border-left:4px solid #4fa8e8;height:20px"></div>
     <div style="width:600px;height:10px"></div></body>`);
   const found = (await page.evaluate(check)).join('\n');
-  for (const want of ['scrolls sideways', 'field under 16px', 'white field', 'tap under 44px', 'stripe on one edge', 'heading repeats the tab']) assert.match(found, new RegExp(want), want);
+  for (const want of ['scrolls sideways', 'field under 16px', 'white field', 'tap under 44px', 'stripe on one edge', 'heading repeats the tab', 'logos in the header']) assert.match(found, new RegExp(want), want);
   await page.close();
 });

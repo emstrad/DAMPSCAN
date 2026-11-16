@@ -177,7 +177,7 @@
     if (!site || sites.indexOf(site) === -1) site = sites.indexOf(stored()) !== -1 ? stored() : sites[0];
     box.hidden = sites.length < 2;
     sites.forEach(function (s) {
-      var b = btn(data.brands[s].name, 'pill', function () { site = s; remember(s); drawBrands(); draw(); });
+      var b = btn(data.brands[s].name, 'tx-seg', function () { site = s; remember(s); drawBrands(); draw(); });
       b.setAttribute('aria-pressed', String(s === site));
       box.appendChild(b);
     });

@@ -54,15 +54,14 @@
 
 <main class="wrap">
   <h1 class="sv-h1">Texts</h1>
-  <p class="tx-live" id="live"></p>
-  <p class="tx-live" id="runner" hidden></p>
+  <div class="tx-status"><p class="tx-live" id="live"></p><p class="tx-live" id="runner" hidden></p></div>
   <div class="state" id="state">Loading…</div>
   <div id="content" hidden>
-    <div class="pills tx-brands" role="group" aria-label="Company" id="brands"></div>
-    <div class="pills" role="group" aria-label="Show">
-      <button class="pill" type="button" data-tab="waiting" id="tab-waiting" aria-pressed="true">Waiting</button>
-      <button class="pill" type="button" data-tab="sent" aria-pressed="false">Sent</button>
-      <button class="pill" type="button" data-tab="wording" aria-pressed="false">Wording</button>
+    <div class="c-seg tx-brands" role="group" aria-label="Company" id="brands"></div>
+    <div class="c-seg tx-tabs" role="group" aria-label="Show">
+      <button type="button" data-tab="waiting" id="tab-waiting" aria-pressed="true">Waiting</button>
+      <button type="button" data-tab="sent" aria-pressed="false">Sent</button>
+      <button type="button" data-tab="wording" aria-pressed="false">Wording</button>
     </div>
     <div id="list" class="tx-list"></div>
     <details class="sheet-fold tx-fresh" id="fresh" hidden>

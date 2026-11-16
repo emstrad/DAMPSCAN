@@ -39,3 +39,23 @@
 .tx-noreply{margin:0;text-align:center;font-size:12px;color:#8e8e93}
 .tx-live.is-bad{color:var(--warn)}
 .tx-fresh{margin-top:18px}
+
+/* Texts, made calm (the owner, 16 Nov 2026: "texts still look old"): the state as one
+   panel, the company and the view as two switches, each text a tile; nothing reads as
+   plain words where it can be tapped. */
+.tx-status{display:flex;flex-direction:column;gap:4px;margin:4px 0 16px;padding:14px 16px;border-radius:14px;background:var(--panel)}
+.tx-status .tx-live{margin:0;font-size:14px;color:var(--muted)}
+.tx-status #live{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.tx-status #live::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--good);flex:none}
+.tx-status .tx-live.is-bad{color:var(--warn)}
+.tx-brands,.tx-tabs{margin:0 0 12px}
+.tx-tabs{margin-bottom:16px}
+.tx-card{background:var(--panel);border-color:var(--line)}
+.tx-card.is-bad{border-color:var(--warn)}
+.tx-card .tag{font-size:12px;border-radius:999px;background:var(--panel-2);border:0;color:var(--text);text-transform:none;letter-spacing:0}
+.tx-word{background:var(--panel);border-color:var(--line)}
+.tx-word:hover{background:var(--panel-2)}
+.tx-see{color:var(--accent-hi);background:var(--accent-soft);border:0;font-weight:700;min-height:36px;display:inline-flex;align-items:center}
+.tx-fresh{margin-top:24px;padding:0 16px;border-radius:14px;background:var(--panel)}
+.tx-fresh > summary{font-weight:700}
+.tx-ul .state{padding:24px 0;text-align:center}
