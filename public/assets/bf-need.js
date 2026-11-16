@@ -167,11 +167,12 @@
         var t = z.damp + (pick.service === 'timber' ? z.timber : 0), from = z.from;
         P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) { t += x.withSurvey; from = from || Boolean(x.from); } });
         pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
-        sum.appendChild(el('b', null, pounds(t, from))); sum.appendChild(el('span', null, '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
+        sum.appendChild(el('b', null, pounds(t, from))); /* An agent or outside our area books nothing here, so no deposit is mentioned (Annie, 16 Nov 2026, thought she had bought). */
+        sum.appendChild(el('span', null, d.agent || d.outside ? 'Nothing to pay now. We\'ll confirm the time first' : '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
       } else sum.appendChild(el('span', null, lost ? 'No need to pick: we\'ll call to help you choose' : 'Your total shows here'));
       /* The tiles help, but are never a must (the owner, 16 Nov 2026): a survey and size they already know is enough to book. */
       var missing = lost ? '' : !pick.service ? (d.issues.length ? 'Pick your survey' : 'Tick what you\'re dealing with') : !pick.size ? 'Pick a size' : '';
-      go.textContent = missing || (lost ? 'Continue' : d.agent || d.outside ? 'Send' : 'Choose a time'); go.disabled = Boolean(missing);
+      go.textContent = missing || (lost ? 'Continue' : d.agent || d.outside ? 'Send my details' : 'Choose a time'); go.disabled = Boolean(missing);
     }
     sync();
   }

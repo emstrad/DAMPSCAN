@@ -56,10 +56,13 @@
       : asked ? 'You asked for ' + h.nice(d.when.date) + ' at ' + h.clock(d.when.time) + '. We\'ll call to confirm it, then text you.'
       : d.unsure && !d.agent ? 'We\'ll call to help you choose the right survey and agree a time, then text you to confirm.' : d.agent ? 'We\'ll arrange the time with ' + d.agent.name + ' and text you once it\'s confirmed.' : d.outside ? 'You\'re a little outside our usual area: we\'ll check we can reach you and call to agree a time.' : 'We\'ll call you to agree a time, then text you to confirm.'));
 
+    /* Not booked: said plainly, so nobody thinks they have bought anything. */
+    if (!booked) pane.appendChild(el('p', 'ht-sub', 'Nothing is booked or paid yet.'));
+
     var s = d.pick ? h.sizes.filter(function (z) { return z.key === d.pick.size; })[0] : null;
     var lines = [
       ['Survey', s ? (d.pick.service === 'timber' ? 'Damp and timber, ' : 'Damp, ') + s.name.toLowerCase() + (d.pick.extras.length ? ' + ' + d.pick.extras.length + ' extra' + (d.pick.extras.length > 1 ? 's' : '') : '') : 'To agree'],
-      ['Price', d.pick && d.pick.totalPounds ? h.money(d.pick.totalPounds) + ', deposit ' + h.money(d.pick.totalPounds / 2) : 'To agree'],
+      ['Price', d.pick && d.pick.totalPounds ? h.money(d.pick.totalPounds) + (booked ? ', deposit ' + h.money(d.pick.totalPounds / 2) : ', nothing to pay yet') : 'To agree'],
       ['Where', d.address], ['Let in by', d.agent ? d.agent.name : d.name]
     ];
     var dl = el('dl', 'ht-sum'); lines.forEach(function (l) { dl.appendChild(el('dt', null, l[0])); dl.appendChild(el('dd', null, l[1])); }); pane.appendChild(dl);
