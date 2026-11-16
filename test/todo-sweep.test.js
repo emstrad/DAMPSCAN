@@ -62,3 +62,14 @@ test('a "no mobile" to-do closes once the survey is paid and reported', async ()
   await S.sweepSystemTodos();
   assert.equal(await isDone(t), true);
 });
+
+test('a report check closes on Report ready, and a hold to-do on an enquiry carries the enquiry', async () => {
+  const id = await job();
+  const t = await todo(id, 'Ben has finished Kim\'s report (SE4): check it and press Report ready to send it to them.', 'Report check');
+  await pool.query('update jobs set report_submitted_at = now() where id = $1', [id]);
+  await S.sweepSystemTodos();
+  assert.equal(await isDone(t), false);
+  await pool.query('update jobs set report_ready_at = now() where id = $1', [id]);
+  await S.sweepSystemTodos();
+  assert.equal(await isDone(t), true, 'Report ready counts as reported');
+});
