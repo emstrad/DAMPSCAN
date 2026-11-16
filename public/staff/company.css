@@ -36,8 +36,7 @@
 .pay-total{cursor:default;background:var(--accent-soft);border-color:var(--accent-ring)}
 .pay-check{margin:12px 2px;font-size:13px;color:var(--good)}
 .pay-check.is-bad{color:var(--warn)}
-.pay-split{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:0 12px}
-.pay-split summary{min-height:48px;display:flex;align-items:center;font-weight:700;cursor:pointer}
+.pay-split{margin-top:0}
 .pay-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end;padding:6px 0 12px}
 .pay-form input,.pay-form select{font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--navy,#0c1a2b);color:var(--text);width:100%;box-sizing:border-box}
 .pay-form .panel-note{grid-column:1/-1;margin:0}
@@ -88,9 +87,6 @@
 .tide-chip{min-height:44px;padding:6px 14px;border-radius:999px;border:1px solid var(--line-strong);background:var(--navy-2,#132437);color:var(--text);font:inherit;cursor:pointer}
 .tide-ok{color:var(--good)}
 /* Overview (company-overview.js): needs-you rows open where they are put right. */
-.ov-item{display:flex;align-items:center;width:100%;min-height:48px;margin-bottom:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--navy-2,#132437);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
-.ov-item::after{content:'\203A';margin-left:auto;padding-left:10px;color:var(--muted)}
-.ov-item.is-bad{border-color:var(--warn)}
 /* Growth (company-growth.js): the month-by-month funnel as a compact grid. */
 .gr-table{display:flex;flex-direction:column;font-size:14px}
 .gr-row{display:grid;grid-template-columns:minmax(36px,.8fr) repeat(5,minmax(0,1fr));gap:6px;padding:9px 0;border-top:1px solid var(--line);align-items:center}
@@ -103,8 +99,6 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .pay-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid var(--line-strong);border-radius:12px;background:var(--navy-2)}
 .pay-seg button{min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
 .pay-seg button[aria-pressed="true"]{background:var(--accent);color:var(--navy)}
-.pay-books-note{margin:8px 2px 0;font-size:13px;color:var(--muted)}
-.pay-books-link{border:0;background:none;padding:0;color:var(--accent-hi);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;min-height:24px}
 .pay-via{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted);vertical-align:1px;white-space:nowrap}
 .pay-via.is-stripe{border-color:rgba(146,128,255,.55);color:#b3a6ff}
 .pay-via.is-tide{border-color:var(--accent-ring);color:var(--accent-hi)}
@@ -136,3 +130,10 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .rec-actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:8px}
 .rec-folds{margin-top:8px}
 @media (max-width:640px){.rec-card{grid-template-columns:1fr;gap:16px}.rec-match{padding-top:16px;border-top:1px solid var(--line)}}
+.pay-bookline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
+.pay-bookline .c-l{display:flex;flex-direction:column}
+.pay-bookline .c-l b{font-size:17px}
+.pay-bookline .c-l small{font-size:13px;color:var(--muted-2)}
+.pay-booklink{display:flex;flex-direction:column;align-items:flex-end;min-height:44px;justify-content:center;padding:4px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--accent-hi);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.pay-booklink small{color:var(--muted);font-size:12px;font-weight:500}
+.pay-booklink:hover{background:var(--panel-2)}

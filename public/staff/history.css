@@ -7,14 +7,17 @@
 .scc h3 { font-size: 1rem; margin: 14px 0 6px; }
 .scc-line { margin: 4px 0; font-size: .92rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .scc input, .scc select { font-size: 16px; min-height: 44px; background: var(--navy-2); color: var(--text); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 8px; flex: 1 1 140px; min-width: 0; }
-.scc-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
-.scc-entry { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--navy-2); overflow-wrap: anywhere; }
-/* The whole entry takes its colour, not a stripe, so each kind is known at a glance. */
-.scc-entry.is-email { background: color-mix(in srgb, var(--accent) 22%, var(--navy-2)); border-color: var(--accent); }
-.scc-entry.is-email.is-out { background: color-mix(in srgb, var(--good) 22%, var(--navy-2)); border-color: var(--good); }
-.scc-entry.is-call, .scc-entry.is-text { background: color-mix(in srgb, #e3b341 22%, var(--navy-2)); border-color: #e3b341; }
-.scc-entry.is-action { opacity: .8; }
-.scc-entry.is-fact { background: color-mix(in srgb, var(--good) 14%, var(--navy-2)); border-color: var(--good); }
+/* A quiet timeline (the owner's clean-up, 16 Nov 2026): a dot for each entry
+   on one thin line, its colour saying what kind, no boxes. */
+.scc-list { list-style: none; padding: 0 0 0 20px; margin: 8px 0 0; display: grid; gap: 0; position: relative; }
+.scc-list::before { content: ""; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: var(--line); border-radius: 2px; }
+.scc-entry { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 0 0 16px; overflow-wrap: anywhere; font-size: 15px; }
+.scc-entry::before { content: ""; position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--panel-2); }
+.scc-entry.is-email::before { background: var(--accent); }
+.scc-entry.is-email.is-out::before, .scc-entry.is-fact::before { background: var(--good); }
+.scc-entry.is-call::before, .scc-entry.is-text::before, .scc-entry.is-sms::before { background: #e3b341; }
+.scc-entry.is-action { color: var(--muted); }
+.scc-entry details summary { min-height: 32px; font-size: .88rem; }
 .scc-when { font-size: .78rem; color: var(--muted); }
 .scc-body { white-space: pre-wrap; font-size: .9rem; margin: 6px 0 0; }
 .scc details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-hi); }
@@ -59,3 +62,20 @@
 .scc-fold[open] { padding-bottom: 12px; }
 .scc-fold .meta { margin: 10px 0 2px; }
 .pop-pin{display:grid;gap:6px;margin:6px 0 12px}
+.pop-pin{display:block;margin:4px 0 12px;border-bottom:1px solid var(--line)}
+.pop-pin>summary{min-height:52px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;color:var(--text)}
+.pop-pin>summary::-webkit-details-marker{display:none}
+.pop-pin>summary::after{content:"›";color:var(--accent-hi);font-size:1.3rem;transition:transform .18s ease-out}
+.pop-pin[open]>summary::after{transform:rotate(90deg)}
+.pop-pin .c-l small{display:block;color:var(--muted-2);font-size:13px;font-weight:400}
+.pop-pin form{padding-bottom:12px}
+/* The log composer: picker chip, words, send, in one rounded box. */
+.hist-log{display:flex;align-items:center;gap:6px;width:auto;margin:8px 0 4px;padding:4px;border-radius:24px;background:var(--navy-2);border:1px solid var(--line-strong);overflow:visible}
+.hist-log:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.hist-log select{flex:none!important;width:auto;min-height:36px!important;padding:0 10px!important;border-radius:18px!important;border:1px solid var(--line)!important;background:var(--panel)!important;color:var(--text);font-size:14px!important}
+.hist-log input{flex:1 1 auto!important;border:0!important;background:none!important;min-height:40px!important;padding:0 4px!important}
+.hist-log input:focus{outline:none}
+.hist-log:focus-within .hist-go{background:var(--accent);color:var(--navy)}
+@media (prefers-reduced-motion:reduce){.pop-pin>summary::after{transition:none}}
+.scc-entry details > summary { list-style: none; color: var(--accent-hi); cursor: pointer; display: inline-flex; align-items: center; min-height: 32px; font-size: .88rem; font-weight: 600; }
+.scc-entry details > summary::-webkit-details-marker { display: none; }

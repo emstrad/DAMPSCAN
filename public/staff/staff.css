@@ -463,3 +463,41 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 @media (max-width:440px){.seg-tabs{gap:0}.seg-tab{padding:0 6px}}
 @media (max-width:380px){.seg-tab{padding:0 4px;font-size:13px}}
 @media (prefers-reduced-motion:reduce){.seg-tabs.is-ready .seg-thumb,.seg-more svg,.seg-menu{transition:none;animation:none}}
+/* A customer's to-dos (job-todos.js): a round tick and the words, one add line with + inside. */
+.td-list{display:flex;flex-direction:column}
+.td-row{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 0;border-bottom:1px solid var(--line)}
+.td-row:last-child{border-bottom:0}
+.td-tick{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line-strong);background:none;color:transparent;display:grid;place-items:center;padding:0;cursor:pointer;
+  transition:background .18s ease-out,border-color .18s ease-out,color .18s ease-out;position:relative}
+.td-tick::after{content:"";position:absolute;inset:-8px}
+.td-tick:hover{border-color:var(--good);color:var(--good)}
+.td-row.is-done .td-tick{background:var(--good);border-color:var(--good);color:var(--navy)}
+.td-row.is-done .td-text{text-decoration:line-through;color:var(--muted-2)}
+.td-text{flex:1;min-width:0;font-size:15px;line-height:1.35;overflow-wrap:anywhere;transition:color .18s ease-out}
+.td-text small{color:var(--muted-2);font-size:13px}
+.td-row.is-maybe .td-tick{border-color:var(--good)}
+.td-clear{margin:4px 0 8px}
+.td-add{display:flex;align-items:center;gap:6px;margin-top:8px;padding:4px 4px 4px 14px;border-radius:24px;background:var(--navy-2);border:1px solid var(--line-strong);transition:border-color .2s ease-out,box-shadow .2s ease-out}
+.td-add:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.td-add input{flex:1;min-width:0;border:0!important;background:none!important;box-shadow:none!important;padding:8px 0!important;font-size:16px;color:var(--text);outline:none}
+.td-add select{flex:none;width:auto;min-height:32px;padding:0 8px!important;border-radius:16px;border:1px solid var(--line)!important;background:var(--panel)!important;color:var(--muted);font-size:13px}
+.td-plus{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:var(--panel-2);color:var(--text);display:grid;place-items:center;cursor:pointer;transition:background .18s ease-out,transform .18s ease-out}
+.td-add:focus-within .td-plus{background:var(--accent);color:var(--navy)}
+.td-plus:active{transform:scale(.92)}
+@media (prefers-reduced-motion:reduce){.td-tick,.td-text,.td-add,.td-plus{transition:none}}
+/* One quiet button style in the pop-ups (the owner's clean-up, 16 Nov 2026): a soft
+   tile, 44px, corners of 12; blue stays for the one next step, never a dozen outlines. */
+.sheet .btn--ghost,.sheet .pill:not([aria-pressed]),.sheet-foot a.pill,.sheet-foot .act-main{display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:15px;font-weight:600;text-decoration:none;box-shadow:none}
+.sheet .btn--ghost:hover,.sheet .pill:not([aria-pressed]):hover,.sheet-foot a.pill:hover,.sheet-foot .act-main:hover{background:var(--panel-2);border-color:var(--line-strong)}
+.sheet-foot .act-main{color:var(--accent-hi)}
+.sheet-head .sheet-close{min-height:40px;padding:0 14px;border-radius:20px;border:0;background:var(--panel);color:var(--muted);font-size:14px}
+.sheet-head .sheet-close:hover{color:var(--text);background:var(--panel-2)}
+.ov-rows{border-top:0;padding:0 16px;border-radius:14px;background:var(--panel)}
+.ov-rows .c-row:last-child{border-bottom:0}
+.ov-rows .c-row.is-bad .c-l b{color:var(--warn)}
+.ov-rows .c-row .c-l b{font-weight:600}
+.c-row.is-zero .c-chev{visibility:hidden}
+.c-sumbtn{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.c-sumbtn b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.c-sumbtn:hover b{color:var(--accent-hi)}

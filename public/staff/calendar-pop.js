@@ -169,30 +169,12 @@
   }
 
   function todos(j) {
-    var td = section('To-dos' + ((j.todos || []).length ? ' (' + j.todos.length + ')' : ''), (j.todos || []).length || (j.maybeDone || []).length ? 'open' : 'closed');
-    /* What has happened (deposit, booking, report, payment) may have done
-       some to-dos; the owners chose to be asked rather than have them cleared. */
-    var maybe = j.maybeDone || [];
-    if (maybe.length) {
-      var ask = U.node('div', 'sched-pencil');
-      ask.appendChild(U.node('p', null, 'These look done now. Clear them?'));
-      var picks = maybe.map(function (t) {
-        var l = U.node('label', 'sheet-tick'), c = document.createElement('input'); c.type = 'checkbox'; c.checked = true;
-        l.appendChild(c); l.appendChild(U.node('span', null, t.text)); ask.appendChild(l);
-        return { id: t.id, box: c };
-      });
-      var clear = U.node('button', 'pill', 'Clear the ticked ones'); clear.type = 'button';
-      clear.addEventListener('click', async function () {
-        clear.disabled = true;
-        for (var i = 0; i < picks.length; i += 1) if (picks[i].box.checked) await U.send('/api/admin/todos', { op: 'done', id: picks[i].id });
-        changed();
-      });
-      ask.appendChild(clear);
-      td.appendChild(ask);
-    }
+    var n = (j.todos || []).length + (j.maybeDone || []).length;
+    var td = section('To-dos' + (n ? ' (' + n + ')' : ''), n ? 'open' : 'closed');
+    /* Ones the facts look to have done are asked about in the list (job-todos.js). */
     var box = U.node('div');
     td.appendChild(box);
-    global.DSTODOS.render(box, j.id, j.todos, changed);
+    global.DSTODOS.render(box, j.id, j.todos, changed, { maybe: j.maybeDone || [] });
   }
 
   function cap(x) { return x ? x.charAt(0).toUpperCase() + x.slice(1) : x; }

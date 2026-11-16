@@ -28,11 +28,13 @@ test('needs you now: people owed, money to collect, salaries and ad spend not lo
   await job(5, false);
   const o = await O.overview();
   const says = o.attention.map((a) => a.text);
-  assert.ok(says.includes('Ronnie is owed £100'), says.join(' | '));
+  const owed = o.attention.find((a) => /people owed|is owed/.test(a.text));
+  assert.ok(owed && /Ronnie £100/.test(owed.sub || owed.text), says.join(' | '));
+  assert.ok(owed.figure, 'the amount sits at the right of its row');
   assert.ok(says.some((t) => /^1 survey done, £295 to collect$/.test(t)));
-  assert.ok(says.some((t) => /^No salary recorded for Scott in /.test(t)));
+  assert.ok(says.some((t) => /^No salary recorded for Scott and Tom in /.test(t)), 'the two salaries are one row');
   assert.ok(says.some((t) => /^No Google Ads spend logged for /.test(t)));
-  assert.equal(o.attention.find((a) => a.text.startsWith('Ronnie')).who, 'ronnie');
+  assert.equal(owed.tab, 'pay');
   assert.equal(o.month.in, 29500);
   assert.equal(o.month.surveys, 1);
   assert.equal(o.ahead.surveys, 1);
@@ -53,5 +55,5 @@ test('once paid out and logged, those items go', async () => {
   const end = new Date(); end.setUTCDate(0);
   await pool.query("insert into cron_beats (name, at) values ('bank_check_to', $1::date) on conflict (name) do update set at = excluded.at", [end.toISOString().slice(0, 10)]);
   const says = (await O.overview()).attention.map((a) => a.text);
-  assert.ok(!says.some((t) => /No salary|No Google Ads|Ronnie is owed|Bank check/.test(t)), says.join(' | '));
+  assert.ok(!says.some((t) => /No salary|No Google Ads|Ronnie|Bank check/.test(t)), says.join(' | '));
 });

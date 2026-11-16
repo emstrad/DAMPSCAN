@@ -202,13 +202,17 @@ checks the mechanical ones.
   (`public/staff/seg-tabs.js`); never rows of pills that wrap. A page its tab
   already names shows no second heading (sr-only, or .tab-h1 where surveyors,
   who have no tab row, still need it). Pay is a
-  summary then one row per person, surveys folded; the bank check shows one
+  summary then one row per person (Corp tax once, in the summary), the book
+  as one line with the other a tap away, surveys and the split folded as rows; the bank check shows one
   line at a time (Skip or OK), everything settled folded beneath. The damp customer
   card (`public/staff/pop-journey.js`) is in journey order: Call, Text,
   Directions and Email tiles, the one next step, a page message to reply to,
   needs doing and to-dos, then one line each for Visit, Money (or The survey
   for surveyors), Report, Messages and history and Details, each saying what
-  it holds beneath, Not going ahead last; the Scheduling card matches it (the
+  it holds beneath, Not going ahead last; to-dos are rows with a round tick
+  and one add line, the history a quiet timeline of dots under one composer
+  (what happened, the words, send) with the note for the surveyor folded, and
+  buttons in pop-ups one soft style (blue only for the one next step); the Scheduling card matches it (the
   same top and tiles, Book it in in its own box with the best times).
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
