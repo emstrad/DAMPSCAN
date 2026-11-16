@@ -522,8 +522,9 @@ checks the mechanical ones.
   DampScan page from 16 Nov, `public/assets/bf*.js`, through /api/lead: step 1
   saved quietly at once and a dropout sent as they leave (partial.js), the
   enquiry with its alerts, email, the customer's thanks and the Google Ads
-  conversion sent when they choose a time (or Send, for an agent or outside
-  our area), the survey choice (op survey), prices (op prices), up to eight
+  conversion sent when they choose a time (or Send my details, for an agent or outside
+  our area, where the bar says "Nothing to pay now. We'll confirm the time first" and
+  Done "Nothing is booked or paid yet", the owner, 16 Nov 2026), the survey choice (op survey), prices (op prices), up to eight
   weeks of times (op times, days) and the tap (op pick: booked with Book it
   straight away on, returning their page link; a request otherwise); photos,
   a note and a previous survey after it on the same enquiry, no second
