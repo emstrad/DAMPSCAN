@@ -109,3 +109,27 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .pay-old > summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600;color:var(--muted)}
 .pay-line.is-old{opacity:.72}
 .pay-line.is-coming .pay-line-amt b{color:var(--muted)}
+/* Bank check, reconciling like Xero: the bank line beside its match, then OK. */
+.rec-top{display:flex;flex-direction:column;gap:2px}
+.rec-head{display:flex;flex-direction:column;gap:6px;margin:14px 0 6px;padding:14px;border-radius:16px;border:1px solid var(--line-strong);background:var(--navy-2)}
+.rec-head small{color:var(--muted)}
+.rec-bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.rec-bar span{display:block;height:100%;background:var(--good);border-radius:999px;transition:width .25s ease-out}
+.rec-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px;margin:0 0 10px;border-radius:14px;border:1px solid var(--line-strong);background:var(--navy-2)}
+.rec-bank,.rec-match{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rec-match{padding-left:12px;border-left:1px solid var(--line)}
+.rec-amt{font-size:18px;font-weight:800}
+.rec-amt.is-in{color:var(--good)}
+.rec-amt.is-out{color:var(--warn)}
+.rec-what{overflow-wrap:anywhere}
+.rec-bank small,.rec-label,.rec-note{font-size:12px;color:var(--muted)}
+.rec-sugg{font-size:15px;overflow-wrap:anywhere}
+.rec-sugg.is-off{text-decoration:line-through;color:var(--muted)}
+.rec-find select{width:100%;min-width:0;font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--navy);color:var(--text)}
+.rec-ok{min-height:44px;margin-top:6px;background:var(--good);border-color:var(--good);color:var(--navy)}
+.rec-other,.rec-undo{align-self:flex-start;min-height:44px;padding:0 4px;border:0;background:none;color:var(--accent-hi);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.rec-who{align-self:flex-start;min-height:44px;padding:0;border:0;background:none;color:var(--text);font:inherit;font-weight:700;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.rec-tag,.rec-to{align-self:flex-start;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid rgba(95,207,158,.5);color:var(--good)}
+.rec-to{border-color:var(--line-strong);color:var(--muted)}
+.rec-auto .rec-card{border-color:rgba(95,207,158,.45)}
+@media (max-width:560px){.rec-card{grid-template-columns:1fr}.rec-match{padding:10px 0 0;border-left:0;border-top:1px solid var(--line)}}
