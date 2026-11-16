@@ -196,6 +196,12 @@
   }
 
   function cap(x) { return x ? x.charAt(0).toUpperCase() + x.slice(1) : x; }
+  function journey(j) {
+    var k = { body: body, section: section, part: part, tick: tick, notes: notes, todos: todos, outstanding: outstanding, moveAsked: moveAsked, dampMessages: dampMessages, changed: changed, cap: cap, link: link };
+    if (global.DSPOPJ) { global.DSPOPJ.draw(j, k); return; }
+    var sc = document.createElement('script'); sc.src = '/staff/pop-journey.js';
+    sc.onload = function () { if (ctx.id === j.id) global.DSPOPJ.draw(j, k); }; document.head.appendChild(sc);
+  }
 
   /* One sheet, in the order a surveyor needs it: where, the job, notes,
      pictures, messages, the date. Verge and CoolRight get their money and
@@ -210,47 +216,25 @@
     sub.appendChild(U.node('span', 'sheet-status', j.stage || (j.status === 'quoted' && j.accepted ? 'accepted' : j.status)));
     sub.appendChild(U.node('span', 'sheet-when', !j.dateSet ? 'Not booked in yet' : shortDate(j.date) + (j.time ? ', ' + j.time : ', time to confirm')));
 
-    /* Most urgent first: the one next step, what needs doing, then how to reach them. */
-    if (X.next) X.next(j, body);
-    if (j.moveAsked) moveAsked(j);
-    if (j.phone && /^(dampscan|ati-london)$/.test(j.site) && (!global.DSAREA.rights || !global.DSAREA.rights.known || global.DSAREA.rights.manages[j.site])) part('DSPOPREPLY', '/staff/pop-reply.js', function (sec) { global.DSPOPREPLY.render(j, sec, changed); });
-    outstanding(j);
-    X.where(j, section('Where'));
-    if (!j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
-
-    var js = section('Job');
-    if (!j.quoted) {
-      X.facts(js, [['Survey', j.surveyType], ['Surveyor', cap(j.surveyor)], ['Price', j.money ? U.money(j.money.pricePence) : null], ['Agent', X.agentLine(j.agent)]]);
+    /* ATi and DampScan: the customer card in journey order (pop-journey.js); Verge and CoolRight as they were. */
+    if (!j.quoted && /^(dampscan|ati-london)$/.test(j.site)) journey(j);
+    else {
+      outstanding(j);
+      X.where(j, section('Where'));
+      if (!j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
+      var js = section('Job');
       if (j.money) {
-        if (/^(dampscan|ati-london)$/.test(j.site)) { X.surveyEdit(js, j, changed); if (global.DSPOPMONEY) global.DSPOPMONEY.render(js, j, changed); }
-        js.appendChild(tick(j, 'depositPaid', 'Deposit paid (' + U.money(j.money.depositPence) + ')', j.depositPaid, 'Deposit marked paid.'));
-        js.appendChild(tick(j, 'paid', 'Paid in full', j.paid, 'Marked paid in full.'));
-      }
-      if (!j.report) js.appendChild(tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
-      /* A surveyor who only works here marks the report; the rest is the manager's. */
-      if (!global.DSAREA.rights || !global.DSAREA.rights.known || global.DSAREA.rights.manages[j.site]) js.appendChild(tick(j, 'awaitingAgent', 'Awaiting estate agent', j.awaitingAgent, 'Marked awaiting the agent.'));
-    } else if (j.money) {
-      X.facts(js, [['Quote', U.money(j.money.pricePence)], ['Received', U.money(j.money.receivedPence)],
-        ['To collect', j.money.pricePence > j.money.receivedPence ? U.money(j.money.pricePence - j.money.receivedPence) : null]]);
-      js.appendChild(link('Record a payment', W.jobHref(j.site, j.id, true), 'act-main'));
-    } else js.appendChild(U.node('p', 'panel-note', 'Money is shown to the manager.'));
-    if (j.coolright && global.DSPOPAC) global.DSPOPAC.render(j, section, changed);
-    /* The report: upload, Report ready (texts them, unlocks their page once paid), Hold and Report sent. */
-    if (j.report) part('DSPOPREPORT', '/staff/pop-report.js', function (sec) { global.DSPOPREPORT.render(j, sec, tick, changed); });
-
-    var noteSec = notes(j);
-    if (j.lead && (j.lead.notes || j.lead.issues.length)) {
-      var en = section('Their enquiry', 'closed');
-      if (j.lead.issues.length) en.appendChild(U.node('p', 'sheet-note', j.lead.issues.join(', ')));
-      if (j.lead.notes) en.appendChild(U.node('p', 'sheet-note', j.lead.notes));
+        X.facts(js, [['Quote', U.money(j.money.pricePence)], ['Received', U.money(j.money.receivedPence)],
+          ['To collect', j.money.pricePence > j.money.receivedPence ? U.money(j.money.pricePence - j.money.receivedPence) : null]]);
+        js.appendChild(link('Record a payment', W.jobHref(j.site, j.id, true), 'act-main'));
+      } else js.appendChild(U.node('p', 'panel-note', 'Money is shown to the manager.'));
+      if (j.coolright && global.DSPOPAC) global.DSPOPAC.render(j, section, changed);
+      notes(j);
+      todos(j);
+      var pics = (j.files || []).length + (j.photos || []).length;
+      X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
+      if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
     }
-    todos(j);
-    var pics = (j.files || []).length + (j.photos || []).length;
-    X.pictures(j, section('Photos' + (pics ? ' (' + pics + ')' : ''), 'closed'), changed);
-    if (!j.quoted) dampMessages(j, section(j.textsOn ? 'Message by hand' : 'Messages to send', 'closed'));
-    if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
-    if (!j.quoted && j.status === 'booked' && /^(dampscan|ati-london)$/.test(j.site) && (!global.DSAREA.rights || !global.DSAREA.rights.known || global.DSAREA.rights.manages[j.site])) part('DSPOPCLOSE', '/staff/pop-close.js', function (sec) { global.DSPOPCLOSE.render(j, sec, changed); });
-    if (!j.quoted && global.DSPOPHIST) global.DSPOPHIST.render(j, section, noteSec);
 
     foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
     if (!j.quoted) foot.appendChild(link('Edit details', '/staff/clients.html?area=damp#job-' + j.id, 'pill'));

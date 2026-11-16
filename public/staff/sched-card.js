@@ -46,7 +46,7 @@
 
   /* A folded line: everything that is not needed this minute is one tap away. */
   function fold(d, title, fill) {
-    var f = document.createElement('details'); f.className = 'scc-fold';
+    var f = document.createElement('details'); f.className = 'scc-fold sheet-fold';
     var sum = U.node('summary', null, title); f.appendChild(sum);
     fill(f);
     if (f.children.length > 1) d.appendChild(f);
@@ -68,9 +68,12 @@
     var shut = function () { d.close(); };
     var act = function (body, said) { shut(); return opts.act(body, said); };
     var top = U.node('div', 'scc-top');
-    var title = U.node('div');
-    title.appendChild(U.node('h2', null, (c.name || 'No name') + (c.postcode ? ', ' + c.postcode : '')));
-    title.appendChild(U.node('p', 'meta', [c.site === 'ati-london' ? 'ATi' : 'DampScan', STAGE[c.stage], c.wanted ? 'Wants ' + c.wanted : null].filter(Boolean).join(' · ')));
+    /* The same top as the customer card: stage and brand, the name, then what they want. */
+    var title = U.node('div', 'scc-title');
+    var tag = U.node('p', 'scc-stage'); tag.appendChild(U.node('span', 'c-tag ' + (c.stage === 'new' ? 'is-warn' : 'is-info'), STAGE[c.stage] || 'Enquiry')); tag.appendChild(U.node('span', 'c-sub', c.site === 'ati-london' ? 'ATi Damp Survey' : 'DampScan'));
+    title.appendChild(tag);
+    title.appendChild(U.node('h2', null, c.name || 'No name'));
+    title.appendChild(U.node('p', 'c-sub', [c.postcode, c.wanted ? 'wants ' + c.wanted : null].filter(Boolean).join(' · ')));
     top.appendChild(title);
     var x = btn('×', 'scc-x', shut); x.setAttribute('aria-label', 'Close');
     top.appendChild(x);
@@ -82,19 +85,22 @@
 
     /* One row of quick contacts; the number stays readable underneath. */
     var tel = c.phone ? String(c.phone).replace(/[^\d+]/g, '') : '';
-    var acts = U.node('div', 'sheet-grid');
-    var chip = function (text, href, main) { var a = U.node('a', 'sheet-big' + (main ? ' is-main' : ''), text); a.href = href; if (/^https:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } acts.appendChild(a); };
+    var acts = U.node('div', 'j-quick');
+    var chip = function (text, href) { var a = U.node('a', 'j-quick-b', text); a.href = href; if (/^https:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } acts.appendChild(a); };
     if (tel) { chip('Call', 'tel:' + tel, true); chip('Text', 'sms:' + tel); chip('WhatsApp', 'https://wa.me/' + tel.replace(/^\+/, '').replace(/^0/, '44')); }
     if (c.email) chip('Email', 'mailto:' + c.email);
-    if (c.kind === 'job' && global.DSPOP) acts.appendChild(btn('Full job', 'sheet-big', function () { shut(); global.DSPOP.open(c.id, { onChange: opts.reload }); }));
+    if (c.kind === 'job' && global.DSPOP) acts.appendChild(btn('Full job', 'j-quick-b', function () { shut(); global.DSPOP.open(c.id, { onChange: opts.reload }); }));
     if (acts.children.length) d.appendChild(acts);
     if (c.phone || c.email) d.appendChild(U.node('p', 'meta scc-nums', [c.phone, c.email].filter(Boolean).join(' · ')));
     agentLine(d, c);
 
     /* Book it in, with the best times to offer under it (three, the rest folded). */
     if (opts.book) {
-      d.appendChild(btn('Book it in', 'btn sched-bookit', function () { shut(); opts.book(c, null); }));
-      if (!c.pencil) times(d, c, function (s) { shut(); opts.book(c, s); });
+      /* The one big action, in its own blue box: the best times, then Book it in. */
+      var bk = U.node('div', 'c-next is-info scc-book'); bk.appendChild(U.node('span', 'c-label', 'Book it in'));
+      if (!c.pencil) times(bk, c, function (s) { shut(); opts.book(c, s); });
+      bk.appendChild(btn(c.pencil ? 'Confirm the pencilled time' : 'Book it in', 'btn sched-bookit', function () { shut(); opts.book(c, null); }));
+      d.appendChild(bk);
     }
 
     /* Log a call, email, text or note; each contact sets when to get back to them. */
