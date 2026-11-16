@@ -226,7 +226,8 @@ checks the mechanical ones.
   pill tabs, a repeated heading and white fields. Headings are sentence case;
   no emoji on staff screens. Every filter row on a page (`.ranges` or `.pills` with
   role="group") is the sliding switch, never wrapping pills; capitals only on the
-  logo, `.c-label`, table heads and tiny figure labels (guardrail-checked).
+  logo, `.c-label` and table heads (guardrail-checked); figure tiles read "Scott",
+  "Surveys done".
 - Nothing reaches a customer by itself (see The businesses).
 
 ## Alerts (staff app, texts, ntfy being retired)
