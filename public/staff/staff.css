@@ -422,3 +422,25 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 /* The Scheduling card opens on Today, Surveys, Reports and To-do too, where schedule.css is not loaded. */
 .sched-dialog.scc{background:var(--slate);color:var(--text);border:0;border-radius:14px;padding:16px;max-height:calc(100dvh - 32px);overflow-y:auto}
 .sched-dialog.scc::backdrop{background:rgba(0,0,0,.55)}
+/* Reply by text (pop-reply.js), drawn like a chat: their bubble, a growing dark box with send inside. */
+.rp{display:flex;flex-direction:column;gap:12px;padding:4px 0 8px}
+.rp-them{display:flex;flex-direction:column;gap:4px;align-items:flex-start;max-width:88%}
+.rp-bubble{margin:0;padding:10px 14px;border-radius:18px 18px 18px 6px;background:var(--panel);border:1px solid var(--line-strong);color:var(--text);font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.rp-meta{font-size:12px;color:var(--muted-2);padding-left:6px}
+.rp-box{display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 14px;border-radius:24px;background:var(--navy-2);border:1px solid var(--line-strong);transition:border-color .2s ease-out,box-shadow .2s ease-out}
+.rp-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rp-box textarea{flex:1;min-width:0;min-height:36px!important;max-height:160px;padding:8px 0!important;border:0!important;background:none!important;color:var(--text);font:inherit;font-size:16px;line-height:1.35;resize:none;outline:none;box-shadow:none}
+.rp-box textarea::placeholder{color:var(--muted-2)}
+.rp-send{flex:none;width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--accent);color:var(--navy);cursor:pointer;transition:transform .18s ease-out,opacity .18s ease-out,background .18s ease-out}
+.rp-send:disabled{background:var(--panel-2);color:var(--muted-2);cursor:default}
+.rp-send:not(:disabled):active{transform:scale(.9)}
+.rp-box.is-busy .rp-send{opacity:.6}
+.rp-box.is-sent{opacity:.7}
+.rp-box.is-sent .rp-send{background:var(--good);color:var(--navy)}
+.rp-note{margin:0;font-size:12px;color:var(--muted-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rp-note.is-bad{color:var(--warn)}
+.rp-status{color:var(--text);font-size:13px;font-weight:600}
+.rp-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:rp-pulse 1.4s ease-in-out infinite}
+.rp-undo{min-height:32px;margin-left:auto}
+@keyframes rp-pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.rp-dot{animation:none}.rp-send,.rp-box{transition:none}}
