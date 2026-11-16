@@ -198,7 +198,13 @@ checks the mechanical ones.
   page, small tags, one next-step box, drive pills; spacing 8/16/24; colour
   only for meaning (green done, amber owed, blue the one action). Pay is a
   summary then one row per person, surveys folded; the bank check shows one
-  line at a time (Skip or OK), everything settled folded beneath.
+  line at a time (Skip or OK), everything settled folded beneath. The damp customer
+  card (`public/staff/pop-journey.js`) is in journey order: Call, Text,
+  Directions and Email tiles, the one next step, a page message to reply to,
+  needs doing and to-dos, then one line each for Visit, Money (or The survey
+  for surveyors), Report, Messages and history and Details, each saying what
+  it holds beneath, Not going ahead last; the Scheduling card matches it (the
+  same top and tiles, Book it in in its own box with the best times).
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
   visible screen; checked at phone size before shipping.

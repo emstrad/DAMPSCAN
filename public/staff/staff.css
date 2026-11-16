@@ -397,3 +397,28 @@ td.details small{display:block;color:var(--muted-2);font-size:12px;margin-top:2p
 .c-quiet{min-height:48px;border-radius:12px;border:1px solid var(--line-strong);background:none;color:var(--text);font:inherit;font-weight:600;padding:0 16px;cursor:pointer}
 .c-link{min-height:44px;padding:0;border:0;background:none;color:var(--accent-hi);font:inherit;font-weight:600;cursor:pointer;text-align:left}
 @media (prefers-reduced-motion:reduce){.c-chev{transition:none}}
+/* The customer card (pop-journey.js): quick tiles, the next step, then one line per part. */
+.j-quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px;margin:4px 0 0}
+.j-quick-b{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);font-weight:600;font-size:14px;text-decoration:none}
+.j-quick-b:hover{background:var(--panel-2)}
+.j-contact{margin:6px 0 4px}
+.sheet-next{margin:12px 0!important;padding:16px!important;border-radius:14px!important;background:var(--warn-soft)!important;border:1px solid rgba(240,160,139,.4)!important;font-size:16px}
+.sheet-fold>summary{color:var(--text)!important;min-height:56px!important}
+.sheet-fold>summary::after{color:var(--accent)!important;font-weight:700}
+.j-group>summary .c-l{display:flex;flex-direction:column;min-width:0;flex:1}
+.j-group>summary .c-l small{font-size:12px;font-weight:500;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.j-group>summary .c-tag{margin-left:auto}
+.j-group[open]{padding-bottom:12px!important}
+.sheet-notes textarea,.sheet-body textarea{width:100%;min-height:88px;padding:10px 12px;border-radius:12px;border:1px solid var(--line-strong);background:var(--navy-2);color:var(--text);font:inherit;font-size:16px}
+/* The Scheduling card (sched-card.js), matching the customer card. */
+.scc-title{display:flex;flex-direction:column;gap:4px;min-width:0}
+.scc-stage{display:flex;align-items:center;gap:8px;margin:0}
+.scc-title h2{margin:0;font-size:1.3rem}
+.scc-book{margin:16px 0 8px}
+.scc-book .sched-bookit{margin:4px 0 0!important}
+.scc-fold{border-bottom:1px solid var(--line)}
+.scc-fold>summary{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:700;cursor:pointer;list-style:none}
+.scc-fold>summary::-webkit-details-marker{display:none}
+/* The Scheduling card opens on Today, Surveys, Reports and To-do too, where schedule.css is not loaded. */
+.sched-dialog.scc{background:var(--slate);color:var(--text);border:0;border-radius:14px;padding:16px;max-height:calc(100dvh - 32px);overflow-y:auto}
+.sched-dialog.scc::backdrop{background:rgba(0,0,0,.55)}
