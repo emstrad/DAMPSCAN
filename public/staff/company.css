@@ -94,3 +94,18 @@
 .gr-head{border-top:0;font-size:12px;color:var(--muted)}
 a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .mn-cost.is-bad > span{color:var(--warn)}
+.pay-books{margin:0 0 12px}
+.pay-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid var(--line-strong);border-radius:12px;background:var(--navy-2)}
+.pay-seg button{min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
+.pay-seg button[aria-pressed="true"]{background:var(--accent);color:var(--navy)}
+.pay-books-note{margin:8px 2px 0;font-size:13px;color:var(--muted)}
+.pay-books-link{border:0;background:none;padding:0;color:var(--accent-hi);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;min-height:24px}
+.pay-via{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted);vertical-align:1px;white-space:nowrap}
+.pay-via.is-stripe{border-color:rgba(146,128,255,.55);color:#b3a6ff}
+.pay-via.is-tide{border-color:var(--accent-ring);color:var(--accent-hi)}
+.pay-via.is-revolut{border-style:dashed}
+.pay-cut{display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-size:12px;color:var(--muted)}
+.pay-cut::before,.pay-cut::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+.pay-old > summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600;color:var(--muted)}
+.pay-line.is-old{opacity:.72}
+.pay-line.is-coming .pay-line-amt b{color:var(--muted)}

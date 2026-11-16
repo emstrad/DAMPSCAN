@@ -63,3 +63,36 @@ test('the split for new surveys is the owners\' to change, and checked', async (
   assert.ok((await P.setSplit({ taxBp: 1900, leadBp: 1500, leadEarner: 'scott', partnerA: 'tom', partnerB: 'tom' })).error);
   assert.ok((await P.setSplit({ taxBp: 20000, leadBp: 1500, leadEarner: 'scott', partnerA: 'scott', partnerB: 'tom' })).error);
 });
+
+test('two books: Revolut before 15 Nov, Tide and Stripe from then, each with its own balance and where the money came in', async () => {
+  const old = await survey();
+  await pool.query("update jobs set paid_at = '2026-11-10T12:00:00Z' where id = $1", [old]);
+  const card = await survey();
+  await pool.query("update jobs set paid_at = '2026-11-16T12:00:00Z' where id = $1", [card]);
+  await pool.query("insert into job_payments (job_id, amount_pence, label, external_ref) values ($1, 29500, 'payment', 'stripe:pi_9')", [card]);
+  const tide = await survey();
+  await pool.query("update jobs set paid_at = '2026-11-16T15:00:00Z' where id = $1", [tide]);
+  await survey({ paid: false });
+  await P.recordPayout({ who: 'ronnie', pence: 4000, day: '2026-11-01', how: 'Bank transfer' }, 'Scott');
+  /* Settling the old Revolut balance today stays in the Revolut book. */
+  await P.recordPayout({ who: 'ronnie', pence: 1000, day: '2026-11-16', how: 'Bank transfer', book: 'old' }, 'Scott');
+  await P.recordPayout({ who: 'ronnie', pence: 2500, day: '2026-11-16', how: 'Bank transfer' }, 'Scott');
+
+  const now = await P.payBook();
+  const r = now.cards.find((c) => c.key === 'ronnie');
+  assert.equal(now.book, 'new');
+  assert.deepEqual([r.owed, r.coming], [2 * 10000 - 2500, 10000], 'fresh from the cut-over, the unpaid one coming');
+  assert.deepEqual(now.rows.filter((s) => s.paid).map((s) => s.via).sort(), ['Stripe', 'Tide']);
+  assert.equal(now.other.owed > 0, true, 'the Revolut book still owes, said in one line');
+  const was = await P.payBook({ book: 'old' });
+  assert.equal(was.cards.find((c) => c.key === 'ronnie').owed, 10000 - 4000 - 1000);
+  assert.deepEqual(was.rows.map((s) => s.via), ['Revolut']);
+  assert.equal(was.check.in, was.check.out);
+
+  const s = await P.statement('ronnie');
+  assert.equal(s.owed, 17500);
+  assert.equal(s.old.owed, 5000, 'each book its own running balance');
+  assert.deepEqual(s.coming.map((c) => c.pence), [10000]);
+  assert.ok(s.lines.every((l) => ['Stripe', 'Tide'].includes(l.via)));
+  assert.ok(s.old.lines.every((l) => l.via === 'Revolut'));
+});

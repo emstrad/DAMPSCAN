@@ -1619,6 +1619,14 @@ create table if not exists paid_out (
   removed_by    text
 );
 create index if not exists paid_out_person_idx on paid_out (person_key, paid_on desc);
+-- Which book a payment belongs to (lib/pay-book.js): Revolut before 15 Nov 2026,
+-- Tide and Stripe from then; set when recorded, worked out from the date when not.
+alter table paid_out add column if not exists book text;
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'paid_out_book_check') then
+    alter table paid_out add constraint paid_out_book_check check (book is null or book in ('old', 'new'));
+  end if;
+end $$;
 
 -- Expenses (Company, Money, lib/company-money.js, the owners' plan 15 Nov 2026):
 -- every cost that is not a survey's own (Google Ads, bank fees, software,
