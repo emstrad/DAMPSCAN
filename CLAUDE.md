@@ -561,7 +561,9 @@ checks the mechanical ones.
   straight on without a survey or size (Continue, then Done: we call to help
   choose; the owner, 16 Nov 2026; a second tap unticks a survey or size, as
   for add-ons; the tiles are never a must, a survey and size is enough to
-  book; each step is a browser history entry, so the phone's back steps back
+  book, and the server takes a damp enquiry with no tile ticked (17 Nov 2026: it
+  refused one and the form sent them back to the first card, round and round; a
+  refusal the first card cannot show is now said on the step itself); each step is a browser history entry, so the phone's back steps back
   and a refresh returns to the same step with the answers kept for the tab,
   never back off Done once booked; a landline is accepted with a soft word
   that a mobile gets their survey page by text); nothing step 1 asked is asked
