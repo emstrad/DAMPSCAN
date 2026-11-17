@@ -173,8 +173,13 @@
       sending = false;
       if (r.ok) { go(d.agent || d.outside || d.unsure ? 4 : 3); return; }
       if (btn) { btn.disabled = false; btn.textContent = said; }
-      if (r.errors && Object.keys(r.errors).length) { close(); var f = { firstName: 'f-name', email: 'f-email', postcode: 'f-postcode', phone: 'f-phone' }; Object.keys(r.errors).forEach(function (k) { if (f[k]) mark($(f[k]), true); }); return; }
-      global.alert('That didn\'t send. Please try again, or call us.');
+      /* Only a detail the first card shows sends them back there, marked; anything else is said here,
+         so nobody is sent round in a loop with nothing to fix (17 Nov 2026). */
+      var f = { firstName: 'f-name', email: 'f-email', postcode: 'f-postcode', phone: 'f-phone' }, keys = Object.keys(r.errors || {});
+      if (keys.length && keys.every(function (k) { return f[k]; })) { close(); keys.forEach(function (k) { mark($(f[k]), true); }); return; }
+      var say = keys.length ? r.errors[keys[0]] : 'That didn\'t send. Please try again, or call us.';
+      if (btn && btn.parentNode) { var old = btn.parentNode.querySelector('.ht-senderr'); if (old) old.remove(); var p = el('p', 'ht-sub ht-senderr', say); p.setAttribute('role', 'alert'); btn.parentNode.insertBefore(p, btn.nextSibling); }
+      else global.alert(say);
     });
   }
 

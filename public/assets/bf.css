@@ -197,3 +197,4 @@ a.ht-paybtn b { font-size: 17px; }
 .ht-done > .ht-sub { margin: 0 0 14px; font-size: 13.5px; }
 .ht-done .ht-later { max-width: none; margin: 0 0 12px; }
 @media (max-width: 360px) { .ht-done .ht-acts { grid-template-columns: 1fr; } }
+.ht-senderr{margin:8px 0 0;color:#d97706;font-weight:600}

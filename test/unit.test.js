@@ -56,12 +56,17 @@ test('each brand is checked against its own issue list, never DampScan\'s', () =
   assert.throws(() => validateLead(base, 'nonsense'), /no enquiry definition/, 'unknown brands throw rather than fall back');
 });
 
-test('partial does not require issues, complete does', () => {
+test('partial does not require issues; complete does only on the quoted trades\' old form', () => {
   const partial = validateLead({ stage: 'partial', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
   assert.equal(partial.ok, true, JSON.stringify(partial.errors));
-  const complete = validateLead({ stage: 'complete', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' });
-  assert.equal(complete.ok, false);
-  assert.ok(complete.errors.issues);
+  const roof = validateLead({ stage: 'complete', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' }, 'roofing');
+  assert.equal(roof.ok, false);
+  assert.ok(roof.errors.issues);
+  /* A damp customer may book on a survey and size with no picture tile ticked (17 Nov 2026: one was sent back round and round). */
+  for (const site of ['dampscan', 'ati-london']) {
+    const damp = validateLead({ stage: 'complete', sessionId: SID, firstName: 'P', email: 'a@b.co', postcode: 'SE1 2AB' }, site);
+    assert.equal(damp.ok, true, JSON.stringify(damp.errors));
+  }
 });
 
 test('a complete lead no longer needs a role, because the form stopped asking', () => {
