@@ -41,6 +41,27 @@
     return d;
   }
 
+  function problemsFold(p) {
+    var total = p.counts.reduce(function (t, c) { return t + c.n; }, 0);
+    var f = document.createElement('details'); f.className = 'pay-surveys';
+    var s = document.createElement('summary'); s.className = 'c-row';
+    var l = node('span', 'c-l'); l.appendChild(node('b', null, 'Problems on the website'));
+    l.appendChild(node('small', null, total ? p.counts.filter(function (c) { return c.n; }).map(function (c) { return c.n + ' ' + c.name.toLowerCase(); }).join(' · ') : 'None in ' + p.days + ' days'));
+    var r = node('span', 'c-r'); r.appendChild(node('span', 'c-tag ' + (total ? 'is-warn' : 'is-good'), total ? String(total) : 'None')); r.appendChild(node('span', 'c-chev', '›'));
+    s.appendChild(l); s.appendChild(r); f.appendChild(s);
+    var list = node('div', 'ag-body');
+    p.latest.forEach(function (e) {
+      var when = new Date(e.at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      var row = node('div', 'pr-row');
+      row.appendChild(node('b', null, e.name + (e.step ? ', step ' + e.step : '') + (e.field ? ': ' + e.field : '')));
+      row.appendChild(node('small', 'c-sub', [when, e.site === 'ati-london' ? 'ATi' : e.site === 'dampscan' ? 'DampScan' : null, e.device, e.path].filter(Boolean).join(' · ')));
+      if (e.message) row.appendChild(node('small', 'c-sub', e.message));
+      list.appendChild(row);
+    });
+    f.appendChild(list);
+    return f;
+  }
+
   async function load() {
     var box = document.getElementById('tab-growth');
     var d;
@@ -101,6 +122,9 @@
         fs.appendChild(row);
       });
     }
+
+    /* What went wrong on the websites (lib/site-errors.js): each kind with its count, the latest folded beneath. */
+    if (d.problems) fs.appendChild(problemsFold(d.problems));
 
     /* Every source this company year, best money first. */
     var s = sec('Where enquiries came from this year');

@@ -45,9 +45,10 @@
 
     /* What needs an owner, the same rows as Overview, then anything late. */
     var now = d.attention.slice();
-    if (now.length || d.reportsLate) {
+    if (now.length || d.reportsLate || d.problems) {
       var a = sec('Needs you now'), rows = node('div', 'c-rows ov-rows');
       if (d.reportsLate) rows.appendChild(row(d.reportsLate + ' report' + (d.reportsLate === 1 ? '' : 's') + ' late', null, null, to('/staff/reports.html?area=damp'), 'is-bad'));
+      if (d.problems) rows.appendChild(row(d.problems + ' website problem' + (d.problems === 1 ? '' : 's') + ' last week', 'Form refused, page or server errors', null, tab('growth'), 'is-bad'));
       now.forEach(function (x) { rows.appendChild(row(x.label || x.text, x.sub, x.figure, x.href ? to(x.href) : tab(x.tab, x.who), x.bad ? 'is-bad' : '')); });
       a.appendChild(rows);
     }

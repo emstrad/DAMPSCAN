@@ -400,7 +400,15 @@ checks the mechanical ones.
   with its rate, paid, money) and every source over the company year, best
   money first, phone callers apart; a form sent twice counts once; and the
   booking form step by step over 30 days (who reached each step, how many left
-  there, form_step and form_submit events). Under Google Ads, "Paid customers sent to Google Ads"
+  there, form_step and form_submit events). "Problems on the website" (`lib/site-errors.js`,
+  the owner, 17 Nov 2026: the Vercel logs sit on another account and keep an
+  hour) folds the websites' own log beneath it: the booking form refused by the
+  server (step and field), an error in a visitor's browser (visit.js sends it
+  through /api/event as page_error: script, line, words and the form's step,
+  three a page) and a customer-facing request that failed (api/lead.js,
+  api/quote.js); never a name, email, phone or address (an email or number in an
+  error's words is blanked), kept 90 days in site_errors, counted in the Monday
+  briefing, and read straight from the database when something odd happens. Under Google Ads, "Paid customers sent to Google Ads"
   (`lib/ads-conversions.js`, the owner, 16 Nov 2026): each brand's private file
   address for Google Ads' scheduled upload (Paid job, valued at the money that
   came in, less refunds; cancelled ones drop out), when Google last read it
@@ -599,7 +607,11 @@ checks the mechanical ones.
   postcode, address) is filled in; the old one closes as a duplicate. A
   half-finished form, or a customer ChatGPT finds again, is merged into the
   existing card the same way (missing details filled, the history says so),
-  or noted on their job card.
+  or onto their job card, filling what it lacks (phone, email, postcode, address
+  and town, the agent, and the form linked as its enquiry when it had none,
+  `fillJob` in lib/merge-dupes.js; 17 Nov 2026: Alex's card made by hand had no
+  phone). A postcode typed by hand on a job is stored tidy ("Ct119ls" becomes
+  "CT11 9LS", a database trigger, so every way in).
 - Scheduling and Today, made calm (the owner, 16 Nov 2026: "Who's free should be
   at the top with New customer as actual buttons"): Scheduling opens with the
   search, then New customer and Who's free? as two buttons (Who's free a sheet,

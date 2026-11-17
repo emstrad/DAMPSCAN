@@ -1702,3 +1702,51 @@ create table if not exists job_pay_moves (
   check (from_key <> to_key)
 );
 create index if not exists job_pay_moves_job_idx on job_pay_moves (job_id) where removed_at is null;
+
+-- A postcode typed by hand ("Ct119ls") is stored tidy ("CT11 9LS") however
+-- the card was made (17 Nov 2026), so matching, drives and alerts read it.
+-- Only a real UK postcode shape is changed; anything else is left as typed.
+create or replace function jobs_tidy_postcode() returns trigger language plpgsql as $$
+declare t text;
+begin
+  if new.customer_postcode is not null then
+    t := upper(regexp_replace(new.customer_postcode, '\s+', '', 'g'));
+    if t ~ '^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$' then new.customer_postcode := left(t, length(t) - 3) || ' ' || right(t, 3); end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists jobs_tidy_postcode_trg on jobs;
+create trigger jobs_tidy_postcode_trg before insert or update of customer_postcode on jobs for each row execute function jobs_tidy_postcode();
+update jobs set customer_postcode = customer_postcode
+ where customer_postcode is not null and customer_postcode !~ '^[A-Z]{1,2}[0-9][A-Z0-9]? [0-9][A-Z]{2}$'
+   and upper(regexp_replace(customer_postcode, '\s+', '', 'g')) ~ '^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$';
+
+-- Alex Krutnik (DampScan, 17 Nov 2026): the form sent him round in a loop, the
+-- owner made his card by hand, and his half-finished form had the phone and
+-- town the card lacked. Filled in once, as lib/merge-dupes.js fillJob now does.
+update jobs j set
+    customer_name = 'Alex Krutnik',
+    customer_phone = coalesce(nullif(j.customer_phone, ''), l.phone),
+    customer_address = case when position(lower(coalesce(l.town, '')) in lower(coalesce(j.customer_address, ''))) = 0
+      then concat_ws(', ', initcap(nullif(j.customer_address, '')), l.town) else j.customer_address end,
+    lead_id = coalesce(j.lead_id, l.id)
+  from leads l
+ where j.id = 104 and l.id = 196 and j.customer_name ilike 'alex krutnik' and lower(l.email) = 'alexkrutnik@outlook.com'
+   and j.customer_phone is null;
+
+-- The websites' own log of what went wrong (lib/site-errors.js, the owner,
+-- 17 Nov 2026): form refusals, errors in a visitor's browser and failed
+-- customer-facing requests. No names, emails, phones or addresses. 90 days.
+create table if not exists site_errors (
+  id          bigserial primary key,
+  at          timestamptz not null default now(),
+  site        text,
+  kind        text not null check (kind in ('form_refused', 'page_error', 'server_error')),
+  path        text,
+  step        integer,
+  field       text,
+  message     text,
+  device      text,
+  session_id  uuid
+);
+create index if not exists site_errors_at_idx on site_errors (at desc);
