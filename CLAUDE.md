@@ -339,7 +339,15 @@ checks the mechanical ones.
   the top (all fees absorbed by everyone, the owners' choice), then the job's own
   waterfall; a cancelled one drops out; unpaid work shows as coming. The check
   line proves money in equals what is shared. The split for new surveys is the
-  owners' to change there (job_settings); booked ones keep theirs. Two books (the
+  owners' to change there (job_settings); booked ones keep theirs. Who gets what on one survey
+  (`lib/pay-moves.js`, `public/staff/pop-split.js`, the owner, 17 Nov 2026: Scott
+  and Tom both went to a survey): the job pop-up's folded "Who gets what" line
+  (owners, under Money) shows each person's share and moves a set amount from
+  one person to another on that survey alone, with a reason, the new figures
+  shown before Move; never more than they have, the total never changes, each
+  move a line in the customer's history and taken back (never edited) with who
+  and when (job_pay_moves). Pay, statements, Overview, Money, Week and Money and
+  rates (lib/job-totals.js) all read the moves. Two books (the
   owners' fresh start, 16 Nov 2026): the money moved from Revolut (pots) to
   Tide and Stripe on 15 Nov 2026 (CUTOVER, the first card payment), so Pay
   opens on Tide and Stripe: surveys whose money came in there (a card payment,

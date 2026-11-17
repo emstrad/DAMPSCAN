@@ -61,6 +61,10 @@
       if (global.DSPOPMONEY) global.DSPOPMONEY.render(mg, j, k.changed);
       mg.appendChild(k.tick(j, 'depositPaid', 'Deposit paid (' + U.money(m.depositPence) + ')', j.depositPaid, 'Deposit marked paid.'));
       mg.appendChild(k.tick(j, 'paid', 'Paid in full', j.paid, 'Marked paid in full.'));
+      /* Who gets what: each person's share, and money moved between people on this survey (owners). */
+      var sg = group(k, 'Who gets what', 'Loading', null, null, false);
+      var split = function () { global.DSPOPSPLIT.render(sg, j); };
+      if (global.DSPOPSPLIT) split(); else { var sc = document.createElement('script'); sc.src = '/staff/pop-split.js'; sc.onload = split; document.head.appendChild(sc); }
     } else {
       var sv = group(k, 'The survey', j.surveyType, null, null, false);
       X.facts(sv, [['Survey', j.surveyType], ['Surveyor', k.cap(j.surveyor)], ['Agent', X.agentLine(j.agent)]]);
