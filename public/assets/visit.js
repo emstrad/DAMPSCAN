@@ -78,6 +78,21 @@ function placementOf(el){
 }
 
 /* ---------- Interaction tracking (delegated, nothing added to the markup) ---------- */
+/* An error in this page reaches our own log (lib/site-errors.js): the script, line and words, and
+   the booking form's step, never what was typed. Three a page at most; other sites' scripts
+   ("Script error.") are skipped, since they say nothing we can act on. */
+(function errors(){
+  let sent = 0;
+  const step = () => { try { const s = JSON.parse(sessionStorage.getItem('bf-state') || 'null'); return s && s.step || null; } catch (e) { return null; } };
+  const note = (message, where) => {
+    if (sent >= 3 || !message || /^Script error\.?$/i.test(message)) return;
+    sent += 1;
+    track('page_error', { message: String(message).slice(0, 240), where: String(where || '').replace(location.origin, '').slice(0, 120), step: step() });
+  };
+  window.addEventListener('error', e => { if (e && e.message) note(e.message, (e.filename || '') + ':' + (e.lineno || 0)); });
+  window.addEventListener('unhandledrejection', e => { const r = e && e.reason; note(r && r.message ? r.message : String(r || ''), r && r.stack ? String(r.stack).split('\n')[1] : 'promise'); });
+})();
+
 (function tracking(){
   track('page_view');
   document.addEventListener('click', e => {

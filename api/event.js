@@ -9,6 +9,7 @@ import { requireMethod, requireSameOrigin, readJson, ipHash, str, json } from '.
 import { sanitiseUtm } from '../lib/validate.js';
 import { channelFor, deviceFor } from '../lib/attribution.js';
 import { rateLimit, pruneRateHits, LIMITS } from '../lib/ratelimit.js';
+import { logSiteError } from '../lib/site-errors.js';
 import { siteFor } from '../lib/site.js';
 
 export const config = { runtime: 'nodejs' };
@@ -76,6 +77,14 @@ export default async function handler(req, res) {
     const sessionId = String(body.sessionId || '').trim();
     const type = String(body.type || '').trim();
 
+    /* An error in the visitor's browser goes to our own log (lib/site-errors.js), not the analytics. */
+    if (type === 'page_error' && UUID_RE.test(sessionId)) {
+      const d = body.detail && typeof body.detail === 'object' ? body.detail : {};
+      await logSiteError({ site: siteFor(req), kind: 'page_error', path: str(body.path, 200), step: d.step, field: str(d.where, 120), message: str(d.message, 240),
+        device: deviceFor(req.headers['user-agent']), sessionId });
+      done();
+      return;
+    }
     if (!UUID_RE.test(sessionId) || !TYPES.has(type)) {
       json(res, 400, { ok: false, error: 'bad_event' });
       return;

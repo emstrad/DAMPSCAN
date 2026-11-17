@@ -17,6 +17,7 @@
  * quote is open: still quoted, not withdrawn, within its thirty days and with
  * a price on it. The price is fixed at that moment, and the owner is told.
  */
+import { logSiteError } from '../lib/site-errors.js';
 import { query, queryOne } from '../lib/db.js';
 import { json, requireMethod, ipHash, readJson, str } from '../lib/http.js';
 import { notify } from '../lib/notify.js';
@@ -269,6 +270,7 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('quote view failed:', err.message);
+    await logSiteError({ kind: 'server_error', path: 'customer page or quote', message: err.message });
     json(res, 500, { ok: false, error: 'quote_failed' });
   }
 }

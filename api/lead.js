@@ -19,6 +19,8 @@ import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { agentFromLead } from '../lib/estate-agents.js';
 import { referralFromLead } from '../lib/agent-referrals.js';
+import { logSiteError } from '../lib/site-errors.js';
+import { deviceFor } from '../lib/attribution.js';
 import { londonToday } from '../lib/pipeline.js';
 import { labFlag } from '../lib/availability.js';
 import { queuePartial } from '../lib/text-nudges.js';
@@ -98,6 +100,7 @@ export default async function handler(req, res) {
       json(res, out.error ? (out.error === 'not_found' ? 404 : 409) : 200, { ok: !out.error, ...out });
     } catch (err) {
       console.error('web booking failed:', err.message);
+      await logSiteError({ site: siteFor(req), kind: 'server_error', path: 'booking ' + str(body.op, 20), message: err.message, sessionId: body.sessionId });
       json(res, 500, { ok: false, error: 'booking_failed' });
     }
     return;
@@ -113,6 +116,10 @@ export default async function handler(req, res) {
   const site = siteFor(req);
   const { ok, errors, value } = validateLead(body, site);
   if (!ok) {
+    /* Kept for us (lib/site-errors.js): which step and field, never what they typed. */
+    const keys = Object.keys(errors);
+    await logSiteError({ site, kind: 'form_refused', path: str(body.sourcePath, 200), step: body.stage === 'complete' ? 2 : 1,
+      field: keys.join(', '), message: errors[keys[0]], device: deviceFor(req.headers['user-agent']), sessionId: body.sessionId });
     json(res, 400, { ok: false, errors });
     return;
   }
@@ -146,6 +153,7 @@ export default async function handler(req, res) {
     ]);
   } catch (err) {
     console.error('lead write failed:', err.message);
+    await logSiteError({ site, kind: 'server_error', path: 'enquiry save', step: body.stage === 'complete' ? 2 : 1, message: err.message, sessionId: body.sessionId });
     json(res, 500, { ok: false, error: 'write_failed' });
     return;
   }
