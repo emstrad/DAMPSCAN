@@ -1684,3 +1684,21 @@ alter table estate_agents add column if not exists ref_code text;
 alter table estate_agents add column if not exists site text;
 create unique index if not exists estate_agents_ref_idx on estate_agents (ref_code) where ref_code is not null;
 alter table leads add column if not exists referred_by bigint references estate_agents (id) on delete set null;
+
+-- Who gets what on one survey (the owner, 17 Nov 2026): a set amount moved by
+-- an owner from one person to another on that survey alone (Scott and Tom both
+-- went, say). Never edited; taken back with who and when (lib/pay-moves.js).
+create table if not exists job_pay_moves (
+  id          bigserial primary key,
+  job_id      bigint not null references jobs (id) on delete cascade,
+  from_key    text not null check (from_key in ('scott', 'tom', 'ben', 'ronnie')),
+  to_key      text not null check (to_key in ('scott', 'tom', 'ben', 'ronnie')),
+  pence       integer not null check (pence > 0),
+  reason      text not null,
+  by_name     text,
+  created_at  timestamptz not null default now(),
+  removed_at  timestamptz,
+  removed_by  text,
+  check (from_key <> to_key)
+);
+create index if not exists job_pay_moves_job_idx on job_pay_moves (job_id) where removed_at is null;
