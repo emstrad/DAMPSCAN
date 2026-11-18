@@ -62,6 +62,7 @@
 
   function stageTag(e) { /* where a damp survey stands, as a small tag: green done, amber owed */
     if (e.kind !== 'job' || e.quoted) return null;
+    if (!('depositPaid' in e)) return e.status === 'completed' ? ['Surveyed', 'is-good'] : e.awaitingAgent ? ['Agent to confirm', 'is-info'] : null; /* a surveyor: no money */
     return e.status === 'cancelled' ? ['Cancelled', ''] : e.paid ? [e.reportSent ? 'Done' : 'Paid', 'is-good'] : e.awaitingAgent ? ['Agent to confirm', 'is-info']
       : e.status === 'completed' ? ['Surveyed, not paid', 'is-warn'] : e.depositPaid ? ['Deposit in', 'is-good'] : ['Deposit due', 'is-warn'];
   }
