@@ -58,7 +58,7 @@
     /* Visit: when, where, who, On my way and the date. */
     var when = !j.dateSet ? 'Not booked in yet' : DAY(j.date) + (j.time ? ' ' + j.time : ', time to confirm');
     var v = group(k, 'Visit', [when, j.surveyType, k.cap(j.surveyor)].filter(Boolean).join(' · '), j.awaitingAgent ? 'Agent to confirm' : null, 'is-info', !j.dateSet || j.status === 'cancelled');
-    X.where(j, v);
+    X.where(j, v, true);
     if (j.status !== 'paid') X.dateForm(j, function (t, f) { return k.section(t, f, v); }, k.changed);
     if (boss) v.appendChild(k.tick(j, 'awaitingAgent', 'Awaiting estate agent', j.awaitingAgent, 'Marked awaiting the agent.'));
 
