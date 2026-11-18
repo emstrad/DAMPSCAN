@@ -600,3 +600,7 @@ main .btn:not(.btn--primary):not(.btn--ghost):not(.is-main):hover{background:var
 .j-agent .c-l b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .j-agent-b{flex:none;padding:0 16px;min-height:44px}
 .j-cards select{min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--navy-2);color:var(--text);font:inherit;font-size:16px;color-scheme:dark}
+/* The one next step's own tick sits in its box, the words said once. */
+.sheet-next .sheet-tick{margin-top:12px;font-weight:600}
+/* Native tick boxes and pickers in every pop-up follow the dark theme (an unticked box was white). */
+dialog{color-scheme:dark}

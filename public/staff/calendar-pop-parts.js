@@ -199,7 +199,7 @@
       : !done && m && !j.depositPaid ? 'Deposit to collect (' + U.money(m.depositPence) + ').'
       : null;
     if (!say) return;
-    var p = U.node('p', 'sheet-next', say);
+    var p = U.node('div', 'sheet-next', say);
     into.appendChild(p);
   }
 

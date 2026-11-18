@@ -67,10 +67,17 @@
     var D = global.DSSCHEDDETAIL, N = global.DSSCHEDNEXT;
     var shut = function () { d.close(); };
     var act = function (body, said) { shut(); return opts.act(body, said); };
+    /* A change that keeps the card open redraws it from the board's fresh copy, so its stage and contact line move on. */
+    var redo = async function (body, said) {
+      var r = await opts.act(body, said);
+      var fresh = r && r.ok && opts.find && opts.find(c.kind, c.id);
+      if (fresh) open(fresh, opts);
+      return r;
+    };
     var top = U.node('div', 'scc-top');
     /* The same top as the customer card: stage and brand, the name, then what they want. */
     var title = U.node('div', 'scc-title');
-    var tag = U.node('p', 'scc-stage'); tag.appendChild(U.node('span', 'c-tag ' + (c.stage === 'new' ? 'is-warn' : 'is-info'), STAGE[c.stage] || 'Enquiry')); tag.appendChild(U.node('span', 'c-sub', c.site === 'ati-london' ? 'ATi Damp Survey' : 'DampScan'));
+    var tag = U.node('p', 'scc-stage'); tag.appendChild(U.node('span', 'c-tag ' + (c.stage === 'new' ? 'is-warn' : 'is-info'), c.pencil ? 'Pencilled' : STAGE[c.stage] || 'Enquiry')); tag.appendChild(U.node('span', 'c-sub', c.site === 'ati-london' ? 'ATi Damp Survey' : 'DampScan'));
     title.appendChild(tag);
     title.appendChild(U.node('h2', null, c.name || 'No name'));
     title.appendChild(U.node('p', 'c-sub', [c.postcode, c.wanted ? 'wants ' + c.wanted : null].filter(Boolean).join(' · ')));
@@ -80,8 +87,8 @@
     d.appendChild(top);
 
     if (!(c.log || []).length) d.appendChild(U.node('div', 'scc-step is-due', 'Nobody in touch yet: call them'));
-    else if (N && opts.act) { var step = N.status(c, opts.act, shut); if (step) d.appendChild(step); }
-    if (D && opts.act) D.urgent(c, act, function (slot) { shut(); opts.book(c, slot); }).forEach(function (n) { d.appendChild(n); });
+    else if (N && opts.act) { var step = N.status(c, redo, shut); if (step) d.appendChild(step); }
+    if (D && opts.act) D.urgent(c, act, function (slot) { shut(); opts.book(c, slot, true); }).forEach(function (n) { d.appendChild(n); });
 
     /* One row of quick contacts; the number stays readable underneath. */
     var tel = c.phone ? String(c.phone).replace(/[^\d+]/g, '') : '';
@@ -95,11 +102,12 @@
     agentLine(d, c);
 
     /* Book it in, with the best times to offer under it (three, the rest folded). */
-    if (opts.book) {
+    /* A held time has its own "They said yes: book it" above, so only one blue button shows. */
+    if (opts.book && !c.pencil) {
       /* The one big action, in its own blue box: the best times, then Book it in. */
       var bk = U.node('div', 'c-next is-info scc-book'); bk.appendChild(U.node('span', 'c-label', 'Book it in'));
-      if (!c.pencil) times(bk, c, function (s) { shut(); opts.book(c, s); });
-      bk.appendChild(btn(c.pencil ? 'Confirm the pencilled time' : 'Book it in', 'btn sched-bookit', function () { shut(); opts.book(c, null); }));
+      times(bk, c, function (s) { shut(); opts.book(c, s, true); });
+      bk.appendChild(btn('Book it in', 'btn sched-bookit', function () { shut(); opts.book(c, null, true); }));
       d.appendChild(bk);
     }
 
@@ -116,7 +124,8 @@
     r2.appendChild(btn('Log', 'btn btn--sm', async function () {
       var body = { op: 'log', kind: c.kind, id: c.id, how: how.value, note: said.value };
       if (next && how.value !== 'note') body.next = next.value();
-      await opts.act(body, 'Logged on ' + (c.name || 'the card') + '.'); said.value = ''; history(c, list, todoBox);
+      var r = await redo(body, 'Logged on ' + (c.name || 'the card') + '.'); said.value = '';
+      if (!(r && r.ok && opts.find)) history(c, list, todoBox);
     }));
     log.appendChild(r2);
     if (next) how.addEventListener('change', function () { next.select.hidden = how.value === 'note'; next.date.hidden = how.value === 'note' || next.select.value !== 'date'; });
@@ -134,11 +143,11 @@
       if (D && opts.act) { f.appendChild(U.node('p', 'meta', 'Times they want')); f.appendChild(D.wanted(c, act)); }
       if (opts.act) agentEdit(f, c, act);
     });
-    if (D && opts.act) fold(folds, 'Move or close', function (f) { f.appendChild(D.move(c, act, function (slot) { shut(); opts.book(c, slot); })); });
+    if (D && opts.act) fold(folds, 'Move or close', function (f) { f.appendChild(D.move(c, act, function (slot) { shut(); opts.book(c, slot, true); })); });
     var past = fold(folds, 'Everything so far', function (f) { f.appendChild(U.node('ol', 'scc-list')); });
     var list = past.querySelector('.scc-list');
     d.appendChild(folds);
-    d.showModal();
+    if (!d.open) d.showModal();
     /* The card itself takes focus, so the close button is not lit up on opening. */
     d.tabIndex = -1; d.focus();
     history(c, list, todoBox);

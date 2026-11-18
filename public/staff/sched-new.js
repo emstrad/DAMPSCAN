@@ -10,17 +10,25 @@
   var force = false;
   function iso(n) { var d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('en-CA', { timeZone: 'Europe/London' }); }
 
-  el('newc-open').addEventListener('click', function () { el('newc-form').reset(); el('newc-note').textContent = ''; force = false; dlg.showModal(); el('nc-name').focus(); });
+  var same = null;
+  el('newc-open').addEventListener('click', function () { el('newc-form').reset(); el('newc-note').textContent = ''; el('newc-open-same').hidden = true; same = null; force = false; dlg.showModal(); el('nc-name').focus(); });
+  /* Phone boxes take only digits, spaces and a leading +. */
+  el('nc-phone').addEventListener('input', function () { var v = this.value.replace(/[^\d\s+]/g, ''); this.value = v.charAt(0) + v.slice(1).replace(/\+/g, ''); });
+  /* Already on the board: their own card, rather than a second one. */
+  el('newc-open-same').addEventListener('click', function () { dlg.close(); if (same) global.dispatchEvent(new CustomEvent('sched:made', { detail: same })); });
   el('newc-cancel').addEventListener('click', function () { dlg.close(); });
   el('newc-form').addEventListener('submit', async function (e) {
     e.preventDefault();
+    var digits = el('nc-phone').value.replace(/\s/g, '').replace(/^\+44/, '0');
+    if (digits && !/^0\d{10}$/.test(digits)) { el('newc-note').textContent = 'The phone number should be 11 digits.'; el('nc-phone').focus(); return; }
     var body = { op: 'create', force: force };
     ['site', 'name', 'phone', 'email', 'postcode', 'address', 'note'].forEach(function (k) { body[k] = el('nc-' + k).value; });
     var r = await U.send('/api/admin/scheduling', body);
     if (!r.ok) { el('newc-note').textContent = (r.data && r.data.error) || 'That did not save.'; return; }
     if (r.data.same) {
-      var s = r.data.same;
-      el('newc-note').textContent = (s.name || 'Someone') + (s.postcode ? ', ' + s.postcode : '') + ' is already on the board with that number or email. Tap Add again if this is someone else, or Cancel and search for them.';
+      var s = r.data.same; same = { kind: s.kind, id: s.id };
+      el('newc-note').textContent = (s.name || 'Someone') + (s.postcode ? ', ' + s.postcode : '') + ' is already on the board with that number or email. Tap Add again if this is someone else.';
+      el('newc-open-same').hidden = false;
       force = true; return;
     }
     dlg.close();

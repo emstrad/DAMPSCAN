@@ -22,9 +22,14 @@
   async function act(body, said) {
     var r = await U.send('/api/admin/scheduling', body);
     el('note').textContent = r.ok ? (said || '') : (r.data && r.data.error) || 'That did not save.';
-    if (r.ok) { focusAfter = body.kind && body.id ? body.kind + '-' + body.id : null; load(); }
+    if (r.ok) { focusAfter = body.kind && body.id ? body.kind + '-' + body.id : null; await load(); }
     return r;
   }
+
+  /* Every way the customer card opens: the same actions, and the card's fresh copy after a change. */
+  var cardOpts = { act: act, book: openBook, reload: function () { load(); },
+    find: function (kind, id) { return data && data.cards.find(function (x) { return x.kind === kind && x.id === id; }); } };
+  var backTo = null;
 
   function button(text, cls, fn) { var b = U.node('button', cls || 'btn btn--ghost btn--sm', text); b.type = 'button'; b.addEventListener('click', fn); return b; }
 
@@ -34,7 +39,7 @@
     box.draggable = true;
     box.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.kind + ':' + c.id); });
     /* A tap on the card itself (not its buttons or boxes) opens the full customer card. */
-    box.addEventListener('click', function (e) { if (!e.target.closest('button,a,input,select,textarea,summary,details,label')) global.DSSCHEDCARD.open(c, { act: act, book: openBook }); });
+    box.addEventListener('click', function (e) { if (!e.target.closest('button,a,input,select,textarea,summary,details,label')) global.DSSCHEDCARD.open(c, cardOpts); });
     /* A row you can see is a button (the owner, 16 Nov 2026): the name with an arrow, the address,
        where contact stands, then small tags; the phone is a Call chip. */
     var top = U.node('div', 'sc-top');
@@ -111,7 +116,7 @@
       var b = U.node('button', 'sched-urgent-row'); b.type = 'button';
       b.appendChild(U.node('b', null, (u[1].name || 'No name') + (u[1].postcode ? ', ' + u[1].postcode : '')));
       b.appendChild(U.node('span', null, u[2]));
-      b.addEventListener('click', function () { if (u[1].jobId) global.DSPOP.open(u[1].jobId, { onChange: load }); else global.DSSCHEDCARD.open(u[1], { act: act, book: openBook }); });
+      b.addEventListener('click', function () { if (u[1].jobId) global.DSPOP.open(u[1].jobId, { onChange: load }); else global.DSSCHEDCARD.open(u[1], cardOpts); });
       box.appendChild(b);
     });
     if (list.length > shown.length) box.appendChild(U.node('p', 'panel-note', 'and ' + (list.length - shown.length) + ' more on the board'));
@@ -161,10 +166,11 @@
   el('free-who').addEventListener('change', renderFree);
   el('free-go').addEventListener('click', function () { load(); });
 
-  function openBook(c, slot) {
+  function openBook(c, slot, fromCard) {
+    /* Cancel goes back to the customer card it came from, not the board. */
+    backTo = fromCard ? c : null;
     /* From Who's free there is no card yet: pick who it is for. */
     el('b-for-row').hidden = Boolean(c);
-    el('b-new').hidden = Boolean(c);
     if (!c) {
       var f = el('b-for'); f.textContent = '';
       data.cards.forEach(function (x, i) { var o = document.createElement('option'); o.value = String(i); o.textContent = (x.name || 'No name') + (x.postcode ? ', ' + x.postcode : ''); f.appendChild(o); });
@@ -204,7 +210,11 @@
           + (d.sharing && d.sharing.length ? ' The same time is also offered to ' + d.sharing.join(', ') + '.' : '')
           + (d.recent && d.recent.length ? ' Heads up: ' + d.recent.join('; ') + '.' : '')
         : 'Booked. It is on Today now.' + (d.bumped && d.bumped.length ? ' ' + d.bumped.join(', ') + ' had that time pencilled and went back to Waiting, with a to-do to offer another time.' : '');
-      load(); return;
+      backTo = null;
+      await load();
+      /* Booked: their customer card next, for the deposit and their page link. */
+      if (op === 'book' && d.jobId && global.DSPOP) global.DSPOP.open(d.jobId, { onChange: load });
+      return;
     }
     if (r.data && r.data.clash) { global.DSSCHEDNEW.clash(r.data.clash); el('b-note').textContent = r.data.clash + ' Go ahead anyway?'; el('b-go').textContent = 'Book anyway'; el('b-pencil').textContent = 'Pencil anyway'; el('b-go').dataset.force = '1'; return; }
     el('b-note').textContent = (r.data && (r.data.error || Object.values(r.data.errors || {})[0])) || 'That did not save.';
@@ -212,7 +222,13 @@
   el('book-form').addEventListener('submit', function (e) { e.preventDefault(); submit('book'); });
   el('b-pencil').addEventListener('click', function () { submit('pencil'); });
   ['b-date', 'b-time', 'b-who'].forEach(function (id) { el(id).addEventListener('change', function () { el('b-go').dataset.force = ''; el('b-go').textContent = 'Book it'; el('b-pencil').textContent = 'Pencil in (48h)'; }); });
-  el('b-cancel').addEventListener('click', function () { el('book').close(); });
+  el('b-cancel').addEventListener('click', function () {
+    el('book').close();
+    var c = backTo && cardOpts.find(backTo.kind, backTo.id); backTo = null;
+    if (c) global.DSSCHEDCARD.open(c, cardOpts);
+    /* Someone already booked is on their customer card, not the board. */
+    else if (e.detail.kind === 'job' && global.DSPOP) global.DSPOP.open(e.detail.id, { onChange: load });
+  });
 
   /* The dispatch day: which day and week are on screen, and what its buttons do. */
   /* ?day=YYYY-MM-DD (the Monday briefing's days) opens that day's plan. */
@@ -231,7 +247,7 @@
       if (c) openBook(c, slot);
     }
   };
-  var search = global.DSSCHEDSEARCH.wire(el('ss-q'), el('ss-list'), { cards: function () { return data && data.cards; }, open: function (c) { global.DSSCHEDCARD.open(c, { act: act, book: openBook }); } });
+  var search = global.DSSCHEDSEARCH.wire(el('ss-q'), el('ss-list'), { cards: function () { return data && data.cards; }, open: function (c) { global.DSSCHEDCARD.open(c, cardOpts); } });
   var opened = false;
   async function load() {
     try {
@@ -240,7 +256,12 @@
       if (pcode) q.push('postcode=' + encodeURIComponent(pcode));
       data = await U.get('/api/admin/scheduling' + (q.length ? '?' + q.join('&') : ''));
       var t = el('b-type');
-      if (t.options.length < 2) data.rates.forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label + (r.pricePence ? ', £' + Math.round(r.pricePence / 100) : ''); t.appendChild(o); });
+      /* Damp surveys, then damp and timber, each by size: two short lists rather than one long one. */
+      if (t.options.length < 2) [['Damp survey', function (r) { return !/^dt-/.test(r.key); }], ['Damp and timber', function (r) { return /^dt-/.test(r.key); }]].forEach(function (g) {
+        var grp = document.createElement('optgroup'); grp.label = g[0];
+        data.rates.filter(g[1]).forEach(function (r) { var o = document.createElement('option'); o.value = r.key; o.textContent = r.label.replace(/^Damp and timber, (.)/, function (m, a) { return a.toUpperCase(); }) + (r.pricePence ? ', £' + Math.round(r.pricePence / 100) : ''); grp.appendChild(o); });
+        if (grp.children.length) t.appendChild(grp);
+      });
       render();
       urgent();
       renderFree();
@@ -252,14 +273,16 @@
       if (hit) { hit.scrollIntoView({ block: 'center' }); hit.classList.add('is-hit'); }
       /* From Search: the customer's card opens straight away, once. */
       var want = !opened && location.hash && data.cards.find(function (x) { return '#' + x.kind + '-' + x.id === location.hash; });
-      if (want) { opened = true; global.DSSCHEDCARD.open(want, { act: act, book: openBook }); }
+      if (want) { opened = true; global.DSSCHEDCARD.open(want, cardOpts); }
     } catch (e) { if (e.message !== 'unauthorised') el('note').textContent = 'Could not load the board.'; }
   }
   /* A caller just added: reload, then open their card with the times to offer. */
   global.addEventListener('sched:made', async function (e) {
     await load();
     var c = data.cards.find(function (x) { return x.kind === e.detail.kind && x.id === e.detail.id; });
-    if (c) global.DSSCHEDCARD.open(c, { act: act, book: openBook });
+    if (c) global.DSSCHEDCARD.open(c, cardOpts);
+    /* Someone already booked is on their customer card, not the board. */
+    else if (e.detail.kind === 'job' && global.DSPOP) global.DSPOP.open(e.detail.id, { onChange: load });
   });
   var r = el('refresh'); if (r) r.addEventListener('click', load);
   var o = el('logout'); if (o) o.addEventListener('click', async function () { await fetch('/api/auth/logout', { method: 'POST' }); location.replace('/staff'); });

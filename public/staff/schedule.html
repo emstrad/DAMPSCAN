@@ -86,31 +86,30 @@
     <form method="dialog" id="book-form">
       <h2 id="book-title">Book</h2>
       <label id="b-for-row" hidden>For <select id="b-for"></select></label>
-      <p class="panel-note" id="b-new" hidden>Someone new on the phone? Add them with the + button first, then pick them here.</p>
       <label>Day <input type="date" id="b-date" required /></label>
       <div class="sched-row"><button class="btn btn--ghost btn--sm" type="button" id="b-today">Today</button><button class="btn btn--ghost btn--sm" type="button" id="b-tomorrow">Tomorrow</button></div>
       <label>Time <input type="time" id="b-time" step="900" required /></label>
       <label>Who is going <select id="b-who" required><option value="">Pick who is going</option><option value="tom">Tom</option><option value="ben">Ben</option><option value="ronnie">Ronnie</option><option value="scott">Scott</option></select></label>
       <label>Survey <select id="b-type"><option value="">Pick the survey</option></select></label>
       <div id="b-extras-wrap" hidden><fieldset class="b-extras" id="b-extras"><legend>Extras</legend></fieldset>
-      <label>Price £ <input type="number" id="b-price" inputmode="decimal" min="0" step="1" /></label></div>
+      <label>Total £ <input type="number" id="b-price" inputmode="decimal" min="0" step="1" /></label></div>
       <p class="panel-note" id="b-note" role="status"></p>
       <a class="btn btn--ghost btn--sm" id="b-hours" hidden href="/staff/hours.html?area=damp">Set their hours</a>
-      <div class="top-end"><button class="btn btn--ghost" value="cancel" type="button" id="b-cancel">Cancel</button><button class="btn btn--ghost" type="button" id="b-pencil">Pencil in (48h)</button><button class="btn" type="submit" id="b-go">Book it</button></div>
+      <div class="b-acts"><button class="btn btn--primary" type="submit" id="b-go">Book it</button><button class="btn btn--ghost" type="button" id="b-pencil">Pencil in (48h)</button><button class="btn btn--ghost" value="cancel" type="button" id="b-cancel">Cancel</button></div>
     </form>
   </dialog>
   <dialog class="sched-dialog" id="newc">
     <form method="dialog" id="newc-form">
       <h2>New customer</h2>
-      <label>Business <select id="nc-site"><option value="ati-london">ATi Damp Survey</option><option value="dampscan">DampScan</option></select></label>
       <label>Name <input id="nc-name" required autocomplete="off" /></label>
-      <label>Phone <input id="nc-phone" type="tel" autocomplete="off" /></label>
-      <label>Email <input id="nc-email" type="email" autocomplete="off" /></label>
+      <label>Phone <input id="nc-phone" type="tel" inputmode="tel" autocomplete="off" /></label>
       <label>Postcode <input id="nc-postcode" required autocomplete="off" /></label>
+      <label>Email <input id="nc-email" type="email" autocomplete="off" /></label>
       <label>Address <input id="nc-address" autocomplete="off" /></label>
       <label>What they need <textarea id="nc-note" rows="3"></textarea></label>
+      <label>Business <select id="nc-site"><option value="auto">From the postcode</option><option value="ati-london">ATi Damp Survey</option><option value="dampscan">DampScan</option></select></label>
       <p class="panel-note" id="newc-note" role="status"></p>
-      <div class="top-end"><button class="btn btn--ghost" type="button" id="newc-cancel">Cancel</button><button class="btn" type="submit">Add</button></div>
+      <div class="top-end"><button class="btn btn--ghost" type="button" id="newc-open-same" hidden>Open their card</button><button class="btn btn--ghost" type="button" id="newc-cancel">Cancel</button><button class="btn btn--primary" type="submit">Add</button></div>
     </form>
   </dialog>
 </main>

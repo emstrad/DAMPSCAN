@@ -48,6 +48,10 @@
     k.body.classList.add('j-cards');
     quick(j, k);
     if (X.next) X.next(j, k.body);
+    /* The next step's own tick sits in its box (managers): Deposit paid, or Paid in full once surveyed. */
+    var nx = k.body.querySelector('.sheet-next');
+    if (nx && j.money && /^Deposit/.test(nx.textContent)) nx.appendChild(k.tick(j, 'depositPaid', 'Deposit paid', j.depositPaid, 'Deposit marked paid.'));
+    else if (nx && j.money && /^Balance/.test(nx.textContent)) nx.appendChild(k.tick(j, 'paid', 'Paid in full', j.paid, 'Marked paid in full.'));
     if (j.moveAsked) k.moveAsked(j);
     var reply = function () { k.part('DSPOPREPLY', '/staff/pop-reply.js', function (sec) { global.DSPOPREPLY.render(j, sec, k.changed); }); };
     /* A page message waiting for us comes straight after the next step. */

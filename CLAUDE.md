@@ -206,7 +206,9 @@ checks the mechanical ones.
   as one line with the other a tap away, surveys and the split folded as rows; the bank check shows one
   line at a time (Skip or OK), everything settled folded beneath. The damp customer
   card (`public/staff/pop-journey.js`) is in journey order: Call, Text,
-  Directions and Email tiles, the one next step, a page message to reply to,
+  Directions and Email tiles, the one next step (with its own tick, Deposit paid
+  or Paid in full, and not said again under Needs doing, whose rows inside the
+  card have no Open or Call), a page message to reply to,
   needs doing and to-dos, then one line each for Visit, Money (or The survey
   for surveyors), Report, Messages and history and Details, each saying what
   it holds beneath (Visit no second set of contacts), Not going ahead last; to-dos are rows with a round tick
@@ -217,6 +219,9 @@ checks the mechanical ones.
   customer card is its own outlined card, so what a fold holds sits inside it, a
   fold inside a part a quieter row; the estate agent (Call, Email) sits under the
   contacts at the top, not in Money (the owner, 18 Nov 2026).
+- The phone's back (iPhone swipe, Android button) closes the pop-up on top,
+  never leaves the page while one is open (`public/staff/ui.js`, every staff
+  page; the owner's review, 18 Nov 2026).
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
   visible screen; checked at phone size before shipping. Locked in by CI (the
@@ -660,7 +665,10 @@ checks the mechanical ones.
 - No map on Scheduling (the owners found it clutter). Each card to book shows the times to offer, best first, with why
   (`lib/best-fit.js`): who has hours, who is already near that day, then the
   start adding least driving, snug after the survey before; no drive over 75
-  minutes between surveys; fresh days (nothing booked) after nearby ones.
+  minutes between surveys; fresh days (nothing booked) after nearby ones, and a
+  day out elsewhere (busy, not near) after fresh days; the patch surveyor before
+  anyone outside it (the owner's review, 18 Nov 2026: Tom 70 minutes away came
+  first for West Malling); three times shown.
 - Home areas (`lib/homes.js`, area only, never a street): Ben and Ronnie
   West Malling, Tom Shooter's Hill. The first survey counts the drive from
   home and the last the drive back (up to two hours), shown on the day lane
@@ -696,7 +704,16 @@ checks the mechanical ones.
   touch) and short flags (pencilled, best time, times wanted, agent, deadline).
   A time the customer picked online (a pencil set by the Website) is flagged
   "Picked a time online"; an undated job card carries its street, problem, photos
-  and survey choice as an enquiry card does (18 Nov 2026).
+  and survey choice as an enquiry card does (18 Nov 2026). The booking flow (the
+  owner's review, 18 Nov 2026): logging a call redraws the open card (stage and
+  contact line move on); a time tapped on the card opens the booking form, and
+  its Cancel goes back to that card; Book it (blue, full width, Pencil in and
+  Cancel beneath; surveys listed as Damp survey then Damp and timber; "Total £")
+  opens the new survey's customer card; a held time shows one blue button (They
+  said yes: book it) and the tag Pencilled. + New customer asks name, phone and
+  postcode first and picks the business from the postcode (London ATi, Kent
+  DampScan; "From the postcode", or the one brand a manager runs), and the same
+  person already on file offers Open their card.
   Everything else is in the card that opens on tap, kept clean and simple
   (the owner's choice, 10 Nov 2026): the name with brand, stage and times
   wanted beneath, a close cross; the one next step (or a quiet "Next contact"

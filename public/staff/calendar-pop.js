@@ -161,10 +161,13 @@
   function outstanding(j) {
     var items = [];
     (((ctx.work && ctx.work()) || {}).groups || []).forEach(function (g) { g.items.forEach(function (it) { if (it.jobId === j.id) items.push(it); }); });
+    /* What the one next step already says (and ticks, pop-journey.js) is not said twice. */
+    var nx = body.querySelector('.sheet-next'), SAME = { deposits: /^Deposit/, reports: /^Report/, payments: /^Balance/ };
+    if (nx) items = items.filter(function (it) { return !(SAME[it.group] && SAME[it.group].test(nx.textContent)); });
     if (!items.length) return;
     var out = section('Needs doing (' + items.length + ')');
     var ul = U.node('ul', 'act-list');
-    items.forEach(function (it) { ul.appendChild(W.itemRow(it, changed)); });
+    items.forEach(function (it) { ul.appendChild(W.itemRow(it, changed, true)); });
     out.appendChild(ul);
   }
 
@@ -218,7 +221,8 @@
       if (j.dateSet && j.status !== 'paid') X.dateForm(j, section, changed);
     }
 
-    foot.appendChild(link(j.quoted ? 'Open job page' : 'Open full card', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
+    /* A damp survey's card is this one (it only opened the same card on Surveys); quoted work keeps its job page. */
+    if (j.quoted) foot.appendChild(link('Open job page', W.jobHref(j.site, j.id, j.quoted), 'act-main'));
     if (!j.quoted) foot.appendChild(link('Edit details', '/staff/clients.html?area=damp#job-' + j.id, 'pill'));
     /* Deleting cannot be undone, so it asks once, by name, before it goes. A damp
        customer is never deleted while live (the server refuses): only a cancelled mistake. */

@@ -64,3 +64,18 @@ test('a Whitstable enquiry is offered the day someone is already in Kent, not Lo
   assert.ok(best[0].near.minutes < 40);
   assert.ok(fits.get('lead:1').at, 'its place, for the map');
 });
+
+test('a West Malling enquiry is offered Ben on a free day before Tom far away on a busy one (the owner\'s review, 18 Nov 2026)', async () => {
+  const { bestFits } = await import('../lib/best-fit.js');
+  await pool.query(`insert into postcode_geo (postcode, lat, lon) values ('ME194DP', 51.279, 0.395), ('SE41PE', 51.469, -0.030)
+    on conflict (postcode) do update set lat = excluded.lat, lon = excluded.lon`);
+  const d1 = '2030-06-03', d2 = '2030-06-04';
+  await pool.query(`insert into surveyor_hours (surveyor, on_date, start_time, end_time) values ('tom', $1, '09:00', '17:00'), ('ben', $2, '09:00', '17:00')`, [d1, d2]);
+  await pool.query(JOB, ['tom', d1, '09:00', 'Laura', 'SE4 1PE']);
+  const { fits } = await bestFits([{ kind: 'lead', id: 2, postcode: 'ME19 4DP' }], ['dampscan'], '2030-06-01');
+  const best = fits.get('lead:2').best;
+  assert.equal(best[0].surveyor, 'ben', 'the local surveyor on his free day first');
+  assert.equal(best[0].tier, 2);
+  const tom = best.find((b) => b.surveyor === 'tom');
+  assert.ok(!tom || best.indexOf(tom) > 0, 'Tom, busy 70 minutes away and outside his patch, after');
+});
