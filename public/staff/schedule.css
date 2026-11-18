@@ -175,3 +175,8 @@
 @media (prefers-reduced-motion: reduce) { .sch-act, .sched-card, .dsp-free { transition: none; } }
 /* On a phone an empty column or the drop-only Booked one is just space; a wide screen keeps them as drop targets. */
 @media (max-width: 1099px) { .sched-board .sched-col.is-empty, .sched-board .sched-col.is-drop, .sched-coldfold.is-empty { display: none; } }
+/* The booking form's buttons: Book it, the one next step, full width and blue; Pencil in and Cancel beneath. */
+.sched-dialog .b-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.sched-dialog .b-acts #b-go { grid-column: 1 / -1; }
+/* Tick boxes and the like follow the dark theme (an unticked box was white). */
+.sched-dialog { color-scheme: dark; }

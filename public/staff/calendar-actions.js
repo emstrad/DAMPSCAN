@@ -104,10 +104,11 @@
     return { op: 'status', id: it.jobId || it.id, status: it.status === 'quoted' ? 'booked' : (it.status || 'booked'), jobDate: date, jobTime: time || undefined };
   }
 
-  function actionsRow(row, it, onDone) {
+  function actionsRow(row, it, onDone, inCard) {
     var bar = U.node('div', 'act-bar');
     var add = function (n) { if (n) bar.appendChild(n); };
-    it.actions.forEach(function (a) {
+    /* Inside their own card, Open and Call are already at its top. */
+    it.actions.filter(function (a) { return !(inCard && (a === 'open' || a === 'call')); }).forEach(function (a) {
       if (a === 'open') add(it.jobId ? linkBtn('Open', jobHref(it.site, it.jobId, it.quoted)) : it.leadId ? linkBtn('Open', '/staff/schedule.html?area=damp#lead-' + it.leadId) : null);
       if (a === 'leads') add(linkBtn('Open', '/staff/dashboard.html?area=' + AREA_OF[it.site]));
       if (a === 'call' && it.phone) {
@@ -152,7 +153,7 @@
   function dayAfter(n, from) { var d = new Date((from || londonToday()) + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
   function nextMonday() { var t = londonToday(); var dow = new Date(t + 'T12:00:00Z').getUTCDay(); return dayAfter(((8 - dow) % 7) || 7, t); }
 
-  function itemRow(it, onDone) {
+  function itemRow(it, onDone, inCard) {
     var row = U.node('li', 'act-item ev--' + it.site + (it.overdue ? ' is-overdue' : ''));
     var head = U.node('div', 'act-head');
     var who = it.group === 'todos' && !it.firstName ? 'To-do' + (it.forName ? ' for ' + it.forName : '') : [it.firstName || 'No name', it.postcode].filter(Boolean).join(', ');
@@ -166,7 +167,7 @@
     if (it.message && it.actions.indexOf('message') !== -1) {
       row.appendChild(global.DSMSG.buttons(it.jobId, it.message, function () { row.remove(); if (onDone) onDone(); }));
     }
-    row.appendChild(actionsRow(row, it, onDone));
+    row.appendChild(actionsRow(row, it, onDone, inCard));
     return row;
   }
 

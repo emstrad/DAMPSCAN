@@ -185,3 +185,17 @@ test('the website form\'s agent becomes the enquiry\'s agent: names with commas,
   const a = (await pool.query('select a.name, a.branch, a.phone from leads l join estate_agents a on a.id = l.estate_agent_id where l.id = $1', [kim])).rows[0];
   assert.deepEqual(a, { name: 'Foxtons', branch: 'Bexley', phone: '02081234567' });
 });
+
+test('a caller added from the postcode lands on the right brand, tidy, and booking hands back their survey for the card', async () => {
+  const kent = await post({ op: 'create', site: 'auto', name: 'Jo Kent', phone: '07700900123', postcode: 'me194aa', note: 'Damp hallway' });
+  assert.equal(kent.status, 200);
+  const l = (await pool.query('select site, postcode from leads where id = $1', [kent.data.id])).rows[0];
+  assert.deepEqual([l.site, l.postcode], ['dampscan', 'ME19 4AA']);
+  const away = await post({ op: 'create', site: 'auto', name: 'Far Away', phone: '07700900999', postcode: 'EH1 1AA' });
+  assert.match(away.data.error, /pick the business/);
+  const london = await post({ op: 'create', site: 'auto', name: 'Lon Don', phone: '07700900888', postcode: 'SE4 1PE' });
+  const booked = await post({ op: 'book', kind: 'lead', id: london.data.id, date: DATE, time: '10:00', surveyor: 'tom', surveyType: 'localised', force: true });
+  const job = (await pool.query('select id, site from jobs where lead_id = $1', [london.data.id])).rows[0];
+  assert.equal(job.site, 'ati-london');
+  assert.equal(booked.data.jobId, Number(job.id), 'the page opens this survey\'s card next');
+});

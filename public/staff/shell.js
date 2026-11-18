@@ -67,7 +67,8 @@
     if (A.rights && A.rights.worker && global.DSWORKER) return global.DSWORKER.hit(c, box);
     var links = U.node('div', 'gs-links');
     c.jobs.filter(function (j) { return !mode.cost || AREA_OF[j.site] !== 'damp'; }).forEach(function (j) {
-      var a = U.node('a', 'pill', SHORT[j.site] + ': ' + j.status + (j.date ? ', ' + j.date : ''));
+      var on = j.date /* "ATi: booked, Fri 20 Nov", never the raw date */ ? new Date(String(j.date).slice(0, 10) + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) : '';
+      var a = U.node('a', 'pill', SHORT[j.site] + ': ' + j.status + (on ? ', ' + on : ''));
       a.href = jobLink(j, mode.cost);
       links.appendChild(a);
     });

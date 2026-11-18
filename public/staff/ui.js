@@ -194,3 +194,36 @@
   var s = document.createElement('script'); s.src = '/assets/viewer.js?v=796dacf5'; s.defer = true; s.setAttribute('data-viewer', '1');
   document.head.appendChild(s);
 })();
+
+/* The phone's back (a swipe on an iPhone, the back button on Android) closes
+   the pop-up on top instead of leaving the page (the owner's review, 18 Nov
+   2026). Every modal pop-up holds one history entry while any is open; closing
+   them by hand gives it back, and a pop-up opened straight after another (the
+   card, then its booking form) keeps it. */
+(function () {
+  var D = window.HTMLDialogElement;
+  if (!D || !D.prototype.showModal || !history.pushState || D.prototype.showModal.dsBack) return;
+  var stack = [], pushed = false, skip = false;
+  var live = function () { stack = stack.filter(function (d) { return d.open; }); return stack; };
+  var hold = function () { if (!pushed) { history.pushState({ dsDialog: 1 }, ''); pushed = true; } };
+  function settle() { if (pushed && !live().length) { pushed = false; skip = true; history.back(); } }
+  var show = D.prototype.showModal;
+  D.prototype.showModal = function () {
+    var was = this.open, d = this;
+    show.apply(d, arguments);
+    if (was) return;
+    if (stack.indexOf(d) === -1) {
+      stack.push(d);
+      d.addEventListener('close', function once() { d.removeEventListener('close', once); setTimeout(settle, 80); });
+    }
+    hold();
+  };
+  D.prototype.showModal.dsBack = true;
+  window.addEventListener('popstate', function () {
+    if (skip) { skip = false; return; }
+    if (!pushed) return;
+    pushed = false;
+    var top = live().pop();
+    if (top) { top.close(); if (live().length) hold(); }
+  });
+})();
