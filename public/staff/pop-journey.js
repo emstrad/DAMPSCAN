@@ -31,10 +31,21 @@
     all.forEach(function (a) { var x = U.node('a', 'j-quick-b', a[0]); x.href = a[1]; if (/^https:/.test(a[1])) { x.target = '_blank'; x.rel = 'noopener'; } row.appendChild(x); });
     k.body.appendChild(row);
     if (tel || j.email) k.body.appendChild(U.node('p', 'meta j-contact', [j.phone, j.email].filter(Boolean).join(' · ')));
+    /* The estate agent sits with the customer's own contacts, the first people you ring (the owner, 18 Nov 2026). */
+    var a = j.agent;
+    if (a) {
+      var ag = U.node('div', 'j-agent'), who = U.node('span', 'c-l');
+      who.appendChild(U.node('small', 'c-label', 'Estate agent')); who.appendChild(U.node('b', null, a.name + (a.branch ? ', ' + a.branch : '')));
+      ag.appendChild(who);
+      [a.phone && ['Call', 'tel:' + String(a.phone).replace(/[^\d+]/g, '')], a.email && ['Email', 'mailto:' + a.email]].filter(Boolean).forEach(function (c) { var x = U.node('a', 'j-quick-b j-agent-b', c[0]); x.href = c[1]; ag.appendChild(x); });
+      k.body.appendChild(ag);
+    }
   }
 
   function draw(j, k) {
     var X = global.DSPOPX, boss = manages(j), m = j.money;
+    /* Every part below is its own card, so what a fold holds sits inside it (the owner, 18 Nov 2026). */
+    k.body.classList.add('j-cards');
     quick(j, k);
     if (X.next) X.next(j, k.body);
     if (j.moveAsked) k.moveAsked(j);
@@ -58,10 +69,10 @@
       var due = j.paid ? null : Math.max(0, (got >= m.depositPence ? m.pricePence : m.depositPence) - got);
       var paidSay = j.paid ? 'paid in full' : got >= m.depositPence ? (got > m.depositPence ? U.money(got) + ' paid' : 'deposit paid') : got ? U.money(got) + ' paid' : 'nothing paid yet';
       var mg = group(k, 'Money', U.money(m.pricePence) + ' · ' + paidSay, j.paid ? 'Paid' : U.money(due) + ' due', j.paid ? 'is-good' : 'is-warn', false);
-      X.facts(mg, [['Survey', j.surveyType], ['Price', U.money(m.pricePence)], ['Agent', X.agentLine(j.agent)]]);
+      X.facts(mg, [['Survey', j.surveyType], ['Price', U.money(m.pricePence)]]);
       X.surveyEdit(mg, j, k.changed);
       if (global.DSPOPMONEY) global.DSPOPMONEY.render(mg, j, k.changed);
-      mg.appendChild(k.tick(j, 'depositPaid', 'Deposit paid (' + U.money(m.depositPence) + ')', j.depositPaid, 'Deposit marked paid.'));
+      mg.appendChild(k.tick(j, 'depositPaid', 'Deposit paid, ' + U.money(m.depositPence), j.depositPaid, 'Deposit marked paid.'));
       mg.appendChild(k.tick(j, 'paid', 'Paid in full', j.paid, 'Marked paid in full.'));
       /* Who gets what: each person's share, and money moved between people on this survey (owners). */
       var sg = group(k, 'Who gets what', 'Loading', null, null, false);
@@ -69,7 +80,7 @@
       if (global.DSPOPSPLIT) split(); else { var sc = document.createElement('script'); sc.src = '/staff/pop-split.js'; sc.onload = split; document.head.appendChild(sc); }
     } else {
       var sv = group(k, 'The survey', j.surveyType, null, null, false);
-      X.facts(sv, [['Survey', j.surveyType], ['Surveyor', k.cap(j.surveyor)], ['Agent', X.agentLine(j.agent)]]);
+      X.facts(sv, [['Survey', j.surveyType], ['Surveyor', k.cap(j.surveyor)]]);
       if (!j.report) sv.appendChild(k.tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
     }
 
