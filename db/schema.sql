@@ -1750,3 +1750,10 @@ create table if not exists site_errors (
   session_id  uuid
 );
 create index if not exists site_errors_at_idx on site_errors (at desc);
+-- The estate agent's own page (the owner, 18 Nov 2026, lib/agent-portal.js):
+-- one private link per agent (/a/<token>), when they last looked, and the
+-- other time they asked for on a survey waiting on them for access.
+alter table estate_agents add column if not exists portal_token text;
+alter table estate_agents add column if not exists portal_seen_at timestamptz;
+create unique index if not exists estate_agents_portal_idx on estate_agents (portal_token) where portal_token is not null;
+alter table jobs add column if not exists agent_ask jsonb;
