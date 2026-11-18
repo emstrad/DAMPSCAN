@@ -476,7 +476,11 @@ checks the mechanical ones.
   tick Report sent, Ready and Hold are the managers'). Report ready, Report
   sent and a surveyor's Report done are all refused until the file is uploaded
   (every survey keeps its report, the owner's rule, 15 Nov 2026,
-  `reportFileMissing` in lib/report-check.js). Report ready counts as reported everywhere (stage,
+  `reportFileMissing` in lib/report-check.js). A report sent another way (emailed,
+  handed over) is "Sent, no text" (Reports chip; "Mark sent, no text" in the
+  job pop-up, managers; the owner, 18 Nov 2026): marked sent with the file
+  attached, and no report text, "your report" or balance reminder ever goes
+  for it (jobs.report_quiet, cleared if Report sent is unticked). Report ready counts as reported everywhere (stage,
   countdown, overdue alert, Reports list once paid) (the owner's review,
   13 Nov 2026), and the lists read it the same (the board and After the visit,
   the day lane, Today's tags, the card's next step and ChatGPT's answers, the
