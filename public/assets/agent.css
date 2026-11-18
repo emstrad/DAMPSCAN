@@ -26,3 +26,4 @@
 .ag-size small { color:var(--muted); font-size:.76rem; }
 .ag-size span { font-weight:700; color:var(--link); margin-top:4px; }
 .ag-done { font-size:1rem; color:var(--text); }
+.ag-searching > .ag-sec:not(.ag-found), .ag-searching > .pt-fold, .ag-searching > .ag-empty { display:none; }

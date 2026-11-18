@@ -85,6 +85,22 @@
     c.appendChild(other);
   }
 
+  /* Forgiving: each word typed in the address, postcode, buyer's name or number, spaces ignored. */
+  var squash = function (x) { return String(x || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
+  function search(all) {
+    var f = h('label', 'pt-field ag-search'), box = t('input'); box.type = 'search'; box.placeholder = 'Search address, postcode or buyer'; box.setAttribute('aria-label', 'Search your properties');
+    f.appendChild(box); main.appendChild(f);
+    var out = h('div', 'ag-sec ag-found'); out.hidden = true; main.appendChild(out);
+    box.addEventListener('input', function () {
+      var words = box.value.toLowerCase().split(/\s+/).map(squash).filter(Boolean);
+      main.classList.toggle('ag-searching', words.length > 0); out.textContent = ''; out.hidden = !words.length;
+      if (!words.length) return;
+      var hits = all.filter(function (s) { var hay = squash([s.address, s.postcode, s.name, s.phone, s.email].join(' ')); return words.every(function (w) { return hay.indexOf(w) !== -1; }); });
+      out.appendChild(t('h2', 'pt-label', hits.length ? hits.length + ' found' : 'Nothing found'));
+      hits.forEach(function (x) { out.appendChild(card(x)); });
+    });
+  }
+
   function section(title, list) {
     var s = h('section', 'ag-sec'); s.appendChild(t('h2', 'pt-label', title));
     list.forEach(function (x) { s.appendChild(card(x)); }); main.appendChild(s);
@@ -97,6 +113,8 @@
     var h1 = document.getElementById('title') || t('h1', 'pt-title'); h1.id = 'title'; h1.textContent = 'Your properties'; hello.appendChild(h1); main.appendChild(hello);
     var go = btn('pt-btn ag-book', '<span class="in">Quick book a survey</span>', function () { window.AGENTBOOK.open(); });
     main.appendChild(go);
+    var all = d.needsYou.concat(d.current, d.finished);
+    if (all.length > 3) search(all);
     if (d.needsYou.length) section('Needs you now', d.needsYou);
     if (d.current.length) section('Your properties', d.current);
     if (!d.needsYou.length && !d.current.length) main.appendChild(t('p', 'ag-empty', 'Nothing on yet. Quick book your first one.'));

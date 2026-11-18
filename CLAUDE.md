@@ -435,7 +435,9 @@ checks the mechanical ones.
   the buyer's page. Quick book (address, buyer's name, mobile and email, why,
   who lets us in) makes an enquiry as the website form does, put down to the
   agent (referred_by, and estate_agent_id when they have the keys), then the
-  website's own survey, times and pick steps; never a text to the agent. Week
+  website's own survey, times and pick steps; never a text to the agent. A
+  search (address, postcode, buyer or number, forgiving) shows once they have
+  more than three properties. Week
   (`lib/company-week.js`, `company-week.js`, `?view=week`, the Monday briefing):
   last week against the week before, Needs you now, the week ahead day by day
   (a day opens Scheduling's plan, ?day=), customers to book and Ads this month;
