@@ -90,7 +90,7 @@
       changed();
     });
     l.appendChild(box);
-    l.appendChild(U.node('span', null, label + (texts && !on ? ' (texts ' + who + ' in 2 min)' : '')));
+    l.appendChild(U.node('span', null, label + (texts && !on ? ' · texts ' + who + ' in 2 min' : '')));
     return l;
   }
 
@@ -190,12 +190,12 @@
      kit in place of the survey ticks. */
   function draw(j) {
     var X = global.DSPOPX;
-    body.textContent = '';
+    body.textContent = ''; body.classList.remove('j-cards');
     foot.textContent = '';
     name.textContent = j.customerName || 'No name';
     sub.textContent = '';
     sub.appendChild(U.node('span', 'tl-biz', W.NAME[j.site] || j.business));
-    sub.appendChild(U.node('span', 'sheet-status', j.stage || (j.status === 'quoted' && j.accepted ? 'accepted' : j.status)));
+    sub.appendChild(U.node('span', 'sheet-status', cap(j.stage || (j.status === 'quoted' && j.accepted ? 'accepted' : j.status))));
     sub.appendChild(U.node('span', 'sheet-when', !j.dateSet ? 'Not booked in yet' : shortDate(j.date) + (j.time ? ', ' + j.time : ', time to confirm')));
 
     /* ATi and DampScan: the customer card in journey order (pop-journey.js); Verge and CoolRight as they were. */

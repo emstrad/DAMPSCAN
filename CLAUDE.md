@@ -213,7 +213,10 @@ checks the mechanical ones.
   and one add line, the history a quiet timeline of dots under one composer
   (what happened, the words, send) with the note for the surveyor folded, and
   buttons in pop-ups one soft style (blue only for the one next step); the Scheduling card matches it (the
-  same top and tiles, Book it in in its own box with the best times).
+  same top and tiles, Book it in in its own box with the best times). Each part of the
+  customer card is its own outlined card, so what a fold holds sits inside it, a
+  fold inside a part a quieter row; the estate agent (Call, Email) sits under the
+  contacts at the top, not in Money (the owner, 18 Nov 2026).
 - Shared look: motion.css and fit.css on every page; anything marked hidden
   stays hidden (no empty pills); 44px taps, 16px inputs, pop-ups inside the
   visible screen; checked at phone size before shipping. Locked in by CI (the

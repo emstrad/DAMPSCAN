@@ -586,3 +586,17 @@ main .btn:not(.btn--primary):not(.btn--ghost):not(.is-main):hover{background:var
 .lab-fold > summary::after{content:'\203A';color:var(--accent);font-size:1.4rem;font-weight:700}
 .lab-fold[open] > summary::after{transform:rotate(90deg)}
 .lab-previews > .panel{margin:12px 0 0;padding:0;background:none;border:0}
+/* The customer card, part by part (the owner, 18 Nov 2026): each fold is its own card, so what it holds
+   sits inside its outline; a fold inside a part is a quieter row; the estate agent sits with the contacts. */
+.j-cards > .sheet-sec, .j-cards > div > .sheet-sec{margin:8px 0;padding:0 14px!important;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.j-cards > .sheet-sec:not(details), .j-cards > div > .sheet-sec:not(details){padding:12px 14px!important}
+.j-cards > .sheet-fold[open], .j-cards > div > .sheet-fold[open]{padding-bottom:14px!important;border-color:var(--line-strong)}
+.j-cards > .sheet-fold[open] > summary, .j-cards > div > .sheet-fold[open] > summary{border-bottom:1px solid var(--line);margin-bottom:12px}
+.j-cards .sheet-sec .sheet-fold{margin:8px 0 0;padding:0 12px!important;border:1px solid var(--line);border-radius:12px;background:var(--navy-2)}
+.j-cards .sheet-sec .sheet-fold > summary{min-height:48px!important;font-size:15px;font-weight:600}
+.j-cards .sheet-sec .sheet-fold[open]{padding-bottom:12px!important}
+.j-agent{display:flex;align-items:center;gap:8px;margin:8px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.j-agent .c-l{display:flex;flex-direction:column;flex:1;min-width:0}
+.j-agent .c-l b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.j-agent-b{flex:none;padding:0 16px;min-height:44px}
+.j-cards select{min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--navy-2);color:var(--text);font:inherit;font-size:16px;color-scheme:dark}
