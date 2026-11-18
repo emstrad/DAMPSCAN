@@ -53,8 +53,10 @@
 
     /* Money (the managers'): price, what is paid, what is due, the ticks, their page. */
     if (m) {
-      var due = j.paid ? null : !j.depositPaid ? m.depositPence : m.pricePence - m.depositPence;
-      var paidSay = j.paid ? 'paid in full' : j.depositPaid ? 'deposit paid' : 'nothing paid yet';
+      /* Money actually in (card, transfer or a tick), as their page counts it, so a part payment shows. */
+      var got = Math.max(m.paidPence || 0, j.paid ? m.pricePence : j.depositPaid ? m.depositPence : 0);
+      var due = j.paid ? null : Math.max(0, (got >= m.depositPence ? m.pricePence : m.depositPence) - got);
+      var paidSay = j.paid ? 'paid in full' : got >= m.depositPence ? (got > m.depositPence ? U.money(got) + ' paid' : 'deposit paid') : got ? U.money(got) + ' paid' : 'nothing paid yet';
       var mg = group(k, 'Money', U.money(m.pricePence) + ' · ' + paidSay, j.paid ? 'Paid' : U.money(due) + ' due', j.paid ? 'is-good' : 'is-warn', false);
       X.facts(mg, [['Survey', j.surveyType], ['Price', U.money(m.pricePence)], ['Agent', X.agentLine(j.agent)]]);
       X.surveyEdit(mg, j, k.changed);

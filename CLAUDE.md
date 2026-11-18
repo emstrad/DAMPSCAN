@@ -461,7 +461,9 @@ checks the mechanical ones.
   (every survey keeps its report, the owner's rule, 15 Nov 2026,
   `reportFileMissing` in lib/report-check.js). Report ready counts as reported everywhere (stage,
   countdown, overdue alert, Reports list once paid) (the owner's review,
-  13 Nov 2026).
+  13 Nov 2026), and the lists read it the same (the board and After the visit,
+  the day lane, Today's tags, the card's next step and ChatGPT's answers, the
+  18 Nov 2026 sweep).
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
@@ -668,6 +670,9 @@ checks the mechanical ones.
 - Scheduling's board cards are compact: name, address, phone (tap to call),
   one status line (brand and the latest contact, or how long nobody has been in
   touch) and short flags (pencilled, best time, times wanted, agent, deadline).
+  A time the customer picked online (a pencil set by the Website) is flagged
+  "Picked a time online"; an undated job card carries its street, problem, photos
+  and survey choice as an enquiry card does (18 Nov 2026).
   Everything else is in the card that opens on tap, kept clean and simple
   (the owner's choice, 10 Nov 2026): the name with brand, stage and times
   wanted beneath, a close cross; the one next step (or a quiet "Next contact"

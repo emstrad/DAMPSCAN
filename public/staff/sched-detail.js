@@ -18,7 +18,7 @@
   /* What needs a decision before anything else: shown at the top of the card. */
   function urgent(c, act, book) {
     var out = [];
-    if (c.held) out.push(U.node('p', 'meta', 'Picked on the website ' + new Date(c.held.at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' with ' + cap(c.held.surveyor)));
+    if (c.pencil && c.pencil.by === 'Website') out.push(U.node('p', 'meta', 'Picked on the website ' + new Date(c.pencil.setAt).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' with ' + cap(c.pencil.surveyor)));
     if (c.pencil) {
       var pc = c.pencil;
       var pen = U.node('div', 'sched-pencil');

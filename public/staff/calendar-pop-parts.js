@@ -192,7 +192,7 @@
     var m = j.money;
     var say = !j.dateSet ? (j.awaitingAgent ? 'Waiting on the estate agent for a time.' : j.pencil ? 'Pencilled for ' + j.pencil.date.split('-').reverse().slice(0, 2).join('/') + ' ' + j.pencil.time + ': confirm it below.' : 'Not booked in: pick a day below.')
       : !j.time ? 'Time to confirm with the customer.'
-      : done && !j.reportSent ? 'Report to send.'
+      : done && !j.reportSent && !(j.report && j.report.ready) ? 'Report to send.'
       : done && m && !j.paid ? 'Balance to collect.'
       : !done && m && !j.depositPaid ? 'Deposit to collect (' + U.money(m.depositPence) + ').'
       : null;

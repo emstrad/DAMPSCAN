@@ -57,7 +57,7 @@
     if (c.chose) add(c.chose.unsure ? 'Not sure which survey' : c.chose.name);
     if (c.wanted) add('Wants ' + c.wanted);
     if (c.pencil) add('Pencilled ' + day(c.pencil.date) + ' ' + c.pencil.time, 'is-info');
-    if (c.held) add('Picked a time online', 'is-warn');
+    if (c.pencil && c.pencil.by === 'Website') add('Picked a time online', 'is-warn');
     if ((c.same || []).length) add('Same person on another card', 'is-warn');
     if ((c.best || []).length && !c.pencil) add('Best ' + day(c.best[0].date) + ' ' + c.best[0].time + ' ' + cap(c.best[0].surveyor), 'is-good');
     var tags = U.node('div', 'sc-tags');
