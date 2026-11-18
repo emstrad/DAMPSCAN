@@ -76,6 +76,12 @@
     else {
       if (r.submittedBy && !r.ready) s.insertBefore(U.node('p', 'sheet-ask', r.submittedBy + ' has finished this report: check it, then Report ready.'), s.children[1] || null);
       s.appendChild(tick(j, 'surveySent', 'Report sent', j.reportSent, 'Report marked sent.'));
+      /* Sent another way (emailed, handed over): marked sent, no texts about the report. */
+      if (!j.reportSent && r.file) s.appendChild(btn('Mark sent, no text', 'btn btn--ghost btn--sm', async function () {
+        var res; try { res = await U.send('/api/admin/clients', { id: j.id, surveySent: true, quiet: true }); } catch (e) { res = { ok: false }; }
+        said.textContent = res && res.ok !== false ? 'Marked sent. No text goes.' : 'Not saved. Try again.';
+        if (res && res.ok !== false) changed();
+      }));
     }
     s.appendChild(said);
   }

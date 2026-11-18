@@ -1757,3 +1757,7 @@ alter table estate_agents add column if not exists portal_token text;
 alter table estate_agents add column if not exists portal_seen_at timestamptz;
 create unique index if not exists estate_agents_portal_idx on estate_agents (portal_token) where portal_token is not null;
 alter table jobs add column if not exists agent_ask jsonb;
+-- Report sent with no text (the owner, 18 Nov 2026): the report went another
+-- way (emailed, handed over), so no report text, balance reminder or "your
+-- report" text goes for this survey. Cleared if Report sent is unticked.
+alter table jobs add column if not exists report_quiet boolean not null default false;

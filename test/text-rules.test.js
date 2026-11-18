@@ -162,3 +162,24 @@ test('the texts sit in the customer\'s history with their words', async () => {
   assert.equal(e.state, 'sent');
   assert.match(e.body, /^Hi Kim, you're booked in with DampScan/);
 });
+
+test('Report sent with no text: marked sent, and no report text, "your report" or balance reminder ever goes', async () => {
+  const { textsAfterChange } = await import('../lib/texts.js');
+  const { callRoute } = await import('../lib/mcp/shared.js');
+  const { scopeFor } = await import('../lib/access.js');
+  const clients = (await import('../lib/routes/admin/clients.js')).default;
+  const id = await job({ date: day(-2) });
+  await pool.query("update jobs set status = 'completed', report_path = 'reports/x.pdf', report_name = 'x.pdf' where id = $1", [id]);
+  const out = await callRoute(clients, await scopeFor({ person: false, name: 'Owners' }), { method: 'POST', url: '/api/admin/clients', body: { id, surveySent: true, quiet: true } });
+  assert.ok(out.status < 400, JSON.stringify(out.data));
+  const j = (await pool.query('select survey_sent_at, report_quiet from jobs where id = $1', [id])).rows[0];
+  assert.ok(j.survey_sent_at);
+  assert.equal(j.report_quiet, true);
+  await textsAfterChange(id, { delayMs: 0 });
+  await pool.query("update jobs set paid_at = now() where id = $1", [id]);
+  await textsAfterChange(id, { delayMs: 0 });
+  await queueText({ kind: 'balance_reminder', site: 'dampscan', jobId: id, key: 'balance' });
+  await due(); await flushDue();
+  assert.deepEqual(texts.filter((t) => /report/i.test(t.body)), [], 'no report text of any kind');
+  assert.ok((await outbox()).every((r) => r.kind !== 'balance_reminder' || r.status === 'cancelled'));
+});
