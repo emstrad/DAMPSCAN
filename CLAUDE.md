@@ -623,7 +623,9 @@ checks the mechanical ones.
   button. Today opens with Up next (`public/staff/today-next.js`: Directions,
   Call, Open), the company filter one quiet line, each visit a row with its
   stage as a tag (Deposit due, Deposit in, Surveyed not paid, Paid). Anything
-  you can tap looks like a button.
+  you can tap looks like a button. The week list carries where each survey's money stands
+  (depositPaid, paid, reportSent; 17 Nov 2026: Up next said Deposit due on a paid
+  deposit), stripped for surveyors (lib/worker-view.js), whose rows show no money tags.
 - Scheduling is the one overview for ATi and DampScan (Today and Surveys stay
   as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
   hours, surveys with the drive to the next, holds, free starts to tap or drop

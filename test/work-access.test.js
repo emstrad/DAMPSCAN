@@ -212,3 +212,18 @@ test('Ben and Tom, managers, set their own hours on the calendar and can set a s
   }
   assert.equal((await api(ben, 'POST', '/api/admin/hours', { op: 'bulk', action: 'replace', dates: days, start: '09:00', end: '12:00', surveyor: 'ronnie' })).statusCode, 200);
 });
+
+/* Today's week list (17 Nov 2026: Up next said Deposit due on Arty's paid deposit): the owner's
+   events carry where the money stands; a surveyor's carry none, so no money tags reach them. */
+test('the week list says a deposit is in for the owner, and says nothing about money to a surveyor', async () => {
+  const ben = await person('Ben Week', 'ben-week-1', ['dampscan', 'ati-london']);
+  const id = await book('ben', 'Arty Week', 'SE4 2EB', '07700 900444');
+  await pool.query('update jobs set deposit_paid_at = now() where id = $1', [id]);
+  const url = `/api/admin/calendar?from=${D.today}&to=${D.today}`;
+  const mine = (await api(owner, 'GET', url)).json().events.find((e) => e.id === Number(id));
+  assert.equal(mine.depositPaid, true);
+  assert.equal(mine.paid, false);
+  const his = (await api(ben, 'GET', url)).json().events.find((e) => e.id === Number(id));
+  assert.ok(his, 'his own survey is on his week');
+  assert.ok(!('depositPaid' in his) && !('paid' in his), JSON.stringify(his));
+});

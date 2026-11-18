@@ -17,7 +17,7 @@
     var box = U.node('section', 'up-next');
     var top = U.node('div', 'up-top');
     top.appendChild(U.node('span', 'c-label', 'Up next · ' + when));
-    if (!next.quoted) top.appendChild(U.node('span', 'c-tag ' + (next.depositPaid || next.paid ? 'is-good' : 'is-warn'), next.paid ? 'Paid' : next.depositPaid ? 'Deposit in' : 'Deposit due'));
+    if (!next.quoted && 'depositPaid' in next) top.appendChild(U.node('span', 'c-tag ' + (next.depositPaid || next.paid ? 'is-good' : 'is-warn'), next.paid ? 'Paid' : next.depositPaid ? 'Deposit in' : 'Deposit due'));
     box.appendChild(top);
     box.appendChild(U.node('b', 'up-who', next.time + ' · ' + (next.customerName || 'No name')));
     box.appendChild(U.node('span', 'up-sub', [next.postcode, next.surveyLabel, next.surveyor && next.surveyor.charAt(0).toUpperCase() + next.surveyor.slice(1)].filter(Boolean).join(' · ')));
