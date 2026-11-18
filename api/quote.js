@@ -5,6 +5,7 @@
  * GET  /api/quote?doc=rate&t=<rating token>          the "how did we do" page
  * GET  /api/quote?doc=portal&t=<portal token>[&file=report]   the customer portal (lib/portal.js)
  * POST /api/quote  {doc: 'rate', t, stars, comment?} its answer (lib/rating.js)
+ * GET|POST /api/quote doc=agent   the estate agent's page (lib/agent-route.js)
  *
  * The customer's view of one quote, found by the random token in the link
  * staff send them. It returns prices only: each line marked up, the net, VAT
@@ -18,6 +19,7 @@
  * a price on it. The price is fixed at that moment, and the owner is told.
  */
 import { logSiteError } from '../lib/site-errors.js';
+import { agentGet, agentPost } from '../lib/agent-route.js';
 import { query, queryOne } from '../lib/db.js';
 import { json, requireMethod, ipHash, readJson, str } from '../lib/http.js';
 import { notify } from '../lib/notify.js';
@@ -230,12 +232,14 @@ export default async function handler(req, res) {
       const body = await readJson(req);
       req.body = body;
       if (body.doc === 'portal') return await portalPost(req, res, body);
+      if (body.doc === 'agent') return await agentPost(req, res, body);
       return await (body.doc === 'rate' ? rate(req, res, body) : accept(req, res));
     }
     const limit = await rateLimit({ ...LIMITS.quote, ipHash: ipHash(req) });
     if (!limit.ok) { json(res, 429, { ok: false, error: 'too_many_requests' }); return; }
     if (new URL(req.url, 'http://localhost').searchParams.get('doc') === 'rate') return await ratingPage(req, res);
     if (new URL(req.url, 'http://localhost').searchParams.get('doc') === 'portal') return await portal(req, res);
+    if (new URL(req.url, 'http://localhost').searchParams.get('doc') === 'agent') return await agentGet(req, res, new URL(req.url, 'http://localhost').searchParams);
 
     const job = await findJob(new URL(req.url, 'http://localhost').searchParams.get('t') || '');
     const brand = job && brandFor(job.site);

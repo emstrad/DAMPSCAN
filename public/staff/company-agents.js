@@ -56,6 +56,14 @@
       var cl = node('button', 'btn', 'Copy link'); cl.type = 'button'; cl.addEventListener('click', function () { copy(a.link, cl); });
       body.appendChild(cl);
     }
+    /* Their own page (lib/agent-portal.js): every property, Quick book and access to confirm. */
+    if (a.page) {
+      body.appendChild(node('span', 'c-label', 'Their agent page'));
+      body.appendChild(node('small', 'ag-link', a.page));
+      var cp = node('button', 'btn', 'Copy page link'); cp.type = 'button'; cp.addEventListener('click', function () { copy(a.page, cp); });
+      body.appendChild(cp);
+      if (a.email) { var em = node('a', 'btn', 'Email it'); em.href = 'mailto:' + encodeURIComponent(a.email) + '?subject=' + encodeURIComponent('Your page for damp surveys') + '&body=' + encodeURIComponent('Your own page for booking damp surveys and seeing where each one stands: ' + a.page + '\n\nSave it to your phone\'s home screen. Anyone with the link can see your properties, so keep it in the office.'); body.appendChild(em); }
+    }
     body.appendChild(node('span', 'c-label', 'Statement'));
     var seg = node('div', 'c-seg'), text = node('pre', 'ag-text'), acts = node('div', 'ag-acts');
     var mail = node('a', 'btn btn--primary', 'Email statement');

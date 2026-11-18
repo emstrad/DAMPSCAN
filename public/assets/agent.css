@@ -1,0 +1,29 @@
+/* The estate agent's page (public/agent.html): portal.css's parts and palette,
+   plus the property cards, Quick book's choices and the survey sizes. */
+.ag-sec { display:grid; gap:12px; }
+.ag-sec > h2 { margin:8px 0 0; }
+.ag-book { margin-top:2px; }
+.ag-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; min-width:0; }
+.ag-where { display:grid; gap:2px; min-width:0; }
+.ag-where h2 { overflow-wrap:anywhere; }
+.ag-where small { color:var(--muted); font-size:.82rem; }
+.ag-where small:empty { display:none; }
+.ag-top .pt-badge { flex:none; }
+.ag-lines { display:grid; gap:8px; }
+.ag-line { display:grid; grid-template-columns:92px minmax(0, 1fr); gap:8px; align-items:baseline; font-size:.92rem; }
+.ag-line small { color:var(--muted-2); font-weight:600; }
+.ag-line b { font-weight:600; overflow-wrap:anywhere; }
+.ag-empty, .ag-foot { color:var(--muted); text-align:center; margin:8px 0; }
+.ag-foot a { color:var(--link); font-weight:700; }
+.ag-body { display:grid; gap:14px; }
+.ag-q { display:grid; gap:6px; }
+.ag-choices { display:flex; flex-wrap:wrap; gap:8px; }
+.ag-sizes { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; }
+.ag-size { display:grid; gap:2px; text-align:left; border:1.5px solid var(--line-strong); background:var(--card-2); color:var(--text); border-radius:14px; padding:12px; min-height:88px; cursor:pointer;
+  transition:transform var(--fast) var(--ease), border-color var(--fast) linear; }
+.ag-size:active { transform:scale(.97); }
+.ag-size.busy { border-color:var(--accent); opacity:.7; }
+.ag-size small { color:var(--muted); font-size:.76rem; }
+.ag-size span { font-weight:700; color:var(--link); margin-top:4px; }
+.ag-done { font-size:1rem; color:var(--text); }
+.ag-searching > .ag-sec:not(.ag-found), .ag-searching > .pt-fold, .ag-searching > .ag-empty { display:none; }

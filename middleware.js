@@ -43,7 +43,7 @@ export const config = {
     '/areas/:path*', '/hubs/:path*', '/service-pages/:path*', '/guide-pages/:path*',
     '/proofing-pages/:path*', '/seasonal-pages/:path*', '/pricing/:path*',
     '/robots-london.txt', '/sitemap-london.xml', '/llms-london.txt',
-    '/m/:token'
+    '/m/:token', '/a/:token'
   ]
 };
 
@@ -165,6 +165,8 @@ export default function middleware(request) {
   /* A customer's page by its short link (/m/<token>), so a text stays one
      text long; the page reads the token from the path. Same on both hosts. */
   if (/^\/m\/[A-Za-z0-9_-]{20,64}$/.test(path)) return rewrite(new URL('/my.html', request.url));
+  /* An estate agent's page (/a/<token>, lib/agent-portal.js), the same way. */
+  if (/^\/a\/[A-Za-z0-9_-]{20,64}$/.test(path)) return rewrite(new URL('/agent.html', request.url));
   const host = (request.headers.get('host') || '').split(':')[0];
   const london = LONDON_HOST.test(host);
   const key = siteFor(host);

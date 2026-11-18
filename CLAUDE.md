@@ -423,7 +423,21 @@ checks the mechanical ones.
   to them (leads.referred_by, never estate_agent_id, which means the agent lets
   us in and changes the texts), Estate agent links as a source, and a month's
   statement (first name and postcode district only) to Email or Copy, never sent
-  by itself; Add an agent hands out a link before they send anyone. Week
+  by itself; Add an agent hands out a link before they send anyone. Each agent also
+  has their own page (`lib/agent-portal.js`, `lib/agent-book.js`,
+  `public/agent.html`, `agent.js`, `agent-book.js`; the owner, 18 Nov 2026, ATi
+  first): one private link (/a/<token>, middleware.js rewrites it, copied or
+  emailed from Growth), no password, in the brand's palette. Every property they
+  sent or let us into, a time to confirm for access first (Confirm, or Another
+  time: a request with an owners' to-do, alert and text), then each with its
+  stage, buyer, visit, money and report (open once paid in full, as for the
+  buyer). Agents see everything (the owner's choice); nothing about it goes on
+  the buyer's page. Quick book (address, buyer's name, mobile and email, why,
+  who lets us in) makes an enquiry as the website form does, put down to the
+  agent (referred_by, and estate_agent_id when they have the keys), then the
+  website's own survey, times and pick steps; never a text to the agent. A
+  search (address, postcode, buyer or number, forgiving) shows once they have
+  more than three properties. Week
   (`lib/company-week.js`, `company-week.js`, `?view=week`, the Monday briefing):
   last week against the week before, Needs you now, the week ahead day by day
   (a day opens Scheduling's plan, ?day=), customers to book and Ads this month;
