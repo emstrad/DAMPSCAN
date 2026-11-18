@@ -27,7 +27,7 @@
   /* Where: the address in full, three ways to drive there, and the customer's
      phone and email. A job booked by phone or the assistant carries its own
      address; an enquiry's comes from the form (lib/calendar-job.js). */
-  function where(j, s) {
+  function where(j, s, noTalk) {
     var addr = (j.address || []).join(', ');
     s.appendChild(U.node('p', 'sheet-addr', addr || 'No address on file' + (j.postcode ? ', postcode ' + j.postcode : '') + '.'));
     var q = encodeURIComponent(addr || j.postcode || '');
@@ -50,6 +50,8 @@
       }
     }
     onWay(j, s);
+    /* The customer card has the contacts at its top already (the owner, 18 Nov 2026). */
+    if (noTalk) return;
     var tel = j.phone ? String(j.phone).replace(/[^\d+]/g, '') : '';
     var talk = U.node('div', 'sheet-grid');
     if (tel) {

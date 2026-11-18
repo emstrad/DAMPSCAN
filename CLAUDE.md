@@ -209,7 +209,7 @@ checks the mechanical ones.
   Directions and Email tiles, the one next step, a page message to reply to,
   needs doing and to-dos, then one line each for Visit, Money (or The survey
   for surveyors), Report, Messages and history and Details, each saying what
-  it holds beneath, Not going ahead last; to-dos are rows with a round tick
+  it holds beneath (Visit no second set of contacts), Not going ahead last; to-dos are rows with a round tick
   and one add line, the history a quiet timeline of dots under one composer
   (what happened, the words, send) with the note for the surveyor folded, and
   buttons in pop-ups one soft style (blue only for the one next step); the Scheduling card matches it (the
@@ -470,6 +470,9 @@ checks the mechanical ones.
 - Client card shows "What has happened" (`lib/timeline.js`) and offers to link
   the same person's unlinked website enquiry (`lib/duplicates.js`).
 - Friday morning: one alert for work done over a week ago and not paid.
+  Every owed figure (Collect paid in full, the not paid alert, Friday's) is
+  the customer page's sum (`lib/money-sql.js`: payments, bank lines, what a
+  tick stood for), plus remedial work won.
 - My hours (`lib/hours-store.js`) is a calendar: tap the days (or Weekdays,
   Weekends), then tap the hours (All day, Morning, Afternoon, Evening, Not
   available, My usual week, or any from and to) and they save at once. Below,
@@ -785,7 +788,11 @@ checks the mechanical ones.
   (`lib/survey-change.js`, managers): the job pop-up's folded "Change survey
   or price" and ChatGPT's set_survey. A rate card survey sets its price and
   the surveyor's fee; a price in pounds overrides the price alone. Logged in
-  the customer's history with what it was before.
+  the customer's history with what it was before. The ticks then follow the
+  money as their page does (the owner, 18 Nov 2026): a rise past what came in
+  takes paid in full off (the deposit too once short), a drop to what is in
+  ticks it; a hand tick with nothing recorded behind it keeps its amount;
+  never a text.
 - A booked survey can be unbooked from the job pop-up (Unbook, under the date):
   off the diary but never deleted; the card goes back to Scheduling, Waiting
   for time, with a note, and the surveyor and the gap are told.
