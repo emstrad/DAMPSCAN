@@ -47,12 +47,13 @@ export default async function handler(req, res) {
     if (body.ok === true) {
       await query(
         `update leads set notified_at = now(), notify_error = null
-          where session_id = $1::uuid and stage = $2`,
+          where session_id = $1::uuid and (stage = $2 or ($2 = 'partial' and stage = 'complete' and from_partial))`,
         [sessionId, stage]
       );
     } else {
       await query(
-        `update leads set notify_error = $3 where session_id = $1::uuid and stage = $2`,
+        /* A half-finished form carded as they left (lib/partial-cards.js) is still its partial. */
+        `update leads set notify_error = $3 where session_id = $1::uuid and (stage = $2 or ($2 = 'partial' and stage = 'complete' and from_partial))`,
         [sessionId, stage, str(body.error, 500) || 'The browser could not reach FormSubmit.']
       );
     }

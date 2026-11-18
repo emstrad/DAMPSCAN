@@ -15,6 +15,7 @@ import { enquiryAlert } from '../lib/alert-enquiry.js';
 import { textOwners, enquiryText } from '../lib/staff-sms.js';
 import { queueText, flushDue } from '../lib/texts.js';
 import { alertPartials } from '../lib/daily-alerts.js';
+import { cardPartials } from '../lib/partial-cards.js';
 import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { agentFromLead } from '../lib/estate-agents.js';
@@ -124,10 +125,18 @@ export default async function handler(req, res) {
     return;
   }
 
+  /* Carded as they left (lib/partial-cards.js), then back to finish in the same visit: that
+     card goes back to being their half-finished form (Leads still reads it so) and the
+     finished form is the new enquiry, carrying anything already logged on the card. */
+  const carded = value.stage === 'complete' ? await queryOne(`update leads set stage = 'partial', from_partial = false, sched_stage = null
+      where session_id = $1::uuid and stage = 'complete' and from_partial and not exists (select 1 from jobs j where j.lead_id = leads.id)
+      returning id, sched_log`, [value.sessionId]).catch(() => null) : null;
   let row;
   try {
+    /* A later save of a half-finished form already carded as they left lands on that card. */
+    const onCard = value.stage === 'partial' && await queryOne(`select 1 from leads where session_id = $1::uuid and stage = 'complete' and from_partial`, [value.sessionId]).catch(() => null);
     row = await queryOne(UPSERT, [
-      value.stage,
+      onCard ? 'complete' : value.stage,
       value.firstName,
       value.email,
       value.postcode,
@@ -203,6 +212,8 @@ export default async function handler(req, res) {
      district only, because it lands on a lock screen; the number rides in
      the Call button's tel: link and is never shown as text. */
   /* The same person's earlier open enquiry folds into this one (lib/merge-dupes.js). */
+  if (carded && row.inserted) await query(`update leads set sched_log = $2::jsonb || coalesce(sched_log, '[]'::jsonb) where id = $1`,
+    [id, JSON.stringify([...(carded.sched_log || []), { at: new Date().toISOString(), by: 'Website', how: 'note', note: 'Came back and finished the form.' }])]).catch(() => {});
   if (value.stage === 'complete' && row.inserted) {
     /* The agent typed on the form becomes the enquiry's agent at once (Scheduling's Agent section). */
     try { await agentFromLead(id); } catch (err) { console.warn('agent from form failed:', err.message); }
@@ -239,6 +250,10 @@ export default async function handler(req, res) {
   /* A half-finished form with a phone: a "can we help?" text ten minutes after they stop (lib/text-nudges.js; dropped if they finish). */
   if (value.stage === 'partial' && row.phone) {
     try { await queuePartial(site, id); } catch (err) { console.warn('partial text failed:', err.message); }
+  }
+  /* They have left the form: a Scheduling card in New at once, with its one alert (lib/partial-cards.js). */
+  if (value.stage === 'partial' && !quiet) {
+    try { await cardPartials(site, { id }); } catch (err) { console.warn('partial card failed:', err.message); }
   }
   if (value.stage === 'partial' && row.inserted && !quiet) {
     try { await alertPartials(site); } catch (err) { console.warn('partial alerts failed:', err.message); }

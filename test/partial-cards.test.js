@@ -62,3 +62,13 @@ test('a second website form on half the same details folds the first in and keep
   assert.equal(Number(a.merged_into), second);
   assert.equal(b.address_line1, '1 Mill Lane', 'the address only the first form had is kept');
 });
+
+test('leaving the form makes the card at once; finishing after all folds it into the finished form (the owner, 18 Nov 2026)', async () => {
+  const s = '33333333-3333-4333-8333-333333333333';
+  const alex = await partial('Alex', 'alex@example.com', 1, { site: 'ati-london', phone: '07799 826852', session: s });
+  assert.equal(await cardPartials(), 0, 'a quiet step 1 still waits its half hour');
+  assert.equal(await cardPartials(null, { id: alex }), 1, 'but leaving the page cards it now');
+  const row = (await pool.query('select stage, sched_stage, from_partial from leads where id = $1', [alex])).rows[0];
+  assert.deepEqual([row.stage, row.sched_stage, row.from_partial], ['complete', 'new', true]);
+  assert.equal((await pool.query(`select count(*)::int as n from notifications where kind = 'lead_partial'`)).rows[0].n, 1);
+});

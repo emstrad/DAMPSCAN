@@ -320,10 +320,14 @@ checks the mechanical ones.
   full enquiry in New on Scheduling (noted in its history) and its card opens.
   It no longer waits for anyone (the owners' choice, 10 Nov 2026): step 1 is
   saved quietly on the server the moment it is filled in (no email, no alert;
-  the finished form replaces that draft), and a form left half done for half
-  an hour becomes a Scheduling card in New by itself, flagged "Didn't finish
-  the form", with one alert (`lib/partial-cards.js`: when Scheduling loads,
-  hourly, on each new form and the daily runs). Not when the same visit, email
+  the finished form replaces that draft), and a form left half done becomes a
+  Scheduling card in New by itself, flagged "Didn't finish the form", with one
+  alert: the moment they leave the page, with the dropout email (the owner,
+  18 Nov 2026: Alex's card came half an hour after the email), or after half an
+  hour for a step 1 a phone never said goodbye to (`lib/partial-cards.js`: when
+  Scheduling loads, hourly, on each new form and the daily runs). Coming back to
+  finish in the same visit folds that card into the finished form (its history
+  carried over; Leads still shows the partial). Not when the same visit, email
   or phone finished the form or is already booked. Leads still reads it as
   Partial, and it never counts as a website booking.
 - Company (`public/staff/company.html`, Scott and Tom only: the owners' code or
