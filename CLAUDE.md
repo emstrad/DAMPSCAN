@@ -539,7 +539,9 @@ checks the mechanical ones.
   handed over) is "Sent, no text" (Reports chip; "Mark sent, no text" in the
   job pop-up, managers; the owner, 18 Nov 2026): marked sent with the file
   attached, and no report text, "your report" or balance reminder ever goes
-  for it (jobs.report_quiet, cleared if Report sent is unticked). Report ready counts as reported everywhere (stage,
+  for it (jobs.report_quiet, cleared if Report sent is unticked). Sent, no text needs no file on the card
+  (the owner, 19 Nov 2026: it went by email or by hand); Report sent and Report
+  ready still refuse without it. Report ready counts as reported everywhere (stage,
   countdown, overdue alert, Reports list once paid) (the owner's review,
   13 Nov 2026), and the lists read it the same (the board and After the visit,
   the day lane, Today's tags, the card's next step and ChatGPT's answers, the
