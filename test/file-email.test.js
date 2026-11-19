@@ -49,3 +49,12 @@ test('a wrongly filed email comes back off the card', async () => {
   assert.match(off.said, /taken off Morris/);
   assert.equal((await log(morris)).length, 0);
 });
+
+test('mark_report_sent with no_text marks it sent and quiet, so no report text ever goes', async () => {
+  const id = Number((await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, survey_type, survey_price_pence, surveyor, tax_bp, lead_bp, lead_earner, partner_a, partner_b, date_set, job_date, report_path, report_name, paid_at)
+    values ('ati-london', 'completed', 'Richard Chasey', 'IG6 2NW', 'full-house', 34500, 'tom', 0, 0, '', '', '', true, '2026-11-16', 'reports/r.pdf', 'r.pdf', now()) returning id`)).rows[0].id);
+  const out = await run('mark_report_sent', { id, no_text: true });
+  assert.ok(out.status < 400, JSON.stringify(out.data));
+  const j = (await pool.query('select survey_sent_at, report_quiet from jobs where id = $1', [id])).rows[0];
+  assert.ok(j.survey_sent_at && j.report_quiet);
+});
