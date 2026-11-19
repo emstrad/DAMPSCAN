@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>To-do | DampScan</title>
+<title>What's next | DampScan</title>
 <meta name="theme-color" content="#0c1a2b" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="manifest" href="/staff/manifest.webmanifest" /><link rel="apple-touch-icon" href="/staff/icon-180.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" />
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/plus-jakarta-sans-var.woff2" crossorigin />
-<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" /><link rel="stylesheet" href="/staff/history.css" /><link rel="stylesheet" href="/staff/board.css" />
+<link rel="stylesheet" href="/staff/staff.css" /><link rel="stylesheet" href="/staff/area.css" /><link rel="stylesheet" href="/staff/shell.css" /><link rel="stylesheet" href="/staff/history.css" /><link rel="stylesheet" href="/staff/board.css" /><link rel="stylesheet" href="/staff/next-up.css" />
 <script>
 /* Both sites share this staff area, so the hostname decides whose name is on
    it. This runs in the head, before anything is painted, so neither brand ever
@@ -52,10 +52,26 @@
   </div>
 </header>
 
-<main class="wrap">
-  <h1 class="sr-only">To-do list</h1>
-  <section class="panel" aria-labelledby="h-add">
-    <h2 id="h-add">Add a to-do</h2>
+<main class="wrap nu-wrap">
+  <h1 class="sr-only">What's next</h1>
+  <div class="c-summary nu-summary">
+    <div><span class="c-label">You</span><b id="nu-big">0</b><span class="c-sub" id="nu-big-sub"></span></div>
+    <div><span class="c-label">Them</span><b id="nu-them">0</b></div>
+    <div><span class="c-label">Agent</span><b id="nu-agent">0</b></div>
+    <div><span class="c-label">Booked</span><b id="nu-booked">0</b></div>
+  </div>
+  <label class="nu-search"><span class="sr-only">Find a customer</span><input id="nu-q" type="search" placeholder="Find a customer" autocomplete="off" /></label>
+  <div class="c-seg nu-lanes" id="nu-lanes" role="group" aria-label="Whose move">
+    <button type="button" data-lane="us" aria-pressed="true">You<span></span></button>
+    <button type="button" data-lane="them" aria-pressed="false">Them<span></span></button>
+    <button type="button" data-lane="agent" aria-pressed="false">Agent<span></span></button>
+    <button type="button" data-lane="booked" aria-pressed="false">Booked<span></span></button>
+  </div>
+  <p class="state" id="nu-state">Loading…</p>
+  <ul class="nu-list" id="nu-list"></ul>
+  <p class="c-sub nu-empty" id="nu-empty" hidden></p>
+  <details class="c-fold nu-fold" id="nu-cold" hidden><summary class="c-row"><span class="c-l"><b>Gone cold</b><small>To try again later</small></span><span class="c-r"><span class="c-amt" id="nu-cold-n"></span><span class="c-chev">›</span></span></summary><ul class="nu-list" id="nu-cold-list"></ul></details>
+  <details class="c-fold nu-fold"><summary class="c-row"><span class="c-l"><b>All to-dos</b><small>Add one, or see yours, set by you, failed and done</small></span><span class="c-r"><span class="c-chev">›</span></span></summary>
     <form id="add" class="todo-add">
       <label class="todo-text">What needs doing <textarea id="text" rows="2" maxlength="2000" required></textarea></label>
       <label>For <select id="for"><option value="">Everyone</option></select></label>
@@ -63,25 +79,18 @@
       <button class="btn btn--sm" type="submit">Add</button>
       <p class="panel-note" id="add-note" role="status"></p>
     </form>
-  </section>
-  <section class="panel" aria-labelledby="h-clients">
-    <h2 id="h-clients">Customers who need something <span id="clients-count"></span></h2>
-    <ul class="tc-list" id="clients"></ul>
-  </section>
-  <section class="panel" aria-labelledby="h-list">
-    <h2 id="h-list">To-do list</h2>
-    <div class="ranges" role="group" aria-label="Show">
-      <button class="pill" data-view="open" aria-pressed="true">Mine</button>
-      <button class="pill" data-view="set" aria-pressed="false">Set by me</button>
-      <button class="pill" data-view="failed" aria-pressed="false">Failed</button>
-      <button class="pill" data-view="done" aria-pressed="false">Done</button>
+    <div class="c-seg" role="group" aria-label="Show">
+      <button type="button" data-view="open" aria-pressed="true">Mine</button>
+      <button type="button" data-view="set" aria-pressed="false">Set by me</button>
+      <button type="button" data-view="failed" aria-pressed="false">Failed</button>
+      <button type="button" data-view="done" aria-pressed="false">Done</button>
     </div>
     <div class="state" id="state">Loading…</div>
     <ul class="todo-list" id="list"></ul>
-  </section>
+  </details>
 </main>
 
 <script src="/staff/ui.js"></script><script src="/staff/area.js"></script>
-<script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script><script src="/staff/sched-next.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/pop-history.js"></script><script src="/staff/todo.js"></script><script src="/staff/todo-clients.js"></script>
+<script src="/staff/messages.js"></script><script src="/staff/calendar-actions.js"></script><script src="/staff/calendar-pop-parts.js"></script><script src="/staff/job-todos.js"></script><script src="/staff/calendar-pop.js"></script><script src="/staff/sched-next.js"></script><script src="/staff/sched-card.js"></script><script src="/staff/pop-history.js"></script><script src="/staff/todo.js"></script><script src="/staff/next-up.js"></script>
 </body>
 </html>
