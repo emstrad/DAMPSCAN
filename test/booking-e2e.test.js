@@ -100,3 +100,29 @@ test('an unbooked survey books from its own card', { skip: !chromium && 'no brow
   assert.deepEqual([j.date_set, j.t], [true, '11:00']);
   assert.deepEqual(p.errors, []);
 });
+
+test('Surveys\' Book survey says why it will not book: another customer\'s enquiry asks first, and a clash says why with Book it anyway', { skip: !chromium && 'no browser' }, async () => {
+  const day = new Date(Date.now() + 4 * 86400000); while ([0, 6].includes(day.getUTCDay())) day.setUTCDate(day.getUTCDate() + 1);
+  const d = day.toISOString().slice(0, 10);
+  await pool.query(`insert into postcode_geo (postcode, lat, lon) values ('SE153PS', 51.47, -0.06), ('SW32QN', 51.49, -0.165), ('SE186ZG', 51.49, 0.07) on conflict (postcode) do update set lat = excluded.lat, lon = excluded.lon`);
+  await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, survey_type, survey_price_pence, surveyor, surveyor_fee_pence, date_set, job_date, job_time, tax_bp, lead_bp, lead_earner, partner_a, partner_b)
+    values ('ati-london', 'booked', 'Andrew Turner', 'SE15 3PS', 'full-house', 29500, 'tom', 13000, true, $1, '09:00', 2000, 1500, 'scott', 'tom', 'ben')`, [d]);
+  await pool.query(`insert into leads (site, stage, first_name, email, phone, postcode, session_id) values ('ati-london', 'complete', 'Daniela', 'd@x.com', '07943888051', 'SE18 6ZG', gen_random_uuid())`);
+  const p = await page();
+  const asked = [];
+  p.on('dialog', (x) => { asked.push(x.message()); x[/Book it anyway/.test(x.message()) ? 'dismiss' : 'accept'](); });
+  await p.goto(base + '/staff/surveys.html'); await p.waitForSelector('text=Book survey');
+  await p.locator('.sv-card', { hasText: 'Daniela' }).locator('text=Book survey').click();
+  await p.waitForSelector('#bk-name');
+  await p.fill('#bk-name', 'Amanda Culhane'); await p.fill('#bk-postcode', 'SW3 2QN');
+  await p.selectOption('#bk-surveyor', 'tom');
+  await p.$eval('#bk-date', (x, v) => { x.value = v; }, d); await p.$eval('#bk-time', (x) => { x.value = '11:00'; });
+  await p.click('text=Book it');
+  await p.waitForFunction(() => /Not booked:/.test(document.querySelector('dialog[open] .err').textContent), null, { timeout: 10000 });
+  assert.match(asked[0], /This is Daniela's enquiry\. Book it as Amanda Culhane\?/);
+  assert.match(asked[1], /Book it anyway\?/, 'the clash is said, with the choice');
+  assert.equal((await pool.query(`select count(*)::int as n from jobs where customer_name = 'Amanda Culhane'`)).rows[0].n, 0, 'nothing booked without a yes');
+  await p.fill('#bk-email', 'not an email'); await p.click('text=Book it');
+  assert.match(await p.$eval('dialog[open] .err', (x) => x.textContent), /email address is not right/, 'the phone\'s own checks are said, never silent');
+  assert.deepEqual(p.errors, []);
+});

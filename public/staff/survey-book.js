@@ -110,9 +110,26 @@
     bar.appendChild(cancel);
     form.appendChild(bar);
 
+    /* The phone's own checks stop a form without a word on an iPhone (19 Nov 2026:
+       Book it "does nothing"), so every reason is said here, beside the button. */
+    form.noValidate = true;
+    function say(text, field) {
+      err.textContent = text;
+      err.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (field) field.focus({ preventScroll: true });
+    }
+    var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     form.addEventListener('submit', async function (ev) {
       ev.preventDefault();
       err.textContent = '';
+      if (!f.name.value.trim()) return say('Give the customer\'s name.', f.name);
+      if (f.email.value.trim() && !EMAIL.test(f.email.value.trim())) return say('That email address is not right.', f.email);
+      if (!(Number(f.price.value) > 0)) return say('Give the price.', f.price);
+      if (!f.date.value) return say('Pick the day.', f.date);
+      /* Booking an enquiry under someone else's name joins two customers into one card. */
+      var was = lead && String(lead.name || '').trim().split(/\s+/)[0].toLowerCase();
+      var now = f.name.value.trim().split(/\s+/)[0].toLowerCase();
+      if (was && now !== was && !global.confirm('This is ' + lead.name + '\'s enquiry. Book it as ' + f.name.value.trim() + '? If it is a different customer, Cancel and use New customer instead.')) return;
       var body = { site: f.site.value, leadId: lead ? lead.leadId : undefined, customerName: f.name.value.trim(), customerPhone: f.phone.value.trim(),
         customerEmail: f.email.value.trim(), customerAddress: f.address.value.trim(), customerPostcode: f.postcode.value.trim(),
         surveyType: f.type.value, surveyPricePence: Math.round(Number(f.price.value) * 100), surveyor: f.surveyor.value,
@@ -122,10 +139,12 @@
       save.disabled = true;
       try {
         var r = await U.send('/api/admin/jobs', body);
-        if (!r.ok) throw new Error(r.data && r.data.errors ? Object.keys(r.data.errors).map(function (k) { return r.data.errors[k]; }).join(' ') : 'Not saved');
+        /* Too tight a drive from the surveyor's other survey: say why, and book anyway only when told to. */
+        if (!r.ok && r.data && r.data.clash && global.confirm(r.data.clash.replace(' Send force to book it anyway.', '') + ' Book it anyway?')) r = await U.send('/api/admin/jobs', Object.assign(body, { force: true }));
+        if (!r.ok) throw new Error(r.data && r.data.errors ? Object.keys(r.data.errors).map(function (k) { return r.data.errors[k]; }).join(' ') : (r.data && r.data.clash) ? 'Not booked: ' + r.data.clash.replace(' Send force to book it anyway.', '') : (r.data && r.data.error) || 'Not saved');
         if (done) done();
         drawMessages(dlg, await U.get('/api/admin/surveys?view=messages&id=' + r.data.job.id), true);
-      } catch (e) { err.textContent = e.message; save.disabled = false; }
+      } catch (e) { say(e.message); save.disabled = false; }
     });
     dlg.appendChild(form);
     if (!dlg.open) dlg.showModal();
