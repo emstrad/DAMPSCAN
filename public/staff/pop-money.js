@@ -76,13 +76,13 @@
   var quiet = function () { var h = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false })); return h >= 21 || h < 9; };
 
   /* The deposit reminder, or the balance chased, by hand: through the texts outbox, two minutes to undo (overnight it waits for 9am).
-     A balance on a survey booked before go-live goes with the Revolut details and their reference, not their page. */
+     A balance on a survey still on the old money (out of texts since the fresh start) goes with the Revolut details and their reference, not their page. */
   function remindRow(j, r, balance) {
     var row = U.node('div', 'pop-page');
     var first = j.firstName || String(j.customerName || '').split(' ')[0] || 'them';
     var go = U.node('button', 'btn btn--sm', balance ? 'Chase the ' + pounds(r.balancePence) + ' balance' : 'Send deposit reminder'); go.type = 'button';
     var undo = U.node('button', 'btn btn--ghost btn--sm', 'Undo'); undo.type = 'button'; undo.hidden = true;
-    var note = U.node('p', 'meta', r.last ? (r.last.status === 'waiting' ? 'Reminder waiting, goes ' : 'Reminder sent ') + when(r.last.at) : balance ? (r.old ? 'Texts them the Revolut details and their reference (booked before go-live)' : 'Texts them the balance and their page link') : 'Texts them the deposit and their page link');
+    var note = U.node('p', 'meta', r.last ? (r.last.status === 'waiting' ? 'Reminder waiting, goes ' : 'Reminder sent ') + when(r.last.at) : balance ? (r.old ? 'Texts them the Revolut details and their name as the reference (old money)' : 'Texts them the balance and their page link') : 'Texts them the deposit and their page link');
     if (balance && r.bankMissing) { note.textContent = 'Add the Revolut details in Settings, Bank details, first'; go.disabled = true; }
     var id = null;
     go.addEventListener('click', async function () {

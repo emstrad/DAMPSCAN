@@ -61,11 +61,11 @@
     var grid = U.node('div', 'jgrid');
     [row('VAT number', number, 'b-vat-' + key), row('Company number', company, 'b-co-' + key),
      row('Address', address, 'b-addr-' + key), row('How customers pay', pay, 'b-pay-' + key)].forEach(function (r) { grid.appendChild(r); });
-    /* The damp brands only: the Revolut details a balance chase sends for a survey booked before go-live (lib/balance-chase.js). */
+    /* The damp brands only: the Revolut details a balance chase sends for a survey still on the old money (lib/balance-chase.js). */
     var oldPay = null;
     if (key === 'dampscan' || key === 'ati-london') {
       oldPay = input('textarea', b.oldPaymentDetails, { rows: 2, placeholder: 'e.g. Damp Surveying Limited, sort code 00-00-00, account 00000000' });
-      grid.appendChild(row('Revolut, for bookings before 15 Nov', oldPay, 'b-old-' + key));
+      grid.appendChild(row('Revolut, for the old money', oldPay, 'b-old-' + key));
     }
     box.appendChild(grid);
     var err = U.node('span', 'err');

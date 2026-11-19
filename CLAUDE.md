@@ -47,8 +47,9 @@ enforces the mechanical ones in CI.
   away (or by hand: Send deposit reminder in the job pop-up, managers, up to
   the day before, once a day, two minutes to undo, the owner, 16 Nov 2026), and the balance chased by
   hand once visited (Chase the balance in the job pop-up, managers, once a day, two minutes to undo,
-  `lib/balance-chase.js`, the owner, 19 Nov 2026: a survey booked before 15 Nov gets the Revolut
-  details from Settings and its reference instead of its page, even after the fresh start), 3 payment received (a deposit or part, paid in full, before or after
+  `lib/balance-chase.js`, the owner, 19 Nov 2026: a survey still on the old money, the ones the fresh start
+  took out of texts (jobs.texts_off), gets the Revolut details from Settings and their first name as the
+  reference instead of its page; never by booking date, since some booked before go-live paid the new way), 3 payment received (a deposit or part, paid in full, before or after
   the visit; online by card, a matched transfer or a tick by hand), 4 the survey
   morning at 9 (one starting 9:00 to 9:59 at 8:15 instead, from the every-minute
   call; one starting before 9 has none, the owner, 16 Nov 2026; asking for the deposit when unpaid, the agent letting us in
