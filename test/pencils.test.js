@@ -109,8 +109,8 @@ test('the inbox scan logs a reply and an incoming email on the card, once', asyn
     { id: 'm3', subject: 'Hello', from: { emailAddress: { address: 'shared@example.com' } }, toRecipients: [], receivedDateTime: '2030-05-01T11:00:00Z' }
   ];
   const fetchImpl = async (url) => ({ ok: true, json: async () => (String(url).includes('oauth2') ? { access_token: 'x' } : { value: msgs }) });
-  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 2 }, 'the shared address is left for the sweep');
-  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 0 }, 'never twice');
+  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 2, made: 0 }, 'the shared address is left for the sweep');
+  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 0, made: 0 }, 'never twice');
   const l = (await pool.query('select sched_stage, sched_log from leads where id = $1', [kim])).rows[0];
   assert.equal(l.sched_stage, 'contacted');
   assert.deepEqual(l.sched_log.map((x) => x.note), ['They emailed: Survey enquiry', 'Replied: Re: Survey enquiry']);
@@ -127,7 +127,7 @@ test('a survey booked over a hold elsewhere sends the hold back, and auto-replie
   Object.assign(process.env, { M365_TENANT_ID: 't', M365_CLIENT_ID: 'c', M365_CLIENT_SECRET: 's', M365_MAILBOX: 'office@dampscan.co.uk' });
   const msgs = [{ id: 'oo', subject: 'Automatic reply: Survey', from: { emailAddress: { address: 'kim@example.com' } }, toRecipients: [] }];
   const fetchImpl = async (url) => ({ ok: true, json: async () => (String(url).includes('oauth2') ? { access_token: 'x' } : { value: msgs }) });
-  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 0 });
+  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 0, made: 0 });
   for (const k of ['M365_TENANT_ID', 'M365_CLIENT_ID', 'M365_CLIENT_SECRET', 'M365_MAILBOX']) delete process.env[k];
 });
 

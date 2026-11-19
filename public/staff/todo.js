@@ -59,7 +59,7 @@
     if (t.jobId) {
       var a = U.node('a', 'todo-meta', 'Open the job');
       a.href = '/staff/quoted.html#job-' + t.jobId;
-      if (t.site === 'dampscan' || t.site === 'ati-london') a.href = '/staff/jobs.html#job-' + t.jobId;
+      if (t.site === 'dampscan' || t.site === 'ati-london') a.href = '/staff/surveys.html#job-' + t.jobId;
       body.appendChild(a);
     } else if (t.leadId) {
       var e = U.node('a', 'todo-meta', 'Open ' + (t.customer || 'their card'));
