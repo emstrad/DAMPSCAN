@@ -27,3 +27,16 @@
 .nu-fold .todo-add,.nu-fold .c-seg{margin:8px 0}
 .nu-wrap .c-seg button{min-height:46px}
 .nu-ask{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+/* Last 24 hours: one folded line; amber outline only when a check needs a look. */
+.nu-day{border:1px solid var(--line);border-radius:14px;padding:0 14px;background:var(--panel)}
+.nu-day.is-warn{border-color:rgba(240,160,139,.55)}
+.nu-day > summary{padding:12px 0}
+.nu-day-h{margin:12px 0 4px}
+.nu-day-list{list-style:none;margin:0;padding:0 0 8px;display:flex;flex-direction:column;gap:6px}
+.nu-day-list li{display:flex;flex-direction:column;gap:2px;font-size:15px}
+.nu-day-list li.is-quiet{color:var(--muted-2)}
+.nu-day-list li small{color:var(--muted-2);font-size:13px}
+.nu-day-list li.is-warn b{color:var(--warn)}
+.nu-day-list li.is-off b{color:var(--muted)}
+.nu-day > summary .c-l small{white-space:normal}
+.nu-day:not([open]) > summary{border-bottom:0}

@@ -114,10 +114,30 @@
     cold.forEach(function (r) { cl.appendChild(row(r)); });
   }
 
+  /* The last 24 hours and every check (lib/overnight.js): one folded line, amber if a check needs a look. */
+  function drawDay(o) {
+    var box = el('nu-day'); box.hidden = !o; if (!o) return;
+    var top = o.lines.filter(function (l) { return l.n; }).slice(0, 3).map(function (l) { return l.said; });
+    el('nu-day-sub').textContent = top.length ? top.join(' · ') : 'Quiet';
+    var warn = o.checks.filter(function (c) { return c.state === 'warn'; }).length;
+    var tag = el('nu-day-tag'); tag.textContent = warn ? warn + (warn === 1 ? ' check' : ' checks') + ' to look at' : 'All sweet';
+    tag.className = 'c-tag ' + (warn ? 'is-warn' : 'is-good');
+    box.classList.toggle('is-warn', warn > 0);
+    var lines = el('nu-day-lines'); lines.textContent = '';
+    o.lines.forEach(function (l) { lines.appendChild(U.node('li', l.n ? null : 'is-quiet', l.said)); });
+    var checks = el('nu-day-checks'); checks.textContent = '';
+    o.checks.forEach(function (c) {
+      var li = U.node('li', 'is-' + c.state);
+      li.appendChild(U.node('b', null, c.name)); li.appendChild(U.node('small', null, c.said));
+      checks.appendChild(li);
+    });
+  }
+
   async function load() {
     try {
       state.data = await U.get('/api/admin/todos?view=next');
       el('nu-state').hidden = true;
+      drawDay(state.data.last24);
       draw();
     } catch (e) {
       if (e.message === 'unauthorised') return;
