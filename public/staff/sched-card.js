@@ -86,7 +86,7 @@
     top.appendChild(x);
     d.appendChild(top);
 
-    if (!(c.log || []).length) d.appendChild(U.node('div', 'scc-step is-due', 'Nobody in touch yet: call them'));
+    if (!(c.log || []).some(function (e) { return e.dir !== 'in' && ['Website', 'Inbox', 'Their page', 'Brain'].indexOf(e.by) === -1; })) d.appendChild(U.node('div', 'scc-step is-due', c.page === 'email' ? 'Nobody in touch yet: reply to their email' : 'Nobody in touch yet: call them'));
     else if (N && opts.act) { var step = N.status(c, redo, shut); if (step) d.appendChild(step); }
     if (D && opts.act) D.urgent(c, act, function (slot) { shut(); opts.book(c, slot, true); }).forEach(function (n) { d.appendChild(n); });
 
@@ -115,6 +115,8 @@
     var log = U.node('div', 'scc-log');
     var how = document.createElement('select'); how.setAttribute('aria-label', 'What happened');
     [['call', 'Called'], ['email', 'Emailed'], ['text', 'Texted'], ['note', 'Note']].forEach(function (h) { var o = document.createElement('option'); o.value = h[0]; o.textContent = h[1]; how.appendChild(o); });
+    /* A card that came by email is answered by email. */
+    if (c.page === 'email') how.value = 'email';
     var next = N && N.choice();
     var r1 = U.node('div', 'scc-pair'); r1.appendChild(how); if (next) r1.appendChild(next.select);
     log.appendChild(r1);
