@@ -486,7 +486,9 @@ checks the mechanical ones.
   has their own page (`lib/agent-portal.js`, `lib/agent-book.js`,
   `public/agent.html`, `agent.js`, `agent-book.js`; the owner, 18 Nov 2026, ATi
   first): one private link (/a/<token>, middleware.js rewrites it, copied or
-  emailed from Growth), no password, in the brand's palette. Every property they
+  emailed from the Agents tab, the owner, 19 Nov 2026: one place for an agent; each
+  agent's card folds Their page and links with when they last opened it, and Add
+  an agent sits beneath; Growth keeps the figures and statements), no password, in the brand's palette. Every property they
   sent or let us into, a time to confirm for access first (Confirm, or Another
   time: a request with an owners' to-do, alert and text), then each with its
   stage, buyer, visit, money and report (open once paid in full, as for the

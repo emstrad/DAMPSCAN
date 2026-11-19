@@ -1,9 +1,10 @@
-/* Growth, Estate agents (the owner, 16 Nov 2026): one brand at a time, since
-   the damp sites never name each other. Each agent opens to their own booking
-   link (Copy) and a month's statement of their buyers (first name and
-   district) to email or copy: words for a person to check and send, never
-   sent by itself. Add an agent before they have sent anyone, to hand them a
-   link. Figures from lib/agent-referrals.js. */
+/* Estate agents, one brand at a time, since the damp sites never name each
+   other. Growth shows the figures and a month's statement of their buyers
+   (first name and district) to email or copy, never sent by itself. Their
+   links (booking link, their own page, when they last opened it) and Add an
+   agent live on the Agents tab (agents.js, the owner, 19 Nov 2026: one place
+   for an agent), which uses links() and addForm() from here. Figures from
+   lib/agent-referrals.js. */
 (function (global) {
   'use strict';
   var U = global.DSUI, node = U.node;
@@ -41,6 +42,26 @@
     return out.join('\n');
   }
 
+  /* Their booking link and their own page (lib/agent-portal.js: every property, Quick book and
+     access to confirm). When they last opened it is on the fold's line (agents.js). */
+  function links(a) {
+    var body = node('div', 'ag-body');
+    if (a.page) {
+      body.appendChild(node('span', 'c-label', 'Their agent page'));
+      body.appendChild(node('small', 'ag-link', a.page));
+      var cp = node('button', 'btn', 'Copy page link'); cp.type = 'button'; cp.addEventListener('click', function () { copy(a.page, cp); });
+      body.appendChild(cp);
+      if (a.email) { var em = node('a', 'btn', 'Email it'); em.href = 'mailto:' + encodeURIComponent(a.email) + '?subject=' + encodeURIComponent('Your page for damp surveys') + '&body=' + encodeURIComponent('Your own page for booking damp surveys and seeing where each one stands: ' + a.page + '\n\nSave it to your phone\'s home screen. Anyone with the link can see your properties, so keep it in the office.'); body.appendChild(em); }
+    }
+    if (a.link) {
+      body.appendChild(node('span', 'c-label', 'Their booking link'));
+      body.appendChild(node('small', 'ag-link', a.link));
+      var cl = node('button', 'btn', 'Copy link'); cl.type = 'button'; cl.addEventListener('click', function () { copy(a.link, cl); });
+      body.appendChild(cl);
+    }
+    return body;
+  }
+
   function agentRow(a, site) {
     var d = document.createElement('details'); d.className = 'pay-surveys ag-agent';
     var s = document.createElement('summary'); s.className = 'c-row';
@@ -50,20 +71,6 @@
     s.appendChild(l); s.appendChild(r); d.appendChild(s);
 
     var body = node('div', 'ag-body');
-    if (a.link) {
-      body.appendChild(node('span', 'c-label', 'Their booking link'));
-      body.appendChild(node('small', 'ag-link', a.link));
-      var cl = node('button', 'btn', 'Copy link'); cl.type = 'button'; cl.addEventListener('click', function () { copy(a.link, cl); });
-      body.appendChild(cl);
-    }
-    /* Their own page (lib/agent-portal.js): every property, Quick book and access to confirm. */
-    if (a.page) {
-      body.appendChild(node('span', 'c-label', 'Their agent page'));
-      body.appendChild(node('small', 'ag-link', a.page));
-      var cp = node('button', 'btn', 'Copy page link'); cp.type = 'button'; cp.addEventListener('click', function () { copy(a.page, cp); });
-      body.appendChild(cp);
-      if (a.email) { var em = node('a', 'btn', 'Email it'); em.href = 'mailto:' + encodeURIComponent(a.email) + '?subject=' + encodeURIComponent('Your page for damp surveys') + '&body=' + encodeURIComponent('Your own page for booking damp surveys and seeing where each one stands: ' + a.page + '\n\nSave it to your phone\'s home screen. Anyone with the link can see your properties, so keep it in the office.'); body.appendChild(em); }
-    }
     body.appendChild(node('span', 'c-label', 'Statement'));
     var seg = node('div', 'c-seg'), text = node('pre', 'ag-text'), acts = node('div', 'ag-acts');
     var mail = node('a', 'btn btn--primary', 'Email statement');
@@ -84,10 +91,11 @@
     return d;
   }
 
-  function addForm(site, done) {
+  function addForm(site, done, label) {
     var d = document.createElement('details'); d.className = 'pay-surveys';
     var s = document.createElement('summary'); s.className = 'c-row';
-    s.innerHTML = '<span class="c-l"><b>Add an agent</b></span><span class="c-r"><span class="c-chev">›</span></span>';
+    s.innerHTML = '<span class="c-l"><b></b></span><span class="c-r"><span class="c-chev">›</span></span>';
+    s.querySelector('b').textContent = label || 'Add an agent';
     d.appendChild(s);
     var f = node('form', 'pay-form');
     var field = function (label, type) { var i = document.createElement('input'); i.type = type; i.placeholder = label; i.setAttribute('aria-label', label); f.appendChild(i); return i; };
@@ -118,11 +126,13 @@
       (d.agents || []).forEach(function (a) { rows.appendChild(agentRow(a, site)); });
       if (!(d.agents || []).length) list.appendChild(node('p', 'mn-say', 'No agents yet.'));
       else list.appendChild(rows);
-      list.appendChild(addForm(site, function () { show(site); }));
+      var to = node('a', 'c-row ag-to'); to.href = '/staff/agents.html?area=damp';
+      to.innerHTML = '<span class="c-l"><b>Their pages, links and Add an agent</b><small>On the Agents tab</small></span><span class="c-r"><span class="c-chev">›</span></span>';
+      list.appendChild(to);
     };
     [['ati-london', 'ATi'], ['dampscan', 'DampScan']].forEach(function (b) { var x = node('button', null, b[1]); x.type = 'button'; x.dataset.site = b[0]; x.addEventListener('click', function () { show(b[0]); }); seg.appendChild(x); });
     show('ati-london');
   }
 
-  global.DSAGENTS = { mount: mount, statement: statement };
+  global.DSAGENTS = { mount: mount, statement: statement, links: links, addForm: addForm };
 })(window);
