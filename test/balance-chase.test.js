@@ -64,7 +64,7 @@ test('visited and owed: the balance and their page, once a day, two minutes to u
   assert.equal(texts.length, 1, 'paid meanwhile: it never goes');
 });
 
-test('booked before go-live: the Revolut details and their reference, even after the fresh start; refused until the details are in', async () => {
+test('old money (out of texts since the fresh start): the Revolut details and their first name, refused until the details are in', async () => {
   const id = await job({ made: '2026-11-10T10:00:00Z', off: true });
   assert.ok((await moneyView(id)).chase.bankMissing);
   assert.match((await chaseBalance(id, 'Scott')).error, /Revolut details/);
@@ -72,6 +72,16 @@ test('booked before go-live: the Revolut details and their reference, even after
   assert.ok((await chaseBalance(id, 'Scott')).ok, 'a person chose it, so the fresh start does not stop it');
   await due(); await flushDue();
   assert.equal(texts.length, 1);
-  assert.match(texts[0].body, /balance for your survey is still to pay\. Please pay it by bank transfer to Damp Surveying Limited, sort code 04-00-75, account 12345678, with the reference KIM0001\./);
+  assert.match(texts[0].body, /balance for your survey is still to pay\. Please pay it by bank transfer to Damp Surveying Limited, sort code 04-00-75, account 12345678, with the reference Kim\./);
   assert.doesNotMatch(texts[0].body, /\/m\//, 'no page link');
+});
+
+test('booked before go-live but on the new money (Isabella, Arty, Danya): their page, never the Revolut details', async () => {
+  await pool.query("update businesses set old_payment_details = 'Damp Surveying Limited, sort code 04-00-75, account 12345678' where slug = 'dampscan'");
+  const id = await job({ made: '2026-11-10T10:00:00Z' });
+  assert.equal((await moneyView(id)).chase.old, false);
+  assert.ok((await chaseBalance(id, 'Scott')).ok);
+  await due(); await flushDue();
+  assert.match(texts[0].body, /on your page: https:\/\/dampscan\.co\.uk\/m\//);
+  assert.doesNotMatch(texts[0].body, /sort code/);
 });
