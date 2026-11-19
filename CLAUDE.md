@@ -328,7 +328,23 @@ checks the mechanical ones.
   kept in customer_state for ChatGPT and Claude. "All to-dos" (add, Mine, Set by
   me, Failed, Done) is folded beneath, newest first, each with how long it has
   been waiting. Managers reach it from + and the header; a surveyor keeps the
-  quick drawer of their own to-dos.
+  quick drawer of their own to-dos. Its top line is "Last 24 hours"
+  (`lib/overnight.js`, the owner, 19 Nov 2026: one place to look): enquiries by
+  source, money in, booked, reports, emails filed and texts, then every check
+  (hourly run, card payments against Stripe, the inbox sweep, email reading),
+  folded, "All sweet" or amber when a check needs a look.
+- Code for anything with a right answer, AI only for judgement (the owner, 19 Nov
+  2026). The hourly card check (`lib/stripe-check.js`, in report-due) puts every
+  Stripe payment of the week beside its survey to the penny, read only: not
+  recorded, a different amount, a refund or dispute not on the survey, or a
+  payment on no survey each make one owners' "Card check" to-do, which closes
+  itself once it lines up (stripe_issues, check_runs). The scheduled Claude
+  "Inbox sweep and morning brief" (05:48 and 14:48 London, Microsoft 365 and Ati
+  connectors) only reads email: files it on cards, adds anyone new, one owners'
+  to-do of what people asked, then sweep_done so Settings and What's next show
+  it ran; never books, ticks, sends or drafts. Its morning page, the ATi morning
+  brief (a private page in ATi's colours, the same link each day), is built only
+  from morning_brief (`lib/mcp/sweep-tools.js`), the same figures as the app.
 - The brain's memory (the owner, 19 Nov 2026): the journal table, written by the
   database itself (triggers on jobs, leads, job_payments, sms_outbox, todos,
   portal_events and bank lines), so every change from any route, ChatGPT or a

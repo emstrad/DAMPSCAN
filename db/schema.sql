@@ -1928,3 +1928,27 @@ create table if not exists brain_asks (
 -- How many phones the staff app alert reached, per alert (the owner, 19 Nov
 -- 2026: app alerts seemed late or missing; ntfy is retired). Settings shows it.
 alter table notifications add column if not exists app_sent integer;
+
+-- The hourly card check (lib/stripe-check.js, the owner, 19 Nov 2026: code for
+-- anything with a right answer): each Stripe payment that does not line up with
+-- its survey, once, with its owners' to-do; cleared once it lines up again.
+create table if not exists stripe_issues (
+  key         text primary key,
+  kind        text not null,
+  job_id      bigint references jobs (id) on delete set null,
+  site        text,
+  say         text not null,
+  todo_id     bigint,
+  found_at    timestamptz not null default now(),
+  cleared_at  timestamptz
+);
+
+-- The last result of each check (the card check, the inbox sweep), for the
+-- Last 24 hours panel on What's next, Settings and the morning brief.
+create table if not exists check_runs (
+  name  text primary key,
+  at    timestamptz not null default now(),
+  ok    boolean not null default true,
+  said  text,
+  facts jsonb not null default '{}'::jsonb
+);

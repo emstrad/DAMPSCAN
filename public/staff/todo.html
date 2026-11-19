@@ -60,6 +60,11 @@
     <div><span class="c-label">Agent</span><b id="nu-agent">0</b></div>
     <div><span class="c-label">Booked</span><b id="nu-booked">0</b></div>
   </div>
+  <details class="c-fold nu-fold nu-day" id="nu-day" hidden><summary class="c-row"><span class="c-l"><b>Last 24 hours</b><small id="nu-day-sub"></small></span><span class="c-r"><span class="c-tag" id="nu-day-tag"></span><span class="c-chev">›</span></span></summary>
+    <ul class="nu-day-list" id="nu-day-lines"></ul>
+    <p class="c-label nu-day-h">Checks</p>
+    <ul class="nu-day-list" id="nu-day-checks"></ul>
+  </details>
   <label class="nu-search"><span class="sr-only">Find a customer</span><input id="nu-q" type="search" placeholder="Find a customer" autocomplete="off" /></label>
   <div class="c-seg nu-lanes" id="nu-lanes" role="group" aria-label="Whose move">
     <button type="button" data-lane="us" aria-pressed="true">You<span></span></button>
