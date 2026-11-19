@@ -1884,3 +1884,43 @@ create table if not exists customer_state (
   computed_at   timestamptz not null default now()
 );
 create index if not exists customer_state_lane_idx on customer_state (lane, since);
+
+-- Every email to or from a customer, whole (lib/mail-brain.js, the owner,
+-- 19 Nov 2026: "the whole email"), matched to their card, with what the brain
+-- did about it. The message id keeps each one once.
+create table if not exists mail_items (
+  id           bigserial primary key,
+  message_id   text not null unique,
+  at           timestamptz not null,
+  dir          text not null check (dir in ('in', 'out')),
+  from_addr    text,
+  to_addrs     text[] not null default '{}',
+  subject      text,
+  body         text,
+  attachments  jsonb not null default '[]'::jsonb,
+  job_id       bigint references jobs (id) on delete set null,
+  lead_id      bigint references leads (id) on delete set null,
+  site         text,
+  action       text,
+  created_at   timestamptz not null default now()
+);
+create index if not exists mail_items_job_idx on mail_items (job_id, at desc) where job_id is not null;
+create index if not exists mail_items_lead_idx on mail_items (lead_id, at desc) where lead_id is not null;
+
+-- What the brain thinks happened but will not do without a yes (the owners'
+-- rule: nothing about money is assumed): "Looks paid: Tom thanked them for their
+-- payment". Shown in What's next's Needs you now with Yes and Not right.
+create table if not exists brain_asks (
+  id          bigserial primary key,
+  at          timestamptz not null default now(),
+  job_id      bigint references jobs (id) on delete cascade,
+  lead_id     bigint references leads (id) on delete cascade,
+  site        text,
+  kind        text not null,
+  say         text not null,
+  evidence    jsonb not null default '{}'::jsonb,
+  status      text not null default 'open' check (status in ('open', 'yes', 'no')),
+  decided_by  text,
+  decided_at  timestamptz,
+  unique (job_id, kind)
+);

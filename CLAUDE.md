@@ -813,9 +813,17 @@ checks the mechanical ones.
   or that a survey was booked over goes back with a to-do, unless it was
   pencilled anyway. The board flags the same person on two cards.
 - Inbox scan (`lib/mail-scan.js`, hourly with report-due): reads sender,
-  recipients, subject and preview (Graph Mail.Read, one mailbox), keeps only the
-  subject on its one matching card (or a booked job's history; a new address
-  by postcode); ambiguous ones are left for the ChatGPT sweep.
+  recipients, subject and preview (Graph Mail.Read, one mailbox), notes the
+  subject on its one matching card (or a survey's history, booked or done in the
+  last 60 days; a new address by postcode); ambiguous ones are left for the
+  ChatGPT sweep. The brain then reads each matched email whole, inbox and sent
+  (`lib/mail-brain.js`, the owner, 19 Nov 2026), keeps it in mail_items (shown in
+  their history in full) and acts only on what is plain: a PDF report we emailed,
+  on a survey with none, is saved on it and, if not marked sent, marked sent with
+  no text (they have it); our "thank you for your payment" on an unpaid survey is
+  never ticked but asked on What's next (brain_asks: Yes, paid in full or Not
+  right). Its first read goes back a month. Settings, Left to set up, shows
+  whether the Microsoft keys are in.
 - Evening route check (`lib/route-check.js`, 17:00 run): each surveyor's day
   tomorrow in order with drives from home, between surveys and home again,
   to their own feed; a time too tight, a hop over 75 minutes, no time, no

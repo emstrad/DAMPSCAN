@@ -57,6 +57,15 @@
     if (r.phone) { var a = U.node('a', 'chip', 'Call'); a.href = 'tel:' + String(r.phone).replace(/[^\d+]/g, ''); chips.appendChild(a); }
     if (r.email) { var m = U.node('a', 'chip', 'Email'); m.href = 'mailto:' + r.email; chips.appendChild(m); }
     li.appendChild(chips);
+    /* The brain read something in an email and asks before doing it. */
+    if (r.ask) {
+      var ask = U.node('div', 'nu-ask');
+      var yes = U.node('button', 'c-ok', 'Yes, paid in full'); yes.type = 'button';
+      var no = U.node('button', 'c-quiet', 'Not right'); no.type = 'button';
+      var answer = async function (y) { yes.disabled = no.disabled = true; try { await U.send('/api/admin/todos', { op: 'ask', id: r.ask.id, yes: y }); } catch (e) { /* shown on reload */ } load(); };
+      yes.addEventListener('click', function () { answer(true); }); no.addEventListener('click', function () { answer(false); });
+      ask.appendChild(yes); ask.appendChild(no); li.appendChild(ask);
+    }
     /* Their to-dos tick off and add right here, as on their card. */
     if (global.DSTODOS && !r.quoted && (r.jobId || r.leadId)) {
       var box = U.node('div', 'nu-todos');

@@ -26,3 +26,4 @@
 .nu-fold[open] > summary .c-chev{transform:rotate(90deg)}
 .nu-fold .todo-add,.nu-fold .c-seg{margin:8px 0}
 .nu-wrap .c-seg button{min-height:46px}
+.nu-ask{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
