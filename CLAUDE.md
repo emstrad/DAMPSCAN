@@ -284,6 +284,12 @@ checks the mechanical ones.
   button), survey not paid in full (morning after, with Paid/Deposit
   buttons), overdue invoices, half-finished forms, to-dos, competitor watch.
 - Alert buttons use signed, 3-day tickets (`lib/quick-action.js`).
+- Alerts go before the answer (the owner, 19 Nov 2026: app alerts came late or
+  not at all): a staff change's answer is held until its alerts, diary pushes
+  and texts have gone (lib/activity.js), since Vercel may freeze a function once
+  it has answered; the app alert goes side by side with ntfy, never waiting on
+  it; how many phones each reached is kept (notifications.app_sent) and shown in
+  Settings; a second alert about the same customer still buzzes (renotify).
 - ntfy.sh's free tier has a daily message limit (anonymous: per sending IP,
   shared on Vercel); past it every push is refused with 429. Each refusal's
   reason is kept (notifications.push_error) and shown in Settings, "Are alerts

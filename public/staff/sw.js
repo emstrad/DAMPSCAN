@@ -13,6 +13,8 @@ self.addEventListener('push', function (e) {
     icon: '/staff/icon-192.png',
     badge: '/staff/icon-192.png',
     tag: data.tag || undefined,
+    /* A second alert about the same customer still buzzes, rather than quietly replacing the first. */
+    renotify: Boolean(data.tag),
     data: { url: data.url || '/staff/calendar.html' }
   }));
 });

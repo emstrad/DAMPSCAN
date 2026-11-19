@@ -1924,3 +1924,7 @@ create table if not exists brain_asks (
   decided_at  timestamptz,
   unique (job_id, kind)
 );
+
+-- How many phones the staff app alert reached, per alert (the owner, 19 Nov
+-- 2026: app alerts seemed late or missing; ntfy is retired). Settings shows it.
+alter table notifications add column if not exists app_sent integer;

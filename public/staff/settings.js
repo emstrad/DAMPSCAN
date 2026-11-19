@@ -55,10 +55,10 @@
     var list = el('push-phones'); list.textContent = '';
     (d.phones || []).forEach(function (p) { list.appendChild(U.node('li', null, p.name + ': ' + p.phones + (p.phones === 1 ? ' phone' : ' phones'))); });
     if (!list.children.length) list.appendChild(U.node('li', null, 'No phone has the staff app alerts on yet.'));
-    el('push-ntfy').textContent = d.ntfy ? 'ntfy is on too. Its last enquiry alerts:' : '';
+    el('push-ntfy').textContent = 'The last enquiry alerts:';
     var rec = el('push-recent'); rec.textContent = '';
     (d.recent || []).forEach(function (r) {
-      rec.appendChild(U.node('li', null, new Date(r.at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ', ' + r.title + ': ' + (r.sent ? 'ntfy took it' : 'ntfy refused it' + (r.error ? ' (' + (/^429/.test(r.error) ? 'daily limit reached' : r.error) + ')' : ''))));
+      rec.appendChild(U.node('li', null, new Date(r.at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) + ', ' + r.title + ': ' + (r.app == null ? 'app alert not recorded' : 'reached ' + r.app + (r.app === 1 ? ' phone' : ' phones')) + (d.ntfy ? (r.sent ? ', ntfy took it' : ', ntfy refused it') : '')));
     });
   }).catch(function () {});
   el('push-test').addEventListener('click', async function () {
@@ -66,7 +66,7 @@
     var r = await U.send('/api/admin/push?test=1', {});
     var d = r.data || {};
     el('push-test-out').textContent = !r.ok ? 'That did not send.'
-      : (d.ntfy ? 'ntfy took it.' : 'ntfy refused it: ' + (d.why && /^429/.test(d.why) ? 'its daily message limit is used up. Add NTFY_TOKEN from an ntfy account.' : (d.why || 'check NTFY_TOPIC in Vercel.'))) + ' Staff app: sent to ' + (d.app || 0) + (d.app === 1 ? ' phone.' : ' phones.');
+      : 'Sent to ' + (d.app || 0) + (d.app === 1 ? ' phone.' : ' phones.') + (d.ntfyOn ? (d.ntfy ? ' ntfy took it too.' : ' ntfy refused it.') : '');
   });
 
   el('refresh').addEventListener('click', function () { global.location.reload(); });
