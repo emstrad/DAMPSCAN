@@ -166,6 +166,14 @@ enforces the mechanical ones in CI.
   since the time is confirmed with the agent), then photos, a note and a
   previous survey, all optional. Phone boxes take only digits, spaces and a
   leading +, and must be a UK number of the right length (11 digits).
+- Two checks catch what page tests never click into (the owner, 19 Nov 2026:
+  Book it on an unbooked survey's card did nothing for a week): `test/lint.test.js`
+  reads every script for a name used before it is set in the same function, a
+  name that does not exist, and the plain slips (ESLint, a dev dependency), and
+  `test/booking-e2e.test.js` books in a real browser at phone size against the
+  real routes (a caller to their card, Cancel back to it, booked to the survey's
+  card, an unbooked survey from its own card, back closing the top pop-up, any
+  page error failing it). A new button that saves something gets a click there.
 - Run `TEST_DATABASE_URL=postgresql://dampscan:dampscan@127.0.0.1:5432/dampscan npm test`
   (mass failures mean local Postgres died: `service postgresql restart`),
   `npm run build:check`, and the em dash check before pushing.

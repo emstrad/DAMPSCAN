@@ -226,8 +226,6 @@
     el('book').close();
     var c = backTo && cardOpts.find(backTo.kind, backTo.id); backTo = null;
     if (c) global.DSSCHEDCARD.open(c, cardOpts);
-    /* Someone already booked is on their customer card, not the board. */
-    else if (e.detail.kind === 'job' && global.DSPOP) global.DSPOP.open(e.detail.id, { onChange: load });
   });
 
   /* The dispatch day: which day and week are on screen, and what its buttons do. */
