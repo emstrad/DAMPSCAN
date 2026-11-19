@@ -140,9 +140,23 @@ test('the rates used are reported back, so a stored job can be explained later',
     taxBp: 1900,
     leadBp: 1000,
     leadEarner: 'ben',
-    partners: ['scott', 'tom']
+    partners: ['scott', 'tom'],
+    shares: null
   });
   assert.equal(c.survey.afterTax, 17415);
   assert.equal(c.pay.ben, 1742, 'the lead fee follows whoever is set to receive it');
   assert.equal(c.pay.scott + c.pay.tom + c.pay.ben, c.distributed);
+});
+
+test('shares (19 Nov 2026): no lead fee, the surveyor fee, then Scott 40, Tom 40, Ben 20, to the penny', () => {
+  const A = { scott: 4000, tom: 4000, ben: 2000 };
+  const small = calcJob({ surveyPence: 21500, surveyorFeePence: 10000, surveyor: 'tom', shares: A });
+  assert.equal(small.survey.lead, 0);
+  assert.deepEqual(small.pay, { scott: 2880, tom: 12880, ben: 1440 });
+  const big = calcJob({ surveyPence: 71500, surveyorFeePence: 19000, surveyor: 'tom', shares: A });
+  assert.deepEqual(big.pay, { scott: 15280, tom: 34280, ben: 7640 }, 'Ben no longer earns more than Scott on a survey he never went to');
+  const odd = calcJob({ surveyPence: 21501, surveyorFeePence: 10000, surveyor: 'ronnie', shares: A });
+  assert.equal(odd.pay.scott + odd.pay.tom + odd.pay.ben + 10000, odd.survey.afterTax, 'adds back exactly');
+  const bad = calcJob({ surveyPence: 21500, surveyorFeePence: 10000, surveyor: 'tom', shares: { scott: 5000, tom: 4000, ben: 2000 } });
+  assert.equal(bad.survey.lead, 2580, 'shares not adding to 100% are ignored, never half applied');
 });

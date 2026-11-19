@@ -119,8 +119,10 @@ beforeEach(async () => {
   // Both matter: a test that raises the Localised price must not leave it
   // raised for the next one, which is exactly what happened when only the
   // settings were reset here.
+  // These pin the old waterfall (the Revolut book is still read by it); the
+  // shares from go-live are tested on their own below.
   await pool.query(`update job_settings set tax_bp = 2000, lead_bp = 1500,
-    lead_earner = 'scott', partner_a = 'tom', partner_b = 'ben' where id = true`);
+    lead_earner = 'scott', partner_a = 'tom', partner_b = 'ben', shares = null where id = true`);
   await pool.query(`update job_rates set price_pence = v.price, surveyor_fee_pence = v.fee
     from (values ('localised', 21500, 10000), ('full-house', 29500, 13000),
                  ('large-property', 37500, 16000), ('premium', 45000, 19000))
@@ -630,6 +632,13 @@ test('a job takes its price and surveyor fee from the rate card', async () => {
   assert.equal(job.surveyPricePence, 21500);
   assert.equal(job.surveyorFeePence, 10000);
   assert.deepEqual(job.pay, { scott: 2580, tom: 12310, ben: 2310 });
+});
+
+test('from go-live a new booking takes the shares: no lead fee, Scott 40, Tom 40, Ben 20', async () => {
+  await pool.query(`update job_settings set shares = '{"scott": 4000, "tom": 4000, "ben": 2000}' where id = true`);
+  const { job } = (await createJob(await signedInCookie())).json();
+  assert.deepEqual(job.pay, { scott: 2880, tom: 10000 + 2880, ben: 1440 });
+  assert.deepEqual(job.rates.shares, { scott: 4000, tom: 4000, ben: 2000 }, 'kept on the survey, so a later change does not move it');
 });
 
 test('an explicit price overrides the rate card for a one off job', async () => {

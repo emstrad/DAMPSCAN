@@ -1952,3 +1952,17 @@ create table if not exists check_runs (
   said  text,
   facts jsonb not null default '{}'::jsonb
 );
+
+-- Three-way shares (the owners, 19 Nov 2026): no lead fee; after tax and the
+-- surveyor's fee, Scott 40, Tom 40, Ben 20, for every survey on the Tide and
+-- Stripe book (go-live, 15 Nov 2026). A job keeps the shares it was booked
+-- with; one without keeps the old waterfall (the Revolut book, as paid).
+alter table job_settings add column if not exists shares jsonb;
+alter table jobs add column if not exists shares jsonb;
+update job_settings set shares = '{"scott": 4000, "tom": 4000, "ben": 2000}'::jsonb, lead_bp = 0 where shares is null;
+-- The new book by where the money came in (lib/pay-book.js): not paid yet, a
+-- card or Tide payment, or ticked from the day after the cut-over.
+update jobs j set shares = s.shares from job_settings s
+ where j.shares is null and s.shares is not null and j.site in ('dampscan', 'ati-london')
+   and (j.paid_at is null or (j.paid_at at time zone 'Europe/London')::date >= date '2026-11-16'
+     or exists (select 1 from job_payments p where p.job_id = j.id and (p.external_ref like 'stripe:%' or p.external_ref like 'tide:%')));

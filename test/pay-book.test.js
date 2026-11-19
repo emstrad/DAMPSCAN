@@ -107,3 +107,35 @@ test('a tick by hand on the cut-over evening is Revolut money caught up; a card 
   assert.equal(rows.find((r) => r.id === caught).book, 'old');
   assert.deepEqual([rows.find((r) => r.id === card).book, rows.find((r) => r.id === card).via], ['new', 'Stripe']);
 });
+
+test('the split from go-live: new-book surveys take the shares, the Revolut book keeps the old waterfall, and saving checks they add up', async () => {
+  const A = { scott: 4000, tom: 4000, ben: 2000 };
+  await pool.query('update job_settings set shares = $1::jsonb', [JSON.stringify(A)]);
+  const old = await survey({ surveyor: 'tom' });
+  await pool.query("update jobs set paid_at = '2026-11-10T12:00:00Z' where id = $1", [old]);
+  const fresh = await survey({ surveyor: 'tom', paid: false });
+  const card = await survey({ surveyor: 'tom' });
+  await pool.query("update jobs set paid_at = '2026-11-14T12:00:00Z' where id = $1", [card]);
+  await pool.query("insert into job_payments (job_id, amount_pence, label, external_ref) values ($1, 29500, 'payment', 'stripe:pi_go')", [card]);
+  await pool.query(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8'));
+  const sh = Object.fromEntries((await pool.query('select id, shares from jobs')).rows.map((r) => [r.id, r.shares]));
+  assert.equal(sh[old], null, 'paid into Revolut before the cut-over: as it was paid');
+  assert.deepEqual([sh[fresh], sh[card]], [A, A]);
+  const row = (await P.payBook()).rows.find((r) => r.id === fresh);
+  assert.deepEqual(row.share, { tax: 5900, scott: 5440, tom: 10000 + 5440, ben: 2720, ronnie: 0 });
+
+  assert.ok((await P.setSplit({ taxBp: 2000, shares: { scott: 4500, tom: 3500, ben: 2000 } })).ok);
+  assert.deepEqual((await P.splitSettings()).shares, { scott: 4500, tom: 3500, ben: 2000 });
+  assert.match((await P.setSplit({ taxBp: 2000, shares: { scott: 4500, tom: 4000, ben: 2000 } })).error, /add up to 100%/);
+  await pool.query('update job_settings set shares = $1::jsonb', [JSON.stringify(A)]);
+});
+
+test('a survey repriced after booking has its stored split brought up to date', async () => {
+  const { syncPay } = await import('../lib/pay-sync.js');
+  const id = await survey({ price: 71500, fee: 19000, surveyor: 'tom' });
+  await pool.query(`update jobs set shares = '{"scott": 4000, "tom": 4000, "ben": 2000}', pay_scott_pence = 5400, pay_tom_pence = 24800, pay_ben_pence = 5800 where id = $1`, [id]);
+  assert.equal((await syncPay()).fixed, 1);
+  const j = (await pool.query('select pay_scott_pence s, pay_tom_pence t, pay_ben_pence b from jobs where id = $1', [id])).rows[0];
+  assert.deepEqual([j.s, j.t, j.b].map(Number), [15280, 34280, 7640]);
+  assert.equal((await syncPay()).fixed, 0, 'a quiet run writes nothing');
+});

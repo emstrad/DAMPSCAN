@@ -401,7 +401,14 @@ checks the mechanical ones.
   the top (all fees absorbed by everyone, the owners' choice), then the job's own
   waterfall; a cancelled one drops out; unpaid work shows as coming. The check
   line proves money in equals what is shared. The split for new surveys is the
-  owners' to change there (job_settings); booked ones keep theirs. Who gets what on one survey
+  owners' to change there (job_settings); booked ones keep theirs. From the
+  go-live (the owners, 19 Nov 2026: Ben earned more than Scott on a £715 survey
+  he never went to): no lead fee; after tax and the surveyor's fee, Scott 40%,
+  Tom 40%, Ben 20% (jobs.shares, `cleanShares` and `splitBy` in lib/splits.js),
+  on every survey on the Tide and Stripe book, backfilled by schema.sql; the
+  Revolut book keeps the old waterfall as it was paid. The stored split on each
+  job is kept in step with its price and rates (`lib/pay-sync.js`, hourly and
+  before Money and rates or ChatGPT's list read it). Who gets what on one survey
   (`lib/pay-moves.js`, `public/staff/pop-split.js`, the owner, 17 Nov 2026: Scott
   and Tom both went to a survey): the job pop-up's folded "Who gets what" line
   (owners, under Money) shows each person's share and moves a set amount from
