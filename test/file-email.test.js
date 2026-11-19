@@ -58,3 +58,14 @@ test('mark_report_sent with no_text marks it sent and quiet, so no report text e
   const j = (await pool.query('select survey_sent_at, report_quiet from jobs where id = $1', [id])).rows[0];
   assert.ok(j.survey_sent_at && j.report_quiet);
 });
+
+test('sent another way needs no file on the card; a plain Report sent still does', async () => {
+  const id = Number((await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, survey_type, survey_price_pence, surveyor, tax_bp, lead_bp, lead_earner, partner_a, partner_b, date_set, job_date, paid_at)
+    values ('dampscan', 'completed', 'Anne Adams', 'CT5 1HZ', 'full-house', 44500, 'tom', 0, 0, '', '', '', true, '2026-11-14', now()) returning id`)).rows[0].id);
+  const plain = await run('mark_report_sent', { id });
+  assert.ok(plain.status >= 400, 'Report sent, which texts, still needs the file');
+  const quiet = await run('mark_report_sent', { id, no_text: true });
+  assert.ok(quiet.status < 400, JSON.stringify(quiet.data));
+  const j = (await pool.query('select survey_sent_at, report_quiet from jobs where id = $1', [id])).rows[0];
+  assert.ok(j.survey_sent_at && j.report_quiet, 'sent, and never a report text');
+});

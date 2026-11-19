@@ -78,13 +78,13 @@
     if (s.reportFile) {
       var a = U.node('a', 'rs-chip', 'Open report'); a.href = '/api/admin/attachment?report=' + s.id; chips.appendChild(a);
       if (s.reportReady) chips.appendChild(chip('Not ready', function (ev) { report(s, { ready: false }, ev.currentTarget, status, 'Not ready.'); }));
-      /* Sent another way (emailed, handed over): marked sent with no report texts. */
-      chips.appendChild(chip('Sent, no text', async function (ev) {
-        ev.currentTarget.disabled = true;
-        try { await U.send('/api/admin/clients', { id: s.id, surveySent: true, quiet: true }); load(); } catch (e) { ev.currentTarget.disabled = false; status.textContent = 'Could not tick it. Try again.'; }
-      }));
       chips.appendChild(chip(s.reportHeld ? 'Let go' : 'Hold', function (ev) { report(s, { hold: !s.reportHeld }, ev.currentTarget, status, s.reportHeld ? 'Let go.' : 'On hold: locked on their page, no texts.'); }));
     }
+    /* Sent another way (emailed, handed over): marked sent with no report texts, file or not (the owner, 19 Nov 2026). */
+    chips.appendChild(chip('Sent, no text', async function (ev) {
+      ev.currentTarget.disabled = true;
+      try { await U.send('/api/admin/clients', { id: s.id, surveySent: true, quiet: true }); load(); } catch (e) { ev.currentTarget.disabled = false; status.textContent = 'Could not tick it. Try again.'; }
+    }));
     var draft = U.node('a', 'rs-chip', 'Draft email'); draft.href = draftLink(s); draft.target = '_blank'; draft.rel = 'noopener'; chips.appendChild(draft);
     if (!s.reportReady && s.reportFile) chips.appendChild(sentBtn('rs-chip'));
     li.appendChild(chips);
