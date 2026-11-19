@@ -1,0 +1,28 @@
+/* What's next (next-up.js): the calm parts of staff.css, one row per customer. */
+.nu-wrap{display:flex;flex-direction:column;gap:16px}
+.nu-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:14px}
+.nu-summary b{font-size:24px}
+.nu-summary .c-sub{font-size:12px;color:var(--warn)}
+.nu-search input{width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--navy-2);color:var(--text);font:inherit;font-size:16px}
+.nu-lanes button span{color:var(--muted-2);font-variant-numeric:tabular-nums}
+.nu-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.nu-head{padding:8px 0 0}
+.nu-item{padding:4px 14px 10px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.nu-item.is-now{border-color:rgba(240,160,139,.55)}
+.nu-row{border-bottom:0;padding:10px 0 4px;align-items:flex-start}
+.nu-row .c-l{gap:3px}
+.nu-row .c-l small{white-space:normal}
+.nu-next{font-weight:700;color:var(--accent-hi)}
+.nu-item.is-now .nu-next{color:var(--warn)}
+.nu-contact{color:var(--muted-2)}
+.nu-row .c-r{flex-wrap:wrap;justify-content:flex-end;max-width:45%}
+.nu-chips{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.nu-chips .chip{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);color:var(--text);text-decoration:none;font-weight:600;font-size:14px}
+.nu-chips .c-sub{margin-right:auto}
+.nu-todos:not(:empty){margin-top:6px}
+.nu-empty{padding:8px 0}
+.nu-fold > summary{list-style:none}
+.nu-fold > summary::-webkit-details-marker{display:none}
+.nu-fold[open] > summary .c-chev{transform:rotate(90deg)}
+.nu-fold .todo-add,.nu-fold .c-seg{margin:8px 0}
+.nu-wrap .c-seg button{min-height:46px}

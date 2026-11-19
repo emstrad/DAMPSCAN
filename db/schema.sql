@@ -1763,3 +1763,124 @@ alter table jobs add column if not exists agent_ask jsonb;
 -- way (emailed, handed over), so no report text, balance reminder or "your
 -- report" text goes for this survey. Cleared if Report sent is unticked.
 alter table jobs add column if not exists report_quiet boolean not null default false;
+
+-- The brain's memory (the owner, 19 Nov 2026: "a continuous brain that knows
+-- everything that's going on"). Every change to a customer, survey, payment,
+-- text, to-do, page visit or bank line is written here by the database itself,
+-- so every route, ChatGPT and the scheduled runs are all caught, whatever code
+-- made the change. Append only. An update keeps only what changed (before and
+-- after); a history entry keeps only the new lines; stamps nobody reads are left
+-- out. A journal fault never stops the write it describes.
+create table if not exists journal (
+  id       bigserial primary key,
+  at       timestamptz not null default now(),
+  source   text not null,
+  row_id   bigint,
+  job_id   bigint,
+  lead_id  bigint,
+  site     text,
+  op       text not null,
+  changes  jsonb not null default '{}'::jsonb
+);
+create index if not exists journal_job_idx on journal (job_id, at desc) where job_id is not null;
+create index if not exists journal_lead_idx on journal (lead_id, at desc) where lead_id is not null;
+create index if not exists journal_at_idx on journal (at desc);
+
+create or replace function journal_row() returns trigger language plpgsql as $$
+declare
+  n jsonb; o jsonb; ch jsonb := '{}'::jsonb; k text; added jsonb; r jsonb;
+  quiet text[] := array['updated_at', 'report_late_alerted_at', 'unpaid_alerted_at', 'overdue_alerted_at', 'rating_token', 'portal_opened_at', 'search_text', 'surveyor_told'];
+begin
+  begin
+    if tg_op = 'DELETE' then r := to_jsonb(old); ch := r;
+    else
+      n := to_jsonb(new); r := n;
+      if tg_op = 'INSERT' then ch := n;
+      else
+        o := to_jsonb(old);
+        for k in select jsonb_object_keys(n) loop
+          continue when k = any(quiet) or (n -> k) is not distinct from (o -> k);
+          if k = 'sched_log' and jsonb_typeof(n -> k) = 'array' then
+            select coalesce(jsonb_agg(e), '[]'::jsonb) into added from jsonb_array_elements(n -> k) with ordinality t(e, i)
+             where i > coalesce(case when jsonb_typeof(o -> k) = 'array' then jsonb_array_length(o -> k) end, 0);
+            ch := ch || jsonb_build_object(k, added);
+          else
+            ch := ch || jsonb_build_object(k, jsonb_build_array(o -> k, n -> k));
+          end if;
+        end loop;
+        if ch = '{}'::jsonb then return new; end if;
+      end if;
+    end if;
+    insert into journal (source, row_id, job_id, lead_id, site, op, changes)
+    values (tg_table_name, nullif(r ->> 'id', '')::bigint,
+      case when tg_table_name = 'jobs' then nullif(r ->> 'id', '')::bigint else nullif(r ->> 'job_id', '')::bigint end,
+      case when tg_table_name = 'leads' then nullif(r ->> 'id', '')::bigint else nullif(r ->> 'lead_id', '')::bigint end,
+      r ->> 'site', lower(tg_op), ch);
+  exception when others then
+    raise warning 'journal skipped: %', sqlerrm;
+  end;
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end $$;
+
+drop trigger if exists journal_jobs_trg on jobs;
+create trigger journal_jobs_trg after insert or update or delete on jobs for each row execute function journal_row();
+drop trigger if exists journal_leads_trg on leads;
+create trigger journal_leads_trg after insert or update or delete on leads for each row execute function journal_row();
+drop trigger if exists journal_job_payments_trg on job_payments;
+create trigger journal_job_payments_trg after insert or update or delete on job_payments for each row execute function journal_row();
+drop trigger if exists journal_sms_outbox_trg on sms_outbox;
+create trigger journal_sms_outbox_trg after insert or update or delete on sms_outbox for each row execute function journal_row();
+drop trigger if exists journal_todos_trg on todos;
+create trigger journal_todos_trg after insert or update or delete on todos for each row execute function journal_row();
+drop trigger if exists journal_portal_events_trg on portal_events;
+create trigger journal_portal_events_trg after insert on portal_events for each row execute function journal_row();
+drop trigger if exists journal_bank_transactions_trg on bank_transactions;
+create trigger journal_bank_transactions_trg after insert or update of job_id on bank_transactions for each row execute function journal_row();
+
+-- What happened before the journal began, read once from the records that held
+-- it (each card's history, the texts, the payments and the audit trail).
+do $$ begin
+  if not exists (select 1 from journal where op = 'backfill' limit 1) then
+    insert into journal (at, source, row_id, job_id, lead_id, site, op, changes)
+    select case when e ->> 'at' ~ '^\d{4}-\d\d-\d\d' then (e ->> 'at')::timestamptz else j.created_at end, 'history', j.id, j.id, j.lead_id, j.site, 'backfill', e
+      from jobs j, jsonb_array_elements(case when jsonb_typeof(j.sched_log) = 'array' then j.sched_log else '[]'::jsonb end) e;
+    insert into journal (at, source, row_id, job_id, lead_id, site, op, changes)
+    select case when e ->> 'at' ~ '^\d{4}-\d\d-\d\d' then (e ->> 'at')::timestamptz else l.created_at end, 'history', l.id, null, l.id, l.site, 'backfill', e
+      from leads l, jsonb_array_elements(case when jsonb_typeof(l.sched_log) = 'array' then l.sched_log else '[]'::jsonb end) e;
+    insert into journal (at, source, row_id, job_id, lead_id, site, op, changes)
+    select coalesce(s.sent_at, s.created_at), 'sms_outbox', s.id, s.job_id, s.lead_id, s.site, 'backfill', to_jsonb(s) from sms_outbox s;
+    insert into journal (at, source, row_id, job_id, lead_id, site, op, changes)
+    select p.created_at, 'job_payments', p.id, p.job_id, null, j.site, 'backfill', to_jsonb(p) from job_payments p join jobs j on j.id = p.job_id;
+    insert into journal (at, source, row_id, job_id, lead_id, site, op, changes)
+    select a.at, 'audit', a.id, case when a.entity = 'job' then a.entity_id end, case when a.entity = 'lead' then a.entity_id end, a.business_slug, 'backfill',
+           jsonb_build_object('action', a.action, 'by', a.actor_name, 'before', a.before_json, 'after', a.after_json)
+      from audit a;
+    insert into journal (source, op, changes) values ('journal', 'backfill', jsonb_build_object('note', 'History before this point read from the records once.'));
+  end if;
+end $$;
+
+-- One row per open customer, as the brain sees them now (lib/next-up.js): the
+-- stage, whose move it is, the one next step and why, money owed, old or new
+-- money, the last contact. Rewritten whenever What's next is worked out, so
+-- ChatGPT and Claude read the same picture the page shows.
+create table if not exists customer_state (
+  key           text primary key,
+  kind          text not null,
+  job_id        bigint,
+  lead_id       bigint,
+  site          text,
+  name          text,
+  postcode      text,
+  stage         text,
+  lane          text,
+  next_step     text,
+  why           text,
+  since         timestamptz,
+  owed_pence    integer,
+  old_money     boolean not null default false,
+  last_contact  jsonb,
+  todos         integer not null default 0,
+  computed_at   timestamptz not null default now()
+);
+create index if not exists customer_state_lane_idx on customer_state (lane, since);

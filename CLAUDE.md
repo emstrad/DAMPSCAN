@@ -308,11 +308,27 @@ checks the mechanical ones.
   requests, the every-minute texts call, the hourly run and a report upload.
   Never one waiting on the agent.
 - Timeline cards show survey type and surveyor; cards show phone and email.
-- To-do list: newest first by when it came in, each with how long it has
-  been waiting.
-  Above it, "Customers who need something" (`public/staff/todo-clients.js`):
-  everything outstanding from lib/work.js gathered into one card per
-  customer, late first, with Call and Open.
+- What's next (`public/staff/todo.html`, `next-up.js`, `lib/next-up.js`, the owner,
+  19 Nov 2026: the To-do page becomes "what's going on", replacing "Customers who
+  need something"): every open ATi and DampScan customer once, worked out from the
+  facts (lib/journey.js stage, follow-up dates, their page, texts), with one next
+  step, why and since when, the last contact, money owed, an Old money tag and
+  their to-dos (tick and add right there). Lanes: You (Needs you now first: a move
+  or message from their page, the agent asking, a new enquiry untouched two
+  hours), Them, Agent, Booked, with Gone cold folded; a deposit or balance goes
+  from Them to You once it is ours to chase (48 hours after booking or close to the
+  day; three days after the report). Verge and CoolRight join as rows in You from
+  lib/work.js (`lib/next-up-other.js`). A search finds anyone. Every row is also
+  kept in customer_state for ChatGPT and Claude. "All to-dos" (add, Mine, Set by
+  me, Failed, Done) is folded beneath, newest first, each with how long it has
+  been waiting. Managers reach it from + and the header; a surveyor keeps the
+  quick drawer of their own to-dos.
+- The brain's memory (the owner, 19 Nov 2026): the journal table, written by the
+  database itself (triggers on jobs, leads, job_payments, sms_outbox, todos,
+  portal_events and bank lines), so every change from any route, ChatGPT or a
+  scheduled run is kept: an update only what changed, a history entry only its
+  new lines, quiet stamps left out, never blocking the write. What came before was
+  read in once from the cards' history, texts, payments and the audit trail.
 - Survey cards show a small report countdown (24h from survey end, red when
   over) until the report is ticked sent. Survey end is the start plus the rate
   card's minutes on site (an untimed survey ends with its day); the board,

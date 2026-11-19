@@ -155,8 +155,7 @@
     var firstItem = sheet.querySelector('button, a');
     if (firstItem) firstItem.focus();
   }
-  /* The To-do drawer (today-todo.js) on whatever page this is, loaded the
-     first time it is wanted; it needs the one-tap helpers of calendar-actions.js. */
+  /* The To-do drawer (today-todo.js), loaded the first time it is wanted; it needs calendar-actions.js. */
   function load(src) {
     return new Promise(function (ok, bad) {
       var tag = document.createElement('script');
@@ -165,6 +164,7 @@
     });
   }
   function openTodo(add) {
+    if (!(A.rights && A.rights.worker) && !add) { go('/staff/todo.html'); return; } /* managers: What's next, the page */
     if (global.DSTODO) { global.DSTODO.open(add); return; }
     (global.DSWORK ? Promise.resolve() : load('/staff/calendar-actions.js')).then(function () { return load('/staff/today-todo.js'); })
       .then(function () { global.DSTODO.open(add); }).catch(function () { go('/staff/todo.html'); });
@@ -175,7 +175,7 @@
     if (!(A.rights && A.rights.worker)) {
       /* Trimmed (the owner's ask, 13 Nov 2026): a new damp survey only, no new to-do (the list has its own add) and no add a cost. */
       if ((A.held || []).indexOf('damp') !== -1) item('New survey or enquiry', function () { go(newWork('damp')); });
-      item('To-do list', function () { openTodo(false); });
+      item('What\'s next', function () { openTodo(false); });
       /* Texts and Settings in reach on every page (the owner's ask, 13 Nov 2026), not only in the Companies sheet. */
       if ((A.held || []).indexOf('damp') !== -1) item('Texts', function () { go('/staff/texts.html?area=damp'); });
       item('Settings', function () { go('/staff/settings.html'); });
@@ -226,7 +226,7 @@
     header.insertBefore(form, end || null);
     header.insertBefore(plus, end || null);
     if (!document.getElementById('todo-open')) {
-      var todo = button('To-do', 'todo', 'btn btn--ghost btn--sm shell-todo');
+      var todo = button(A.rights && A.rights.worker ? 'To-do' : 'What\'s next', 'todo', 'btn btn--ghost btn--sm shell-todo');
       todo.addEventListener('click', function () { openTodo(false); });
       header.insertBefore(todo, end || null);
     }
