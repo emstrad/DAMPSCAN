@@ -98,7 +98,8 @@
     var now = Date.now(), list = [];
     data.cards.forEach(function (c) {
       if (c.stage === 'cold') return;
-      var touched = c.log && c.log.length;
+      /* Their own email, a form or the system writing on the card is not us in touch. */
+      var touched = (c.log || []).some(function (e) { return e.dir !== 'in' && ['Website', 'Inbox', 'Their page', 'Brain'].indexOf(e.by) === -1; });
       if (c.pencil && c.pencil.by === 'Website') list.push([0, c, 'Picked ' + day(c.pencil.date) + ' ' + c.pencil.time + ' online: confirm it']);
       else if (c.pencil && c.pencil.until && new Date(c.pencil.until).getTime() - now < 12 * 3600000) list.push([1, c, 'Chase in ' + Math.max(1, Math.round((new Date(c.pencil.until).getTime() - now) / 3600000)) + 'h: confirm or let go']);
       else if (!touched && now - new Date(c.since).getTime() > 2 * 3600000) list.push([2, c, 'Nobody in touch, ' + ago(c.since).replace(' ago', '') + ' waiting']);
