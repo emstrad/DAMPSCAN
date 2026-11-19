@@ -20,7 +20,8 @@
   function split(input) {
     var s = J.state.settings;
     var afterTax = input.price - bpOf(input.price, s.taxBp);
-    var lead = bpOf(afterTax, s.leadBp);
+    var sh = s.shares;
+    var lead = sh ? 0 : bpOf(afterTax, s.leadBp);
     var remainder = afterTax - lead - input.fee;
     var second = Math.trunc(remainder / 2);
 
@@ -30,8 +31,11 @@
     var pay = { scott: 0, tom: 0, ben: 0 };
     pay[s.leadEarner] += lead + remLead;
     pay[input.surveyor] = (pay[input.surveyor] || 0) + input.fee; /* Ronnie: his fee only */
-    pay[s.partners[0]] += remainder - second;
-    pay[s.partners[1]] += second;
+    /* Shares as lib/splits.js splitBy: the odd pennies to the largest share. */
+    var given = 0, top = 'scott';
+    if (sh) ['scott', 'tom', 'ben'].forEach(function (p) { var v = bpOf(remainder, sh[p] || 0); pay[p] += v; given += v; if ((sh[p] || 0) > (sh[top] || 0)) top = p; });
+    if (sh) pay[top] += remainder - given;
+    else { pay[s.partners[0]] += remainder - second; pay[s.partners[1]] += second; }
 
     return {
       afterTax: afterTax, lead: lead, remainder: remainder, pay: pay,

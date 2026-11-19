@@ -14,7 +14,6 @@
   var day = function (d) { return d ? new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }) : ''; };
   var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
   var BRAND = { dampscan: 'DampScan', 'ati-london': 'ATi' };
-  var PEOPLE = [['scott', 'Scott'], ['tom', 'Tom'], ['ben', 'Ben']];
   /* The company year runs to 30 November. */
   var yearStart = function () { var y = Number(today.slice(0, 4)), m = Number(today.slice(5, 7)); return (m === 12 ? y : y - 1) + '-12-01'; };
   var monthStart = function (back) { var d = new Date(today + 'T12:00:00Z'); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - back); return d.toISOString().slice(0, 10); };
@@ -216,13 +215,15 @@
     var box = el('split-form'), s = state.data.settings; box.textContent = '';
     var f = node('form', 'pay-form');
     var num = function (label, v) { var l = node('label', 'pay-field'); l.appendChild(node('span', null, label)); var i = document.createElement('input'); i.type = 'number'; i.step = '0.01'; i.min = '0'; i.max = '100'; i.value = (v / 100).toString(); l.appendChild(i); f.appendChild(l); return i; };
-    var pick = function (label, v) { var l = node('label', 'pay-field'); l.appendChild(node('span', null, label)); var sel = document.createElement('select'); PEOPLE.forEach(function (p) { var o = document.createElement('option'); o.value = p[0]; o.textContent = p[1]; o.selected = p[0] === v; sel.appendChild(o); }); l.appendChild(sel); f.appendChild(l); return sel; };
-    var tax = num('Tax set aside, %', s.taxBp), lead = num('Lead fee, %', s.leadBp), earner = pick('Lead fee goes to', s.leadEarner), a = pick('Rest split between', s.partnerA), b = pick('and', s.partnerB);
+    var sh = s.shares || { scott: 4000, tom: 4000, ben: 2000 };
+    var tax = num('Tax set aside, %', s.taxBp), scott = num('Scott, %', sh.scott), tom = num('Tom, %', sh.tom), ben = num('Ben, %', sh.ben);
     var go = node('button', 'btn btn--primary', 'Save split'); go.type = 'submit'; f.appendChild(go);
-    var msg = node('p', 'panel-note', 'Changes the split for surveys booked from now on. Ones already booked keep theirs.'); f.appendChild(msg);
+    var msg = node('p', 'panel-note', 'After tax and the surveyor fee. Surveys already booked keep theirs.'); f.appendChild(msg);
     f.addEventListener('submit', async function (e) {
       e.preventDefault();
-      var r = await U.send('/api/admin/pay', { op: 'split', taxBp: Math.round(Number(tax.value) * 100), leadBp: Math.round(Number(lead.value) * 100), leadEarner: earner.value, partnerA: a.value, partnerB: b.value });
+      var bp = function (i) { return Math.round(Number(i.value) * 100); };
+      if (bp(scott) + bp(tom) + bp(ben) !== 10000) { msg.textContent = 'Scott, Tom and Ben must add up to 100%.'; return; }
+      var r = await U.send('/api/admin/pay', { op: 'split', taxBp: bp(tax), shares: { scott: bp(scott), tom: bp(tom), ben: bp(ben) } });
       msg.textContent = r.ok ? 'Saved.' : (r.data && r.data.error) || 'Not saved.';
     });
     box.appendChild(f);

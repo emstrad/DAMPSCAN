@@ -67,6 +67,8 @@ before(async () => {
 
 beforeEach(async () => {
   await pool.query('truncate leads, events, rate_hits, jobs, bank_statements, bank_transactions, bank_rules, bank_payers, bank_feeds restart identity cascade');
+  /* The Revolut feed's statements read the old waterfall, as it was paid. */
+  await pool.query('update job_settings set shares = null');
 });
 
 after(async () => { await pool.end(); });

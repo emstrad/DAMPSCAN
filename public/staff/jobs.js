@@ -57,12 +57,12 @@
     });
 
     var s = state.settings;
-    el('basis').textContent = 'Tax set aside ' + (s.taxBp / 100) + '%, then a '
-      + (s.leadBp / 100) + '% lead fee to ' + name(s.leadEarner)
-      + ' on the post-tax figure, then the surveyor fee, then the remainder '
-      + 'split 50/50 between ' + name(s.partners[0]) + ' and ' + name(s.partners[1])
-      + '. Earnings count surveys whose day has come; booked ahead is shown on its own. Cancelled jobs are listed but not counted. Remedial work pays the lead '
-      + 'fee only; materials and labour are settled offline.';
+    var sh = s.shares;
+    el('basis').textContent = 'Tax set aside ' + (s.taxBp / 100) + '%, then '
+      + (sh ? 'the surveyor fee, then the rest split Scott ' + sh.scott / 100 + '%, Tom ' + sh.tom / 100 + '%, Ben ' + sh.ben / 100 + '%'
+        : 'a ' + (s.leadBp / 100) + '% lead fee to ' + name(s.leadEarner) + ' on the post-tax figure, then the surveyor fee, then the remainder split 50/50 between '
+        + name(s.partners[0]) + ' and ' + name(s.partners[1]))
+      + '. Earnings count surveys whose day has come; booked ahead is shown on its own. Cancelled jobs are listed but not counted.';
   }
 
   /* A row per job that reads on a phone: who, when, what, and the split. */
