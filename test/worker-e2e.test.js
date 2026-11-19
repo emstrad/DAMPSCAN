@@ -83,6 +83,7 @@ test('Ben\'s route and Today hold only his own surveys, with contacts and no mon
   assert.deepEqual(route.surveys.map((s) => s.name), ['Bella Bens', 'Hana Handed'], 'his own and the one handed to him, in time order');
   assert.ok(route.surveys.every((s) => s.phone), 'contacts open');
   assert.deepEqual(moneyKeys(route), [], 'no money on the route');
+  assert.ok(route.surveys.every((s) => !('paid' in s) && !('deposit' in s) && !(s.remedial && 'quotePence' in s.remedial)), 'nor whether it is paid');
   const asked = (await get(w.ben, `/api/admin/surveys?view=day&date=${today}&surveyor=ronnie`)).json();
   assert.deepEqual(asked.surveys.map((s) => s.name), ['Bella Bens', 'Hana Handed'], 'asking for Ronnie\'s day changes nothing');
   const cal = (await get(w.ben, `/api/admin/calendar?view=work&from=${today}&to=${today}`)).json();
@@ -103,7 +104,7 @@ test('Ben finds any customer with search, contacts and all, never money', async 
 test('the company pages give Ben nothing of the company', async () => {
   const w = await world();
   for (const url of ['/api/admin/scheduling', '/api/admin/jobs?site=dampscan', '/api/admin/bank', '/api/admin/insights?site=dampscan', '/api/admin/summary', '/api/admin/leads?site=dampscan',
-    '/api/admin/clients?view=all', '/api/admin/quoted?site=roofing', '/api/admin/surveys?view=board', '/api/admin/rates', '/api/admin/due', '/api/admin/people']) {
+    '/api/admin/clients?view=all', '/api/admin/quoted?site=roofing', '/api/admin/surveys?view=board', '/api/admin/rates', '/api/admin/due', '/api/admin/people', `/api/admin/surveys?view=messages&id=${w.own}`]) {
     const res = await get(w.ben, url);
     const body = res.json() || {};
     assert.equal(res.statusCode, 403, `${url} refused, got ${res.statusCode} ${Object.keys(body).join(',')}`);
