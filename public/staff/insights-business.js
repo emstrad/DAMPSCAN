@@ -61,6 +61,12 @@
     var grid = U.node('div', 'jgrid');
     [row('VAT number', number, 'b-vat-' + key), row('Company number', company, 'b-co-' + key),
      row('Address', address, 'b-addr-' + key), row('How customers pay', pay, 'b-pay-' + key)].forEach(function (r) { grid.appendChild(r); });
+    /* The damp brands only: the Revolut details a balance chase sends for a survey booked before go-live (lib/balance-chase.js). */
+    var oldPay = null;
+    if (key === 'dampscan' || key === 'ati-london') {
+      oldPay = input('textarea', b.oldPaymentDetails, { rows: 2, placeholder: 'e.g. Damp Surveying Limited, sort code 00-00-00, account 00000000' });
+      grid.appendChild(row('Revolut, for bookings before 15 Nov', oldPay, 'b-old-' + key));
+    }
     box.appendChild(grid);
     var err = U.node('span', 'err');
     err.setAttribute('role', 'alert');
@@ -81,7 +87,7 @@
       if (vat.checked && !b.vatRegistered && !global.confirm('Switch VAT on for ' + b.name + '? From now on every open quote and new invoice adds VAT at 20%. Only do this from the date your registration takes effect.')) return;
       var res = await U.send('/api/admin/business', {
         site: key, vatRegistered: vat.checked, vatNumber: number.value, tradingAddress: address.value,
-        companyNumber: company.value, paymentDetails: pay.value
+        companyNumber: company.value, paymentDetails: pay.value, oldPaymentDetails: oldPay ? oldPay.value : undefined
       });
       if (!res.ok) { var es = (res.data && res.data.errors) || {}; err.textContent = es[Object.keys(es)[0]] || 'That could not be saved.'; err.classList.add('is-shown'); return; }
       b = res.data.business;

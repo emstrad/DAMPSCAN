@@ -16,6 +16,7 @@
     if (!m) return;
     if (m.page && m.page.link) box.appendChild(pageRow(j, m.page));
     if (m.remind) box.appendChild(remindRow(j, m.remind));
+    if (m.chase) box.appendChild(remindRow(j, m.chase, true));
     if (!m.owedBackPence && !m.cardPence) return;
     var d = document.createElement('details'); d.className = 'sheet-fold';
     d.appendChild(U.node('summary', null, m.owedBackPence ? 'Owed back ' + pounds(m.owedBackPence) : 'Refund'));
@@ -74,18 +75,20 @@
   var when = function (at) { return new Date(at).toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
   var quiet = function () { var h = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false })); return h >= 21 || h < 9; };
 
-  /* The deposit reminder by hand: through the texts outbox, two minutes to undo (overnight it waits for 9am). */
-  function remindRow(j, r) {
+  /* The deposit reminder, or the balance chased, by hand: through the texts outbox, two minutes to undo (overnight it waits for 9am).
+     A balance on a survey booked before go-live goes with the Revolut details and their reference, not their page. */
+  function remindRow(j, r, balance) {
     var row = U.node('div', 'pop-page');
     var first = j.firstName || String(j.customerName || '').split(' ')[0] || 'them';
-    var go = U.node('button', 'btn btn--sm', 'Send deposit reminder'); go.type = 'button';
+    var go = U.node('button', 'btn btn--sm', balance ? 'Chase the ' + pounds(r.balancePence) + ' balance' : 'Send deposit reminder'); go.type = 'button';
     var undo = U.node('button', 'btn btn--ghost btn--sm', 'Undo'); undo.type = 'button'; undo.hidden = true;
-    var note = U.node('p', 'meta', r.last ? (r.last.status === 'waiting' ? 'Reminder waiting, goes ' : 'Reminder sent ') + when(r.last.at) : 'Texts them the deposit and their page link');
+    var note = U.node('p', 'meta', r.last ? (r.last.status === 'waiting' ? 'Reminder waiting, goes ' : 'Reminder sent ') + when(r.last.at) : balance ? (r.old ? 'Texts them the Revolut details and their reference (booked before go-live)' : 'Texts them the balance and their page link') : 'Texts them the deposit and their page link');
+    if (balance && r.bankMissing) { note.textContent = 'Add the Revolut details in Settings, Bank details, first'; go.disabled = true; }
     var id = null;
     go.addEventListener('click', async function () {
       go.disabled = true; note.textContent = 'Sending…';
       var x;
-      try { x = await U.send('/api/admin/texts', { op: 'remind', jobId: j.id }); } catch (e) { x = { ok: false, data: null }; }
+      try { x = await U.send('/api/admin/texts', { op: 'remind', what: balance ? 'balance' : 'deposit', jobId: j.id }); } catch (e) { x = { ok: false, data: null }; }
       if (!x.ok) { go.disabled = false; note.textContent = (x.data && x.data.error) || 'Not sent. Try again.'; return; }
       id = x.data.textId; go.hidden = true; undo.hidden = false;
       note.textContent = quiet() ? 'Texts ' + first + ' at 9am: Undo stops it' : 'Texts ' + first + ' in 2 min: Undo stops it';
