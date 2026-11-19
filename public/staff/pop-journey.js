@@ -93,7 +93,7 @@
 
     /* Messages and history: a reply by text, words to send by hand, then everything so far with the notes pinned. */
     if (j.phone && boss && !j.pageMessage) reply();
-    k.dampMessages(j, k.section(j.textsOn ? 'Message by hand' : 'Messages to send', 'closed'));
+    if (boss) k.dampMessages(j, k.section(j.textsOn ? 'Message by hand' : 'Messages to send', 'closed'));
     var noteSec = k.notes(j);
     if (global.DSPOPHIST) global.DSPOPHIST.render(j, k.section, noteSec);
 
