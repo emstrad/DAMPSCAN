@@ -870,6 +870,8 @@ alter table businesses add column if not exists vat_number      text;
 alter table businesses add column if not exists trading_address text;
 alter table businesses add column if not exists company_number  text;
 alter table businesses add column if not exists payment_details text;
+-- The Revolut details, for chasing a balance on a survey booked before go-live (lib/balance-chase.js).
+alter table businesses add column if not exists old_payment_details text;
 
 -- ---------------------------------------------------------------------------
 -- Matching payments to jobs
