@@ -822,7 +822,13 @@ checks the mechanical ones.
   recipients, subject and preview (Graph Mail.Read, one mailbox), notes the
   subject on its one matching card (or a survey's history, booked or done in the
   last 60 days; a new address by postcode); ambiguous ones are left for the
-  ChatGPT sweep. The brain then reads each matched email whole, inbox and sent
+  ChatGPT sweep. A new customer's email (nobody has the address) becomes their
+  own card by itself (`lib/mail-cards.js`, the owner, 19 Nov 2026: "no one is
+  left in emails"): in New, started at the email's time, name, email and any
+  phone and postcode from it, the brand by postcode then the address it went
+  to, through add_enquiry's path (the same person merged), one alert; never our
+  own or Surveymate's mail, a mailer or newsletter, junk, Outlook's Other, an
+  estate agent on file, mail with nothing about a home, or mail over a week old. The brain then reads each matched email whole, inbox and sent
   (`lib/mail-brain.js`, the owner, 19 Nov 2026), keeps it in mail_items (shown in
   their history in full) and acts only on what is plain: a PDF report we emailed,
   on a survey with none, is saved on it and, if not marked sent, marked sent with
@@ -1063,6 +1069,12 @@ checks the mechanical ones.
   postcode's patch, a card from an email even with no postcode yet. create_job
   for a damp survey with no surveyor or day makes the card instead of failing,
   and update_client corrects an enquiry with no job.
+- The brain for ChatGPT and Claude (`lib/mcp/brain-tools.js`, the owner, 19 Nov
+  2026, no API key: the subscriptions read Neon through this connector):
+  whats_next (the What's next page), customer_story (one customer's whole
+  record: the journal's changes, every email read whole, the next step, open
+  questions) and answer_brain_question (yes or no to a brain_asks question,
+  only after the person says so). Managers only.
 - Finding a customer is forgiving everywhere (`lib/find-words.js`: the phone's
   Search, ChatGPT, the enquiry finder): each word in the name, email, phone
   (+44 or spaces), postcode or address, best match wins, a surname an enquiry

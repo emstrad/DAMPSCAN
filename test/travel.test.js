@@ -107,7 +107,7 @@ test('the inbox logs a booked customer on their job, and a new address by postco
     { id: 'b', subject: 'Survey', bodyPreview: 'Hi, this is Ann at CR0 1AA writing from my work address', from: { emailAddress: { address: 'ann@work.com' } }, toRecipients: [] }
   ];
   const fetchImpl = async (url) => ({ ok: true, json: async () => (String(url).includes('oauth2') ? { access_token: 'x' } : { value: msgs }) });
-  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 2 });
+  assert.deepEqual(await scanMail({ fetchImpl }), { logged: 2, made: 0 });
   const said = (await pool.query("select after_json->>'said' s from audit where entity = 'job' and entity_id = $1", [booked])).rows.map((r) => r.s);
   assert.deepEqual(said, ['Email from Lee: Can we move?']);
   assert.match((await pool.query('select sched_log from leads where id = $1', [ann])).rows[0].sched_log[0].note, /from ann@work.com/);

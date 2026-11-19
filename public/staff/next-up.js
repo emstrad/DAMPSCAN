@@ -34,6 +34,7 @@
 
   function open(r) {
     if (r.jobId && global.DSPOP) { global.DSPOP.open(r.jobId, { onChange: load }); return; }
+    if (r.href) { location.href = r.href; return; }
     if (r.leadId) location.href = '/staff/schedule.html?area=damp#lead-' + r.leadId;
   }
 
