@@ -96,3 +96,28 @@ test('a transfer without their reference: suggested, OK records it and ticks, Un
   await R.reconcile(l, job, 'Scott'); await R.unreconcile(l.ref, 'Scott');
   assert.ok((await pool.query('select deposit_paid_at from jobs where id = $1', [job])).rows[0].deposit_paid_at);
 });
+
+test('Tide status, savings moves and refunds: cancelled set aside, pending waits, savings counted into the tax pot in one tap', async () => {
+  const csv = `"Date","Transaction ID","Transaction description","Reference","From","To","Paid in","Paid out","Category name","Transaction type","Status"
+"2026-11-20 17:33:46","'a1","Google ADS5170768292   Dublin","","","Google ADS","","10.00","Marketing","CardPaymentOut","Pending"
+"2026-11-20 15:20:11","'a2","Savings account ref:","","Savings account","","10.00","","Transfers","FundsTransferIn","Cleared"
+"2026-11-20 12:48:35","'a3","Savings account ref:","","","Savings account","","495.00","Transfers","FundsTransferOut","Cleared"
+"2026-11-18 10:00:00","'a4","Amazon Marketplace","","","Amazon","","24.99","Shopping","CardPaymentOut","Cleared"
+"2026-11-19 10:00:00","'a5","Amazon Marketplace refund","","Amazon","","24.99","","Shopping","CardRefund","Cleared"
+"2026-11-19 11:00:00","'a6","Shell Ashford","","","Shell","","60.00","Fuel","CardPaymentOut","Declined"
+`;
+  const c = await T.tideCheck(csv);
+  assert.deepEqual(c.lines.map((l) => l.status), ['pending', 'savings', 'savings', 'refund', 'refund', 'void']);
+  assert.equal(c.totals.out, 1000 + 49500 + 2499, 'a declined line moved no money');
+  assert.equal(c.totals.pending, 1);
+  assert.equal(c.totals.toSavings, 49500);
+  assert.equal(c.totals.fromSavings, 1000);
+  assert.equal(c.totals.matched, 4, 'savings and refunds need nothing');
+
+  /* Counted as the tax pot: recorded on Pay from that line, and matched to it next time. */
+  const move = c.lines[2];
+  await P.recordPayout({ who: 'tax', pence: 49500, day: move.day, how: 'Moved to tax savings', note: 'Tide savings', bankRef: move.ref }, 'Scott');
+  const again = await T.tideCheck(csv);
+  assert.equal(again.lines[2].status, 'matched');
+  assert.match(again.lines[2].logbook.label, /Corp tax/);
+});

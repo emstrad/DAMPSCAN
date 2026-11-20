@@ -1,7 +1,8 @@
 /* Company, Money (the owners' plan, 15 Nov 2026): money in, costs and profit
-   for the period; the tax pot against corporation tax worked out on real
-   profit; the VAT threshold; ways to lower this year's tax; and the expenses
-   log with receipts. Figures from lib/company-money.js. */
+   for the period, the company's own money only (from 10 Nov 2026); where the
+   money went, who gets what, card payments and tax (company-money-parts.js);
+   the VAT threshold; ways to lower this year's tax; and the expenses log with
+   receipts. Figures from lib/company-money.js. */
 (function (global) {
   'use strict';
   var U = global.DSUI, node = U.node;
@@ -11,9 +12,10 @@
   var day = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
   var shift = function (months) { var d = new Date(today.slice(0, 8) + '01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + months); return d.toISOString().slice(0, 10); };
-  var yearStart = function () { var y = Number(today.slice(0, 4)); return (Number(today.slice(5, 7)) === 12 ? y : y - 1) + '-12-01'; };
+  /* The company year: its first from incorporation (10 Nov 2026) to 30 Nov 2027, then December to November. */
+  var yearStart = function () { if (today <= '2027-11-30') return '2026-11-10'; var y = Number(today.slice(0, 4)); return (Number(today.slice(5, 7)) === 12 ? y : y - 1) + '-12-01'; };
   var RANGES = [['month', 'This month', function () { return [shift(0), '']; }], ['last', 'Last month', function () { var e = new Date(shift(0) + 'T12:00:00Z'); e.setUTCDate(0); return [shift(-1), e.toISOString().slice(0, 10)]; }],
-    ['year', 'This year', function () { return [yearStart(), '']; }], ['12', 'Last 12 months', function () { return [shift(-11), '']; }]];
+    ['year', 'Company year', function () { return [yearStart(), '']; }]];
   var state = { range: 'year', data: null, loaded: false };
 
   (global.DSCOTABS = global.DSCOTABS || {}).money = function () { if (!state.loaded) load(); };
@@ -32,28 +34,27 @@
     var pills = node('div', 'pills pay-range');
     RANGES.forEach(function (r) { var b = node('button', 'pill', r[1]); b.type = 'button'; b.setAttribute('aria-pressed', String(state.range === r[0])); b.addEventListener('click', function () { state.range = r[0]; load(); }); pills.appendChild(b); });
     box.appendChild(pills);
-    var p = d.period, tiles = node('div', 'mn-tiles');
+    var P = global.DSMONEYPARTS, p = d.period, tiles = node('div', 'mn-tiles');
     tiles.appendChild(tile('Money in', money(p.in), p.surveys + ' survey' + (p.surveys === 1 ? '' : 's') + ' paid in full'));
     tiles.appendChild(tile('Costs', money(p.cost)));
     tiles.appendChild(tile('Profit', money(p.profit), p.in ? Math.round(100 * p.profit / p.in) + '% of money in' : '', p.profit < 0 ? 'is-bad' : ''));
     tiles.appendChild(tile('Corp tax this year', money(d.tax.estimate), 'on ' + money(d.tax.profit) + ' profit since ' + day(d.tax.yearFrom)));
     box.appendChild(tiles);
+    /* The company's money only; the business before it is one line, never mixed in. */
+    box.appendChild(node('p', 'mn-say', 'Company money from ' + day(d.start) + ' (Tide and Stripe).' + (d.before && d.before.in ? ' Before the company: ' + money(d.before.in) + ', ' + d.before.surveys + ' surveys, in Revolut.' : '')));
 
-    /* Tax: what has been set aside against what the real profit says is due. */
-    var t = section('Tax pot');
-    var row = node('div', 'mn-tiles');
-    row.appendChild(tile('Set aside this year', money(d.tax.setAside)));
-    row.appendChild(tile('Estimated tax due', money(d.tax.estimate), Math.round(d.tax.rate * 1000) / 10 + '% on the next pound'));
-    row.appendChild(tile('Moved to tax savings', money(d.tax.inPot)));
-    t.appendChild(row);
-    t.appendChild(node('p', 'mn-say' + (d.tax.gap < 0 ? ' is-bad' : ''), d.tax.gap >= 0 ? money(d.tax.gap) + ' more set aside than the estimate. Comfortable.' : 'Set aside is ' + money(-d.tax.gap) + ' short of the estimate. Top the tax pot up.'));
+    P.flow(d, section, money);
+    P.who(d, section, money);
+    P.cards(d, section, tile, money);
+    P.tax(d, section, tile, money, day);
 
-    /* VAT: the rolling 12 months against the threshold. */
+    /* VAT: the company's rolling 12 months against the threshold. */
     var v = section('VAT threshold');
     var pc = Math.min(100, Math.round(100 * d.vat.rolling / d.vat.limit));
     var bar = node('div', 'mn-bar'), fill = node('i'); fill.style.width = pc + '%'; if (pc >= 80) bar.classList.add('is-near'); bar.appendChild(fill); v.appendChild(bar);
-    v.appendChild(node('p', 'mn-say', money(d.vat.rolling) + ' of ' + money(d.vat.limit) + ' in the last 12 months (' + pc + '%).'));
-    v.appendChild(node('p', 'mn-say' + (pc >= 80 || d.vat.over ? ' is-bad' : ''), d.vat.over ? 'Over the threshold: register for VAT with your accountant now.' : d.vat.crossOn ? 'At ' + money(d.vat.perMonth) + ' a month you would reach it around ' + month(d.vat.crossOn) + '. Plan prices with your accountant before then.' : 'Not enough recent work to project.'));
+    v.appendChild(node('p', 'mn-say', money(d.vat.rolling) + ' of ' + money(d.vat.limit) + ' in the last 12 months (' + pc + '%), counted from ' + day(d.start) + '.'));
+    v.appendChild(node('p', 'mn-say' + (pc >= 80 || d.vat.over ? ' is-bad' : ''), d.vat.over ? 'Over the threshold: register for VAT with your accountant now.' : d.vat.crossOn ? 'At ' + money(d.vat.perMonth) + ' a month you would reach it around ' + month(d.vat.crossOn) + '.' : 'Not enough work yet to project.'));
+    if (d.vat.before) v.appendChild(node('p', 'mn-say', 'Before the company, last 12 months: ' + money(d.vat.before) + '. Ask the accountant whether it counts.'));
 
     /* Costs: every line, biggest first, with the expenses log beneath. */
     var c = section('Costs');

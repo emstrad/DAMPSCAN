@@ -84,12 +84,12 @@
   }
 
   /* A folded line: a count at the right, the list beneath when opened. */
-  function foldRow(b, title, sub, count, tagCls, fill) {
-    var r = node('button', 'c-row'); r.type = 'button'; r.setAttribute('aria-expanded', 'false');
+  function foldRow(b, title, sub, count, tagCls, fill, open) {
+    var r = node('button', 'c-row'); r.type = 'button'; r.setAttribute('aria-expanded', String(Boolean(open)));
     var l = node('span', 'c-l'); l.appendChild(node('b', null, title)); if (sub) l.appendChild(node('small', null, sub));
     var rr = node('span', 'c-r'); rr.appendChild(node('span', 'c-tag ' + (tagCls || ''), String(count))); rr.appendChild(node('span', 'c-chev', '›'));
     r.appendChild(l); r.appendChild(rr);
-    var f = node('div', 'c-fold'); f.hidden = true; fill(f);
+    var f = node('div', 'c-fold'); f.hidden = !open; fill(f);
     r.addEventListener('click', function () { f.hidden = !f.hidden; r.setAttribute('aria-expanded', String(!f.hidden)); });
     b.appendChild(r); b.appendChild(f);
   }
@@ -106,7 +106,7 @@
     top.appendChild(node('span', 'c-sub', todo.length ? todo.length + ' to go' : 'The books match Tide'));
     head.appendChild(top);
     var bar = node('div', 'rec-bar'); var fill = node('span'); fill.style.width = (all ? Math.round(settledN / all * 100) : 100) + '%'; bar.appendChild(fill); head.appendChild(bar);
-    head.appendChild(node('small', 'c-sub', day(d.from) + ' to ' + day(d.to) + ' · in ' + money(d.totals.in) + ' · out ' + money(d.totals.out) + (d.unreadable ? ' · ' + d.unreadable + ' unreadable' : '')));
+    head.appendChild(node('small', 'c-sub', day(d.from) + ' to ' + day(d.to) + ' · in ' + money(d.totals.in) + ' · out ' + money(d.totals.out) + (d.totals.pending ? ' · ' + d.totals.pending + ' pending' : '') + (d.unreadable ? ' · ' + d.unreadable + ' unreadable' : '')));
     b.appendChild(head);
     if (todo.length) {
       var l = todo[0];
@@ -114,12 +114,30 @@
       b.appendChild(one);
     }
     var rows = node('div', 'c-rows rec-folds');
+    /* Savings moves first, open: the one thing here only a person can say (was it the tax pot?). */
+    var sav = d.lines.filter(function (x) { return x.status === 'savings'; });
+    if (sav.length) foldRow(rows, 'Moved to or from Tide savings', 'Out ' + money(d.totals.toSavings) + ' · back ' + money(d.totals.fromSavings), sav.length, '', function (f) {
+      sav.forEach(function (x) { f.appendChild(card(x, function (m) { savingsSide(m, x); })); });
+    }, true);
+    var by = function (st) { return d.lines.filter(function (x) { return x.status === st; }); };
+    var refunds = by('refund');
+    if (refunds.length) foldRow(rows, 'Refunds', 'Paired with what they gave back', refunds.length, 'is-good', function (f) {
+      refunds.forEach(function (x) { f.appendChild(card(x, function (m) { m.appendChild(node('span', 'c-tag', x.pence > 0 ? 'Refund' : 'Refunded')); if (x.pair) m.appendChild(node('small', 'c-sub', (x.pence > 0 ? 'Of ' : 'By ') + money(x.pair.pence) + ' on ' + day(x.pair.day))); })); });
+    });
+    var waiting = by('pending');
+    if (waiting.length) foldRow(rows, 'Pending at Tide', 'Checked once it clears', waiting.length, 'is-warn', function (f) {
+      waiting.forEach(function (x) { f.appendChild(card(x, function (m) { m.appendChild(node('span', 'c-tag is-warn', 'Pending')); })); });
+    });
+    var gone = by('void');
+    if (gone.length) foldRow(rows, 'Cancelled or declined', 'No money moved', gone.length, '', function (f) {
+      gone.forEach(function (x) { f.appendChild(card(x, function (m) { m.appendChild(node('span', 'c-tag', x.state || 'Cancelled')); })); });
+    });
     var auto = d.lines.filter(function (x) { return x.status === 'auto'; });
     if (auto.length) foldRow(rows, 'Matched for you', 'By their reference', auto.length, 'is-good', function (f) {
       auto.forEach(function (x) { f.appendChild(card(x, function (m) { matched(m, x, x.ticked && x.ticked.indexOf('paid') !== -1 ? 'Paid in full' : x.ticked && x.ticked.length ? 'Deposit paid' : 'Recorded', true); })); });
     });
     if (d.notOnStatement.length) foldRow(rows, 'In the books, not in Tide', 'Cash, a later date, or a mistake', d.notOnStatement.length, 'is-warn', function (f) {
-      d.notOnStatement.forEach(function (x) { f.appendChild(card({ day: x.day, pence: -x.pence, what: x.label }, function (m) { m.appendChild(node('small', 'c-sub', 'No line in this statement')); })); });
+      d.notOnStatement.forEach(function (x) { f.appendChild(card({ day: x.day, pence: -x.pence, what: x.label }, function (m) { m.appendChild(x.refunded ? node('span', 'c-tag is-warn', 'Refunded: remove it') : node('small', 'c-sub', 'No line in this statement')); })); });
     });
     var settled = d.lines.filter(function (x) { return ['matched', 'payout', 'reconciled'].indexOf(x.status) !== -1; });
     if (settled.length) foldRow(rows, 'Already in the books', null, settled.length, '', function (f) {
@@ -132,6 +150,15 @@
       });
     });
     if (rows.childNodes.length) b.appendChild(rows);
+  }
+
+  /* A savings move: count it into the tax pot (or out of it) in one tap; left alone it is just savings. */
+  function savingsSide(m, l) {
+    var out = l.pence < 0;
+    m.appendChild(node('span', 'c-tag', out ? 'To savings' : 'From savings'));
+    var b = node('button', 'c-quiet', out ? 'Count as tax pot' : 'Taken from tax pot'); b.type = 'button';
+    b.addEventListener('click', function () { act(b, { op: 'pay', who: 'tax', how: 'Moved to tax savings', pence: -l.pence, day: l.day, note: out ? 'Tide savings' : 'Back from Tide savings', bankRef: l.ref }); });
+    m.appendChild(b);
   }
 
   /* A matched transfer: who it paid, Open their card, and Undo when this page matched it. */

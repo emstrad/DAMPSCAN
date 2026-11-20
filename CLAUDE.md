@@ -442,7 +442,19 @@ checks the mechanical ones.
   corporation tax on the company year's real profit (1 Dec to 30 Nov; 19% to
   £50k, 25% over £250k, marginal relief between) against what was set aside,
   the VAT threshold over the last 12 months with when it would be reached, and
-  ways to lower the tax, each with its saving, as prompts for the accountant.
+  ways to lower the tax, each with its saving, as prompts for the accountant. Company money only (the owner, 20 Nov 2026: Overview and Money still
+  counted Revolut money): Damp Surveying Limited was incorporated on 10 Nov 2026
+  (`lib/company-start.js`), its first year runs to 30 Nov 2027, and its money is
+  the Tide and Stripe book; the Revolut book is the business before the company,
+  one line of its own on Money and Overview, never in profit, tax, VAT (shown
+  beside it for the accountant) or the months. Money also shows where the money
+  went (in, card fees, tax pot, surveyor fees, shared, to the penny), who gets
+  what (each person's fees and share, owed now, opening their statement), card
+  payments (taken, Stripe fees and rate, refunds, paid into Tide and still in
+  Stripe, read live) and tax (profit, corp tax due, set aside, in tax savings,
+  paid to HMRC, still to move) (`lib/company-money-parts.js`,
+  `company-money-parts.js`). The hourly card check fills in a Stripe fee a
+  payment was recorded without.
   Expenses are never edited, removed only with who and when; a receipt opens
   for the owners only (never a surveyor, though receipts are DampScan's files).
   Bank check (`lib/tide-check.js`, `lib/tide-reconcile.js`, `company-tide.js`,
@@ -461,7 +473,11 @@ checks the mechanical ones.
   first: paid out and not logged (one select, a cost or who was paid, Add),
   paid in and not ticked, paid in and not placed, and logged but not in Tide
   (cash never matched or expected; money paid back matches its negative
-  payment). Nothing from the file is stored but how far the checks reach
+  payment). Tide's Status column counts (the owner, 20 Nov 2026): a cancelled,
+  declined or reversed line moved no money and is set aside, a pending one waits
+  until it clears, a refund is paired with the payment it gave back (a cost
+  logged for it says Refunded: remove it), and a move to or from Tide savings is
+  the company's own money, counted into or out of the tax pot in one tap. Nothing from the file is stored but how far the checks reach
   (cron_beats bank_check_to). It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
