@@ -404,7 +404,15 @@ checks the mechanical ones.
   the customer card. A survey counts once paid in full; its card fees come off
   the top (all fees absorbed by everyone, the owners' choice), then the job's own
   waterfall; a cancelled one drops out; unpaid work shows as coming. The check
-  line proves money in equals what is shared. The split for new surveys is the
+  line proves money in equals what is shared. Running costs come off before
+  anyone is owed (the owner, 20 Nov 2026: Pay showed more owed than the company
+  had once Ads and software were paid): every cost logged on Money from the
+  cut-over, a month at a time, shared Scott, Tom and Ben by the split
+  (`runningCosts` in lib/pay-book.js), a "Running costs" line a month on their
+  statements and "costs off" on their row; Ronnie is paid his fee alone, tax is
+  set aside on the price, and the Revolut book is kept as it was paid. Money's who
+  gets what, Overview, Accountant and Paying yourselves read the same owed
+  figure. The split for new surveys is the
   owners' to change there (job_settings); booked ones keep theirs. From the
   go-live (the owners, 19 Nov 2026: Ben earned more than Scott on a £715 survey
   he never went to): no lead fee; after tax and the surveyor's fee, Scott 40%,
