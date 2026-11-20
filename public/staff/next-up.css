@@ -40,3 +40,13 @@
 .nu-day-list li.is-off b{color:var(--muted)}
 .nu-day > summary .c-l small{white-space:normal}
 .nu-day:not([open]) > summary{border-bottom:0}
+
+/* Money in: one row per payment, the day's total on its heading. */
+.nu-money{margin-top:8px}
+.nu-money-day{display:flex;justify-content:space-between;margin:12px 0 4px}
+.nu-money-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:8px 0;background:none;border:0;border-bottom:1px solid var(--line);color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.nu-money-l{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nu-money-l small{color:var(--muted-2);font-size:13px}
+.nu-money-amt{color:var(--good,#5fd39a);white-space:nowrap}
+.nu-money-row.is-out .nu-money-amt{color:var(--warn)}
+.nu-money-none{color:var(--muted-2);margin:8px 0 12px}

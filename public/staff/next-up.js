@@ -133,11 +133,39 @@
     });
   }
 
+  /* Money in (lib/money-in.js): every payment of the last 30 days by day, each opening the customer card. */
+  var gbp = function (p) { var n = Math.abs(p) / 100; return (p < 0 ? '-' : '') + '£' + (n % 1 ? n.toFixed(2) : String(n)); };
+  function drawMoney(m) {
+    var box = el('nu-money'); box.hidden = !m; if (!m) return;
+    el('nu-money-sub').textContent = gbp(m.today) + ' today · ' + gbp(m.week) + ' this week';
+    el('nu-money-tag').textContent = m.rows.length + (m.rows.length === 1 ? ' payment' : ' payments');
+    var list = el('nu-money-list'); list.textContent = '';
+    if (!m.rows.length) { list.appendChild(U.node('p', 'nu-money-none', 'Nothing in the last ' + m.days + ' days.')); return; }
+    var days = [];
+    m.rows.forEach(function (r) { var d = days[days.length - 1]; if (!d || d.day !== r.day) days.push(d = { day: r.day, rows: [] }); d.rows.push(r); });
+    days.forEach(function (d) {
+      var total = d.rows.reduce(function (t, r) { return t + r.pence; }, 0);
+      var h = U.node('p', 'c-label nu-money-day');
+      h.appendChild(document.createTextNode(new Date(d.day + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })));
+      h.appendChild(U.node('span', null, gbp(total))); list.appendChild(h);
+      d.rows.forEach(function (r) {
+        var b = U.node('button', 'nu-money-row' + (r.pence < 0 ? ' is-out' : '')); b.type = 'button';
+        var l = U.node('span', 'nu-money-l');
+        l.appendChild(U.node('b', null, r.name + (r.postcode ? ', ' + String(r.postcode).split(' ')[0] : '')));
+        l.appendChild(U.node('small', null, r.kind + ' · ' + r.how + ' · ' + new Date(r.at).toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' })));
+        b.appendChild(l); b.appendChild(U.node('b', 'nu-money-amt', gbp(r.pence)));
+        b.addEventListener('click', function () { open({ jobId: r.jobId, site: r.site }); });
+        list.appendChild(b);
+      });
+    });
+  }
+
   async function load() {
     try {
       state.data = await U.get('/api/admin/todos?view=next');
       el('nu-state').hidden = true;
       drawDay(state.data.last24);
+      drawMoney(state.data.moneyIn);
       draw();
     } catch (e) {
       if (e.message === 'unauthorised') return;
