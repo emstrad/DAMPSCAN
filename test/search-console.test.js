@@ -53,3 +53,17 @@ test('figures come back for the brand, and a property not shared with the accoun
     delete process.env.GSC_SERVICE_ACCOUNT;
   }
 });
+
+test('a key pasted badly is still read, and one that cannot be says why (20 Nov 2026, pasted from a phone)', async () => {
+  const { readKey } = await import('../lib/search-console.js');
+  const pem = '-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n';
+  const file = JSON.stringify({ type: 'service_account', client_email: 'search-reader@x.iam.gserviceaccount.com', private_key: pem }, null, 2);
+  for (const pasted of [file, `﻿  ${file}\n`, file.replace(/"/g, '“'), Buffer.from(file).toString('base64'), file.replace(/\\n/g, '\n')]) {
+    const k = readKey(pasted);
+    assert.equal(k.state, 'ok', pasted.slice(0, 20));
+    assert.equal(k.email, 'search-reader@x.iam.gserviceaccount.com');
+    assert.match(k.account.private_key, /^-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----/);
+  }
+  assert.equal(readKey('').state, 'missing');
+  assert.match(readKey('{"client_email": "a@b.iam.gserviceaccount.com"}').why, /private key/);
+});
