@@ -1,5 +1,5 @@
 /**
- * The growth plan (the owner, 20 Nov 2026): phases and their targets, surveys
+ * The growth plan (the owner, 20 Nov 2026): milestones with no deadlines, surveys
  * a week, each surveyor's load against ten, and the hire signal.
  */
 import { test, before, beforeEach, after, mock } from 'node:test';
@@ -17,13 +17,15 @@ before(async () => { await pool.query(await readFile(new URL('../db/schema.sql',
 beforeEach(async () => { await pool.query('truncate jobs restart identity cascade'); });
 after(async () => { await pool.end(); });
 
-test('weeks start on Monday; the phase follows the date; hiring waits for four busy weeks in a row', () => {
+test('weeks start on Monday; a milestone is reached on its first four-week average, never by a date; hiring waits for four busy weeks in a row', () => {
   assert.equal(G.mondayOf('2026-11-20'), '2026-11-16');
   assert.equal(G.mondayOf('2026-11-16'), '2026-11-16');
   assert.equal(G.mondayOf('2026-11-22'), '2026-11-16');
-  assert.equal(G.phaseOf('2026-11-20').n, 1);
-  assert.equal(G.phaseOf('2027-06-01').n, 2);
-  assert.equal(G.phaseOf('2031-01-01').n, 4, 'past the plan it stays on the last phase');
+  const wk = (n) => Array.from({ length: n.length }, (_, i) => ({ week: `2026-11-${String(2 + i).padStart(2, '0')}`, surveys: n[i] }));
+  assert.equal(G.reached(wk([25, 25, 25, 4, 4, 4, 4]))[0].reached, null, 'three big weeks average under 20 with the fourth');
+  assert.equal(G.reached(wk([20, 20, 20, 20, 31]))[0].reached, '2026-11-05');
+  assert.equal(G.reached(wk([20, 20, 20, 20, 31]))[1].reached, null);
+  assert.equal(G.reached(wk([5, 5, 5])).every((m) => !m.reached), true);
   assert.equal(G.hireSignal([{ name: 'Tom', weeks: [3, 9, 9, 9, 9] }]).now, true);
   assert.equal(G.hireSignal([{ name: 'Tom', weeks: [9, 9, 8, 9, 9] }]).now, false, 'eight is not over eight');
   assert.equal(G.hireSignal([{ name: 'Tom', weeks: [9, 9, 9] }]).now, false, 'needs four weeks');
@@ -48,7 +50,8 @@ test('Tom over eight a week for four weeks: the plan says hire, and Overview ask
   assert.equal(p.hire.now, true);
   assert.deepEqual(p.hire.who, ['Tom']);
   assert.equal(p.capacity, 10);
-  assert.equal(p.onTrack, 9 >= p.phase.target);
+  assert.equal(p.next.target, 20, 'nine a week has reached no milestone');
+  assert.equal(p.gap, 11);
   const o = await O.overview();
   assert.ok(o.attention.some((a) => /^Time to hire a surveyor: Tom over 8 a week for four weeks$/.test(a.text) && a.tab === 'growth'), o.attention.map((a) => a.text).join(' | '));
 });
