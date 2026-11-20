@@ -88,5 +88,11 @@ test('no card has a coloured stripe on one edge', async () => {
     for (const m of text.matchAll(/border-(top|left|right|bottom)(-width)?\s*:\s*([3-9]|\d\d)px[^;}]*/g)) {
       assert.ok(/transparent/.test(m[0]), `${f}: "${m[0]}" is an edge stripe`);
     }
+    /* A thin edge in a colour is a stripe too (24 Nov 2026: the day plan's paid card had an amber left edge).
+       Only a spinner, a ring that animates, may colour one side. */
+    for (const m of text.matchAll(/border-(top|left|right|bottom)-color\s*:\s*[^;}]*/g)) {
+      const rule = text.slice(text.lastIndexOf('{', m.index), text.indexOf('}', m.index));
+      assert.ok(/animation|transparent/.test(rule), `${f}: "${m[0]}" colours one edge`);
+    }
   }
 });

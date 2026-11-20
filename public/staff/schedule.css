@@ -62,10 +62,10 @@
 .dsp-title { font-weight: 600; }
 .dsp-sub { font-size: .8rem; color: var(--muted); }
 .dsp-item.is-survey { border-color: var(--accent); }
-.dsp-item.is-owed { border-left-color: var(--warn); }
-.dsp-item.is-paid { border-left-color: #e3b341; }
-.dsp-item.is-done { border-left-color: var(--good); opacity: .75; }
-.dsp-item.is-wait { border-left-color: var(--muted); }
+.dsp-item.is-owed { border-color: var(--warn); }
+.dsp-item.is-paid { border-color: #e3b341; }
+.dsp-item.is-done { border-color: var(--good); opacity: .75; }
+.dsp-item.is-wait { border-color: var(--muted); }
 .dsp-item.is-pencil { border-style: dashed; background: var(--navy-2); color: var(--muted); }
 .dsp-item.is-free { border-style: dashed; border-color: var(--good); background: transparent; color: var(--good); }
 .dsp-item.is-free .dsp-sub { color: var(--muted); }
@@ -172,6 +172,12 @@
 .sch-free-top h2 { margin: 0; font-size: 18px; }
 .sch-free-ask { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; margin: 8px 0 12px; }
 .sch-free-ask .btn { grid-column: 1 / -1; }
+/* Who fits a free start: names beneath it, each a tap to book them there. */
+.dsp-free-wrap { margin: 0 0 6px; }
+.dsp-free-wrap .dsp-free { margin-bottom: 4px; }
+.dsp-fits { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 4px 14px; }
+.dsp-fit { min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(124,211,138,.45); background: rgba(124,211,138,.08); color: var(--text); font: inherit; font-size: 15px; cursor: pointer; }
+.dsp-fit:hover { background: rgba(124,211,138,.18); }
 @media (prefers-reduced-motion: reduce) { .sch-act, .sched-card, .dsp-free { transition: none; } }
 /* On a phone an empty column or the drop-only Booked one is just space; a wide screen keeps them as drop targets. */
 @media (max-width: 1099px) { .sched-board .sched-col.is-empty, .sched-board .sched-col.is-drop, .sched-coldfold.is-empty { display: none; } }

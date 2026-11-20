@@ -35,7 +35,7 @@
 .sv-mark.is-warn{color:var(--text);font-weight:700}
 .sv-mark.is-late{color:var(--warn);font-weight:700}
 .sv-remedial{border-top:1px solid var(--line);padding-top:8px}
-.sv-remedial.is-nudge{border-top-color:var(--warn)}
+.sv-remedial.is-nudge{border:1px solid var(--warn);border-radius:10px;padding:8px}
 .sv-amount{width:110px;min-height:36px;padding:6px 8px}
 .sv-msg-title{font-weight:700;font-size:13.5px;margin:10px 0 6px}
 .sv-dialog{max-width:520px;max-height:calc(100vh - 32px);overflow:auto}
