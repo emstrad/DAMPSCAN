@@ -530,7 +530,14 @@ checks the mechanical ones.
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
   Growth (`lib/company-growth.js`, `company-growth.js`, `?view=growth`):
-  Google Ads first (this month, last month, the year): the spend logged on
+  the plan first (`lib/growth-plan.js`, `company-plan.js`, the owner, 20 Nov
+  2026: seven surveyors at ten a week, hiring as demand arrives): four phases
+  in PHASES (20 a week with three surveyors to Mar 2027, 30 with four to Nov
+  2027, 50 with six to 2028, 70 with seven to 2029), surveys a week as columns
+  against the target line, each surveyor's four-week average against ten a
+  week, and "Time to hire a surveyor" (on Overview's Needs you now too) once the
+  busiest has done more than eight in each of the last four full weeks;
+  cancelled surveys never count. Then Google Ads (this month, last month, the year): the spend logged on
   Money against what paid clicks became (the session's paid channel or a Google
   click id): enquiries, booked, money paid, cost per enquiry and per booking,
   and the return per pound; then month by month (visitors, enquiries, booked
