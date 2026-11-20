@@ -120,6 +120,17 @@
       sav.forEach(function (x) { f.appendChild(card(x, function (m) { savingsSide(m, x); })); });
     }, true);
     var by = function (st) { return d.lines.filter(function (x) { return x.status === st; }); };
+    /* Stripe paying out the card payments less its fees: each payment is already on its survey. */
+    var pays = by('payout');
+    if (pays.length) foldRow(rows, 'From Stripe', 'Card payments less fees · nothing to match', pays.length, 'is-good', function (f) {
+      pays.forEach(function (x) {
+        f.appendChild(card(x, function (m) {
+          m.appendChild(node('span', 'c-tag is-good', 'Stripe payout'));
+          var p = x.payout;
+          if (p) m.appendChild(node('small', 'c-sub', p.payments + ' card payment' + (p.payments === 1 ? '' : 's') + ' ' + money(p.gross) + ' · fees ' + money(p.fees) + (p.refunds ? ' · refunds ' + money(p.refunds) : '')));
+        }));
+      });
+    });
     var refunds = by('refund');
     if (refunds.length) foldRow(rows, 'Refunds', 'Paired with what they gave back', refunds.length, 'is-good', function (f) {
       refunds.forEach(function (x) { f.appendChild(card(x, function (m) { m.appendChild(node('span', 'c-tag', x.pence > 0 ? 'Refund' : 'Refunded')); if (x.pair) m.appendChild(node('small', 'c-sub', (x.pence > 0 ? 'Of ' : 'By ') + money(x.pair.pence) + ' on ' + day(x.pair.day))); })); });
@@ -129,8 +140,11 @@
       waiting.forEach(function (x) { f.appendChild(card(x, function (m) { m.appendChild(node('span', 'c-tag is-warn', 'Pending')); })); });
     });
     var gone = by('void');
-    if (gone.length) foldRow(rows, 'Cancelled or declined', 'No money moved', gone.length, '', function (f) {
-      gone.forEach(function (x) { f.appendChild(card(x, function (m) { m.appendChild(node('span', 'c-tag', x.state || 'Cancelled')); })); });
+    if (gone.length) foldRow(rows, 'Cancelled or declined', 'No money moved', gone.length, gone.some(function (x) { return x.reversed; }) ? 'is-warn' : '', function (f) {
+      gone.forEach(function (x) { f.appendChild(card(x, function (m) {
+        if (x.reversed) { x.survey = x.reversed; matched(m, x, 'Reversed: check their payments', false); return; }
+        m.appendChild(node('span', 'c-tag', x.state || 'Cancelled'));
+      })); });
     });
     var auto = d.lines.filter(function (x) { return x.status === 'auto'; });
     if (auto.length) foldRow(rows, 'Matched for you', 'By their reference', auto.length, 'is-good', function (f) {
@@ -139,12 +153,11 @@
     if (d.notOnStatement.length) foldRow(rows, 'In the books, not in Tide', 'Cash, a later date, or a mistake', d.notOnStatement.length, 'is-warn', function (f) {
       d.notOnStatement.forEach(function (x) { f.appendChild(card({ day: x.day, pence: -x.pence, what: x.label }, function (m) { m.appendChild(x.refunded ? node('span', 'c-tag is-warn', 'Refunded: remove it') : node('small', 'c-sub', 'No line in this statement')); })); });
     });
-    var settled = d.lines.filter(function (x) { return ['matched', 'payout', 'reconciled'].indexOf(x.status) !== -1; });
+    var settled = d.lines.filter(function (x) { return ['matched', 'reconciled'].indexOf(x.status) !== -1; });
     if (settled.length) foldRow(rows, 'Already in the books', null, settled.length, '', function (f) {
       settled.forEach(function (x) {
         f.appendChild(card(x, function (m) {
-          if (x.status === 'payout') m.appendChild(node('span', 'c-tag', 'Stripe card payout'));
-          else if (x.status === 'reconciled') matched(m, x, 'Matched', true);
+          if (x.status === 'reconciled') matched(m, x, 'Matched', true);
           else m.appendChild(node('span', 'c-tag', x.survey ? x.survey.name + ' (ticked by hand)' : x.logbook.label));
         }));
       });

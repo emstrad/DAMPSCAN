@@ -477,7 +477,26 @@ checks the mechanical ones.
   declined or reversed line moved no money and is set aside, a pending one waits
   until it clears, a refund is paired with the payment it gave back (a cost
   logged for it says Refunded: remove it), and a move to or from Tide savings is
-  the company's own money, counted into or out of the tax pot in one tap. Nothing from the file is stored but how far the checks reach
+  the company's own money, counted into or out of the tax pot in one tap. A
+  pending line records, ticks and texts nothing until it clears; a refund with no
+  payment in the same file is left for a person; a reconciled line Tide later
+  shows reversed is flagged on its survey. Stripe's payouts (known by the words or
+  the payer, `lib/tide-payouts.js`) are never matched: each card payment is already
+  on its survey, and each payout shows beside Stripe's own (how many payments,
+  their total, the fees and refunds taken out).
+  Accountant (`lib/accountant.js`, `lib/accountant-csv.js`,
+  `company-accountant.js`, `?view=accountant`, the owner, 20 Nov 2026): what to
+  put right first (dividends over profit after tax, a director paid ahead of his
+  share, a salary over the personal allowance, costs with no receipt, the bank
+  check, the Revolut book still owed, the VAT threshold), every filing and payment
+  date by the rules (the first long year is two corporation tax periods; month
+  ends as HMRC counts them), the year's figures, the questions only the
+  accountant can answer, and the records as a CSV (income with card fees,
+  refunds, costs, payments out, a summary; formulas escaped). Dates within 45
+  days and the worst checks go on Overview's Needs you now. Growth keeps the
+  trading year (from 1 December) for its marketing figures; Week counts the new
+  book only; last month's salary, ads and bank check are asked for only once last
+  month was the company's. Nothing from the file is stored but how far the checks reach
   (cron_beats bank_check_to). It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.

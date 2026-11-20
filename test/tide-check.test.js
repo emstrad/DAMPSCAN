@@ -121,3 +121,46 @@ test('Tide status, savings moves and refunds: cancelled set aside, pending waits
   assert.equal(again.lines[2].status, 'matched');
   assert.match(again.lines[2].logbook.label, /Corp tax/);
 });
+
+test('Stripe payouts: known by the payer too, never matched, shown with what they held', async () => {
+  const P2 = await import('../lib/tide-payouts.js');
+  assert.deepEqual(P2.payoutParts([{ type: 'charge', amount: 29500, fee: 464, net: 29036 }, { type: 'payment', amount: 14750, fee: 241, net: 14509 }, { type: 'refund', amount: -5000, fee: 0, net: -5000 }, { type: 'payout', amount: -38545 }]),
+    { payments: 2, gross: 44250, fees: 705, refunds: 5000, other: 0 });
+  const csv = `"Date","Transaction description","Reference","From","To","Paid in","Paid out","Transaction type","Status"
+"2026-11-18 09:00:00","PAYOUT REF 991","","STRIPE PAYMENTS UK LTD","","385.45","","FasterPaymentIn","Cleared"
+`;
+  process.env.STRIPE_SECRET_KEY = 'sk_test_x';
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(url);
+    if (/\/payouts\?/.test(url)) return { ok: true, json: async () => ({ data: [{ id: 'po_1', amount: 38545, arrival_date: Date.parse('2026-11-18T00:00:00Z') / 1000 }] }) };
+    return { ok: true, json: async () => ({ data: [{ type: 'charge', amount: 29500, fee: 464 }, { type: 'charge', amount: 14750, fee: 241 }, { type: 'refund', amount: -5000, fee: 0 }] }) };
+  };
+  const c = await T.tideCheck(csv, null, { fetchImpl });
+  delete process.env.STRIPE_SECRET_KEY;
+  assert.equal(c.lines[0].status, 'payout', 'the payer says Stripe even when the words do not');
+  assert.equal(c.lines[0].payout.id, 'po_1');
+  assert.equal(c.lines[0].payout.fees, 705);
+  assert.equal(c.totals.fromStripe, 38545);
+  assert.equal(c.totals.stripeFees, 705);
+  assert.ok(calls.every((u) => u.startsWith('https://api.stripe.com/v1/')));
+});
+
+test('the review: a pending transfer with their reference waits; a refund with no payment here is not settled; savings in a name is not a savings move', async () => {
+  const job = Number((await pool.query(`insert into jobs (site, status, customer_name, customer_postcode, survey_type, survey_price_pence, surveyor, surveyor_fee_pence,
+      date_set, job_date, job_time, tax_bp, lead_bp, lead_earner, partner_a, partner_b) values ('dampscan', 'booked', 'Kim Lee', 'ME19 6AB', 'full-house', 21500, 'ronnie', 10000, true, '2026-11-25', '10:00', 2000, 1500, 'scott', 'tom', 'ben') returning id`)).rows[0].id);
+  const ref = `KIM${String(job).padStart(4, '0')}`;
+  const csv = `"Date","Transaction description","Reference","From","To","Paid in","Paid out","Transaction type","Status"
+"2026-11-20 09:00:00","K LEE ref: ${ref}","${ref}","K LEE","","107.50","","FasterPaymentIn","Pending"
+"2026-11-20 10:00:00","HMRC refund","","HMRC","","40.00","","Refund","Cleared"
+"2026-11-20 11:00:00","J SMITH SAVINGS","","J SMITH SAVINGS","","60.00","","FasterPaymentIn","Cleared"
+`;
+  const c = await T.tideCheck(csv);
+  assert.equal(c.lines[0].status, 'pending');
+  assert.equal(Number((await pool.query('select count(*) from job_payments where job_id = $1', [job])).rows[0].count), 0, 'nothing recorded or texted until it clears');
+  assert.notEqual(c.lines[1].status, 'refund', 'no payment in this statement to pair it with: left for a person');
+  assert.notEqual(c.lines[2].status, 'savings');
+  /* Cleared next time: reconciled then. */
+  const again = await T.tideCheck(csv.replace('"Pending"', '"Cleared"'));
+  assert.equal(again.lines[0].status, 'auto');
+});

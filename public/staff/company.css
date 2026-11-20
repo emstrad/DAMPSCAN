@@ -146,3 +146,6 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .ag-steps{margin:0;padding-left:20px;font-size:13px;color:var(--muted)}
 .ag-brands{margin-bottom:8px}
 .pr-row{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-bottom:1px solid var(--line);align-self:stretch;overflow-wrap:anywhere}
+/* Accountant: the downloads side by side, wrapping on a phone. */
+.acc-dl{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+.acc-dl .btn{flex:1 1 200px;min-height:44px;justify-content:center}
