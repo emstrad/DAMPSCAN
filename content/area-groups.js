@@ -34,11 +34,11 @@ export const areaGroups = {
   },
   ati: {
     groups: [
-      { name: 'Central London', slugs: ['camden', 'chelsea', 'city-of-london', 'islington', 'kensington-and-chelsea', 'lambeth', 'southwark', 'westminster'] },
-      { name: 'North London', slugs: ['barnet', 'enfield', 'haringey'] },
+      { name: 'Central London', slugs: ['camden', 'chelsea', 'city-of-london', 'islington', 'kensington-and-chelsea', 'lambeth', 'southwark', 'westminster', 'highbury', 'whitechapel'] },
+      { name: 'North London', slugs: ['barnet', 'enfield', 'haringey', 'finsbury-park', 'tottenham'] },
       { name: 'East London', slugs: ['barking-and-dagenham', 'hackney', 'havering', 'newham', 'redbridge', 'romford', 'tower-hamlets', 'waltham-forest'] },
-      { name: 'South East London', slugs: ['bexley', 'bromley', 'greenwich', 'lewisham'] },
-      { name: 'South West London', slugs: ['croydon', 'kingston-upon-thames', 'merton', 'richmond-upon-thames', 'sutton', 'wandsworth'] },
+      { name: 'South East London', slugs: ['bexley', 'bromley', 'greenwich', 'lewisham', 'woolwich', 'brockley', 'catford', 'new-cross', 'peckham', 'sidcup', 'bexleyheath'] },
+      { name: 'South West London', slugs: ['croydon', 'kingston-upon-thames', 'merton', 'richmond-upon-thames', 'sutton', 'wandsworth', 'west-norwood'] },
       { name: 'West London', slugs: ['brent', 'ealing', 'hammersmith-and-fulham', 'harrow', 'hillingdon', 'hounslow'] }
     ],
     top: ['romford', 'chelsea', 'kensington-and-chelsea', 'croydon', 'islington', 'havering', 'hackney', 'bromley', 'barnet', 'camden']

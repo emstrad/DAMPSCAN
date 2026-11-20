@@ -64,4 +64,12 @@ test('the booking form step by step: who reached each step and who sent it, damp
   const g = await G.growth();
   assert.deepEqual(g.form.steps, [{ step: 1, n: 4 }, { step: 2, n: 3 }, { step: 3, n: 2 }], 'a session counts once per step');
   assert.equal(g.form.sent, 1);
+  /* The old form, the 30 days before the four-step one went live, as opened and sent only. */
+  const sid = randomUUID();
+  await pool.query("insert into events (session_id, type, detail, site, created_at) values ($1, 'form_step', '{\"step\": 1}', 'dampscan', $2), ($1, 'form_submit', '{}', 'dampscan', $2)", [sid, '2026-11-10T12:00:00Z']);
+  await pool.query("insert into events (session_id, type, detail, site, created_at) values ($1, 'form_step', '{\"step\": 1}', 'dampscan', '2026-11-11T12:00:00Z')", [randomUUID()]);
+  const h = await G.growth();
+  assert.deepEqual(h.form.before, { opened: 2, sent: 1 });
+  assert.equal(h.form.since, '2026-11-16');
+  assert.deepEqual(h.form.steps, g.form.steps, 'old events never muddle the new steps');
 });
