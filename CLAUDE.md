@@ -332,7 +332,11 @@ checks the mechanical ones.
   (`lib/overnight.js`, the owner, 19 Nov 2026: one place to look): enquiries by
   source, money in, booked, reports, emails filed and texts, then every check
   (hourly run, card payments against Stripe, the inbox sweep, email reading),
-  folded, "All sweet" or amber when a check needs a look.
+  folded, "All sweet" or amber when a check needs a look. Beneath it, "Money in"
+  (`lib/money-in.js`, the owner, 20 Nov 2026: payments ticked boxes but nothing
+  showed the flow): every payment of the last 30 days by day, newest first (card,
+  Tide, bank feed, added by hand, refunds as money out, and a tick with no money
+  recorded behind it), each pound once, each row opening the customer card.
 - Code for anything with a right answer, AI only for judgement (the owner, 19 Nov
   2026). The hourly card check (`lib/stripe-check.js`, in report-due) puts every
   Stripe payment of the week beside its survey to the penny, read only: not
