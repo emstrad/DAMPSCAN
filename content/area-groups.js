@@ -30,7 +30,8 @@ export const areaGroups = {
     ],
     /* Search Console: "damp proofing" plus these towns carry the impressions
        (Sevenoaks, Sittingbourne, Chatham, Dover, Maidstone, Tunbridge Wells). */
-    top: ['sevenoaks', 'maidstone', 'sittingbourne', 'chatham', 'dover', 'tunbridge-wells', 'canterbury', 'tonbridge', 'gravesend', 'ashford', 'margate', 'dartford']
+    /* Refreshed 20 Nov 2026 from Search Console (21 Oct to 17 Nov): the pages Google shows most, then the proofing towns. */
+    top: ['thanet', 'dartford', 'folkestone-and-hythe', 'ashford', 'whitstable', 'maidstone', 'sevenoaks', 'sittingbourne', 'chatham', 'dover', 'tunbridge-wells', 'canterbury']
   },
   ati: {
     groups: [
@@ -41,7 +42,8 @@ export const areaGroups = {
       { name: 'South West London', slugs: ['croydon', 'kingston-upon-thames', 'merton', 'richmond-upon-thames', 'sutton', 'wandsworth', 'west-norwood'] },
       { name: 'West London', slugs: ['brent', 'ealing', 'hammersmith-and-fulham', 'harrow', 'hillingdon', 'hounslow'] }
     ],
-    top: ['romford', 'chelsea', 'kensington-and-chelsea', 'croydon', 'islington', 'havering', 'hackney', 'bromley', 'barnet', 'camden']
+    /* Refreshed 20 Nov 2026 from Search Console: Havering, Enfield and Merton sit on page two with the most impressions. */
+    top: ['havering', 'enfield', 'merton', 'croydon', 'greenwich', 'romford', 'islington', 'bexley', 'waltham-forest', 'chelsea', 'kensington-and-chelsea', 'hackney']
   }
 };
 

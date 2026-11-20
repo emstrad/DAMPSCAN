@@ -123,7 +123,7 @@ ${moreSection(p.more)}
     <p>${dpc}</p>
     <p>${cost}</p>${page.buyers ? `\n    <p>${page.buyers}</p>` : ''}
     <p>${after}</p>
-    <p>For the full picture of what a survey here involves, see <a href="${surveyPath}">damp surveys in ${esc(page.name)}</a>.</p>
+    <p>For the full picture of what a survey here involves, see <a href="${surveyPath}">damp surveys in ${esc(page.name)}</a>, and for how we approach treatment everywhere we work, <a href="/services/damp-proofing">damp proofing and when it is needed</a>.</p>
   </section>
 ${page.areas && page.areas.length ? `
   <section class="sec">
