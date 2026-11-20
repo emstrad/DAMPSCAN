@@ -149,10 +149,44 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 /* Accountant: the downloads side by side, wrapping on a phone. */
 .acc-dl{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
 .acc-dl .btn{flex:1 1 200px;min-height:44px;justify-content:center}
-/* Paying yourselves on Pay: a heading, then rows; a claim's miles and Record beneath its month. */
-.pay-self{margin:24px 0 8px}
-.pay-self-h{font-size:16px;margin:0 2px 8px}
-.pay-claim{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 12px}
-.pay-claim .btn{min-height:44px;flex:1 1 160px}
-.pay-miles{width:110px;min-height:44px;font-size:16px}
-.pay-self .c-row small{white-space:normal;overflow:visible}
+/* Paying yourselves on Pay: a hero figure and band bar per director, mileage
+   columns, a score ring with the actions left, and the year as a timeline. One
+   blue ramp, light for the action; amber only past the higher rate. */
+.pay-self{margin:24px 0 8px;display:flex;flex-direction:column;gap:16px}
+.ps-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ps-head h2{font-size:16px;margin:0}
+.ps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.ps-card,.ps-score,.ps-time{border:1px solid var(--line);border-radius:var(--radius);padding:16px;background:var(--slate);display:flex;flex-direction:column;gap:12px;min-width:0}
+.ps-hero small{display:block;color:var(--muted);font-size:13px}
+.ps-hero b{display:block;font-size:34px;line-height:1.1;color:var(--accent-hi);font-variant-numeric:tabular-nums}
+.ps-hero span{color:var(--muted-2);font-size:13px}
+.ps-bar{display:flex;gap:2px;height:22px;border-radius:6px;background:var(--navy-2);overflow:hidden}
+.ps-seg{display:block;height:100%;cursor:pointer;transition:filter .15s ease-out}
+.ps-seg:hover,.ps-seg:focus{filter:brightness(1.25);outline:none}
+.ps-seg.is-salary{background:#35618c}.ps-seg.is-taken{background:#4fa8e8}.ps-seg.is-now{background:#a6dafc}
+.ps-seg.is-room{background:transparent;box-shadow:inset 0 0 0 1px var(--line-strong);border-radius:0 6px 6px 0}
+.ps-over{margin-top:4px;font-size:13px;font-weight:700;color:var(--warn);cursor:pointer}
+.ps-scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted-2);margin-top:4px}
+.ps-read{min-height:20px;font-size:14px;color:var(--text)}
+.ps-mh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ps-mh small,.ps-none{color:var(--muted-2);font-size:13px}
+.ps-cols{display:flex;align-items:flex-end;gap:6px;height:80px;overflow-x:auto}
+.ps-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:28px;min-height:44px;cursor:pointer;flex:1 1 0}
+.ps-col i{display:block;width:100%;max-width:28px;border-radius:4px 4px 0 0}
+.ps-col i.is-claimed{background:#35618c}.ps-col i.is-due{background:#a6dafc}.ps-col i.is-running{background:transparent;box-shadow:inset 0 0 0 1px var(--line-strong)}
+.ps-col small{font-size:11px;color:var(--muted-2)}
+.ps-act{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.ps-act.is-primary{background:var(--accent);border-color:transparent;color:#06121f;font-weight:700}
+.ps-score{flex-direction:row;align-items:center;gap:16px}
+.ps-ring{--p:0;flex:0 0 72px;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(closest-side,var(--slate) 76%,transparent 77%),conic-gradient(var(--good) calc(var(--p) * 1%),var(--navy-2) 0)}
+.ps-ring b{font-size:18px}
+.ps-todo{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.ps-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ps-all summary{cursor:pointer;color:var(--muted);font-size:13px;min-height:24px}
+.ps-step{font-size:13px;color:var(--muted);padding:4px 0}.ps-step.is-done{color:var(--good)}
+.ps-track{position:relative;height:28px;margin:8px 4px 0;border-top:2px solid var(--line-strong)}
+.ps-dot{position:absolute;top:-9px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--slate-2);box-shadow:0 0 0 2px var(--slate),inset 0 0 0 2px var(--accent);cursor:pointer}
+.ps-dot.is-next{background:var(--accent)}.ps-dot.is-soon{box-shadow:0 0 0 2px var(--slate),inset 0 0 0 2px var(--warn)}
+.ps-dot::after{content:'';position:absolute;inset:-14px}
+@media (prefers-reduced-motion:reduce){.ps-seg{transition:none}}

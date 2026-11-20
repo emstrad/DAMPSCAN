@@ -120,7 +120,7 @@ test('remedial work: quoting is a hope, won counts in the payout, Today nudges a
   const won = (await op(boss, { op: 'remedial', id, status: 'won' })).json();
   assert.equal(won.survey.remedial.wonPence, 240000, 'the quoted figure, once won');
   const after1 = (await pool.query('select pay_scott_pence from jobs where id = $1', [id])).rows[0].pay_scott_pence;
-  assert.ok(after1 > before, 'the lead fee on remedial work reaches the payout');
+  assert.ok(after1 > before, 'remedial work won reaches the payout (a lead fee on the old split, a share on the new)');
   await op(boss, won.undo);
   const undone = (await pool.query('select remedial_status, remedial_pence, pay_scott_pence from jobs where id = $1', [id])).rows[0];
   assert.deepEqual([undone.remedial_status, undone.remedial_pence, undone.pay_scott_pence], ['quoting', 0, before]);

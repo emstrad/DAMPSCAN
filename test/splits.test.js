@@ -160,3 +160,13 @@ test('shares (19 Nov 2026): no lead fee, the surveyor fee, then Scott 40, Tom 40
   const bad = calcJob({ surveyPence: 21500, surveyorFeePence: 10000, surveyor: 'tom', shares: { scott: 5000, tom: 4000, ben: 2000 } });
   assert.equal(bad.survey.lead, 2580, 'shares not adding to 100% are ignored, never half applied');
 });
+
+test('on the new split remedial work pays no referral fee: the whole after-tax amount goes by the shares', () => {
+  const shares = { scott: 4000, tom: 4000, ben: 2000 };
+  const c = calcJob({ surveyPence: 29500, surveyorFeePence: 13000, surveyor: 'tom', remedialPence: 400000, shares });
+  assert.equal(c.remedial.lead, 0);
+  assert.equal(c.remedial.settledOffline, 0);
+  assert.deepEqual(c.remedial.byShare, { scott: 128000, tom: 128000, ben: 64000 });
+  const paid = c.pay.scott + c.pay.tom + c.pay.ben;
+  assert.equal(paid, c.distributed, 'every after-tax pound reaches someone');
+});
