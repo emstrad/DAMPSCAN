@@ -149,3 +149,10 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 /* Accountant: the downloads side by side, wrapping on a phone. */
 .acc-dl{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
 .acc-dl .btn{flex:1 1 200px;min-height:44px;justify-content:center}
+/* Paying yourselves on Pay: a heading, then rows; a claim's miles and Record beneath its month. */
+.pay-self{margin:24px 0 8px}
+.pay-self-h{font-size:16px;margin:0 2px 8px}
+.pay-claim{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 12px}
+.pay-claim .btn{min-height:44px;flex:1 1 160px}
+.pay-miles{width:110px;min-height:44px;font-size:16px}
+.pay-self .c-row small{white-space:normal;overflow:visible}
