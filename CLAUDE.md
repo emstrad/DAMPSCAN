@@ -508,7 +508,15 @@ checks the mechanical ones.
   the books (salary each month, dividends in the band, mileage claimed, use of
   home £6 a week, kit through the company, profit under £50,000, the
   accountant's questions) and the dates to act on. Rates for the tax year from
-  6 April 2026 sit in RATES, one edit for a Budget. Nothing from the file is stored but how far the checks reach
+  6 April 2026 sit in RATES, one edit for a Budget. Drawn to glance at, not a
+  tick list (the owner, 20 Nov 2026): per director the dividend to take now as
+  the hero and the 10.75% band as one bar (salary, taken, take now, room; amber
+  past it), mileage as a column a month with one Claim, the steps as a score
+  ring showing only the actions left (log a salary, claim use of home), and the
+  year ahead as a timeline; tap or hover any mark for its figure.
+  Remedial work on the new split (the owner, 20 Nov 2026): no referral fee; the
+  after-tax remedial goes Scott 40, Tom 40, Ben 20 like the survey (lib/splits.js).
+  The old waterfall keeps its lead fee and offline balance. Nothing from the file is stored but how far the checks reach
   (cron_beats bank_check_to). It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
