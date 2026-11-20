@@ -531,10 +531,12 @@ checks the mechanical ones.
   tools stay for older books); the top bar's Money opens Company.
   Growth (`lib/company-growth.js`, `company-growth.js`, `?view=growth`):
   the plan first (`lib/growth-plan.js`, `company-plan.js`, the owner, 20 Nov
-  2026: seven surveyors at ten a week, hiring as demand arrives): four phases
-  in PHASES (20 a week with three surveyors to Mar 2027, 30 with four to Nov
-  2027, 50 with six to 2028, 70 with seven to 2029), surveys a week as columns
-  against the target line, each surveyor's four-week average against ten a
+  2026: seven surveyors at ten a week, hiring as demand arrives; no deadlines,
+  "we can't limit ourselves"): milestones in MILESTONES (20 a week with three
+  surveyors, 30 with four, 50 with six, 70 with seven, 100 with ten), never a
+  date, each reached the first full week its four-week average gets there (the
+  week shown), the next starting at once; surveys a week as columns against the
+  next milestone's line, each surveyor's four-week average against ten a
   week, and "Time to hire a surveyor" (on Overview's Needs you now too) once the
   busiest has done more than eight in each of the last four full weeks;
   cancelled surveys never count. Then Google Ads (this month, last month, the year): the spend logged on
