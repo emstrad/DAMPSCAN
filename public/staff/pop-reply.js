@@ -22,7 +22,7 @@
     var chat = U.node('div', 'rp');
     if (m) {
       var said = U.node('div', 'rp-them');
-      said.appendChild(U.node('p', 'rp-bubble', m.text + (m.text.length >= 120 ? '…' : '')));
+      said.appendChild(U.node('p', 'rp-bubble', m.text));
       if (m.at) said.appendChild(U.node('small', 'rp-meta', 'On their page · ' + when(m.at) + (m.count > 1 ? ' · ' + m.count + ' messages' : '')));
       /* A thank-you needs no answer (the owner, 16 Nov 2026): one tap notes it was read, which takes it
          off Needs you now, with no follow-up date set. */
@@ -38,7 +38,7 @@
     }
     var box = U.node('form', 'rp-box');
     var ta = document.createElement('textarea');
-    ta.rows = 1; ta.maxLength = 600; ta.setAttribute('aria-label', 'Your reply to ' + first); ta.placeholder = 'Reply to ' + first + '…';
+    ta.rows = 1; ta.maxLength = 1000; ta.setAttribute('aria-label', 'Your reply to ' + first); ta.placeholder = 'Reply to ' + first + '…';
     var go = U.node('button', 'rp-send'); go.type = 'submit'; go.innerHTML = SEND; go.setAttribute('aria-label', 'Send text'); go.disabled = true;
     box.appendChild(ta); box.appendChild(go);
     chat.appendChild(box);
