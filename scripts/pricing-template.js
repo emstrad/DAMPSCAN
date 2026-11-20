@@ -10,6 +10,7 @@ import { orCall } from './page-shell.js';
  */
 import { SITES, bookScripts, verifiedBadge, shell } from './area-template.js';
 import { bookForm } from './book-form.js';
+import { heroCta } from './hero-cta.js';
 import { pricing as pricing_ } from '../content/pricing.js';
 import { EXTRAS, pounds } from '../content/prices.js';
 
@@ -82,6 +83,7 @@ export function render(siteKey) {
   <div class="hero">
     <h1>${esc(pricing.h1)}</h1>
     <p class="lede">${esc(pricing.intro)}</p>
+    ${heroCta(site.key)}
   </div>
 
   <p class="price-note"><strong>${esc(pricing.priceLead)}</strong> ${esc(pricing.fixedFee)}</p>
@@ -104,6 +106,7 @@ ${EXTRAS.filter((x) => x.addable).map((x) => `        <tr><th scope="row">${esc(
     </table></div>
     <p class="band-foot">Not sure which you need? Book and tell us what you are
       seeing: we recommend the right one and confirm the fee before we come.</p>
+    <p class="hero-cta"><a class="btn btn--primary" href="#book">${site.key === 'ati' ? 'Request your survey' : 'Book your survey'}</a></p>
   </section>
 
   <section class="sec more">
@@ -129,6 +132,7 @@ ${EXTRAS.map((x) => `      <h3>${esc(x.name)}</h3>
   <section class="sec" id="faq">
     <h2>Questions about the price</h2>
     ${pricing.faq.map((f) => `<details class="qa"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('\n    ')}
+    <p class="hero-cta"><a class="btn btn--primary" href="#book">${site.key === 'ati' ? 'Request your survey' : 'Book your survey'}</a></p>
   </section>`;
 
   const aside = `

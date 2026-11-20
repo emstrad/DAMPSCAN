@@ -79,6 +79,15 @@
     var pick = d.pick, rec = recommended(d), parts = [];
     var narrow = function () { return global.innerWidth <= 980; };
     var grid = el('div', 'ht-need'), left = el('div', 'ht-need-q'), right = el('div', 'ht-need-pick'), wide = el('div', 'ht-need-wide');
+    /* The way out for anyone stuck choosing (20 Nov 2026: about one in five who finished their details left here):
+       Not sure, nothing picked, and on to the end, where we call to help them choose. An agent's buyer has no time step either way. */
+    var skip = el('p', 'ht-skip'), skipBtn = el('button', 'btn btn--ghost', 'Not sure? We\'ll help you choose'); skipBtn.type = 'button';
+    skip.appendChild(skipBtn); box.appendChild(skip);
+    skipBtn.addEventListener('click', function () {
+      if (!has(d, 'Not sure')) d.issues.push('Not sure');
+      pick.service = null; pick.size = null; pick.extras = [];
+      sync(); done(skipBtn);
+    });
     grid.appendChild(left); grid.appendChild(right); box.appendChild(grid); box.appendChild(wide);
     function option(row, b, recKey, why) {
       var t = el('span', 'ht-rec ht-rec--edge', 'Recommended'); t.hidden = true; b.appendChild(t);
