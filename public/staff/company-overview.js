@@ -68,6 +68,5 @@
       var bar = node('div', 'mn-bar mn-bar--thin'), fill = node('i'); fill.style.width = Math.round(100 * x.in / max) + '%'; bar.appendChild(fill); r.appendChild(bar);
       t.appendChild(r);
     });
-    if (d.before && d.before.in) t.appendChild(node('p', 'mn-say', 'Before the company: ' + money(d.before.in) + ', ' + d.before.surveys + ' surveys, in Revolut. Not counted here.'));
   }
 })(window);
