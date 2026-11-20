@@ -1165,6 +1165,12 @@ checks the mechanical ones.
   record: the journal's changes, every email read whole, the next step, open
   questions) and answer_brain_question (yes or no to a brain_asks question,
   only after the person says so). Managers only.
+- The Company pages (`lib/mcp/company-tools.js`, the owner, 20 Nov 2026: a board
+  project that sees everything): company_overview, company_money (month, last
+  month or the company year), pay_book (or one person's statement),
+  paying_yourselves, accountant_view, growth_view and company_week. Read only,
+  owners only as the pages are, the same figures (never a second reckoning),
+  money in pence with a tip saying so.
 - Finding a customer is forgiving everywhere (`lib/find-words.js`: the phone's
   Search, ChatGPT, the enquiry finder): each word in the name, email, phone
   (+44 or spaces), postcode or address, best match wins, a surname an enquiry
