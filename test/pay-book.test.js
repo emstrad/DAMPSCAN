@@ -14,7 +14,7 @@ mock.module('../lib/db.js', { namedExports: { sql: () => { throw new Error('not 
 const P = await import('../lib/pay-book.js');
 
 before(async () => { await pool.query(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8')); });
-beforeEach(async () => { await pool.query('truncate jobs, paid_out restart identity cascade'); await pool.query("update job_settings set tax_bp = 2000, lead_bp = 1500, lead_earner = 'scott', partner_a = 'tom', partner_b = 'ben'"); });
+beforeEach(async () => { await pool.query('truncate jobs, paid_out, expenses restart identity cascade'); await pool.query("update job_settings set tax_bp = 2000, lead_bp = 1500, lead_earner = 'scott', partner_a = 'tom', partner_b = 'ben'"); });
 after(async () => { await pool.query("update job_settings set tax_bp = 2000, lead_bp = 1500, lead_earner = 'scott', partner_a = 'tom', partner_b = 'ben'"); await pool.end(); });
 
 async function survey({ price = 29500, fee = 10000, surveyor = 'ronnie', paid = true, days = -3, status = 'booked' } = {}) {
@@ -138,4 +138,28 @@ test('a survey repriced after booking has its stored split brought up to date', 
   const j = (await pool.query('select pay_scott_pence s, pay_tom_pence t, pay_ben_pence b from jobs where id = $1', [id])).rows[0];
   assert.deepEqual([j.s, j.t, j.b].map(Number), [15280, 34280, 7640]);
   assert.equal((await syncPay()).fixed, 0, 'a quiet run writes nothing');
+});
+
+test('running costs come off before anyone is owed: shared Scott, Tom and Ben by the split, a line a month on each statement', async () => {
+  await pool.query(`update job_settings set shares = '{"scott":4000,"tom":4000,"ben":2000}'`);
+  await survey();
+  const before = await P.payBook();
+  const owed = (b, k) => b.cards.find((c) => c.key === k).owed;
+  await pool.query("insert into expenses (spent_on, amount_pence, category, what) values (current_date, 10000, 'Google Ads', 'November')");
+  /* A cost from before the move belongs to the old business, not the company's split. */
+  await pool.query("insert into expenses (spent_on, amount_pence, category) values ('2026-11-01', 99900, 'Software')");
+  const after = await P.payBook();
+  assert.equal(owed(before, 'scott') - owed(after, 'scott'), 4000);
+  assert.equal(owed(before, 'tom') - owed(after, 'tom'), 4000);
+  assert.equal(owed(before, 'ben') - owed(after, 'ben'), 2000);
+  assert.equal(owed(before, 'ronnie'), owed(after, 'ronnie'), 'Ronnie is paid his fee alone');
+  assert.equal(owed(before, 'tax'), owed(after, 'tax'));
+  assert.equal(after.costs, 10000);
+  assert.equal(after.cards.find((c) => c.key === 'scott').costs, 4000);
+  const st = await P.statement('scott');
+  const line = st.lines.find((l) => l.kind === 'cost');
+  assert.ok(line && line.pence === -4000 && /Running costs, .* \(40% of £100\.00\)/.test(line.what), JSON.stringify(line));
+  assert.equal(st.owed, owed(after, 'scott'), 'the statement and Pay agree');
+  assert.equal((await P.payBook({ book: 'old' })).cards.find((c) => c.key === 'scott').costs, 0, 'the Revolut book is kept as it was paid');
+  await pool.query('update job_settings set shares = null');
 });

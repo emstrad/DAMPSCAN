@@ -73,6 +73,7 @@
       var l = node('span', 'c-l'); l.appendChild(node('b', null, p.name));
       var bits = [];
       if (p.owed < 0) bits.push('Paid ahead');
+      if (p.costs) bits.push(money(p.costs) + ' costs off');
       if (p.coming) bits.push(money(p.coming) + ' coming');
       if (p.lastPaid) bits.push('Last paid ' + day(p.lastPaid.day));
       if (bits.length) l.appendChild(node('small', null, bits.join(' · ')));
@@ -170,7 +171,7 @@
     if (!dlg.open) dlg.showModal();
 
     function line(l, old) {
-      var row = node('div', 'pay-line' + (l.kind === 'paid' ? ' is-out' : '') + (old ? ' is-old' : ''));
+      var row = node('div', 'pay-line' + (l.kind === 'paid' || l.kind === 'cost' ? ' is-out' : '') + (old ? ' is-old' : ''));
       var left = node('div'); var what = node('span', 'pay-line-what', l.what); what.appendChild(via(l.via)); left.appendChild(what); left.appendChild(node('small', null, day(l.day) + (l.by ? ', by ' + l.by : '')));
       row.appendChild(left);
       var right = node('div', 'pay-line-amt'); right.appendChild(node('b', null, (l.pence > 0 ? '+' : '') + money(l.pence))); right.appendChild(node('small', null, money(l.balance)));
