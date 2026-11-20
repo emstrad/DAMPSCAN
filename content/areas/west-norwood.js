@@ -25,7 +25,7 @@ export default {
   coverage:
     'We survey across SE27, from Tulse Hill and Knights Hill through West Norwood to the slopes of Gipsy Hill and the Norwood ridge.',
   places: ['West Norwood', 'Tulse Hill', 'Gipsy Hill', 'Knights Hill', 'Upper Norwood', 'West Dulwich', 'Crown Point', 'Streatham'],
-  districts: ['SE27'],
+  districts: ['SE27', 'SE19'],
   towns: [
     { name: 'West Norwood', text: 'Victorian terraces and villas around Norwood Road and the cemetery, many converted, on the valley floor. Water collecting at rear walls and clay movement cracks are typical.' },
     { name: 'Tulse Hill', text: 'Steep streets of Victorian and Edwardian houses and council estates on the hill. Retained gardens and dug in floors give side water, and the estates see condensation and cold walls.' },

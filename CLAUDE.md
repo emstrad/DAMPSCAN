@@ -1110,5 +1110,9 @@ checks the mechanical ones.
 
 ## SEO
 - Town pages use the place names people type, for both "damp survey" and
-  "damp proofing" where relevant. Do not add prices to titles. DampScan sells
+  "damp proofing" where relevant. London has neighbourhood pages beside the
+  borough ones (content/areas, the owner, 20 Nov 2026: enquiries come from
+  Woolwich, Brockley, Sidcup and the like, which nobody searches as a borough),
+  each with its own housing stock and postcode districts, never a copy of its
+  borough's words. Do not add prices to titles. DampScan sells
   survey and report only, so its pages never promise remedial work.

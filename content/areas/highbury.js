@@ -25,7 +25,7 @@ export default {
   coverage:
     'We survey across Highbury and Canonbury, from Highbury Corner and the Fields up to Highbury Barn and across to Newington Green.',
   places: ['Highbury Fields', 'Highbury Corner', 'Highbury Barn', 'Highbury New Park', 'Canonbury', 'Drayton Park', 'Newington Green', 'Mildmay'],
-  districts: ['N5'],
+  districts: ['N5', 'N1'],
   towns: [
     { name: 'Highbury Fields and Highbury Hill', text: 'Tall Victorian terraces and villas facing the open ground, most divided into flats. Front steps, areas and vaults feed damp into the semi basements, and the long rear walls catch the weather above lower extension roofs.' },
     { name: 'Canonbury', text: 'Georgian and Regency squares and terraces in conservation areas, with parapets, butterfly roofs and stucco. Central valley gutters and cracked stucco account for most of the water we find, often well away from where it shows.' },
