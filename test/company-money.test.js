@@ -33,8 +33,10 @@ test('corporation tax: 19% small, 25% main, marginal relief between', () => {
   /* £100,000: 25% less 3/200 of (£250,000 - £100,000) = £25,000 - £2,250. */
   assert.equal(M.corpTax(10000000), 2275000);
   assert.equal(M.marginalRate(10000000), 0.265);
-  assert.equal(M.yearStart('2026-11-15'), '2025-12-01');
-  assert.equal(M.yearStart('2026-12-02'), '2026-12-01');
+  /* The first company year runs from incorporation to 30 Nov 2027, then December to November. */
+  assert.equal(M.yearStart('2026-11-15'), '2026-11-10');
+  assert.equal(M.yearStart('2027-11-30'), '2026-11-10');
+  assert.equal(M.yearStart('2027-12-02'), '2027-12-01');
 });
 
 test('costs: Ronnie and Ben shares, card fees, salaries and expenses; profit is what is left', async () => {
@@ -66,4 +68,30 @@ test('expenses: a sensible amount and category, our own receipt paths only, remo
   assert.equal((await M.removeExpense(ok.id, 'Tom')).ok, true);
   assert.ok((await M.removeExpense(ok.id, 'Tom')).error);
   assert.equal((await M.moneyView({})).expenses.length, 1);
+});
+
+test('company money only: the Revolut book stays out; who gets what adds up; card fees and the tax pot', async () => {
+  const id = await survey(44400, 13000);
+  await pool.query("insert into job_payments (job_id, amount_pence, label, external_ref, fee_pence) values ($1, 44400, 'payment', 'stripe:pi_w', 690)", [id]);
+  /* Paid into Revolut before the move: the business before the company. */
+  await pool.query(`insert into jobs (site, status, customer_name, survey_type, survey_price_pence, surveyor, surveyor_fee_pence, date_set, job_date, job_time, paid_at, deposit_paid_at,
+      tax_bp, lead_bp, lead_earner, partner_a, partner_b)
+    values ('ati-london', 'completed', 'Old Revolut', 'full-house', 29500, 'tom', 13000, true, '2026-11-01', '10:00', '2026-11-02 12:00+00', '2026-11-01 12:00+00', 2000, 1500, 'scott', 'tom', 'ben')`);
+  await pool.query("insert into paid_out (person_key, amount_pence, paid_on, how, book) values ('tax', 5000, current_date, 'Moved to tax savings', 'new')");
+  const v = await M.moneyView({ from: '2026-01-01', withCards: true, fetchImpl: async () => { throw new Error('offline'); } });
+  assert.equal(v.from, '2026-11-10', 'nothing before the company started');
+  assert.equal(v.period.in, 44400);
+  assert.equal(v.before.in, 29500);
+  assert.equal(v.before.surveys, 1);
+  assert.equal(v.vat.rolling, 44400);
+  assert.equal(v.vat.before, 29500);
+  assert.equal(v.flow.check, 0, 'money in less fees is exactly tax, surveyor fees and shares');
+  const ronnie = v.who.find((p) => p.key === 'ronnie');
+  assert.equal(ronnie.fees, 13000);
+  assert.equal(ronnie.surveys, 1);
+  assert.equal(v.cards.taken, 44400);
+  assert.equal(v.cards.fees, 690);
+  assert.equal(v.cards.feeMissing, 0);
+  assert.equal(v.tax.inPot, 5000);
+  assert.equal(v.tax.toMove, v.tax.setAside - 5000);
 });

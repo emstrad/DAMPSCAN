@@ -39,9 +39,11 @@
     if (d.attention.length) now.appendChild(rows);
 
     var m = d.month, grid = node('div', 'mn-tiles');
-    tile(grid, 'Money in, ' + m.name, money(m.in), m.lastName + ' ' + money(m.lastIn));
-    tile(grid, 'Surveys paid', String(m.surveys), m.lastName + ' ' + m.lastSurveys);
-    tile(grid, 'Profit', money(m.profit), m.lastName + ' ' + money(m.lastProfit), m.profit < 0 ? 'is-bad' : '');
+    /* Last month before the company started has no company money to compare. */
+    var was = function (v) { return m.lastBefore ? 'company started ' + day(d.start) : m.lastName + ' ' + v; };
+    tile(grid, 'Money in, ' + m.name, money(m.in), was(money(m.lastIn)));
+    tile(grid, 'Surveys paid', String(m.surveys), was(m.lastSurveys));
+    tile(grid, 'Profit', money(m.profit), was(money(m.lastProfit)), m.profit < 0 ? 'is-bad' : '');
     tile(grid, 'Enquiries', String(m.enquiries), m.booked + ' booked; ' + m.lastName + ' ' + m.lastEnquiries);
     sec('This month').appendChild(grid);
 
@@ -57,7 +59,7 @@
     tile(yt, 'Corp tax on that', money(p.projTax));
     y.appendChild(yt);
 
-    var t = sec('Last six months');
+    var t = sec(d.months.length < 6 ? 'Since the company started' : 'Last six months');
     var max = Math.max.apply(null, d.months.map(function (x) { return x.in; }).concat([1]));
     d.months.forEach(function (x) {
       var r = node('div', 'mn-cost');
@@ -66,5 +68,6 @@
       var bar = node('div', 'mn-bar mn-bar--thin'), fill = node('i'); fill.style.width = Math.round(100 * x.in / max) + '%'; bar.appendChild(fill); r.appendChild(bar);
       t.appendChild(r);
     });
+    if (d.before && d.before.in) t.appendChild(node('p', 'mn-say', 'Before the company: ' + money(d.before.in) + ', ' + d.before.surveys + ' surveys, in Revolut. Not counted here.'));
   }
 })(window);

@@ -39,8 +39,9 @@ test('needs you now: people owed, money to collect, salaries and ad spend not lo
   assert.equal(o.month.surveys, 1);
   assert.equal(o.ahead.surveys, 1);
   assert.equal(o.ahead.pence, 29500);
-  assert.equal(o.months.length, 6);
-  assert.equal(o.months[5].in, 29500);
+  assert.ok(o.months.length >= 1 && o.months.length <= 6, 'only months since the company started');
+  assert.ok(o.months.every((m) => m.month >= '2026-11'));
+  assert.equal(o.months[o.months.length - 1].in, 29500);
   assert.ok(o.projection.projIn >= o.projection.yearIn);
 });
 
