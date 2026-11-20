@@ -23,6 +23,7 @@ import { reviews } from '../content/reviews/index.js';
 import { MIN_REVIEWS } from '../lib/google-reviews.js';
 import { areas } from '../content/areas/index.js';
 import { topAreas } from '../content/area-groups.js';
+import { proofingPages } from './proofing-pages.js';
 
 
 const esc = (value) =>
@@ -131,6 +132,23 @@ function whereBlock(service, site, hub) {
 `;
 }
 
+/* The damp proofing page is the topic's hub, so it links to every town's own
+   damp proofing page and each links back (20 Nov 2026: Search Console showed
+   "damp proofing kent" at 46 and the forty town pages linked from nowhere). */
+function proofingBlock(service, site, hub) {
+  if (hub !== SERVICES_HUB || service.slug !== 'damp-proofing') return '';
+  const list = proofingPages.filter((p) => p.site === site.key);
+  if (!list.length) return '';
+  return `
+  <section class="sec">
+    <h2>Damp proofing advice by ${site.key === 'ati' ? 'borough' : 'town'}</h2>
+    <ul class="chips">
+      ${list.map((p) => `<li><a href="/damp-proofing/${p.slug}">${esc(p.name)}</a></li>`).join('\n      ')}
+    </ul>
+  </section>
+`;
+}
+
 function schema(type, extra) {
   return JSON.stringify({ '@context': 'https://schema.org', '@type': type, ...extra });
 }
@@ -210,7 +228,7 @@ ${signsBlock(service)}  ${service.sections.map((s) => `<section class="sec">
     ${s.paras.map((p) => `<p>${p}</p>`).join('\n    ')}${sectionList(s)}
   </section>`).join('\n\n  ')}
 
-${priceBlock(service)}${reviewsBlock(service, site)}${workNear(service, site)}${whereBlock(service, site, hub)}  <section class="sec" id="faq">
+${priceBlock(service)}${reviewsBlock(service, site)}${workNear(service, site)}${proofingBlock(service, site, hub)}${whereBlock(service, site, hub)}  <section class="sec" id="faq">
     <h2>Questions</h2>
     ${service.faq.map((f) => `<details class="qa"><summary>${esc(f.q)}</summary><p>${f.a}</p></details>`).join('\n    ')}
   </section>
