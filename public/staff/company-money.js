@@ -40,8 +40,8 @@
     tiles.appendChild(tile('Profit', money(p.profit), p.in ? Math.round(100 * p.profit / p.in) + '% of money in' : '', p.profit < 0 ? 'is-bad' : ''));
     tiles.appendChild(tile('Corp tax this year', money(d.tax.estimate), 'on ' + money(d.tax.profit) + ' profit since ' + day(d.tax.yearFrom)));
     box.appendChild(tiles);
-    /* The company's money only; the business before it is one line, never mixed in. */
-    box.appendChild(node('p', 'mn-say', 'Company money from ' + day(d.start) + ' (Tide and Stripe).' + (d.before && d.before.in ? ' Before the company: ' + money(d.before.in) + ', ' + d.before.surveys + ' surveys, in Revolut.' : '')));
+    /* The company's money only, from its start (the old book is viewed on Pay alone, the owner, 20 Nov 2026). */
+    box.appendChild(node('p', 'mn-say', 'From ' + day(d.start) + '.'));
 
     P.flow(d, section, money);
     P.who(d, section, money);
@@ -54,7 +54,6 @@
     var bar = node('div', 'mn-bar'), fill = node('i'); fill.style.width = pc + '%'; if (pc >= 80) bar.classList.add('is-near'); bar.appendChild(fill); v.appendChild(bar);
     v.appendChild(node('p', 'mn-say', money(d.vat.rolling) + ' of ' + money(d.vat.limit) + ' in the last 12 months (' + pc + '%), counted from ' + day(d.start) + '.'));
     v.appendChild(node('p', 'mn-say' + (pc >= 80 || d.vat.over ? ' is-bad' : ''), d.vat.over ? 'Over the threshold: register for VAT with your accountant now.' : d.vat.crossOn ? 'At ' + money(d.vat.perMonth) + ' a month you would reach it around ' + month(d.vat.crossOn) + '.' : 'Not enough work yet to project.'));
-    if (d.vat.before) v.appendChild(node('p', 'mn-say', 'Before the company, last 12 months: ' + money(d.vat.before) + '. Ask the accountant whether it counts.'));
 
     /* Costs: every line, biggest first, with the expenses log beneath. */
     var c = section('Costs');

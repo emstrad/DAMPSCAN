@@ -446,8 +446,8 @@ checks the mechanical ones.
   counted Revolut money): Damp Surveying Limited was incorporated on 10 Nov 2026
   (`lib/company-start.js`), its first year runs to 30 Nov 2027, and its money is
   the Tide and Stripe book; the Revolut book is the business before the company,
-  one line of its own on Money and Overview, never in profit, tax, VAT (shown
-  beside it for the accountant) or the months. Money also shows where the money
+  viewed on Pay alone while the move finishes, never named on Money, Overview or
+  Accountant and never in profit, tax, VAT or the months (the owner, 20 Nov 2026). Money also shows where the money
   went (in, card fees, tax pot, surveyor fees, shared, to the penny), who gets
   what (each person's fees and share, owed now, opening their statement), card
   payments (taken, Stripe fees and rate, refunds, paid into Tide and still in
@@ -488,7 +488,7 @@ checks the mechanical ones.
   `company-accountant.js`, `?view=accountant`, the owner, 20 Nov 2026): what to
   put right first (dividends over profit after tax, a director paid ahead of his
   share, a salary over the personal allowance, costs with no receipt, the bank
-  check, the Revolut book still owed, the VAT threshold), every filing and payment
+  check, the VAT threshold), every filing and payment
   date by the rules (the first long year is two corporation tax periods; month
   ends as HMRC counts them), the year's figures, the questions only the
   accountant can answer, and the records as a CSV (income with card fees,
@@ -516,7 +516,8 @@ checks the mechanical ones.
   year ahead as a timeline; tap or hover any mark for its figure.
   Remedial work on the new split (the owner, 20 Nov 2026): no referral fee; the
   after-tax remedial goes Scott 40, Tom 40, Ben 20 like the survey (lib/splits.js).
-  The old waterfall keeps its lead fee and offline balance. Nothing from the file is stored but how far the checks reach
+  The old waterfall keeps its lead fee and offline balance. Remedial work is not
+  sold today; the code stays for when it is. Nothing from the file is stored but how far the checks reach
   (cron_beats bank_check_to). It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.
