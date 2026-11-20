@@ -730,7 +730,10 @@ checks the mechanical ones.
   as they are): a week strip, the chosen day lane by surveyor (`lib/dispatch.js`:
   hours, surveys with the drive to the next, holds, free starts to tap or drop
   a card on), the To book board, and After the visit (surveyed not paid; paid,
-  report to send). A survey opens the same job pop-up as Today.
+  report to send). A survey opens the same job pop-up as Today. Under each free
+  start, the first name and district of everyone waiting whose best times
+  include it (a snug 10:30 on its hour), each a tap to book them there (the
+  owner, 24 Nov 2026).
 - No map on Scheduling (the owners found it clutter). Each card to book shows the times to offer, best first, with why
   (`lib/best-fit.js`): who has hours, who is already near that day, then the
   start adding least driving, snug after the survey before; no drive over 75

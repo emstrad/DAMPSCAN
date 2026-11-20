@@ -93,7 +93,20 @@
         b.addEventListener('dragover', function (e) { e.preventDefault(); b.classList.add('is-over'); });
         b.addEventListener('dragleave', function () { b.classList.remove('is-over'); });
         b.addEventListener('drop', function (e) { e.preventDefault(); b.classList.remove('is-over'); opts.dropOn(e.dataTransfer.getData('text/plain'), slot); });
-        return b;
+        /* Whoever is waiting and has this exact start among their best times (20 Nov 2026: see the right
+           people on the day, not only on their cards): their names beneath, a tap books them here. */
+        var fit = opts.fits ? opts.fits(slot) : [];
+        if (!fit.length) return b;
+        var wrap = U.node('div', 'dsp-free-wrap'); wrap.appendChild(b);
+        var who = U.node('div', 'dsp-fits');
+        fit.forEach(function (c) {
+          var n = U.node('button', 'dsp-fit', (c.name || 'No name').split(' ')[0] + (c.postcode ? ', ' + String(c.postcode).split(' ')[0] : '')); n.type = 'button';
+          n.setAttribute('aria-label', 'Book ' + (c.name || 'them') + ' at ' + t + ' with ' + cap(l.surveyor));
+          n.addEventListener('click', function () { opts.book(c, slot); });
+          who.appendChild(n);
+        });
+        wrap.appendChild(who);
+        return wrap;
       } });
     });
     rows.sort(function (a, b) { return a.at - b.at; }).forEach(function (r) { box.appendChild(r.draw()); });

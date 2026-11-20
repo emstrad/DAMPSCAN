@@ -238,6 +238,13 @@
     reload: function () { load(); },
     go: function (d, w) { view.day = d; view.week = w; load(); },
     book: function (c, slot) { openBook(c, slot); },
+    /* The customers waiting whose best times include this start (lib/best-fit.js, already on each card). */
+    fits: function (slot) {
+      return ((data && data.cards) || []).filter(function (c) {
+        /* Free starts are on the hour; a snug best time (10:30 after a survey) shows on its hour's start. */
+        return (c.best || []).some(function (b) { return b.date === slot.date && b.surveyor === slot.surveyor && String(b.time).slice(0, 2) === String(slot.time).slice(0, 2); });
+      });
+    },
     focusCard: function (kind, id) { if (global.DSSCHVIEW) global.DSSCHVIEW.show('book'); var n = document.getElementById(kind + '-' + id); if (n) { n.scrollIntoView({ block: 'center' }); n.classList.add('is-hit'); } },
     /* A board card dropped on a free start books that card at that time. */
     dropOn: function (ref, slot) {
