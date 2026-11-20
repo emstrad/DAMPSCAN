@@ -109,7 +109,11 @@
     /* The booking form step by step, last 30 days: who reached each step and how many left there. */
     var fs = sec('Booking form, last 30 days');
     var form = d.form || { steps: [], sent: 0 };
-    var rungs = form.steps.map(function (x) { return ['Step ' + x.step, x.n]; }).concat([['Sent', form.sent]]);
+    /* The four-step form: sent goes with the survey step, and an agent or outside our area has no time step. */
+    var NAMES = { 1: 'Opened the form', 2: 'Details done', 3: 'Survey chosen, sent', 4: 'Time picked' };
+    var rungs = form.steps.filter(function (x) { return NAMES[x.step]; }).map(function (x) { return [NAMES[x.step], x.n]; });
+    var opened = (form.steps[0] || {}).n || 0, b = form.before || {};
+    if (b.opened) fs.appendChild(node('p', 'mn-say', 'Opened to sent: ' + pc(form.sent, opened) + ' now, ' + pc(b.sent, b.opened) + ' on the old form (' + b.sent + ' of ' + b.opened + ').'));
     if (!form.steps.length) fs.appendChild(node('p', 'mn-say', 'None yet.'));
     else {
       var top = rungs[0][1] || 1;
