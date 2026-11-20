@@ -13,12 +13,14 @@ mock.module('../lib/db.js', { namedExports: { sql: () => { throw new Error('not 
 const M = await import('../lib/mileage.js');
 const S = await import('../lib/pay-self.js');
 
-before(async () => { await pool.query(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8')); });
+before(async () => { saved = (await pool.query('select tax_bp, lead_bp, shares from job_settings')).rows[0]; await pool.query(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8')); });
 beforeEach(async () => {
   await pool.query('truncate jobs, paid_out, expenses restart identity cascade');
   await pool.query("update job_settings set tax_bp = 2000, lead_bp = 0, shares = '{\"scott\":4000,\"tom\":4000,\"ben\":2000}'");
 });
-after(async () => { await pool.query('update job_settings set lead_bp = 1500, shares = null'); await pool.end(); });
+/* Settings put back exactly as found: other test files read them. */
+let saved;
+after(async () => { await pool.query('update job_settings set tax_bp = $1, lead_bp = $2, shares = $3::jsonb', [saved.tax_bp, saved.lead_bp, saved.shares ? JSON.stringify(saved.shares) : null]); await pool.end(); });
 
 test('bands, mileage rates and the tax year, worked by hand', () => {
   /* £12,570 salary and £30,000 dividends: £500 free, £29,500 at 10.75%, £7,700 of the band left. */
