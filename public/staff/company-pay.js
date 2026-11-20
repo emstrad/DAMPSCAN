@@ -15,7 +15,8 @@
   var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
   var BRAND = { dampscan: 'DampScan', 'ati-london': 'ATi' };
   /* The company year runs to 30 November. */
-  var yearStart = function () { var y = Number(today.slice(0, 4)), m = Number(today.slice(5, 7)); return (m === 12 ? y : y - 1) + '-12-01'; };
+  /* The company year: its first from incorporation (10 Nov 2026) to 30 Nov 2027, then December to November. */
+  var yearStart = function () { if (today <= '2027-11-30') return '2026-11-10'; var y = Number(today.slice(0, 4)), m = Number(today.slice(5, 7)); return (m === 12 ? y : y - 1) + '-12-01'; };
   var monthStart = function (back) { var d = new Date(today + 'T12:00:00Z'); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - back); return d.toISOString().slice(0, 10); };
   var monthEnd = function (back) { var d = new Date(monthStart(back - 1) + 'T12:00:00Z'); d.setUTCDate(0); return d.toISOString().slice(0, 10); };
   var RANGES = [['month', 'This month', function () { return [monthStart(0), null]; }], ['last', 'Last month', function () { return [monthStart(1), monthEnd(1)]; }],

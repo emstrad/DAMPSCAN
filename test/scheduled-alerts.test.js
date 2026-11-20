@@ -130,6 +130,8 @@ test('the Monday summary counts the week, goes once, and only on a London Monday
 
   await lead({ stage: 'complete', email: 'a@example.com' });
   await lead({ email: 'b@example.com' });
+  /* A damp enquiry waiting to be booked: the briefing has something of its own to say. */
+  await lead({ site: 'dampscan', stage: 'complete', email: 'c@example.com', postcode: 'ME19 6AB' });
   const won = await job({ status: 'booked', net: P(1000) });
   await pool.query('insert into job_payments (job_id, amount_pence) values ($1, $2)', [won, P(500.6)]);
   await pool.query('insert into job_ratings (job_id, stars) values ($1, 5)', [won]);

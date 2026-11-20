@@ -22,6 +22,10 @@ const job = (days, paid) => pool.query(`insert into jobs (site, status, customer
   values ('dampscan', $2, 'Kim Lee', 'ME19 6AB', 'full-house', 29500, 'ronnie', 10000, true, current_date + $1::int, '10:00', $3, 2000, 1500, 'scott', 'tom', 'ben')`,
   [days, days > 0 ? 'booked' : 'completed', paid ? new Date() : null]);
 
+/* Last month's salaries, ad spend and bank check are asked for only once last month was the company's. */
+const lastEnd = (() => { const e = new Date(); e.setUTCDate(0); return e.toISOString().slice(0, 10); })();
+const companyMonth = lastEnd >= '2026-11-10';
+
 test('needs you now: people owed, money to collect, salaries and ad spend not logged', async () => {
   await job(-2, true);
   await job(-1, false);
@@ -32,8 +36,8 @@ test('needs you now: people owed, money to collect, salaries and ad spend not lo
   assert.ok(owed && /Ronnie £100/.test(owed.sub || owed.text), says.join(' | '));
   assert.ok(owed.figure, 'the amount sits at the right of its row');
   assert.ok(says.some((t) => /^1 survey done, £295 to collect$/.test(t)));
-  assert.ok(says.some((t) => /^No salary recorded for Scott and Tom in /.test(t)), 'the two salaries are one row');
-  assert.ok(says.some((t) => /^No Google Ads spend logged for /.test(t)));
+  assert.equal(says.some((t) => /^No salary recorded for Scott and Tom in /.test(t)), companyMonth, 'the two salaries are one row');
+  assert.equal(says.some((t) => /^No Google Ads spend logged for /.test(t)), companyMonth);
   assert.equal(owed.tab, 'pay');
   assert.equal(o.month.in, 29500);
   assert.equal(o.month.surveys, 1);
@@ -48,8 +52,8 @@ test('needs you now: people owed, money to collect, salaries and ad spend not lo
 test('once paid out and logged, those items go', async () => {
   await job(-2, true);
   const o1 = await O.overview();
-  assert.ok(o1.attention.find((a) => /No salary recorded for Scott/.test(a.text)));
-  if (new Date().getUTCDate() >= 3) assert.ok(o1.attention.find((a) => /^Bank check for \w+ not done$/.test(a.text) && a.tab === 'bank'));
+  assert.equal(Boolean(o1.attention.find((a) => /No salary recorded for Scott/.test(a.text))), companyMonth);
+  if (companyMonth && new Date().getUTCDate() >= 3) assert.ok(o1.attention.find((a) => /^Bank check for \w+ not done$/.test(a.text) && a.tab === 'bank'));
   const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); const day = d.toISOString().slice(0, 10);
   await pool.query("insert into paid_out (person_key, amount_pence, paid_on, how) values ('scott', 104750, $1, 'Salary'), ('tom', 104750, $1, 'Salary'), ('ronnie', 10000, current_date, 'Bank transfer')", [day]);
   await pool.query("insert into expenses (spent_on, amount_pence, category) values ($1, 20000, 'Google Ads')", [day]);
