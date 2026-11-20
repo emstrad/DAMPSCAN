@@ -496,7 +496,19 @@ checks the mechanical ones.
   days and the worst checks go on Overview's Needs you now. Growth keeps the
   trading year (from 1 December) for its marketing figures; Week counts the new
   book only; last month's salary, ads and bank check are asked for only once last
-  month was the company's. Nothing from the file is stored but how far the checks reach
+  month was the company's.
+  Paying yourselves (`lib/pay-self.js`, `lib/mileage.js`, `company-pay-self.js`,
+  on Pay, `?view=self`, the owner, 20 Nov 2026): Scott's and Tom's tax year
+  (salary, dividends, the band left at 10.75% and "take now", the least of that,
+  what Pay owes them and what the company can pay from profit after tax;
+  assumes no other income), mileage from the surveys they drove (home, each
+  survey, home; straight line times 1.33; 45p then 25p after 10,000 miles in the
+  tax year), typed over if need be and recorded as a Mileage cost ("Tom
+  2026-11: 412 miles") so the bank check matches it, the seven steps ticked from
+  the books (salary each month, dividends in the band, mileage claimed, use of
+  home £6 a week, kit through the company, profit under £50,000, the
+  accountant's questions) and the dates to act on. Rates for the tax year from
+  6 April 2026 sit in RATES, one edit for a Budget. Nothing from the file is stored but how far the checks reach
   (cron_beats bank_check_to). It replaced the Bank
   page (bank.html redirects to it; the Revolut feed code and ChatGPT's bank
   tools stay for older books); the top bar's Money opens Company.

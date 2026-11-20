@@ -13,7 +13,7 @@
   var money = function (p) { var n = Math.abs(Number(p) || 0); return '£' + (n / 100).toLocaleString('en-GB', { minimumFractionDigits: n % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
   var day = function (d) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }); };
   /* Where an unlogged payment out can go: a cost, or a payment to someone on Pay. */
-  var COSTS = ['Google Ads', 'Bank fees', 'Software', 'Equipment', 'Insurance', 'Vehicle and fuel', 'Phone', 'Accountant', 'Other'];
+  var COSTS = ['Google Ads', 'Bank fees', 'Software', 'Equipment', 'Insurance', 'Vehicle and fuel', 'Mileage', 'Use of home', 'Phone', 'Accountant', 'Other'];
   var PAYS = [['scott', 'Salary', 'Scott: salary'], ['scott', 'Dividend', 'Scott: dividend'], ['tom', 'Salary', 'Tom: salary'], ['tom', 'Dividend', 'Tom: dividend'],
     ['ben', 'Bank transfer', 'Ben'], ['ronnie', 'Bank transfer', 'Ronnie'], ['tax', 'Moved to tax savings', 'Tax savings'], ['tax', 'Paid to HMRC', 'Paid to HMRC']];
   var state = { text: null, name: '', data: null, error: '', drawn: false, busy: false, skipped: [] };
