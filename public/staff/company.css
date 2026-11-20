@@ -190,3 +190,14 @@ a.pill{display:inline-flex;align-items:center;text-decoration:none}
 .ps-dot.is-next{background:var(--accent)}.ps-dot.is-soon{box-shadow:0 0 0 2px var(--slate),inset 0 0 0 2px var(--warn)}
 .ps-dot::after{content:'';position:absolute;inset:-14px}
 @media (prefers-reduced-motion:reduce){.ps-seg{transition:none}}
+/* The plan on Growth: the phase as the hero, surveys a week against a target line, each surveyor against ten a week. */
+.pl-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px}
+.pl-chart{position:relative;display:flex;align-items:flex-end;gap:6px;height:130px;overflow-x:auto}
+.pl-chart .ps-col{min-height:0}.pl-chart .ps-col small{line-height:14px;height:14px;white-space:nowrap}
+.pl-chart .ps-col i{max-width:32px}
+.pl-target{position:absolute;left:0;right:0;height:0;border-top:2px dashed var(--good);pointer-events:none}
+.pl-loads{display:flex;flex-direction:column;gap:8px}
+.pl-load{display:grid;grid-template-columns:64px 1fr 48px;align-items:center;gap:8px;min-height:44px}
+.pl-name{font-size:14px;color:var(--muted)}.pl-num{font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+.pl-load .ps-bar{height:14px}
+.ps-seg.is-over{background:var(--warn)}

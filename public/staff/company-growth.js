@@ -68,6 +68,8 @@
     try { d = await U.get('/api/admin/pay?view=growth'); } catch (e) { box.textContent = 'Growth is for the owners.'; return; }
     loaded = true; box.textContent = '';
     var sec = function (title) { var s = node('section', 'mn-sec'); s.appendChild(node('h2', null, title)); box.appendChild(s); return s; };
+    /* The plan first: where we are against the phase, each surveyor's load, and when to hire. */
+    if (global.DSPLAN) global.DSPLAN(box, d.plan);
     var tile = function (into, label, value, sub, cls) { var t = node('div', 'mn-tile' + (cls ? ' ' + cls : '')); t.appendChild(node('small', null, label)); t.appendChild(node('b', null, value)); if (sub) t.appendChild(node('span', null, sub)); into.appendChild(t); };
 
     /* Google Ads, with the period picked by pill: this month, last month, the year. */
