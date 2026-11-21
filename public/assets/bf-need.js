@@ -150,7 +150,11 @@
     box.appendChild(promise);
     var bar = el('div', 'ht-total'), sum = el('div'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
     bar.appendChild(sum); bar.appendChild(go); box.appendChild(bar);
-    go.addEventListener('click', function () { if (!go.disabled) done(go); });
+    /* Never greyed out (the owner, 21 Nov 2026): with nothing picked it decides for them, the recommended survey and size, then on to the times. */
+    go.addEventListener('click', function () {
+      if (!d.unsure && !(pick.service && pick.size)) { pick.service = pick.service || rec.service || 'damp'; pick.size = pick.size || rec.size || 'full-house'; sync(); }
+      done(go);
+    });
 
     function sync() {
       rec = recommended(d);
@@ -180,8 +184,10 @@
         sum.appendChild(el('span', null, d.agent || d.outside ? 'Nothing to pay now. We\'ll confirm the time first' : '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
       } else sum.appendChild(el('span', null, lost ? 'No need to pick: we\'ll call to help you choose' : 'Your total shows here'));
       /* The tiles help, but are never a must (the owner, 16 Nov 2026): a survey and size they already know is enough to book. */
-      var missing = lost ? '' : !pick.service ? (d.issues.length ? 'Pick your survey' : 'Tick what you\'re dealing with') : !pick.size ? 'Pick a size' : '';
-      go.textContent = missing || (lost ? 'Continue' : d.agent || d.outside ? 'Send my details' : 'Choose a time'); go.disabled = Boolean(missing);
+      var send = d.agent || d.outside;
+      var decide = !lost && !(pick.service && pick.size);
+      go.textContent = lost ? 'Continue' : decide ? (send ? 'Decide for me and send my details' : 'Decide for me and pick a time') : send ? 'Send my details' : 'Choose a time';
+      go.disabled = false;
     }
     sync();
   }

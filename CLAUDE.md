@@ -736,9 +736,13 @@ checks the mechanical ones.
   the box's edge (nothing before a tick; the drone for a leak or an agent, the
   camera for timber, never the cavity check, which a tile cannot tell; never
   ticked for them), and each (i) a floating note, a sheet from the bottom on a
-  phone, with why it is recommended; the total, deposit and what is still
-  missing pinned to the bottom of the screen, the real rules beside it (50%
-  deposit, change your time free, full refund 48 hours before); ticking "Not sure" lets them carry
+  phone, with why it is recommended; the total and deposit pinned to the
+  bottom of the screen, the real rules beside it (50% deposit, change your time
+  free, full refund 48 hours before), and its button never greyed out (the
+  owner, 21 Nov 2026: seven in twelve left step 2 while it waited for three
+  picks): until a survey and size are picked it reads "Decide for me and pick a
+  time" (or "and send my details" for an agent or outside our area) and picks
+  the recommended survey and size for them, else a damp survey of a full house; ticking "Not sure" lets them carry
   straight on without a survey or size (Continue, then Done: we call to help
   choose; the owner, 16 Nov 2026; a second tap unticks a survey or size, as
   for add-ons; the tiles are never a must, a survey and size is enough to
