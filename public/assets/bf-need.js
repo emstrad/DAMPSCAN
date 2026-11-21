@@ -17,7 +17,7 @@
     ['Timber / Woodworm', 'Holes, soft wood, bouncy floors', svg('<rect x="3" y="7" width="18" height="10" rx="2"/><circle cx="8" cy="12" r=".9"/><circle cx="12.5" cy="10.5" r=".9"/><circle cx="15.5" cy="13.5" r=".9"/>')],
     ['Leak / Water damage', 'Stains after rain, a marked ceiling', svg('<path d="M4 10h16"/><path d="M7 10V6h10v4"/><path d="M9 14v2M12 15v3M15 14v2"/>')],
     ['Cold / condensation', 'Wet windows, cold walls', svg('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8v3M13 7v5M16 9v2"/>')],
-    ['Not sure', 'Something is not right', svg('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.3-2.4 3.6"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>')]
+    ['Something else', 'Something is not right', svg('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.3-2.4 3.6"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>')]
   ];
   var has = function (d, k) { return d.issues.indexOf(k) !== -1; };
   var pounds = function (n, from) { return (from ? 'from ' : '') + '£' + n; };
@@ -79,15 +79,6 @@
     var pick = d.pick, rec = recommended(d), parts = [];
     var narrow = function () { return global.innerWidth <= 980; };
     var grid = el('div', 'ht-need'), left = el('div', 'ht-need-q'), right = el('div', 'ht-need-pick'), wide = el('div', 'ht-need-wide');
-    /* The way out for anyone stuck choosing (20 Nov 2026: about one in five who finished their details left here):
-       Not sure, nothing picked, and on to the end, where we call to help them choose. An agent's buyer has no time step either way. */
-    var skip = el('p', 'ht-skip'), skipBtn = el('button', 'btn btn--ghost', 'Not sure? We\'ll help you choose'); skipBtn.type = 'button';
-    skip.appendChild(skipBtn); box.appendChild(skip);
-    skipBtn.addEventListener('click', function () {
-      if (!has(d, 'Not sure')) d.issues.push('Not sure');
-      pick.service = null; pick.size = null; pick.extras = [];
-      sync(); done(skipBtn);
-    });
     grid.appendChild(left); grid.appendChild(right); box.appendChild(grid); box.appendChild(wide);
     function option(row, b, recKey, why) {
       var t = el('span', 'ht-rec ht-rec--edge', 'Recommended'); t.hidden = true; b.appendChild(t);
@@ -150,9 +141,10 @@
     box.appendChild(promise);
     var bar = el('div', 'ht-total'), sum = el('div'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
     bar.appendChild(sum); bar.appendChild(go); box.appendChild(bar);
-    /* Never greyed out (the owner, 21 Nov 2026): with nothing picked it decides for them, the recommended survey and size, then on to the times. */
+    /* Never greyed out, and never choosing for them (the owner, 21 Nov 2026): with no survey and
+       size picked it is "Not sure, continue", on to the times all the same, and we confirm the survey on a call. */
     go.addEventListener('click', function () {
-      if (!d.unsure && !(pick.service && pick.size)) { pick.service = pick.service || rec.service || 'damp'; pick.size = pick.size || rec.size || 'full-house'; sync(); }
+      if (!(pick.service && pick.size)) { pick.service = null; pick.size = null; pick.extras = []; d.unsure = true; }
       done(go);
     });
 
@@ -172,21 +164,19 @@
       });
       var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
       sum.textContent = '';
-      /* "Not sure" ticked (the owner, 16 Nov 2026): they can carry straight on and we call to help choose; a survey and size they did pick still books a time. */
-      var lost = has(d, 'Not sure') && !(z && pick.service);
-      d.unsure = lost;
-      pick.totalPounds = null; pick.minutes = null;
-      if (z && pick.service) {
+      /* No survey and size picked yet: they can still carry on, unsure, to the times. */
+      var chosen = Boolean(z && pick.service);
+      d.unsure = !chosen;
+      pick.totalPounds = null; pick.minutes = chosen ? null : (P.sizes.filter(function (s) { return s.key === 'full-house'; })[0] || {}).minutes || null;
+      if (chosen) {
         var t = z.damp + (pick.service === 'timber' ? z.timber : 0), from = z.from;
         P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) { t += x.withSurvey; from = from || Boolean(x.from); } });
         pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
         sum.appendChild(el('b', null, pounds(t, from))); /* An agent or outside our area books nothing here, so no deposit is mentioned (Annie, 16 Nov 2026, thought she had bought). */
         sum.appendChild(el('span', null, d.agent || d.outside ? 'Nothing to pay now. We\'ll confirm the time first' : '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
-      } else sum.appendChild(el('span', null, lost ? 'No need to pick: we\'ll call to help you choose' : 'Your total shows here'));
-      /* The tiles help, but are never a must (the owner, 16 Nov 2026): a survey and size they already know is enough to book. */
+      } else sum.appendChild(el('span', null, 'Not sure? Carry on and we\'ll help you choose'));
       var send = d.agent || d.outside;
-      var decide = !lost && !(pick.service && pick.size);
-      go.textContent = lost ? 'Continue' : decide ? (send ? 'Decide for me and send my details' : 'Decide for me and pick a time') : send ? 'Send my details' : 'Choose a time';
+      go.textContent = !chosen ? 'Not sure, continue' : send ? 'Send my details' : 'Choose a time';
       go.disabled = false;
     }
     sync();
