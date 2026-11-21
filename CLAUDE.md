@@ -741,13 +741,19 @@ checks the mechanical ones.
   ticked for them), and each (i) a floating note, a sheet from the bottom on a
   phone, with why it is recommended; the total and deposit pinned to the
   bottom of the screen, the real rules beside it (50% deposit, change your time
-  free, full refund 48 hours before), and its button never greyed out (the
-  owner, 21 Nov 2026: seven in twelve left step 2 while it waited for three
-  picks): until a survey and size are picked it reads "Decide for me and pick a
-  time" (or "and send my details" for an agent or outside our area) and picks
-  the recommended survey and size for them, else a damp survey of a full house; ticking "Not sure" lets them carry
-  straight on without a survey or size (Continue, then Done: we call to help
-  choose; the owner, 16 Nov 2026; a second tap unticks a survey or size, as
+  free, full refund 48 hours before), and its button never greyed out and never
+  choosing for them (the owner, 21 Nov 2026: seven in twelve left step 2 while it
+  waited for three picks, and "Decide for me" chose a survey nobody asked for):
+  with a survey and size picked it is "Choose a time" ("Send my details" for an
+  agent or outside our area), otherwise "Not sure, continue", which still goes
+  on to the times with no survey chosen; there is one "not sure" on the screen
+  (the old "Not sure? We'll help you choose" button is gone and the last tile is
+  "Something else", a problem, not a survey). Not sure of the survey, the times
+  are found at a full house's length and the time tapped is held for us to
+  confirm the survey and price on a call, never booked (even with Book it
+  straight away on; Done: "We've held ... We'll call to confirm your survey and
+  price", nothing booked or paid); step 3 always ends with "Not sure on times?
+  Call me", straight to Done. A second tap unticks a survey or size, as
   for add-ons; the tiles are never a must, a survey and size is enough to
   book, and the server takes a damp enquiry with no tile ticked (17 Nov 2026: it
   refused one and the form sent them back to the first card, round and round; a

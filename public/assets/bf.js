@@ -111,7 +111,7 @@
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
-    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (global.history.state && global.history.state.bf) global.history.back(); else if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside || d.unsure) ? 2 : step - 1); });
+    var back = el('button', 'back-link ht-back', '\u2190 Back'); back.type = 'button'; backBtn = back; back.addEventListener('click', function () { if (global.history.state && global.history.state.bf) global.history.back(); else if (step <= 2) close(); else go(step === 4 && (d.agent || d.outside) ? 2 : step - 1); });
     var dots = el('div', 'dots'); dots.id = 'ht-dots';
     top.appendChild(back); top.appendChild(dots); if (TEL) top.appendChild(callChip()); inner.appendChild(top);
     body = el('div', 'ht-body'); inner.appendChild(body); stage.appendChild(inner);
@@ -180,7 +180,8 @@
     if (sending) return; sending = true; var said = btn ? btn.textContent : ''; if (btn) { btn.disabled = true; btn.textContent = 'One moment...'; }
     api.submit(d).then(function (r) {
       sending = false;
-      if (r.ok) { go(d.agent || d.outside || d.unsure ? 4 : 3); return; }
+      /* Not sure of the survey still goes on to the times (the owner, 21 Nov 2026); only an agent's buyer or outside our area skips them. */
+      if (r.ok) { go(d.agent || d.outside ? 4 : 3); return; }
       if (btn) { btn.disabled = false; btn.textContent = said; }
       /* Only a detail the first card shows sends them back there, marked; anything else is said here,
          so nobody is sent round in a loop with nothing to fix (17 Nov 2026). */
@@ -258,7 +259,7 @@
         draw();
       }).catch(function () { quick.appendChild(el('p', 'ht-sub', 'Times could not load. Leave it with us and we\'ll call you.')); });
     var anytime = el('p', 'ht-sub ht-small', 'Change your time anytime from your page.'); pane.appendChild(anytime);
-    var skip = el('button', 'bt-skip', 'Skip, just call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
+    var skip = el('button', 'bt-skip', 'Not sure on times? Call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
     pane.appendChild(skip);
   }
 

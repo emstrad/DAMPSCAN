@@ -112,3 +112,18 @@ test('deadlines, survey length and undated jobs', async () => {
   const free = await freeSlots({ today: '2030-06-05', days: 10, perSurveyor: true });
   assert.ok(free.some((s) => s.surveyor === 'tom' && s.date === '2030-06-10'), 'a job with no agreed day blocks nothing');
 });
+
+test('not sure of the survey: times at a full house\'s length, and the pick is held for a call even with instant booking on', async () => {
+  await pool.query("insert into lab_flags (key, enabled) values ('booking_slots', true), ('instant_booking', true)");
+  const a = await lead();
+  assert.equal((await W.saveSurvey({ ...a, choice: { service: null } })).ok, true);
+  const choice = (await pool.query('select survey_choice from leads where id = $1', [a.leadId])).rows[0].survey_choice;
+  assert.equal(choice.unsure, true);
+  assert.equal(choice.minutes, 120, 'a full house\'s time on site, so the time held fits most surveys');
+  const t = (await W.timesFor({ ...a, today: TODAY })).times[0];
+  const r = await W.pickTime({ ...a, ...t, today: TODAY });
+  assert.equal(r.ok, true, 'never "that time has gone" for want of a survey');
+  assert.ok(!r.booked, 'held, not booked: we confirm the survey and price on a call');
+  assert.equal((await pool.query('select count(*)::int as n from jobs')).rows[0].n, 0);
+  assert.equal((await pool.query('select pencil_by from leads where id = $1', [a.leadId])).rows[0].pencil_by, 'Website');
+});

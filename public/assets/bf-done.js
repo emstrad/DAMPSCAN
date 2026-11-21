@@ -53,6 +53,7 @@
     pane.appendChild(ring);
     pane.appendChild(el('h2', 'ht-h', booked ? 'You\'re booked in, ' + d.name : 'Thanks, ' + d.name));
     pane.appendChild(el('p', 'ht-when-big', booked ? h.nice(d.when.date) + ' at ' + h.clock(d.when.time)
+      : asked && d.unsure ? 'We\'ve held ' + h.nice(d.when.date) + ' at ' + h.clock(d.when.time) + ' for you. We\'ll call to confirm your survey and price.'
       : asked ? 'You asked for ' + h.nice(d.when.date) + ' at ' + h.clock(d.when.time) + '. We\'ll call to confirm it, then text you.'
       : d.unsure && !d.agent ? 'We\'ll call to help you choose the right survey and agree a time, then text you to confirm.' : d.agent ? 'We\'ll arrange the time with ' + d.agent.name + ' and text you once it\'s confirmed.' : d.outside ? 'You\'re a little outside our usual area: we\'ll check we can reach you and call to agree a time.' : 'We\'ll call you to agree a time, then text you to confirm.'));
 
