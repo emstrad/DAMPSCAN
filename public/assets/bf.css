@@ -171,21 +171,6 @@
   .ht-pane--need .ht-total .btn { flex: 0 1 auto; max-width: 62%; min-height: 48px; padding: 10px 16px; font-size: 15px; white-space: normal; line-height: 1.2; text-align: center; }
 }
 .ht-booking .ht-badge { bottom: auto; top: 84px; }
-/* Step 2 as one question (21 Nov 2026): the sizes, a timber switch, two optional folds and one live button. */
-.ht-need-one { width: 100%; display: grid; gap: 12px; }
-.ht-one-h { margin: 0 0 2px; }
-.ht-opts--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.ht-switch-row .bt-survey { justify-content: flex-start; }
-.ht-switch[aria-pressed="true"] .ht-box { background: var(--accent); border-color: var(--accent); }
-.ht-fold { border: 1px solid var(--line-strong); border-radius: 12px; padding: 0 12px; }
-.ht-fold summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 600; list-style: none; }
-.ht-fold summary::-webkit-details-marker { display: none; }
-.ht-fold summary::after { content: '+'; margin-left: auto; color: var(--accent); font-size: 20px; }
-.ht-fold[open] summary::after { content: '\2212'; }
-.ht-fold[open] { padding-bottom: 12px; }
-.ht-total--go .btn { flex: 1 1 auto; width: 100%; max-width: none !important; }
-.ht-skip { margin: 8px 0 0; justify-content: center; }
-@media (max-width: 980px) { .ht-opts--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) {
   .ht-stage.is-moving, .ht-inner, .ht-tile { transition: none; }
   .ht-pane { animation: none; }
