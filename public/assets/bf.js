@@ -104,6 +104,10 @@
   }
   var MS = reduce ? 0 : 480;
   function open(first) {
+    /* The keyboard closes before the card grows, so the page is not still moving under it. */
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    /* Up to the form's top first, so it grows in view rather than below them. */
+    var y0 = hero.getBoundingClientRect().top + window.scrollY - 90; if (window.scrollY > y0) window.scrollTo(0, y0);
     stage = el('div', card.className.replace(/\bis-open\b/, '') + ' ht-stage'); stage.removeAttribute('id');
     stage.setAttribute('role', 'region'); stage.setAttribute('aria-label', 'Book your survey');
     var inner = el('div', 'ht-inner'), top = el('div', 'ht-top');
@@ -120,8 +124,7 @@
       if (!stage) return;
       /* Settled: in the page's flow, the hero's copy set aside, the height its content's. */
       hero.classList.add('ht-open'); stage.classList.remove('is-moving'); stage.removeAttribute('style'); stage.classList.add('is-shown');
-      var y = hero.getBoundingClientRect().top + window.scrollY - 90;
-      if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+      toTop();
     }, MS);
     if (!prices) api.prices().then(function (x) { prices = x; if (stage) go(step, true); })
       .catch(function () { if (body) { body.textContent = ''; body.appendChild(el('p', 'ht-sub', 'That didn\'t load. Please try again, or call us.')); } });
@@ -162,7 +165,13 @@
     if (n === 3) when(pane);
     if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again, live: api.live, extras: api.extras });
     /* A new step starts at its top, under the site's header. */
-    if (stage && stage.classList.contains('is-shown')) { var y = stage.getBoundingClientRect().top + window.scrollY - 90; if (window.scrollY > y) window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); }
+    if (stage && stage.classList.contains('is-shown')) toTop();
+  }
+  /* At once, not smoothly, and again once a phone's keyboard has gone (the owner, 21 Nov 2026:
+     on an iPhone step 2 opened halfway down, the smooth scroll cut short as the keyboard closed). */
+  function toTop() {
+    var jump = function () { if (!stage) return; var y = stage.getBoundingClientRect().top + window.scrollY - 90; if (Math.abs(window.scrollY - y) > 24 && window.scrollY > y) window.scrollTo(0, y); };
+    jump(); setTimeout(jump, 350);
   }
 
   /* The enquiry goes the moment they choose a time (or, for an agent or outside our area, straight to done). */

@@ -728,7 +728,10 @@ checks the mechanical ones.
   street and town, who lets us in; the postcode tidied and checked as they
   leave the box, with a soft word outside the South East: London, Kent, Essex, Herts, Beds, Bucks, Berks, Oxon, Surrey, Sussex and Hampshire are all ours, the owner, 16 Nov 2026); then the card grows across the hero
   section, not over the page (longer than 300 ms by the owner's ask, none with
-  reduced motion), for 2 one clean screen in four numbered parts, each ticked
+  reduced motion; the page jumps to the form's top before it grows and again
+  once a phone's keyboard has gone, never a smooth scroll a closing keyboard can
+  cut short: the owner, 21 Nov 2026, step 2 opened halfway down on an iPhone),
+  for 2 one clean screen in four numbered parts, each ticked
   once answered: what you are dealing with as picture tiles (on a phone,
   picture and name only), your survey (damp or damp and timber), how much of
   the home, and add-ons across the card's width; built once and changed in
