@@ -56,6 +56,7 @@
     if (s.report) {
       var dl = h('a', 'pt-btn', '<span class="in">' + I.dl + ' Open the report</span>');
       dl.href = api + '&file=report&job=' + s.id; c.appendChild(dl);
+      if (s.report2) { var d2 = h('a', 'pt-btn ghost', '<span class="in">' + I.dl + ' Open the second report</span>'); d2.href = api + '&file=report2&job=' + s.id; c.appendChild(d2); }
     }
     if (s.stage.key === 'confirm') confirmBox(c, s);
     return c;

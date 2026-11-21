@@ -627,7 +627,12 @@ checks the mechanical ones.
   attached, and no report text, "your report" or balance reminder ever goes
   for it (jobs.report_quiet, cleared if Report sent is unticked). Sent, no text needs no file on the card
   (the owner, 19 Nov 2026: it went by email or by hand); Report sent and Report
-  ready still refuse without it. Report ready counts as reported everywhere (stage,
+  ready still refuse without it. A second report, rarely (the owner, 21 Nov 2026):
+  a folded "Second report" line in the job pop-up's Report part, beside Upload
+  (upload, open, replace, remove; jobs.report2_path, report2_name, each change in
+  the audit), unlocked with the first on the customer's page ("Open second
+  report") and the agent's, and opened by staff with ?report=N&n=2; the first
+  report alone decides ready, sent and every text. Report ready counts as reported everywhere (stage,
   countdown, overdue alert, Reports list once paid) (the owner's review,
   13 Nov 2026), and the lists read it the same (the board and After the visit,
   the day lane, Today's tags, the card's next step and ChatGPT's answers, the

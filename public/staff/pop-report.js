@@ -48,6 +48,27 @@
     lab.appendChild(input);
     row.appendChild(lab);
     s.appendChild(row);
+    /* A second report, rarely (the owner, 21 Nov 2026): folded beside Upload, opened only when needed. */
+    {
+      var two = U.node('details', 'sheet-fold'); two.open = Boolean(r.file2);
+      two.appendChild(U.node('summary', null, r.file2 ? 'Second report: ' + r.file2 : 'Second report'));
+      var row2 = U.node('div', 'sheet-row');
+      if (r.file2) { var a2 = U.node('a', 'pill', 'Open ' + r.file2); a2.href = '/api/admin/attachment?report=' + j.id + '&n=2'; row2.appendChild(a2); }
+      var lab2 = U.node('label', 'pill', r.file2 ? 'Replace it' : 'Upload a second report'), in2 = document.createElement('input');
+      in2.type = 'file'; in2.accept = 'application/pdf,.pdf,.docx'; in2.hidden = true;
+      in2.addEventListener('change', async function () {
+        if (!in2.files[0]) return;
+        said.textContent = 'Uploading…';
+        try { await loadUpload(); await global.DSREPORT.upload(j.id, in2.files[0], 2); said.textContent = 'Second report uploaded.'; changed(); }
+        catch (e) { said.textContent = e.message || 'Could not upload it. Try again.'; }
+      });
+      lab2.appendChild(in2); row2.appendChild(lab2);
+      if (r.file2) row2.appendChild(btn('Remove', 'btn btn--ghost btn--sm', async function () {
+        var res; try { res = await U.send('/api/admin/clients', { id: j.id, reportSlot: 2, reportRemove: true }); } catch (e) { res = { ok: false }; }
+        said.textContent = res.ok ? 'Second report removed.' : 'Could not remove it. Try again.'; if (res.ok) changed();
+      }));
+      two.appendChild(row2); s.appendChild(two);
+    }
 
     async function report(change, words) {
       said.textContent = 'Saving…';

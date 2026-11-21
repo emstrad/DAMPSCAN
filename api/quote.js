@@ -166,7 +166,7 @@ async function portal(req, res) {
   const found = await findPortal(params.get('t') || '');
   /* An expired page still says whose brand it is, so it can ask for a new link in the right colours. */
   if (found.gone) { json(res, found.gone === 'expired' ? 410 : 404, { ok: false, error: found.gone, code: codeOf(found.site), brand: brandOf(found.site) }); return; }
-  if (params.get('file') === 'report') return portalReport(req, res, found.job);
+  if (params.get('file') === 'report' || params.get('file') === 'report2') return portalReport(req, res, found.job, { second: params.get('file') === 'report2' });
   if (params.get('file') === 'photo') return portalPhoto(res, found.job, params.get('i'));
   /* Back from paying: how it went, asking Stripe if its notice is not in yet. Settled
      first, so the page drawn straight after already shows the money as received. */
