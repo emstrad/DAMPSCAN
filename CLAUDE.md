@@ -728,22 +728,22 @@ checks the mechanical ones.
   street and town, who lets us in; the postcode tidied and checked as they
   leave the box, with a soft word outside the South East: London, Kent, Essex, Herts, Beds, Bucks, Berks, Oxon, Surrey, Sussex and Hampshire are all ours, the owner, 16 Nov 2026); then the card grows across the hero
   section, not over the page (longer than 300 ms by the owner's ask, none with
-  reduced motion), for 2 one clean screen in four numbered parts, each ticked
-  once answered: what you are dealing with as picture tiles (on a phone,
-  picture and name only), your survey (damp or damp and timber), how much of
-  the home, and add-ons across the card's width; built once and changed in
-  place so a tap never moves the page: equal-height boxes, a Recommended tag on
-  the box's edge (nothing before a tick; the drone for a leak or an agent, the
-  camera for timber, never the cavity check, which a tile cannot tell; never
-  ticked for them), and each (i) a floating note, a sheet from the bottom on a
-  phone, with why it is recommended; the total, deposit and what is still
-  missing pinned to the bottom of the screen, the real rules beside it (50%
-  deposit, change your time free, full refund 48 hours before); ticking "Not sure" lets them carry
-  straight on without a survey or size (Continue, then Done: we call to help
-  choose; the owner, 16 Nov 2026; a second tap unticks a survey or size, as
-  for add-ons; the tiles are never a must, a survey and size is enough to
-  book, and the server takes a damp enquiry with no tile ticked (17 Nov 2026: it
-  refused one and the form sent them back to the first card, round and round; a
+  reduced motion), for 2 one question (the owner, 21 Nov 2026: seven in twelve
+  left the old four-part screen, which greyed out its button until a problem,
+  survey and size were picked): "How big is the home?" with the four sizes as
+  boxes (name and scope, no price, no (i)), a damp survey of a full house already
+  chosen, "Check timber and woodworm too" as one switch, then "Add extra checks
+  (optional)" and "What are you seeing? (optional)" folded; the button is live
+  from the start ("Choose a time", or "Send my details" for an agent or outside
+  our area) with no price beside it, the real rules above it (50% deposit, change
+  your time free, full refund 48 hours before), and "Not sure? We'll call you"
+  beneath, which carries on without a survey or size to Done, where we call to
+  help choose. A Recommended tag sits on a box's edge (timber for woodworm, the
+  drone for a leak or an agent, the camera for timber, never the cavity check;
+  never ticked for them), each (i) a floating note, a sheet from the bottom on a
+  phone. The tiles are never a must, and the server takes a damp enquiry with no
+  tile ticked (17 Nov 2026: it refused one and the form sent them back to the
+  first card, round and round; a
   refusal the first card cannot show is now said on the step itself); each step is a browser history entry, so the phone's back steps back
   and a refresh returns to the same step with the answers kept for the tab,
   never back off Done once booked; a landline is accepted with a soft word

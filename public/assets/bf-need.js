@@ -1,11 +1,11 @@
-/* The booking form's step 2 (bf.js; the owner's brief, 15 Nov 2026, third pass):
-   one clean screen in four numbered parts, each ticked once answered: 1 what
-   they are dealing with, 2 the survey, 3 how much of the home, 4 add-ons. Built
+/* The booking form's step 2 (bf.js): one question, how big is the home, with a
+   damp survey of a full house already chosen and the button live from the start
+   (the owner, 21 Nov 2026: seven in twelve left the four-part screen). Timber is
+   one switch; extra checks and what they are seeing fold away as optional. Built
    once and changed in place, so a tap never moves the page: a Recommended tag
-   sits on the box's edge (no height of its own) and an (i) opens a floating
-   note, a sheet from the bottom on a phone, with why it is recommended. Never
-   ticked for them; nothing step 1 asked is asked again. Prices from the one
-   list; nothing is sent. The total stays pinned to the bottom of the screen. */
+   sits on the box's edge and an (i) opens a floating note, a sheet from the
+   bottom on a phone. Add-ons are never ticked for them; nothing step 1 asked is
+   asked again. Prices from the one list; no total beside the button. */
 (function (global) {
   'use strict';
   var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -66,71 +66,46 @@
     i.addEventListener('click', function (e) { e.stopPropagation(); openPop(i, title, text, why()); });
     return i;
   }
-  function head(n, text, extra) {
-    var h = el('div', 'ht-head'); var num = el('span', 'ht-num', String(n)); num.dataset.n = n;
-    h.appendChild(num); h.appendChild(el('h2', 'ht-h', text)); if (extra) h.appendChild(el('span', 'ht-opt-note', extra));
-    return { row: h, num: num };
-  }
-
-  /* d: the answers so far; P: the price list; done(): on to the times. */
+  /* d: the answers so far; P: the price list; done(): on to the times.
+     One question, the button live from the start (the owner, 21 Nov 2026: seven in
+     twelve left the four-part screen). A damp survey of a full house is already
+     chosen and changes with one tap; timber is a switch; the extras and what they
+     are seeing fold away as optional; no price beside the button. */
   function draw(box, d, P, done) {
     box.textContent = ''; closePop();
-    if (!d.pick) d.pick = { service: null, size: null, extras: [] };
+    if (!d.pick) d.pick = { service: 'damp', size: 'full-house', extras: [] };
     var pick = d.pick, rec = recommended(d), parts = [];
-    var narrow = function () { return global.innerWidth <= 980; };
-    var grid = el('div', 'ht-need'), left = el('div', 'ht-need-q'), right = el('div', 'ht-need-pick'), wide = el('div', 'ht-need-wide');
-    /* The way out for anyone stuck choosing (20 Nov 2026: about one in five who finished their details left here):
-       Not sure, nothing picked, and on to the end, where we call to help them choose. An agent's buyer has no time step either way. */
-    var skip = el('p', 'ht-skip'), skipBtn = el('button', 'btn btn--ghost', 'Not sure? We\'ll help you choose'); skipBtn.type = 'button';
-    skip.appendChild(skipBtn); box.appendChild(skip);
-    skipBtn.addEventListener('click', function () {
-      if (!has(d, 'Not sure')) d.issues.push('Not sure');
-      pick.service = null; pick.size = null; pick.extras = [];
-      sync(); done(skipBtn);
-    });
-    grid.appendChild(left); grid.appendChild(right); box.appendChild(grid); box.appendChild(wide);
-    function option(row, b, recKey, why) {
+    if (!pick.service) pick.service = 'damp';
+    if (!pick.size) pick.size = 'full-house';
+    var main = el('div', 'ht-need-one');
+    box.appendChild(main);
+    function option(row, b, recKey) {
       var t = el('span', 'ht-rec ht-rec--edge', 'Recommended'); t.hidden = true; b.appendChild(t);
-      parts.push({ b: b, tag: t, recKey: recKey }); row.appendChild(b); return why;
+      parts.push({ b: b, tag: t, recKey: recKey }); row.appendChild(b);
     }
-    function nextUp(target) { if (narrow() && target) setTimeout(function () { var y = target.getBoundingClientRect().top + global.scrollY - 90; global.scrollTo({ top: y, behavior: 'smooth' }); }, 120); }
 
-    var h1 = head(1, 'What are you dealing with?'); left.appendChild(h1.row);
-    var tiles = el('div', 'ht-tiles');
-    ISSUES.forEach(function (it) {
-      var t = el('button', 'ht-tile'); t.type = 'button'; t.dataset.issue = it[0];
-      t.innerHTML = '<span class="ht-tile-ico">' + it[2] + '</span>';
-      t.appendChild(el('b', null, it[0])); t.appendChild(el('span', 'ht-tile-say', it[1]));
-      t.addEventListener('click', function () { var i = d.issues.indexOf(it[0]); if (i === -1) d.issues.push(it[0]); else d.issues.splice(i, 1); sync(); });
-      tiles.appendChild(t);
-    });
-    left.appendChild(tiles);
-
-    var h2 = head(2, 'Your survey'); right.appendChild(h2.row);
-    var types = el('div', 'ht-opts ht-opts--2');
-    [['damp', P.services.damp], ['timber', P.services.timber]].forEach(function (s) {
-      var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey'); b.type = 'button'; b.dataset.service = s[0];
-      b.appendChild(el('b', null, s[1].name));
-      /* A second tap unticks it, so changing their mind to Not sure leaves nothing stuck on. */
-      b.addEventListener('click', function () { var first = !pick.service; pick.service = pick.service === s[0] ? null : s[0]; sync(); if (first && pick.service) nextUp(h3.row); });
-      option(row, b, 'service:' + s[0]);
-      row.appendChild(infoBtn(s[1].name, s[1].info, function () { return rec.service === s[0] ? rec.why.service : ''; })); types.appendChild(row);
-    });
-    right.appendChild(types);
-
-    var h3 = head(3, 'How much of the home?'); right.appendChild(h3.row);
-    var sizes = el('div', 'ht-opts ht-opts--2'), sizePrice = {};
+    main.appendChild(el('h2', 'ht-h ht-one-h', 'How big is the home?'));
+    var sizes = el('div', 'ht-opts ht-opts--4');
     P.sizes.forEach(function (z) {
       var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey'); b.type = 'button'; b.dataset.size = z.key;
-      var top = el('span', 'ht-opt-top'); top.appendChild(el('b', null, z.name)); sizePrice[z.key] = el('span', 'bt-price'); top.appendChild(sizePrice[z.key]);
-      b.appendChild(top); b.appendChild(el('span', 'ht-opt-say', z.scope));
-      b.addEventListener('click', function () { var first = !pick.size; pick.size = pick.size === z.key ? null : z.key; sync(); if (first && pick.size) nextUp(h4.row); });
-      option(row, b, 'size:' + z.key);
-      row.appendChild(infoBtn(z.name, z.info, function () { return rec.size === z.key ? rec.why.size : ''; })); sizes.appendChild(row);
+      b.appendChild(el('b', null, z.name)); b.appendChild(el('span', 'ht-opt-say', z.scope));
+      b.addEventListener('click', function () { pick.size = z.key; sync(); });
+      /* The scope under each name says it; no (i) here, so four boxes fit a phone two by two. */
+      option(row, b, 'size:' + z.key); sizes.appendChild(row);
     });
-    right.appendChild(sizes);
+    main.appendChild(sizes);
 
-    var h4 = head(4, 'Add on the same visit', 'Optional'); wide.appendChild(h4.row);
+    /* Damp is always the survey; timber is one switch on top of it. */
+    var trow = el('div', 'bt-pick ht-opt ht-switch-row'), tb = el('button', 'bt-survey ht-add ht-switch'); tb.type = 'button';
+    var tbox = el('span', 'ht-box'), ttop = el('span', 'ht-opt-top'); ttop.appendChild(tbox); ttop.appendChild(el('b', null, 'Check timber and woodworm too'));
+    tb.appendChild(ttop);
+    tb.addEventListener('click', function () { pick.service = pick.service === 'timber' ? 'damp' : 'timber'; sync(); });
+    option(trow, tb, 'service:timber');
+    trow.appendChild(infoBtn(P.services.timber.name, P.services.timber.info, function () { return rec.service === 'timber' ? rec.why.service : ''; }));
+    main.appendChild(trow);
+
+    /* Optional, folded: extra checks, then what they are seeing (which only shapes what we suggest). */
+    var fx = el('details', 'ht-fold'); fx.appendChild(el('summary', null, 'Add extra checks (optional)'));
     var adds = el('div', 'ht-opts ht-opts--adds'), ticks = {};
     P.extras.filter(function (x) { return x.addable; }).forEach(function (x) {
       var row = el('div', 'bt-pick ht-opt'), b = el('button', 'bt-survey ht-add'); b.type = 'button'; b.dataset.extra = x.key;
@@ -141,47 +116,53 @@
       option(row, b, 'extra:' + x.key);
       row.appendChild(infoBtn(x.name, x.scope + '. ' + x.info, function () { return rec.extras[x.key] || ''; })); adds.appendChild(row);
     });
-    wide.appendChild(adds);
+    fx.appendChild(adds); main.appendChild(fx);
+    var fi = el('details', 'ht-fold'); fi.appendChild(el('summary', null, 'What are you seeing? (optional)'));
+    var tiles = el('div', 'ht-tiles');
+    ISSUES.forEach(function (it) {
+      var t = el('button', 'ht-tile'); t.type = 'button'; t.dataset.issue = it[0];
+      t.innerHTML = '<span class="ht-tile-ico">' + it[2] + '</span>';
+      t.appendChild(el('b', null, it[0])); t.appendChild(el('span', 'ht-tile-say', it[1]));
+      t.addEventListener('click', function () { var i = d.issues.indexOf(it[0]); if (i === -1) d.issues.push(it[0]); else d.issues.splice(i, 1); sync(); });
+      tiles.appendChild(t);
+    });
+    fi.appendChild(tiles); main.appendChild(fi);
+    if (d.issues.length) fi.open = true;
+    if (pick.extras.length) fx.open = true;
 
-    /* Pinned to the bottom of the screen: the total, the deposit and what is still missing. */
-    /* Your real rules, beside the price: people book more when they can see them. */
+    /* Your real rules: people book more when they can see them. */
     var promise = el('ul', 'ht-promise');
     ['50% deposit, the rest after the visit', 'Change your time free from your page', 'Full refund up to 48 hours before'].forEach(function (t) { var li = el('li'); li.innerHTML = TICK; li.appendChild(document.createTextNode(t)); promise.appendChild(li); });
     box.appendChild(promise);
-    var bar = el('div', 'ht-total'), sum = el('div'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
-    bar.appendChild(sum); bar.appendChild(go); box.appendChild(bar);
-    go.addEventListener('click', function () { if (!go.disabled) done(go); });
+    var bar = el('div', 'ht-total ht-total--go'), go = el('button', 'btn btn--primary btn--lg'); go.type = 'button';
+    go.textContent = d.agent || d.outside ? 'Send my details' : 'Choose a time';
+    bar.appendChild(go); box.appendChild(bar);
+    go.addEventListener('click', function () { done(go); });
+    /* The way out for anyone unsure: nothing picked, and on to the end, where we call to help them choose. */
+    var skip = el('p', 'ht-skip'), skipBtn = el('button', 'btn btn--ghost', 'Not sure? We\'ll call you'); skipBtn.type = 'button';
+    skip.appendChild(skipBtn); box.appendChild(skip);
+    skipBtn.addEventListener('click', function () {
+      if (!has(d, 'Not sure')) d.issues.push('Not sure');
+      pick.service = null; pick.size = null; pick.extras = []; d.unsure = true; pick.totalPounds = null; pick.minutes = null;
+      done(skipBtn);
+    });
 
     function sync() {
       rec = recommended(d);
       tiles.querySelectorAll('.ht-tile').forEach(function (t) { t.setAttribute('aria-pressed', String(has(d, t.dataset.issue))); });
       parts.forEach(function (p) {
         var k = p.recKey.split(':'), on = false, show = false;
-        if (k[0] === 'service') { on = pick.service === k[1]; show = rec.service === k[1]; }
-        if (k[0] === 'size') { on = pick.size === k[1]; show = rec.size === k[1]; }
+        if (k[0] === 'service') { on = pick.service === k[1]; show = rec.service === k[1]; tbox.innerHTML = on ? TICK : ''; }
+        if (k[0] === 'size') { on = pick.size === k[1]; show = rec.size === k[1] && pick.size !== k[1]; }
         if (k[0] === 'extra') { on = pick.extras.indexOf(k[1]) !== -1; show = Boolean(rec.extras[k[1]]); ticks[k[1]].innerHTML = on ? TICK : ''; }
         p.b.setAttribute('aria-pressed', String(on)); p.tag.hidden = !show;
       });
-      P.sizes.forEach(function (z) { sizePrice[z.key].textContent = pounds(z.damp + (pick.service === 'timber' ? z.timber : 0), z.from); });
-      [[h1, d.issues.length], [h2, pick.service], [h3, pick.size], [h4, pick.extras.length]].forEach(function (h) {
-        h[0].num.classList.toggle('is-done', Boolean(h[1])); h[0].num.innerHTML = h[1] ? TICK : h[0].num.dataset.n;
-      });
+      /* What books the time: the survey's real length and price, kept quietly for the times and the deposit. */
       var z = P.sizes.filter(function (s) { return s.key === pick.size; })[0];
-      sum.textContent = '';
-      /* "Not sure" ticked (the owner, 16 Nov 2026): they can carry straight on and we call to help choose; a survey and size they did pick still books a time. */
-      var lost = has(d, 'Not sure') && !(z && pick.service);
-      d.unsure = lost;
-      pick.totalPounds = null; pick.minutes = null;
-      if (z && pick.service) {
-        var t = z.damp + (pick.service === 'timber' ? z.timber : 0), from = z.from;
-        P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) { t += x.withSurvey; from = from || Boolean(x.from); } });
-        pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
-        sum.appendChild(el('b', null, pounds(t, from))); /* An agent or outside our area books nothing here, so no deposit is mentioned (Annie, 16 Nov 2026, thought she had bought). */
-        sum.appendChild(el('span', null, d.agent || d.outside ? 'Nothing to pay now. We\'ll confirm the time first' : '£' + (t / 2).toFixed(t % 2 ? 2 : 0) + ' deposit to book'));
-      } else sum.appendChild(el('span', null, lost ? 'No need to pick: we\'ll call to help you choose' : 'Your total shows here'));
-      /* The tiles help, but are never a must (the owner, 16 Nov 2026): a survey and size they already know is enough to book. */
-      var missing = lost ? '' : !pick.service ? (d.issues.length ? 'Pick your survey' : 'Tick what you\'re dealing with') : !pick.size ? 'Pick a size' : '';
-      go.textContent = missing || (lost ? 'Continue' : d.agent || d.outside ? 'Send my details' : 'Choose a time'); go.disabled = Boolean(missing);
+      d.unsure = false;
+      var t = z.damp + (pick.service === 'timber' ? z.timber : 0);
+      P.extras.forEach(function (x) { if (pick.extras.indexOf(x.key) !== -1) t += x.withSurvey; });
+      pick.totalPounds = t; pick.minutes = z.minutes + 30 * pick.extras.length;
     }
     sync();
   }
