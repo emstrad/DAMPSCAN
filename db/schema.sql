@@ -1233,6 +1233,10 @@ alter table jobs add column if not exists report_path text;
 alter table jobs add column if not exists report_name text;
 alter table jobs add column if not exists report_at timestamptz;
 alter table jobs add column if not exists report_late_alerted_at timestamptz;
+-- A second report on the same survey, rarely (the owner, 21 Nov 2026): kept beside
+-- the first, unlocked with it on the customer's and agent's pages.
+alter table jobs add column if not exists report2_path text;
+alter table jobs add column if not exists report2_name text;
 -- One "surveyed, not paid in full" alert per survey, with its buttons.
 alter table jobs add column if not exists unpaid_alerted_at timestamptz;
 

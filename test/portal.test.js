@@ -102,6 +102,20 @@ test('the report opens from the private link alone once paid in full and reporte
   assert.ok(![403, 429].includes(now.statusCode));
 });
 
+test('a second report (rare) unlocks with the first and only when there is one', async () => {
+  const id = await job();
+  await pool.query("update jobs set survey_sent_at = now(), report_path = 'r/x.pdf', report_name = 'Report.pdf' where id = $1", [id]);
+  const { t } = await view(id);
+  assert.equal(JSON.parse((await call(`t=${t}&file=report2`)).body).error, 'not_ready', 'no second report: nothing to open');
+  await pool.query("update jobs set report2_path = 'r/y.pdf', report2_name = 'Timber report.pdf' where id = $1", [id]);
+  assert.equal(JSON.parse((await call(`t=${t}&file=report2`)).body).error, 'not_ready', 'not paid in full: locked like the first');
+  await pool.query('update jobs set paid_at = now() where id = $1', [id]);
+  assert.notEqual(JSON.parse((await call(`t=${t}&file=report2`)).body || '{}').error, 'not_ready');
+  const rep = (await view(id)).p.report;
+  assert.equal(rep.file2, true);
+  assert.equal(rep.name2, 'Timber report.pdf');
+});
+
 test('cancelled 48 hours or more before is a full refund; later the deposit is kept', async () => {
   const id = await job();
   await pool.query("update jobs set deposit_paid_at = now(), job_date = (now() + interval '10 days')::date where id = $1", [id]);

@@ -42,3 +42,9 @@ test('the lead email goes from Microsoft 365 first, and falls back to FormSubmit
     fetchImpl: async () => ({ status: 403, text: async () => '<html>challenge</html>' }) });
   assert.match(both.error, /^Microsoft 365: 535.*then FormSubmit answered HTTP 403/);
 });
+
+test('a second report saves beside the first and comes off again, never touching the first', async () => {
+  const { reportBody } = await import('../lib/report-file.js');
+  const bad = await reportBody({ isAdmin: true }, { id: 1, site: 'dampscan' }, { reportSlot: 2, reportPath: 'leads/x/../../y.pdf' });
+  assert.equal(bad.status, 400, 'the second report takes only an upload address issued for a report');
+});

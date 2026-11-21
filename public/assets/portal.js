@@ -109,18 +109,24 @@
   /* The download asks for the property postcode, so a forwarded link alone is not enough. */
   /* Paid in full and reported: the report opens on screen, with Download in the viewer's top bar. */
   function downloadGate(card, p) {
+    openBtn(card, 'report', p.report.name, 'pt-btn', 'Open report', p);
+    /* A second report, rarely: its own button beneath, opened the same way. */
+    if (p.report.file2) openBtn(card, 'report2', p.report.name2, 'pt-btn ghost', 'Open second report', p);
+    moneyBar(card, p.money);
+  }
+  function openBtn(card, which, name, cls, label, p) {
     var msg = t('p', 'pt-hint', ''); msg.hidden = true;
-    var got = null, show = function () { if (window.DSVIEW && got) window.DSVIEW.open([{ blob: got, name: p.report.name }], 0); };
-    var dl = btn('pt-btn', '<span class="in">' + I.dl + ' Open report</span>', function () {
+    var got = null, show = function () { if (window.DSVIEW && got) window.DSVIEW.open([{ blob: got, name: name }], 0); };
+    var dl = btn(cls, '<span class="in">' + I.dl + ' ' + label + '</span>', function () {
       if (got) return show();
       dl.classList.add('busy'); dl.disabled = true;
-      fetch(api + '&file=report').then(function (r) {
+      fetch(api + '&file=' + which).then(function (r) {
         dl.classList.remove('busy'); dl.disabled = false;
         if (r.ok) return r.blob().then(function (b) { got = b; show(); });
         msg.hidden = false; msg.className = 'pt-hint bad'; msg.textContent = 'That didn\'t open. Please try again, or call us on ' + p.brand.phoneLabel + '.';
       }, function () { dl.classList.remove('busy'); dl.disabled = false; msg.hidden = false; msg.className = 'pt-hint bad'; msg.textContent = 'No connection. Please try again.'; });
     });
-    card.appendChild(dl); card.appendChild(msg); moneyBar(card, p.money);
+    card.appendChild(dl); card.appendChild(msg);
   }
 
   /* Starts a payment on Stripe's secure page; it comes back here with &paid=1. */
