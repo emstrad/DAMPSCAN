@@ -28,20 +28,24 @@ export function renderAgents(site = SITES.ati) {
   const url = `${site.origin}/estate-agents`;
   const ask = `<div class="ag-ctas"><a class="btn btn--primary" href="tel:${site.phone}">Call ${site.phoneLabel}</a>${site.email ? `<a class="btn btn--ghost" href="mailto:${site.email}?subject=Estate%20agent%20page">Email us</a>` : ''}</div>`;
   const body = `<div class="ag-page">
-  <div class="hero">
-    <h1>Book a damp survey in a minute. We handle the rest.</h1>
-    <p class="lede">Quick book from your own page and your buyer gets theirs: they pay, move the time and message us there, and you watch every property move from booked to report, live. Fewer calls, no chasing.</p>
-    ${ask}
+  <div class="ag-top">
+    <div class="hero">
+      <h1>Book a damp survey in a minute. We handle the rest.</h1>
+      <p class="lede">Quick book from your own page and your buyer gets theirs: they pay, move the time and message us there, and you watch every property move from booked to report, live. Fewer calls, no chasing.</p>
+      <div class="booking ag-ask">
+        <h2>Ask for your page</h2>
+        <p>Quick book, live progress, fewer calls. Your branch has its page today.</p>
+        ${ask}
+      </div>
+    </div>
+    <div class="yp-stage" aria-hidden="true">${phone('ati', `<img src="${shot('agent-1.jpg')}" alt="" decoding="async" width="390" height="780" />`)}</div>
   </div>
 
   <section class="sec">
     <h2>What your page does for you</h2>
-    <div class="ag-grid">
-      <ol class="yp-list ag-list">
-        ${GETS.map(([h, p], i) => `<li><span class="yp-num">${i + 1}</span><div><strong>${h}</strong><span>${p}</span></div></li>`).join('\n        ')}
-      </ol>
-      <div class="yp-stage" aria-hidden="true">${phone('ati', `<img src="${shot('agent-1.jpg')}" alt="" decoding="async" width="390" height="780" />`)}</div>
-    </div>
+    <ol class="yp-list ag-list">
+      ${GETS.map(([h, p], i) => `<li><span class="yp-num">${i + 1}</span><div><strong>${h}</strong><span>${p}</span></div></li>`).join('\n      ')}
+    </ol>
   </section>
 
   <section class="sec ag-pair">
