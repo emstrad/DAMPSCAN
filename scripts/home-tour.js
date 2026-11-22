@@ -67,7 +67,7 @@ ${ITEMS.map(([h, p], i) => `        <li><span class="yp-num">${i + 1}</span><div
 export const agentBand = () => `<!-- ============================= ESTATE AGENTS ============================= -->
 <section class="agentband" aria-label="Estate agents">
   <div class="container">
-    <p><strong>Estate agent?</strong> <span>Every buyer you send us, on one private page: visits, money and reports, live.</span></p>
+    <p><strong>Estate agent?</strong> <span>Book a survey in a minute, see every buyer's progress live, and take fewer calls.</span></p>
     <a href="/estate-agents" class="btn btn--ghost">How it works for agents</a>
   </div>
 </section>
