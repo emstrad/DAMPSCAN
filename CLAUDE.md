@@ -734,7 +734,12 @@ checks the mechanical ones.
   site's real home page, rebuilt from it on every build
   (/staff/home-trial-dampscan.html and -ati.html), nothing sent (the visit and
   half-finished form scripts and the ads tag left out, never indexed, owners
-  signed in). Four steps (Details, Survey, Time,
+  signed in). Beside it, the new home page to look at before it goes live (the
+  owner, 22 Nov 2026, for Tom too): /staff/home-trial-new-ati.html and -dampscan.html,
+  the same staff copy with the "Your survey page" tour (`scripts/home-tour.js`, a phone
+  of a demo customer's real screens with subtitles), and for ATi the estate agents
+  line and page (/staff/home-trial-agents-ati.html, `scripts/agents-page.js`), all
+  linked from the Lab; the live home pages are untouched until approved. Four steps (Details, Survey, Time,
   Done; the owner's third pass, 15 Nov 2026): 1 in the usual card, compact so
   it sits on the first screen of a laptop (name and mobile, email and postcode,
   street and town, who lets us in; the postcode tidied and checked as they
