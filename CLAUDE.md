@@ -734,12 +734,15 @@ checks the mechanical ones.
   site's real home page, rebuilt from it on every build
   (/staff/home-trial-dampscan.html and -ati.html), nothing sent (the visit and
   half-finished form scripts and the ads tag left out, never indexed, owners
-  signed in). Beside it, the new home page to look at before it goes live (the
-  owner, 22 Nov 2026, for Tom too): /staff/home-trial-new-ati.html and -dampscan.html,
-  the same staff copy with the "Your survey page" tour (`scripts/home-tour.js`, a phone
-  of a demo customer's real screens with subtitles), and for ATi the estate agents
-  line and page (/staff/home-trial-agents-ati.html, `scripts/agents-page.js`), all
-  linked from the Lab; the live home pages are untouched until approved. Four steps (Details, Survey, Time,
+  signed in). Both home pages carry "Your survey page" after How it works (the
+  owner's go-live, 22 Nov 2026; `scripts/home-tour.js` writes it between markers on
+  every build): the latest iPhone (status bar, Dynamic Island) showing a demo
+  customer's real screens, never a real customer and never an amount (pay, move,
+  message, on the way, report, quote check), with one fixed subtitle box whose words
+  change and six step labels on one line on a phone; each screen carries its own
+  content hash, since /assets is cached a year. ATi also has a slim estate agents
+  line linking /estate-agents (`scripts/agents-page.js`, public/hubs/ati, ATi's host
+  only, in its sitemap). Four steps (Details, Survey, Time,
   Done; the owner's third pass, 15 Nov 2026): 1 in the usual card, compact so
   it sits on the first screen of a laptop (name and mobile, email and postcode,
   street and town, who lets us in; the postcode tidied and checked as they
@@ -1125,7 +1128,13 @@ checks the mechanical ones.
   and times three across, the owners' chosen design from the page preview,
   UAT 15 Nov 2026, with the fold kept where there is no visit card), and Add photos before the visit (through
   /api/upload, only paths it made, onto the enquiry or jobs.customer_files;
-  the fold becomes "Your photos (N)" showing every one they sent).
+  the fold becomes "Your photos (N)" showing every one they sent). Once their
+  report is ready, "Got a quote for the work?" (`lib/portal-quotes.js`,
+  `public/assets/portal-quote.js`, the owner, 22 Nov 2026: checked free against
+  their report): a contractor's quote as a PDF or photos, our own uploads only,
+  five files, kept on jobs.customer_quotes and shown under Details on their card,
+  with a history line, an alert and one owners' to-do that closes once we answer
+  them; we reply through Message us.
   A cancelled survey's page (`lib/portal-rebook.js`, the owner, 22 Nov 2026: it
   offered nothing but a phone number) leads with Book a new time and keeps
   Message us with the whole thread. The sheet shows what they had booked (type,

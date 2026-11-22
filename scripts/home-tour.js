@@ -2,9 +2,19 @@
  * "Your survey page" on the damp home pages (the owner, 22 Nov 2026): what the
  * customer's own page does, beside a phone cycling through its real screens
  * with subtitles (a demo customer, never a real one), and for ATi a slim line
- * for estate agents. One source for the Lab's staff copy of each home page
- * (trial-home.js) and, once approved, the live pages.
+ * for estate agents. Written into the two hand written home pages between
+ * markers on every build (the owner's go-live, 22 Nov 2026), as the booking
+ * form and the reviews are.
  */
+import { readFileSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+
+/* /assets is cached for a year and the site's own stamps cover only scripts and
+   styles, so each screen carries its own content hash: a new screen is seen at
+   once (the owner, 22 Nov 2026, saw the old message screen from his phone's cache). */
+export const shot = (name) => `/assets/tour/${name}?v=${createHash('sha1').update(readFileSync(new URL(`../public/assets/tour/${name}`, import.meta.url))).digest('hex').slice(0, 8)}`;
 const ITEMS = [
   ['Pay the deposit in seconds', 'Apple Pay, Google Pay or card. Your booking is secured there and then.'],
   ['Change your time yourself', 'Pick another free slot whenever plans change. No phone calls.'],
@@ -31,7 +41,7 @@ const AREAS = '<!-- ============================= AREAS WE COVER ===============
 export const phone = (code, shots) => `<div class="yp-phone"><div class="yp-screen" style="--yp-bar:${BAR[code]}">${STATUS}<div class="yp-shots">${shots}</div><i class="yp-home"></i></div></div>`;
 
 export function tourSection(code) {
-  const shots = ITEMS.map((_, i) => `<img src="/assets/tour/${code}-${i + 1}.jpg" alt="" loading="lazy" decoding="async" width="390" height="780" />`).join('');
+  const shots = ITEMS.map((_, i) => `<img src="${shot(`${code}-${i + 1}.jpg`)}" alt="" loading="lazy" decoding="async" width="390" height="780" />`).join('');
   return `<!-- ============================= YOUR SURVEY PAGE ============================= -->
 <section id="your-page" class="yp reveal" aria-labelledby="yp-heading" data-screen-label="Your survey page">
   <div class="container yp-grid">
@@ -64,13 +74,20 @@ export const agentBand = () => `<!-- ============================= ESTATE AGENTS
 
 `;
 
-/** A home page with the section after How it works, and for ATi the agents line before the areas. */
-export function withTour(html, site, { agentHref = '/estate-agents' } = {}) {
-  if (!html.includes(SERVICES)) throw new Error(`${site} home page: no services marker for the tour`);
-  let out = html.replace(SERVICES, tourSection(site) + SERVICES);
-  if (site === 'ati') {
-    if (!out.includes(AREAS)) throw new Error('ati home page: no areas marker for the agents line');
-    out = out.replace(AREAS, agentBand().replace('href="/estate-agents"', `href="${agentHref}"`) + AREAS);
+const YP = ['<!-- your-page:start, filled by scripts/build-pages.js -->', '<!-- your-page:end -->'];
+const AG = ['<!-- agent-band:start, filled by scripts/build-pages.js -->', '<!-- agent-band:end -->'];
+const fill = (html, [a, b], body, file) => {
+  const from = html.indexOf(a), to = html.indexOf(b);
+  if (from === -1 || to === -1) throw new Error(`${file}: ${a.slice(5, 20)} markers missing`);
+  return html.slice(0, from) + `${a}\n${body}${b}` + html.slice(to + b.length);
+};
+
+/** The section after How it works on both home pages, and for ATi the agents line before the areas. */
+export async function writeTour(root, homes) {
+  for (const [site, file] of Object.entries(homes)) {
+    const path = join(root, file);
+    let html = fill(await readFile(path, 'utf8'), YP, tourSection(site), file);
+    if (site === 'ati') html = fill(html, AG, agentBand(), file);
+    await writeFile(path, html, 'utf8');
   }
-  return out.replace('</head>', '<link rel="stylesheet" href="/assets/tour.css" />\n<script src="/assets/tour.js" defer></script>\n</head>');
 }

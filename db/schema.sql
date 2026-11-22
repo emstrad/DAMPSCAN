@@ -1537,6 +1537,8 @@ alter table pay_orders add column if not exists provider_ref text;
 -- the surveyor's "On my way" (shown on the page from this moment).
 alter table jobs add column if not exists move_request jsonb;
 alter table jobs add column if not exists customer_files text[];
+-- A contractor's quote the customer sent from their page to check against their report (lib/portal-quotes.js).
+alter table jobs add column if not exists customer_quotes text[];
 alter table jobs add column if not exists on_way_at timestamptz;
 
 -- Damp Surveying Limited's own details for the owners and ChatGPT
