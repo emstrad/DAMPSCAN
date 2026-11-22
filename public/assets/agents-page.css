@@ -1,0 +1,6 @@
+/* The estate agents page (scripts/agents-page.js): what they get beside the phone. */
+.ag-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(24px,4vw,48px);align-items:center}
+@media (max-width:900px){.ag-grid{grid-template-columns:1fr}}
+.ag-list li{animation:none}
+.booking .btn{display:flex;justify-content:center;margin-top:10px}
+.ag-grid .yp-screen img{animation:none;opacity:1}

@@ -1,0 +1,64 @@
+/* "Your survey page" on the damp home pages (the owner, 22 Nov 2026): what the
+   customer's own page does, beside a phone cycling through its real screens
+   (a demo customer, never a real one). Uses each page's own colours, so the
+   shared file names neither brand. Images load only near the screen; with
+   reduced motion the phone holds the first screen and nothing moves. */
+.yp{background:var(--slate);border-top:1px solid var(--line)}
+.yp-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,5vw,72px);align-items:center}
+@media (max-width:900px){.yp-grid{grid-template-columns:1fr}}
+/* A phone (the owner, 22 Nov 2026: the lit line was a screen away from the phone):
+   heading, then the phone with its subtitles and four short steps beneath, all in
+   one view; the subtitles say what the list did, so the list steps aside. */
+.yp-steps{display:none}
+@media (max-width:900px){
+  .yp-grid{row-gap:14px}
+  .yp-text{display:contents}
+  .yp-list,.yp-text>.eyebrow,.yp-text>p{display:none}
+  .yp-grid .yp-phone{order:3;width:min(220px,58vw);padding:9px;border-radius:38px}
+  .yp-grid .yp-screen{border-radius:30px}
+  /* One line of six on a phone (the owner, 22 Nov 2026), sized to the screen's width. */
+  .yp-steps{order:2;display:flex;justify-content:center;gap:3px;flex-wrap:nowrap}
+  .yp-steps span{flex:none;white-space:nowrap;font-size:clamp(9.5px,2.6vw,12.5px);font-weight:600;color:var(--muted);padding:5px clamp(4px,1.4vw,10px);border-radius:999px;border:1px solid var(--line);
+    animation:yp-step 24s infinite;animation-play-state:paused}
+  .yp-steps span:nth-child(2){animation-delay:4s}.yp-steps span:nth-child(3){animation-delay:8s}.yp-steps span:nth-child(4){animation-delay:12s}.yp-steps span:nth-child(5){animation-delay:16s}.yp-steps span:nth-child(6){animation-delay:20s}
+  .yp.is-live .yp-steps span{animation-play-state:running}
+  .yp-subs span{font-size:13.5px;padding:7px 10px}
+  .yp-grid .yp-phone{margin-bottom:64px}
+}
+@keyframes yp-step{0%{color:var(--muted);background:transparent}2%{color:var(--accent);background:var(--accent-soft)}16.7%{color:var(--accent);background:var(--accent-soft)}18.7%{color:var(--muted);background:transparent}100%{color:var(--muted);background:transparent}}
+.yp-text{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.yp-text>p{color:var(--muted);font-size:16px;line-height:1.68;margin:0}
+.yp-list{list-style:none;margin:0;padding:0;width:100%;border-top:1px solid var(--line)}
+.yp-list li{display:flex;gap:14px;align-items:flex-start;padding:15px 12px;border-bottom:1px solid var(--line);border-radius:12px;
+  animation:yp-on 24s infinite;animation-play-state:paused}
+.yp-list li:nth-child(2){animation-delay:4s}.yp-list li:nth-child(3){animation-delay:8s}.yp-list li:nth-child(4){animation-delay:12s}.yp-list li:nth-child(5){animation-delay:16s}.yp-list li:nth-child(6){animation-delay:20s}
+.yp-num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft)}
+.yp-list strong{display:block;font-size:16px;font-weight:600}
+.yp-list span{color:var(--muted);font-size:14.5px;line-height:1.5}
+/* The phone: a dark frame, the screens stacked inside it fading one to the next. */
+.yp-phone{justify-self:center;position:relative;width:min(300px,78vw);aspect-ratio:390/780;border-radius:44px;padding:11px;background:#0b111a;
+  box-shadow:0 30px 60px -28px rgba(10,20,35,.55),inset 0 0 0 2px rgba(255,255,255,.08),0 0 0 1px var(--line-strong)}
+.yp-screen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:var(--navy,var(--bg))}
+.yp-screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;animation:yp-show 24s infinite;animation-play-state:paused}
+.yp-screen img:first-child{opacity:1}
+.yp-screen img:nth-child(2){animation-delay:4s}.yp-screen img:nth-child(3){animation-delay:8s}.yp-screen img:nth-child(4){animation-delay:12s}.yp-screen img:nth-child(5){animation-delay:16s}.yp-screen img:nth-child(6){animation-delay:20s}
+/* Subtitles over the foot of the screen (the owner, 22 Nov 2026), changing with
+   each screen on the same beat, like captions on a video. */
+.yp-subs{position:absolute;left:50%;top:calc(100% + 14px);transform:translateX(-50%);width:min(340px,92vw);display:grid;z-index:2;pointer-events:none}
+.yp-phone{margin-bottom:76px}
+.yp-subs span{grid-area:1/1;align-self:end;justify-self:center;text-align:center;font-size:14px;line-height:1.4;font-weight:600;color:#fff;
+  background:var(--ink,#0b111a);padding:8px 14px;border-radius:10px;box-shadow:0 0 0 1px var(--line-strong);opacity:0;animation:yp-show 24s infinite;animation-play-state:paused}
+.yp-subs span:first-child{opacity:1}
+.yp-subs span:nth-child(2){animation-delay:4s}.yp-subs span:nth-child(3){animation-delay:8s}.yp-subs span:nth-child(4){animation-delay:12s}.yp-subs span:nth-child(5){animation-delay:16s}.yp-subs span:nth-child(6){animation-delay:20s}
+.yp.is-live .yp-subs span{animation-play-state:running}
+/* Only runs once it is on screen (tour.js), so it starts at the first screen as they arrive. */
+.yp.is-live .yp-screen img,.yp.is-live .yp-list li{animation-play-state:running}
+@keyframes yp-show{0%{opacity:0}2%{opacity:1}16.7%{opacity:1}18.7%{opacity:0}100%{opacity:0}}
+@keyframes yp-on{0%{background:transparent}2%{background:var(--accent-soft)}16.7%{background:var(--accent-soft)}18.7%{background:transparent}100%{background:transparent}}
+@media (prefers-reduced-motion:reduce){.yp-screen img,.yp-list li,.yp-subs span,.yp-steps span{animation:none}.yp-screen img:first-child,.yp-subs span:first-child{opacity:1}}
+
+/* A slim line for estate agents beneath the landlords section (ATi). */
+.agentband{background:var(--navy);border-top:1px solid var(--line)}
+.agentband .container{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;padding-top:26px;padding-bottom:26px}
+.agentband p{margin:0;font-size:16px;color:var(--text)}
+.agentband p span{color:var(--muted)}
