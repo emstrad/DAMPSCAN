@@ -230,7 +230,10 @@ body.pt-sheet-on { overflow:hidden; }
 .pt-grab { width:40px; height:5px; border-radius:999px; background:var(--line-strong); justify-self:center; }
 .pt-sheet-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .pt-sheet-head h2 { margin:0; font-size:1.15rem; }
-.pt-sheet-x { width:44px; height:44px; border-radius:50%; border:1px solid var(--line-strong); background:transparent; color:var(--text); font-size:1.4rem; line-height:1; cursor:pointer; }
+.pt-sheet-x { width:44px; height:44px; margin-right:-6px; padding:0; border:0; background:transparent; color:var(--muted); display:grid; place-items:center; cursor:pointer; flex:none; }
+/* A drawn cross on a soft disc: a text × sat low in its ring (the owner, 22 Nov 2026). The button stays 44px to tap. */
+.pt-sheet-x span { width:32px; height:32px; border-radius:50%; background:var(--line); display:grid; place-items:center; transition:background var(--fast) linear, color var(--fast) linear; }
+.pt-sheet-x:hover span, .pt-sheet-x:focus-visible span { background:var(--line-strong); color:var(--text); }
 .pt-movearea { display:grid; gap:10px; min-height:80px; }
 .pt-ring--sm { width:36px; height:36px; border-width:3px; justify-self:center; }
 .pt-days { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scroll-snap-type:x proximity; }
