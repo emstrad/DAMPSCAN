@@ -15,9 +15,20 @@ const ITEMS = [
 ];
 const SUBS = ['Tap Pay with Apple Pay. You\'re booked.', 'Plans changed? Pick a new time yourself.', 'Questions or photos? Message us. Our replies stay here.',
   'On the day, see when your surveyor is on the way.', 'Paid in full? Your report opens right here.', 'Got a quote for the work? Send it. We\'ll check it, free.'];
+/* The top of an iPhone above each screen, in the page's own colour (ATi light, DampScan dark):
+   the time, the Dynamic Island, signal, wifi and battery. */
+const BAR = { ati: '#f5f5f3;--yp-ink:#11213c', dampscan: '#0c1a2b;--yp-ink:#f5f8fc' };
+const STATUS = '<div class="yp-status"><b>9:41</b><i class="yp-island"></i><span class="yp-icons">'
+  + '<svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
+  + '<svg viewBox="0 0 16 12"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.2-1.3A10.5 10.5 0 0 0 8 .8C5.2.8 2.7 1.9.8 3.7L2 5c1.6-1.5 3.7-2.4 6-2.4zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.6 6.6 0 0 0 8 4.4c-1.8 0-3.4.7-4.6 1.8l1.2 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.8l2.1-2.2A3 3 0 0 0 8 6.8a3 3 0 0 0-2.1.8z"/></svg>'
+  + '<svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="24.6" y="4" width="1.6" height="4" rx=".8" opacity=".4"/></svg>'
+  + '</span></div>';
 const STEPS = ['Pay', 'Move', 'Message', 'On the way', 'Report', 'Quote check'];
 const SERVICES = '<!-- ============================= SERVICES ============================= -->';
 const AREAS = '<!-- ============================= AREAS WE COVER ============================= -->';
+
+/** The iPhone around one or more screens (the agents page uses it too). */
+export const phone = (code, shots) => `<div class="yp-phone"><div class="yp-screen" style="--yp-bar:${BAR[code]}">${STATUS}<div class="yp-shots">${shots}</div><i class="yp-home"></i></div></div>`;
 
 export function tourSection(code) {
   const shots = ITEMS.map((_, i) => `<img src="/assets/tour/${code}-${i + 1}.jpg" alt="" loading="lazy" decoding="async" width="390" height="780" />`).join('');
@@ -32,7 +43,10 @@ export function tourSection(code) {
 ${ITEMS.map(([h, p], i) => `        <li><span class="yp-num">${i + 1}</span><div><strong>${h}</strong><span>${p}</span></div></li>`).join('\n')}
       </ol>
     </div>
-    <div class="yp-phone" aria-hidden="true"><div class="yp-screen">${shots}</div><div class="yp-subs">${SUBS.map((s) => `<span>${s}</span>`).join('')}</div></div>
+    <div class="yp-stage" aria-hidden="true">
+      ${phone(code, shots)}
+      <div class="yp-subs">${SUBS.map((s) => `<span>${s}</span>`).join('')}</div>
+    </div>
     <div class="yp-steps" aria-hidden="true">${STEPS.map((s) => `<span>${s}</span>`).join('')}</div>
   </div>
 </section>

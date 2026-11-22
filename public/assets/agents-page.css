@@ -3,4 +3,4 @@
 @media (max-width:900px){.ag-grid{grid-template-columns:1fr}}
 .ag-list li{animation:none}
 .booking .btn{display:flex;justify-content:center;margin-top:10px}
-.ag-grid .yp-screen img{animation:none;opacity:1}
+.ag-grid .yp-shots img{animation:none;opacity:1}
