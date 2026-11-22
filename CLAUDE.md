@@ -155,7 +155,10 @@ enforces the mechanical ones in CI.
   dialogs inside the viewport, 44px tap targets, 16px inputs.
   The websites too. `public/assets/fit.css` (imported with motion.css) keeps
   every field inside its box, iOS date and time fields included. Every pop-up
-  fits the visible screen (dvh, not vh, for iOS) and scrolls inside itself.
+  fits the visible screen (var(--app-h, 100dvh), never vh: `public/staff/app-fit.js`
+  measures it, since a home screen app on iPhone keeps the keyboard's height after
+  it closes, the owner, 22 Nov 2026) and scrolls inside itself; the bottom bar
+  steps aside only while a field is being typed in.
   The damp sites' booking form is the four-step one below (went live 16 Nov
   2026, the owner's go-live: `scripts/book-form.js` dampForm on every ATi and
   DampScan page, `public/assets/bf.js`, `bf-need.js`, `bf-done.js`, `bf-live.js`,
