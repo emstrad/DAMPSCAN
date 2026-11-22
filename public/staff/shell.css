@@ -1,5 +1,5 @@
 @import url("/assets/motion.css?v=e57b6c8c");
-@import url("/assets/fit.css?v=3ce5e305");
+@import url("/assets/fit.css?v=7393a883");
 /* The shared shell (shell.js): header search, the + button and its menu, the
    phone's bottom bar, the Undo toast and the To-do drawer on Today. */
 .gsearch{position:relative;flex:0 1 220px;min-width:140px}
@@ -66,6 +66,8 @@
   .bottom-bar{will-change:transform}
   /* Typing on a phone: the bar steps aside rather than riding up on the keyboard. */
   html.kb-open .bottom-bar{display:none}
+  /* A home screen app on iPhone: the bar sits on the measured bottom (app-fit.js), never where a stale keyboard height left it. */
+  html.is-app:not(.kb-open) .bottom-bar{bottom:auto;top:var(--app-h,100%);transform:translate3d(0,-100%,0)!important}
   html.has-shell main{scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .section-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .section-tab{flex:none}
@@ -110,7 +112,7 @@ html,body{max-width:100%;overflow-x:clip}
    scrolls inside itself rather than running off the bottom. */
 /* :where keeps this at no weight, so a page's own dialog sizes still win. */
 :where(dialog[open]){max-width:calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
-  max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;box-sizing:border-box}
+  max-height:calc(var(--app-h,100dvh) - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;box-sizing:border-box}
 /* iOS zooms into any field under 16px; staff fill these in on a phone.
 Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 @media (max-width:1024px),(pointer:coarse){input,select,textarea{font-size:16px!important;max-width:100%}}
@@ -125,7 +127,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
 
 /* The job pop-up on Today (calendar-pop.js): a sheet with its name and its
    way out always in view, and the rest scrolling between them. */
-.sheet{width:min(640px,calc(100vw - 16px));max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--line-strong);border-radius:16px;background:var(--navy);color:var(--text);
+.sheet{width:min(640px,calc(100vw - 16px));max-height:calc(var(--app-h,100dvh) - 32px);padding:0;border:1px solid var(--line-strong);border-radius:16px;background:var(--navy);color:var(--text);
   display:none;flex-direction:column}
 .sheet[open]{display:flex}
 .sheet-head{position:sticky;top:0;z-index:1;background:var(--navy);padding:14px 16px 10px;border-bottom:1px solid var(--line)}
@@ -171,7 +173,7 @@ Any touch screen counts, so a landscape iPad Pro (wider than 1024) does too. */
   /* A phone gets a near full height sheet with a real height, so the body
      between the sticky header and footer always has room to scroll. */
   .sheet[open]{margin:auto 0 0;width:100vw;max-width:100vw;border-radius:16px 16px 0 0;
-    height:calc(100dvh - 12px - env(safe-area-inset-top));max-height:calc(100dvh - 12px - env(safe-area-inset-top))}
+    height:calc(var(--app-h,100dvh) - 12px - env(safe-area-inset-top));max-height:calc(var(--app-h,100dvh) - 12px - env(safe-area-inset-top))}
   .shell-todo,.top .shell-todo.btn{display:none}
   /* A sticky two-row header took a fifth of an iPhone SE; on a phone it is
      one row and scrolls away, the bottom bar being the way around. */

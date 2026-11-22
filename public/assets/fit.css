@@ -16,7 +16,7 @@ form,fieldset{min-width:0}
    the bottom where it cannot be reached; dvh is what is actually visible.
    (dialog[open] outweighs a page's own .x-dialog size on purpose.) */
 dialog[open]{max-width:calc(100vw - 16px);max-height:calc(100vh - 24px);
-  max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  max-height:calc(var(--app-h,100dvh) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-sizing:border-box}
 
 /* Anything marked hidden stays hidden, whatever its own display rule says:
