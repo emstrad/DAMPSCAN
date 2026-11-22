@@ -26,10 +26,12 @@ const CALLS = ['Has the buyer booked yet?', 'Have they paid?', 'Can they move th
 
 export function renderAgents(site = SITES.ati) {
   const url = `${site.origin}/estate-agents`;
-  const body = `
+  const ask = `<div class="ag-ctas"><a class="btn btn--primary" href="tel:${site.phone}">Call ${site.phoneLabel}</a>${site.email ? `<a class="btn btn--ghost" href="mailto:${site.email}?subject=Estate%20agent%20page">Email us</a>` : ''}</div>`;
+  const body = `<div class="ag-page">
   <div class="hero">
     <h1>Book a damp survey in a minute. We handle the rest.</h1>
     <p class="lede">Quick book from your own page and your buyer gets theirs: they pay, move the time and message us there, and you watch every property move from booked to report, live. Fewer calls, no chasing.</p>
+    ${ask}
   </div>
 
   <section class="sec">
@@ -42,28 +44,26 @@ export function renderAgents(site = SITES.ati) {
     </div>
   </section>
 
-  <section class="sec">
-    <h2>The calls you stop making</h2>
-    <ul class="ag-calls">${CALLS.map((c) => `<li>${c}</li>`).join('')}</ul>
-    <p>Every one of these is answered on your page, the moment it changes. Your buyer has the same answers on theirs.</p>
+  <section class="sec ag-pair">
+    <div>
+      <h2>The calls you stop making</h2>
+      <ul class="ag-calls">${CALLS.map((c) => `<li>${c}</li>`).join('')}</ul>
+      <p>Every one of these is answered on your page, the moment it changes. Your buyer has the same answers on theirs.</p>
+    </div>
+    <div>
+      <h2>A report the seller can trust</h2>
+      <p>${site.brand} is independent: we sell no damp treatment, so nobody can say the report was written to sell work. Your buyer gets a clear answer, and the negotiation stays on the facts.</p>
+    </div>
   </section>
 
-  <section class="sec">
-    <h2>A report the seller can trust</h2>
-    <p>${site.brand} is independent: we sell no damp treatment, so nobody can say the report was written to sell work. Your buyer gets a clear answer, and the negotiation stays on the facts.</p>
+  <section class="sec ag-end">
+    <h2>Get your page today</h2>
+    <p>Call or email with your branch name. We send your page link the same day, with your own booking link for buyers, so every survey you send is put down to you.</p>
+    ${ask}
   </section>
-
-  <section class="sec">
-    <h2>Getting your page</h2>
-    <p>Call us on <a href="tel:${site.phone}">${site.phoneLabel}</a>${site.email ? ` or email <a href="mailto:${site.email}">${site.email}</a>` : ''} with your branch name. We send your page link the same day, with your own booking link for buyers, so every survey you send is put down to you.</p>
-  </section>`;
-  const aside = `
-    <div class="booking">
-      <h2>Ask for your page</h2>
-      <p>Quick book, live progress, fewer calls. Your branch has its page today.</p>
-      <a class="btn btn--primary" href="tel:${site.phone}">Call ${site.phoneLabel}</a>
-      ${site.email ? `<a class="btn btn--ghost" href="mailto:${site.email}?subject=Estate%20agent%20page">Email us</a>` : ''}
-    </div>`;
+  </div>`;
+  /* No side column here (the owner, 22 Nov 2026): it is not a booking page, only a call or email, so the page runs full width. */
+  const aside = '';
   return shell({
     site, url,
     title: `For Estate Agents: Quick Book Damp Surveys | ${site.brand}`,

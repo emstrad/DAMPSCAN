@@ -2,9 +2,20 @@
 .ag-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(24px,4vw,48px);align-items:center}
 @media (max-width:900px){.ag-grid{grid-template-columns:1fr}}
 .ag-list li{animation:none}
-.booking .btn{display:flex;justify-content:center;margin-top:10px}
 .ag-grid .yp-shots img{animation:none;opacity:1}
 .ag-calls{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
 .ag-calls li{padding:8px 14px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:15px;text-decoration:line-through;text-decoration-color:var(--accent)}
 /* The home page tour hides its list on a phone; here the list is the point. */
 @media (max-width:900px){.ag-grid .ag-list{display:block}.ag-grid .yp-stage{width:min(260px,70vw)}}
+/* Full width (the owner, 22 Nov 2026): no booking column beside it. */
+.page:has(.ag-page){grid-template-columns:minmax(0,1fr)}
+.page:has(.ag-page) .page-aside{display:none}
+.ag-ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+@media (min-width:1000px){
+  .ag-grid{grid-template-columns:minmax(0,1fr) 300px;align-items:start}
+  .ag-grid .ag-list{columns:2;column-gap:28px;border-top:0}
+  .ag-grid .ag-list li{break-inside:avoid;border-top:1px solid var(--line);border-bottom:0}
+  .ag-grid .yp-stage{position:sticky;top:calc(var(--head-h,72px) + 24px)}
+  .ag-pair{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+}
+.ag-end{text-align:left}
