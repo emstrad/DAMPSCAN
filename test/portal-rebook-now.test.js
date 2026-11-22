@@ -73,3 +73,18 @@ test('booked again there and then: the same survey shown first, a real time, the
   assert.match(log, /Booked again on their page for .*, the same survey/);
   assert.match((await pool.query("select title from notifications where kind = 'portal_move'")).rows[0].title, /Booked again by the customer/);
 });
+
+test('Change survey: priced on the server from the one list, booked as the new survey with its extras', async () => {
+  const id = await cancelled();
+  await pool.query("insert into lab_flags (key, enabled) values ('instant_booking', true)");
+  const want = { service: 'timber', size: 'full-house', extras: ['camera', 'made-up'] };
+  const seen = await R.pageTimes(await load(id), want);
+  assert.deepEqual([seen.survey.label, seen.survey.price, seen.survey.changed], ['Full house damp and timber survey', '£530', true], 'its price from the list, the made-up extra dropped');
+  assert.equal(R.chosen({ service: 'roofing', size: 'full-house' }), null, 'only a survey we sell');
+  const slot = seen.days[0];
+  assert.equal((await R.rebookNow(req, await load(id), { date: slot.date, time: slot.times[0], survey: want })).ok, true);
+  const j = await load(id);
+  assert.deepEqual([j.status, j.survey_type, j.survey_price_pence, j.extras], ['booked', 'dt-full-house', 53000, ['camera']]);
+  assert.match(j.sched_log.map((e) => e.note).join(' | '), /changing the survey to \(Full house damp and timber survey with underfloor camera check, £530\)/);
+});
+

@@ -57,25 +57,32 @@
 
   /* The surveyors' real free times: days as tiles to swipe, then the times three across. */
   /* again: a cancelled survey booked again (a request the team confirms on a call). */
-  function movePicker(p, box, token, reload, close, again) {
-    var area = h('div', 'pt-movearea'); box.appendChild(area);
+  /* survey: a different one chosen with Change survey (portal-survey.js), else what they had. */
+  function movePicker(p, box, token, reload, close, again, survey) {
+    var area = box.classList && box.classList.contains('pt-movearea') ? box : h('div', 'pt-movearea');
+    if (area !== box) box.appendChild(area);
+    area.textContent = '';
     var self = !again && Boolean(p.move.self), pick = { date: null, time: null };
     area.appendChild(h('div', 'pt-ring pt-ring--sm'));
-    ask(token, { op: again ? 'rebook_times' : 'times' }).then(function (d) {
+    ask(token, again ? { op: 'rebook_times', survey: survey || null } : { op: 'times' }).then(function (d) {
       area.textContent = '';
       if (!d.ok || !d.days || !d.days.length) { area.appendChild(t('p', null, 'No ' + (again ? '' : 'other ') + 'times free just now. Call us on ' + p.brand.phoneLabel + ' and we\'ll help.')); return; }
       var days = h('div', 'pt-days'), times = h('div', 'pt-times');
       /* Booking again: the same survey as before, shown to confirm before a time is picked. */
       if (again && d.survey) {
-        var sv = h('div', 'pt-card soft'); sv.appendChild(t('div', 'pt-label', 'Your survey, same as before'));
+        var sv = h('div', 'pt-card soft pt-had'); sv.appendChild(t('div', 'pt-label', d.survey.changed ? 'Your new survey' : 'What you had booked'));
         sv.appendChild(t('p', null, d.survey.label + (d.survey.extras.length ? ' with ' + d.survey.extras.join(', ') : '') + ', ' + d.survey.price));
+        /* Small, as the owner asked: the same survey is the easy path; changing it runs the booking's own choices. */
+        if (global.PTSURVEY && d.options) sv.appendChild(btn('pt-chip', '<span>Change survey</span>', function () {
+          global.PTSURVEY.draw(area, d.options, survey || d.had, function (c) { movePicker(p, area, token, reload, close, true, c || survey); });
+        }));
         area.appendChild(sv);
       }
       var booksNow = again && Boolean(d.self);
       var send = btn('pt-btn', '<span class="in">' + (again ? 'Book this time' : self ? 'Move to this time' : 'Ask for this time') + '</span>', function () {
         if (!pick.date || !pick.time) return;
         send.classList.add('busy'); send.disabled = true;
-        ask(token, { op: again ? 'rebook' : 'move', date: pick.date, time: pick.time }).then(function (r) {
+        ask(token, again ? { op: 'rebook', date: pick.date, time: pick.time, survey: survey || null } : { op: 'move', date: pick.date, time: pick.time }).then(function (r) {
           send.classList.remove('busy'); send.disabled = false;
           if (r.ok) { if (close) close(); P.toast(r.booked ? 'Booked for ' + shortDay(r.booked.date) + ' at ' + r.booked.time + '. We\'ll text you to confirm.' : again ? 'Sent. We\'ll call to confirm your survey.' : r.moved ? 'Done: moved to ' + shortDay(r.moved.date) + ' at ' + r.moved.time + '. We\'ll text you the new time.' : 'Asked. We\'ll call to confirm.'); reload(); }
           else P.toast(r.error === 'taken' ? 'That time has just gone. Pick another.' : 'That didn\'t send. Please try again.');
@@ -219,7 +226,7 @@
       c.appendChild(t('p', null, 'We\'ll call to confirm your survey.')); main.appendChild(c); return;
     }
     c.appendChild(t('h2', null, 'Book a new time'));
-    c.appendChild(t('p', null, 'The same survey as before, at a time that suits.'));
+    c.appendChild(t('p', null, 'Pick a time that suits. Your survey stays as it was unless you change it.'));
     c.appendChild(btn('pt-btn', '<span class="in">See free times</span>', function () { sheet('Pick a time', function (sh, close) { movePicker(p, sh, token, reload, close, true); }); }));
     main.appendChild(c);
   }

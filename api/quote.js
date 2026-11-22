@@ -187,8 +187,8 @@ const ASKS = {
   move: async (req, j, b) => ((await movesItself(j)) ? moveNow : askToMove)(req, j, { date: str(b.date, 10), time: str(b.time, 5) }),
   photos: (req, j, b) => addPhotos(req, j, b.paths),
   /* A cancelled survey booked again (lib/portal-rebook.js): there and then with Book it straight away on, else a request. */
-  rebook_times: (req, j) => pageTimes(j),
-  rebook: async (req, j, b) => ((await rebooksItself(j)) ? rebookNow : askRebook)(req, j, { date: str(b.date, 10), time: str(b.time, 5) })
+  rebook_times: (req, j, b) => pageTimes(j, b.survey),
+  rebook: async (req, j, b) => ((await rebooksItself(j)) ? rebookNow : askRebook)(req, j, { date: str(b.date, 10), time: str(b.time, 5), survey: b.survey })
 };
 
 /* A customer on their page asking for something: a new link, a payment, a message, a move or photos. */

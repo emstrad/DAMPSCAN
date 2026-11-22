@@ -1119,9 +1119,10 @@ checks the mechanical ones.
   the fold becomes "Your photos (N)" showing every one they sent).
   A cancelled survey's page (`lib/portal-rebook.js`, the owner, 22 Nov 2026: it
   offered nothing but a phone number) leads with Book a new time and keeps
-  Message us with the whole thread. The sheet shows their survey as before
-  (type, extras, price) to confirm, then every surveyor's real free times (never
-  who). With Book it straight away on, the time tapped books that same survey
+  Message us with the whole thread. The sheet shows what they had booked (type,
+  extras, price) with a small Change survey, which runs the booking form's own
+  choices (survey, size, add-ons, priced on the server from the one list), then
+  every surveyor's real free times for that survey (never who). With Book it straight away on, the time tapped books that survey
   there and then through Scheduling's Bring back and Book it (surveyor told, the
   customer's text at once, the deposit then on their page, an owners' alert and
   text), twice per survey; otherwise it is a request (an owners' to-do, alert
