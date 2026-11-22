@@ -36,6 +36,7 @@ import { findPortal, portalView, portalReport, portalPhoto, requestNewLink } fro
 import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
 import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.js';
 import { movesItself, moveNow } from '../lib/portal-move.js';
+import { pageTimes, askRebook, rebookNow, rebooksItself } from '../lib/portal-rebook.js';
 import { startPayment, startWallet, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { logEvent, deviceOf } from '../lib/portal-events.js';
 import { siteBase } from '../lib/alert-words.js';
@@ -184,7 +185,10 @@ const ASKS = {
   /* With Book it straight away on, they move it themselves (lib/portal-move.js); else it is a request. */
   times: async (req, j) => moveTimes(j, undefined, { own: await movesItself(j) }),
   move: async (req, j, b) => ((await movesItself(j)) ? moveNow : askToMove)(req, j, { date: str(b.date, 10), time: str(b.time, 5) }),
-  photos: (req, j, b) => addPhotos(req, j, b.paths)
+  photos: (req, j, b) => addPhotos(req, j, b.paths),
+  /* A cancelled survey booked again (lib/portal-rebook.js): there and then with Book it straight away on, else a request. */
+  rebook_times: (req, j) => pageTimes(j),
+  rebook: async (req, j, b) => ((await rebooksItself(j)) ? rebookNow : askRebook)(req, j, { date: str(b.date, 10), time: str(b.time, 5) })
 };
 
 /* A customer on their page asking for something: a new link, a payment, a message, a move or photos. */

@@ -1117,6 +1117,16 @@ checks the mechanical ones.
   UAT 15 Nov 2026, with the fold kept where there is no visit card), and Add photos before the visit (through
   /api/upload, only paths it made, onto the enquiry or jobs.customer_files;
   the fold becomes "Your photos (N)" showing every one they sent).
+  A cancelled survey's page (`lib/portal-rebook.js`, the owner, 22 Nov 2026: it
+  offered nothing but a phone number) leads with Book a new time and keeps
+  Message us with the whole thread. The sheet shows their survey as before
+  (type, extras, price) to confirm, then every surveyor's real free times (never
+  who). With Book it straight away on, the time tapped books that same survey
+  there and then through Scheduling's Bring back and Book it (surveyor told, the
+  customer's text at once, the deposit then on their page, an owners' alert and
+  text), twice per survey; otherwise it is a request (an owners' to-do, alert
+  and text; "Book them again" on Needs you now and What's next), the survey left
+  cancelled until the team brings it back.
   On my way: the surveyor taps it on the day in the job pop-up (their own
   surveys too); the page shows it two minutes later (Undo before then), for
   four hours, never a text, as "Tom is on the way, arriving between 9 and

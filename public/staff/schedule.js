@@ -107,7 +107,7 @@
     });
     /* Booked customers who asked something on their page: first, and they open the job card. */
     (data.asks || []).forEach(function (a) {
-      list.push([-1, { name: a.name, postcode: a.postcode, jobId: a.id }, a.ask.what === 'move' ? 'Asked to move to ' + day(a.ask.date) + ' ' + a.ask.time : 'Messaged: "' + a.ask.text + '"']);
+      list.push([-1, { name: a.name, postcode: a.postcode, jobId: a.id }, a.ask.what === 'rebook' ? 'Wants to book again: ' + day(a.ask.date) + ' ' + a.ask.time : a.ask.what === 'move' ? 'Asked to move to ' + day(a.ask.date) + ' ' + a.ask.time : 'Messaged: "' + a.ask.text + '"']);
     });
     box.hidden = !list.length;
     if (!list.length) return;

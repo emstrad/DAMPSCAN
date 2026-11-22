@@ -210,11 +210,14 @@
         card.appendChild(P.banner('', 'Cancelled within ' + p.refundHours + ' hours of your survey, so the deposit is kept, as set out when you booked:', money(c.keptPence) + '.'));
         if (c.refundPence) card.appendChild(t('p', null, 'Anything you paid over the deposit comes back to you: ' + money(c.refundPence) + '.'));
       }
-      card.appendChild(t('p', null, c.rule === 'kept' ? 'If something has happened, call us and we\'ll take a look.' : 'We\'d be glad to survey for you another time.')); main.appendChild(card);
+      if (c.rule === 'kept') card.appendChild(t('p', null, 'If something has happened, call us and we\'ll take a look.'));
+      if (card.children.length) main.appendChild(card);
     }
     if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(s) !== -1) enquiryFold(p);
+    /* Cancelled too: booking again and their messages, theirs and ours, stay, ahead of the payments there (the owner, 22 Nov 2026). */
+    if (s === 'cancelled' && window.PTASK) window.PTASK.more(p, main, token, load, api);
     if (s !== 'requested') paymentsFold(p);
-    if (window.PTASK && s !== 'cancelled') window.PTASK.more(p, main, token, load, api);
+    if (s !== 'cancelled' && window.PTASK) window.PTASK.more(p, main, token, load, api);
     helpFold(p);
     main.appendChild(t('p', 'pt-foot', 'Private link, works until ' + when(p.expiresOn) + ' · Damp Surveying Limited'));
   }
