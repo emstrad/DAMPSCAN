@@ -16,8 +16,9 @@
   .yp-list,.yp-text>.eyebrow,.yp-text>p{display:none}
   .yp-grid .yp-phone{order:3;width:min(220px,58vw);padding:9px;border-radius:38px}
   .yp-grid .yp-screen{border-radius:30px}
-  .yp-steps{order:2;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
-  .yp-steps span{font-size:12px;font-weight:600;color:var(--muted);padding:6px 10px;border-radius:999px;border:1px solid var(--line);
+  /* One line of six on a phone (the owner, 22 Nov 2026), sized to the screen's width. */
+  .yp-steps{order:2;display:flex;justify-content:center;gap:3px;flex-wrap:nowrap}
+  .yp-steps span{flex:none;white-space:nowrap;font-size:clamp(9.5px,2.6vw,12.5px);font-weight:600;color:var(--muted);padding:5px clamp(4px,1.4vw,10px);border-radius:999px;border:1px solid var(--line);
     animation:yp-step 24s infinite;animation-play-state:paused}
   .yp-steps span:nth-child(2){animation-delay:4s}.yp-steps span:nth-child(3){animation-delay:8s}.yp-steps span:nth-child(4){animation-delay:12s}.yp-steps span:nth-child(5){animation-delay:16s}.yp-steps span:nth-child(6){animation-delay:20s}
   .yp.is-live .yp-steps span{animation-play-state:running}

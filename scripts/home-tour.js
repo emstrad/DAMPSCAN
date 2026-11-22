@@ -13,7 +13,7 @@ const ITEMS = [
   ['Your report the moment it is ready', 'Pay the balance and open the report on your phone.'],
   ['Got a quote for the work? We check it, free', 'Send any quote you are given and we will check it against your report: what it covers, what it misses, what you do not need.']
 ];
-const SUBS = ['Tap Pay: Apple Pay, Google Pay or card. Booked.', 'Plans changed? Pick a new time yourself.', 'Questions or photos? Message us. Our replies stay here.',
+const SUBS = ['Tap Pay with Apple Pay. You\'re booked.', 'Plans changed? Pick a new time yourself.', 'Questions or photos? Message us. Our replies stay here.',
   'On the day, see when your surveyor is on the way.', 'Paid in full? Your report opens right here.', 'Got a quote for the work? Send it. We\'ll check it, free.'];
 const STEPS = ['Pay', 'Move', 'Message', 'On the way', 'Report', 'Quote check'];
 const SERVICES = '<!-- ============================= SERVICES ============================= -->';
