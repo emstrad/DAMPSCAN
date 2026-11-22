@@ -111,7 +111,7 @@
 .sched-dialog .b-extras legend { padding: 0; margin-bottom: 4px; }
 .sched-dialog label.b-extra { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0; }
 .sched-dialog .b-extra input { width: 22px; height: 22px; min-height: 0; flex: none; padding: 0; accent-color: var(--accent); }
-.sched-dialog { max-height: calc(100dvh - 32px); overflow-y: auto; }
+.sched-dialog { max-height: calc(var(--app-h,100dvh) - 32px); overflow-y: auto; }
 
 /* Scheduling, made calm (the owner's preview, 16 Nov 2026). Actions you can
    see are buttons; three views on a phone; rows with tags and an arrow. */
@@ -167,7 +167,7 @@
 .dsp-free b { font-size: 14px; }
 .dsp-free:hover, .dsp-free.is-over { background: rgba(124,211,138,.22); }
 /* Who's free, as a sheet. */
-.sch-free { width: min(560px, calc(100vw - 24px)); max-height: 86dvh; overflow-y: auto; }
+.sch-free { width: min(560px, calc(100vw - 24px)); max-height: calc(var(--app-h,100dvh) * .86); overflow-y: auto; }
 .sch-free-top { display: flex; align-items: center; justify-content: space-between; }
 .sch-free-top h2 { margin: 0; font-size: 18px; }
 .sch-free-ask { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; margin: 8px 0 12px; }

@@ -256,20 +256,7 @@
   sBtn.addEventListener('click', function () { openSearch(false); });
   bar.appendChild(sBtn);
   document.body.appendChild(bar);
-  /* The keyboard shrinks the screen you see and a bar glued to it rides up mid-page: while typing it
-     steps aside; otherwise it is held to the visible bottom (iOS can leave it adrift after the keyboard). */
-  var vv = global.visualViewport;
-  var typing = function () { var a = document.activeElement; return Boolean(a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable) && !/^(checkbox|radio|button|submit|range|file)$/.test(a.type || '')); };
-  var glue = function () {
-    var kb = vv ? global.innerHeight - vv.height > 120 : false;
-    document.documentElement.classList.toggle('kb-open', kb || (typing() && Boolean(vv) && vv.height < global.innerHeight - 40));
-    var gap = vv && !kb ? Math.round(vv.height + vv.offsetTop - global.innerHeight) : 0;
-    bar.style.transform = gap && Math.abs(gap) < 120 ? 'translate3d(0,' + gap + 'px,0)' : '';
-  };
-  if (vv) ['resize', 'scroll'].forEach(function (e) { vv.addEventListener(e, glue); }); ['scroll', 'pageshow', 'orientationchange'].forEach(function (e) { global.addEventListener(e, glue, { passive: true }); });
-  /* After the keyboard goes, iOS settles a moment later: look again then. */
-  document.addEventListener('focusin', glue); document.addEventListener('focusout', function () { setTimeout(glue, 60); setTimeout(glue, 400); });
-  glue();
+  /* Holding the bar and pop-ups to the real screen (the keyboard, a home screen app): app-fit.js. */
   document.documentElement.classList.add('has-shell');
 
   /* A dialog or the To-do drawer open keeps the page behind still: a swipe scrolls the pop-up only. */
