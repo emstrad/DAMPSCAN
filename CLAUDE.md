@@ -158,7 +158,11 @@ enforces the mechanical ones in CI.
   fits the visible screen (var(--app-h, 100dvh), never vh: `public/staff/app-fit.js`
   measures it, since a home screen app on iPhone keeps the keyboard's height after
   it closes, the owner, 22 Nov 2026) and scrolls inside itself; the bottom bar
-  steps aside only while a field is being typed in.
+  steps aside only while a field is being typed in. On a phone every staff page
+  is an app screen (the owner's choice, 22 Nov 2026, after the fixed bar kept
+  floating mid-screen in the home screen app): the page never scrolls, only the
+  body does, and the bar is a plain row beneath it, moved out of the body by
+  app-fit.js (html.app-shell in shell.css); never position:fixed to the foot.
   The damp sites' booking form is the four-step one below (went live 16 Nov
   2026, the owner's go-live: `scripts/book-form.js` dampForm on every ATi and
   DampScan page, `public/assets/bf.js`, `bf-need.js`, `bf-done.js`, `bf-live.js`,

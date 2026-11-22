@@ -66,8 +66,15 @@
   .bottom-bar{will-change:transform}
   /* Typing on a phone: the bar steps aside rather than riding up on the keyboard. */
   html.kb-open .bottom-bar{display:none}
-  /* A home screen app on iPhone: the bar sits on the measured bottom (app-fit.js), never where a stale keyboard height left it. */
-  html.is-app:not(.kb-open) .bottom-bar{bottom:auto;top:var(--app-h,100%);transform:translate3d(0,-100%,0)!important}
+  /* An app screen, not a scrolling page (the owner, 22 Nov 2026: the fixed bar kept
+     floating mid-screen in the home screen app): the page never scrolls, only the
+     body between the header and the bar does, and the bar is a plain row beneath it
+     (app-fit.js moves it out of the body), so iOS has nothing fixed to misplace. */
+  html.app-shell{height:100%;display:flex;flex-direction:column;overflow:hidden}
+  html.app-shell body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:clip;overscroll-behavior-y:contain;padding-bottom:24px}
+  /* Outside the body now, so it takes the body's type itself. */
+  html.app-shell .bottom-bar{position:relative;flex:none;bottom:auto;transform:none!important;will-change:auto;font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+  html.app-shell main{scroll-padding-bottom:24px}
   html.has-shell main{scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .section-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .section-tab{flex:none}
