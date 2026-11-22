@@ -235,8 +235,10 @@
     againCard(p, main, token, reload);
     moveFold(p, main, token, reload);
     photosFold(p, main, token, reload, api);
+    /* After the report: a contractor's quote to check (portal-quotes.js). */
+    if (global.PTQUOTE) global.PTQUOTE.fold(p, main, token, reload);
     messageFold(p, main, token, reload);
   }
 
-  global.PTASK = { top: top, more: more, chips: chips };
+  global.PTASK = { top: top, more: more, chips: chips, upload: upload, ask: ask };
 })(window);

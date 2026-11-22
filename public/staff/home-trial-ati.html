@@ -40,6 +40,8 @@
 <link rel="stylesheet" href="/assets/header.css?v=0e4145f6" />
 <link rel="stylesheet" href="/assets/book.css?v=cf3d6b50" />
 <link rel="stylesheet" href="/assets/reviews.css?v=b6a242fe" />
+<link rel="stylesheet" href="/assets/tour.css?v=4fbba1f4" />
+<script src="/assets/tour.js?v=78fbf5ae" defer></script>
 
 <style>
 :root{--head-bg:rgba(245,245,243,.9);--head-solid:#f5f5f3}
@@ -549,6 +551,33 @@ html{scroll-padding-top:88px}
   </div>
 </section>
 
+<!-- your-page:start, filled by scripts/build-pages.js -->
+<!-- ============================= YOUR SURVEY PAGE ============================= -->
+<section id="your-page" class="yp reveal" aria-labelledby="yp-heading" data-screen-label="Your survey page">
+  <div class="container yp-grid">
+    <div class="yp-text">
+      <span class="eyebrow">Your survey page</span>
+      <h2 id="yp-heading" class="h-section">Everything about your survey, on your phone.</h2>
+      <p>Book and you get your own private page. No login, no app, no chasing us for updates.</p>
+      <ol class="yp-list">
+        <li><span class="yp-num">1</span><div><strong>Pay the deposit in seconds</strong><span>Apple Pay, Google Pay or card. Your booking is secured there and then.</span></div></li>
+        <li><span class="yp-num">2</span><div><strong>Change your time yourself</strong><span>Pick another free slot whenever plans change. No phone calls.</span></div></li>
+        <li><span class="yp-num">3</span><div><strong>Message us, photos too</strong><span>Ask anything before or after the visit, or send photos of the damp. Our replies stay on your page.</span></div></li>
+        <li><span class="yp-num">4</span><div><strong>See when the surveyor is on the way</strong><span>On the day, your page shows who is coming and when to expect them.</span></div></li>
+        <li><span class="yp-num">5</span><div><strong>Your report the moment it is ready</strong><span>Pay the balance and open the report on your phone.</span></div></li>
+        <li><span class="yp-num">6</span><div><strong>Got a quote for the work? We check it, free</strong><span>Send any quote you are given and we will check it against your report: what it covers, what it misses, what you do not need.</span></div></li>
+      </ol>
+    </div>
+    <div class="yp-stage" aria-hidden="true">
+      <div class="yp-phone"><div class="yp-screen" style="--yp-bar:#f5f5f3;--yp-ink:#11213c"><div class="yp-status"><b>9:41</b><i class="yp-island"></i><span class="yp-icons"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.2-1.3A10.5 10.5 0 0 0 8 .8C5.2.8 2.7 1.9.8 3.7L2 5c1.6-1.5 3.7-2.4 6-2.4zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.6 6.6 0 0 0 8 4.4c-1.8 0-3.4.7-4.6 1.8l1.2 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.8l2.1-2.2A3 3 0 0 0 8 6.8a3 3 0 0 0-2.1.8z"/></svg><svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="24.6" y="4" width="1.6" height="4" rx=".8" opacity=".4"/></svg></span></div><div class="yp-shots"><img src="/assets/tour/ati-1.jpg?v=053e44f4" alt="" loading="lazy" decoding="async" width="390" height="780" /><img src="/assets/tour/ati-2.jpg?v=9fa56ad9" alt="" loading="lazy" decoding="async" width="390" height="780" /><img src="/assets/tour/ati-3.jpg?v=b4a4df38" alt="" loading="lazy" decoding="async" width="390" height="780" /><img src="/assets/tour/ati-4.jpg?v=611aa01f" alt="" loading="lazy" decoding="async" width="390" height="780" /><img src="/assets/tour/ati-5.jpg?v=67ea064f" alt="" loading="lazy" decoding="async" width="390" height="780" /><img src="/assets/tour/ati-6.jpg?v=1e487953" alt="" loading="lazy" decoding="async" width="390" height="780" /></div><i class="yp-home"></i></div></div>
+      <div class="yp-subs"><span>Tap Pay with Apple Pay. You're booked.</span><span>Plans changed? Pick a new time yourself.</span><span>Questions or photos? Message us. Our replies stay here.</span><span>On the day, see when your surveyor is on the way.</span><span>Paid in full? Your report opens right here.</span><span>Got a quote for the work? Send it. We'll check it, free.</span></div>
+    </div>
+    <div class="yp-steps" aria-hidden="true"><span>Pay</span><span>Move</span><span>Message</span><span>On the way</span><span>Report</span><span>Quote check</span></div>
+  </div>
+</section>
+
+<!-- your-page:end -->
+
 <!-- ============================= SERVICES ============================= -->
 <section id="services" class="reveal" aria-labelledby="services-heading" data-screen-label="Services">
   <div class="container">
@@ -683,6 +712,17 @@ html{scroll-padding-top:88px}
     </div>
   </div>
 </section>
+
+<!-- agent-band:start, filled by scripts/build-pages.js -->
+<!-- ============================= ESTATE AGENTS ============================= -->
+<section class="agentband" aria-label="Estate agents">
+  <div class="container">
+    <p><strong>Estate agent?</strong> <span>Every buyer you send us, on one private page: visits, money and reports, live.</span></p>
+    <a href="/estate-agents" class="btn btn--ghost">How it works for agents</a>
+  </div>
+</section>
+
+<!-- agent-band:end -->
 
 <!-- ============================= AREAS WE COVER ============================= -->
 <section id="areas" class="areas reveal" aria-labelledby="areas-heading" data-screen-label="London coverage">

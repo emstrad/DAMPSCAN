@@ -12,8 +12,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { dampForm } from './book-form.js';
-import { withTour } from './home-tour.js';
-import { renderAgents } from './agents-page.js';
 
 const BF_START = '<!-- book-form:start, filled by scripts/build-pages.js -->';
 const BF_END = '<!-- book-form:end -->';
@@ -47,15 +45,3 @@ export async function writeTrialHomes(root, home) {
   }
 }
 
-/* The new home page to look at before it goes live (the owner, 22 Nov 2026: "an
-   exact one-to-one ... I can share with Tom"): the same staff copy, with the
-   survey page tour and, for ATi, the estate agents line and its page. */
-const noIndex = (html) => html.replace(/<!-- Google tag \(gtag\.js\) -->[\s\S]*?window\.DS_ADS_CONVERSION[^<]*<\/script>/, '').replace(/<link rel="canonical"[^>]*>\s*/, '')
-  .replace('<head>', '<head>\n<meta name="robots" content="noindex, nofollow" />');
-export async function writePreviewHomes(root, home) {
-  for (const [site, file] of Object.entries(home)) {
-    const html = await readFile(join(root, file), 'utf8');
-    await writeFile(join(root, 'public', 'staff', `home-trial-new-${site}.html`), withTour(trialPage(html, site), site, { agentHref: '/staff/home-trial-agents-ati.html' }), 'utf8');
-  }
-  await writeFile(join(root, 'public', 'staff', 'home-trial-agents-ati.html'), noIndex(renderAgents()), 'utf8');
-}

@@ -7,7 +7,9 @@
  */
 import { shell } from './page-shell.js';
 import { SITES } from './sites.js';
-import { phone } from './home-tour.js';
+import { phone, shot } from './home-tour.js';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 const GETS = [
   ['Every buyer in one place', 'Each property you send us or let us into, with its stage at a glance: booked, surveyed, report ready.'],
@@ -31,7 +33,7 @@ export function renderAgents(site = SITES.ati) {
       <ol class="yp-list ag-list">
         ${GETS.map(([h, p], i) => `<li><span class="yp-num">${i + 1}</span><div><strong>${h}</strong><span>${p}</span></div></li>`).join('\n        ')}
       </ol>
-      <div class="yp-stage" aria-hidden="true">${phone('ati', '<img src="/assets/tour/agent-1.jpg" alt="" decoding="async" width="390" height="780" />')}</div>
+      <div class="yp-stage" aria-hidden="true">${phone('ati', `<img src="${shot('agent-1.jpg')}" alt="" decoding="async" width="390" height="780" />`)}</div>
     </div>
   </section>
 
@@ -57,4 +59,11 @@ export function renderAgents(site = SITES.ati) {
     metaDescription: `Estate agents in London: one private page for every buyer you send ${site.brand}, with visits, payments and reports kept up to date.`,
     body, aside, scripts: '', styles: ['/assets/tour.css', '/assets/agents-page.css']
   });
+}
+
+/** ATi's estate agents page, served at /estate-agents on ATi's host only (middleware.js). */
+export async function writeAgentsPage(root) {
+  const dir = join(root, 'public', 'hubs', 'ati');
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, 'estate-agents.html'), renderAgents(), 'utf8');
 }

@@ -37,6 +37,7 @@ import { brandOf, codeOf, buildView } from '../lib/portal-view.js';
 import { messageUs, moveTimes, askToMove, addPhotos } from '../lib/portal-asks.js';
 import { movesItself, moveNow } from '../lib/portal-move.js';
 import { pageTimes, askRebook, rebookNow, rebooksItself } from '../lib/portal-rebook.js';
+import { addQuote } from '../lib/portal-quotes.js';
 import { startPayment, startWallet, latestOrder, onWebhook } from '../lib/revolut-pay.js';
 import { logEvent, deviceOf } from '../lib/portal-events.js';
 import { siteBase } from '../lib/alert-words.js';
@@ -186,6 +187,8 @@ const ASKS = {
   times: async (req, j) => moveTimes(j, undefined, { own: await movesItself(j) }),
   move: async (req, j, b) => ((await movesItself(j)) ? moveNow : askToMove)(req, j, { date: str(b.date, 10), time: str(b.time, 5) }),
   photos: (req, j, b) => addPhotos(req, j, b.paths),
+  /* A contractor's quote to check against the report, free (lib/portal-quotes.js). */
+  quote: (req, j, b) => addQuote(req, j, b.paths),
   /* A cancelled survey booked again (lib/portal-rebook.js): there and then with Book it straight away on, else a request. */
   rebook_times: (req, j, b) => pageTimes(j, b.survey),
   rebook: async (req, j, b) => ((await rebooksItself(j)) ? rebookNow : askRebook)(req, j, { date: str(b.date, 10), time: str(b.time, 5), survey: b.survey })

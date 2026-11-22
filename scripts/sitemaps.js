@@ -29,6 +29,7 @@ export function sitemapFor(site, today) {
     ...(brand.areasPath ? [{ loc: `${origin}${brand.areasPath}`, priority: '0.9', changefreq: 'monthly' }] : []),
     ...(pricing[site] ? [{ loc: `${origin}/pricing`, priority: '0.9', changefreq: 'monthly' }] : []),
     ...(brand.galleryPath ? [{ loc: `${origin}${brand.galleryPath}`, priority: '0.7', changefreq: 'weekly' }] : []),
+    ...(site === 'ati' ? [{ loc: `${origin}/estate-agents`, priority: '0.6', changefreq: 'monthly' }] : []),
     { loc: `${origin}/guides`, priority: '0.8', changefreq: 'monthly' },
     ...guides
       .filter((g) => g.site === site)

@@ -33,7 +33,7 @@ export const config = {
     '/roofing-in', '/roofing-in/', '/roofing-in/:slug',
     '/services', '/services/', '/services/:slug',
     '/guides', '/guides/', '/guides/:slug',
-    '/pricing', '/pricing/',
+    '/pricing', '/pricing/', '/estate-agents', '/estate-agents/',
     '/our-work', '/our-work/', '/our-work/:slug', '/sitemap-work.xml',
     '/problems', '/problems/', '/problems/:slug',
     '/seasonal', '/seasonal/', '/seasonal/:slug',
@@ -217,6 +217,10 @@ export default function middleware(request) {
     if (key === 'roofing') return next();
     return rewrite(new URL(london ? '/pricing/ati.html' : '/pricing/dampscan.html', request.url));
   }
+
+  /* ATi's page for estate agents (scripts/agents-page.js); DampScan has none yet, so its 404 is honest. */
+  if (path === '/estate-agents/') return Response.redirect(new URL('/estate-agents', url), 301);
+  if (path === '/estate-agents') return london ? rewrite(new URL('/hubs/ati/estate-agents.html', request.url)) : next();
 
   if (path === '/our-work/') return Response.redirect(new URL('/our-work', url), 301);
   if (path === '/our-work') {
