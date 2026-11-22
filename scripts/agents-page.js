@@ -7,6 +7,7 @@
  */
 import { shell } from './page-shell.js';
 import { SITES } from './sites.js';
+import { phone } from './home-tour.js';
 
 const GETS = [
   ['Every buyer in one place', 'Each property you send us or let us into, with its stage at a glance: booked, surveyed, report ready.'],
@@ -30,7 +31,7 @@ export function renderAgents(site = SITES.ati) {
       <ol class="yp-list ag-list">
         ${GETS.map(([h, p], i) => `<li><span class="yp-num">${i + 1}</span><div><strong>${h}</strong><span>${p}</span></div></li>`).join('\n        ')}
       </ol>
-      <div class="yp-phone" aria-hidden="true"><div class="yp-screen"><img src="/assets/tour/agent-1.jpg" alt="" decoding="async" width="390" height="780" style="opacity:1" /></div></div>
+      <div class="yp-stage" aria-hidden="true">${phone('ati', '<img src="/assets/tour/agent-1.jpg" alt="" decoding="async" width="390" height="780" />')}</div>
     </div>
   </section>
 
