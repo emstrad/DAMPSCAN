@@ -41,7 +41,7 @@
   function sheet(title, fill) {
     var scrim = h('div', 'pt-scrim'), sh = h('div', 'pt-sheet'); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', title);
     var head = h('div', 'pt-sheet-head'); head.appendChild(t('h2', null, title));
-    var x = btn('pt-sheet-x', '<span aria-hidden="true">&times;</span>', function () { close(); }); x.setAttribute('aria-label', 'Close'); head.appendChild(x);
+    var x = btn('pt-sheet-x', '<span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></span>', function () { close(); }); x.setAttribute('aria-label', 'Close'); head.appendChild(x);
     sh.appendChild(h('div', 'pt-grab')); sh.appendChild(head);
     var was = document.activeElement;
     function key(e) { if (e.key === 'Escape') close(); }
