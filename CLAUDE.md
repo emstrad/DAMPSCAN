@@ -1043,7 +1043,8 @@ checks the mechanical ones.
   (requested, waiting, agent, deposit, booked, writing, ready, report,
   cancelled), worked out on the server from real payments (job_payments or
   the ticks): deposit 50%, in full, or any amount from the deposit up; the
-  report unlocks only on the full balance and opens from the private link
+  report unlocks only on the full balance (the ready page shows the balance
+  alone, no price breakdown, the owner, 23 Nov 2026) and opens from the private link
   alone (no postcode to type, the owner's choice, 15 Nov 2026: the page shows
   the postcode, so it guarded nothing; every download is logged). Bank transfer shows a reference of their first name and the
   survey number (KIM0042) as the hero, with copy buttons, folded under the

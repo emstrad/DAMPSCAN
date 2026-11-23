@@ -191,7 +191,8 @@
       /* Still owed after the visit: they can pay now (the deposit first if it never came, else the rest). */
       if (p.money.balancePence > 0) main.appendChild(P.payCard(p, p.money.depositPaid, pay));
     } else if (s === 'ready') {
-      reportCard(p, true); if (p.money.lines) { card = h('div', 'pt-card soft'); lines(card, p.money); main.appendChild(card); }
+      /* No price breakdown once the report is ready (the owner, 23 Nov 2026): just the balance to pay. */
+      reportCard(p, true);
       main.appendChild(P.payCard(p, true, pay));
     } else if (s === 'report') {
       var rc = reportCard(p, false);
