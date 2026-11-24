@@ -76,6 +76,12 @@ test('photos only from our own upload route, added to the job when there is no e
   /* Shown back on their page (lib/portal.js joins the job's own files in with the enquiry's). */
   const j = await row(id); j.lead_files = j.customer_files;
   assert.equal(buildView(j).photos, 1);
+  /* A previous report as a PDF is an attachment too (the owner, 25 Nov 2026), drawn as a file tile. */
+  const pdf = 'leads/2026-11-11/1b6a1f2e-1c2d-4e5f-8a9b-0c1d2e3f4a5b-old-survey.pdf';
+  assert.deepEqual(await A.addPhotos(req, await row(id), [pdf]), { ok: true, added: 1 });
+  const k = await row(id); k.lead_files = k.customer_files;
+  assert.equal(buildView(k).photos, 2);
+  assert.deepEqual(buildView(k).fileKinds, ['img', 'pdf']);
 });
 
 test('On my way shows two minutes after the tap, on the day, and surveyors may tap it', async () => {

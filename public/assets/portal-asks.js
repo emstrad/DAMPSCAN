@@ -166,20 +166,28 @@
   var ticked = function (tag, cls, text) { var e = h(tag, cls, I.check); e.appendChild(document.createTextNode(text)); return e; };
   var stamp = function (at) { var d = new Date(at); return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/London' }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }); };
 
+  /* Attachments, not just photos (the owner, 25 Nov 2026): photos of the damp, a previous
+     survey or report, anything that helps. PDFs show as a tile and open in the viewer. */
   function photosFold(p, main, token, reload, api) {
     if (['requested', 'waiting', 'agent', 'deposit', 'booked'].indexOf(p.state) === -1) return;
-    var n = p.photos || 0, show = openNext === 'photos';
+    var n = p.photos || 0, kinds = p.fileKinds || [], show = openNext === 'photos';
     if (show) openNext = null;
-    P.fold(main, n ? 'Your photos (' + n + ')' : 'Add photos', function (box) {
+    P.fold(main, n ? 'Your attachments (' + n + ')' : 'Add attachments', function (box) {
       if (n) {
         var grid = h('div', 'pt-photos');
-        for (var i = 0; i < Math.min(n, 30); i += 1) { var a = t('a'), im = t('img'); a.href = api + '&file=photo&i=' + i; a.dataset.view = '1'; a.dataset.name = 'Your photo ' + (i + 1); im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); grid.appendChild(a); }
+        for (var i = 0; i < Math.min(n, 30); i += 1) {
+          var a = t('a'), pdf = kinds[i] === 'pdf';
+          a.href = api + '&file=photo&i=' + i; a.dataset.view = '1'; a.dataset.name = pdf ? 'Your file ' + (i + 1) + '.pdf' : 'Your photo ' + (i + 1);
+          if (pdf) { a.className = 'pt-file'; a.textContent = 'PDF'; }
+          else { var im = t('img'); im.src = a.href; im.alt = 'Your photo ' + (i + 1); im.loading = 'lazy'; a.appendChild(im); }
+          grid.appendChild(a);
+        }
         box.appendChild(grid);
-        box.appendChild(ticked('p', 'pt-sent', 'We have ' + (n === 1 ? 'your photo' : 'all ' + n) + '.'));
+        box.appendChild(ticked('p', 'pt-sent', 'We have ' + (n === 1 ? 'it' : 'all ' + n) + '.'));
       }
-      var lab = h('label', 'pt-btn ghost', '<span class="in">' + (n ? 'Add more photos' : 'Choose photos') + '</span>'), inp = t('input');
-      inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.hidden = true; lab.appendChild(inp);
-      var msg = t('p', 'pt-hint', n ? '' : 'Photos of the damp help us prepare.');
+      var lab = h('label', 'pt-btn ghost', '<span class="in">' + (n ? 'Add more' : 'Choose files') + '</span>'), inp = t('input');
+      inp.type = 'file'; inp.accept = 'image/*,application/pdf'; inp.multiple = true; inp.hidden = true; lab.appendChild(inp);
+      var msg = t('p', 'pt-hint', n ? '' : 'Photos of the damp, a previous survey or report, anything that helps us prepare.');
       inp.addEventListener('change', function () {
         var files = Array.prototype.slice.call(inp.files || [], 0, 10);
         if (!files.length) return;
@@ -189,7 +197,7 @@
           .then(function () { return paths.length ? ask(token, { op: 'photos', paths: paths }) : { ok: false }; })
           .then(function (r) {
             lab.classList.remove('busy'); inp.value = '';
-            if (r.ok) { P.toast(r.added + ' photo' + (r.added === 1 ? '' : 's') + ' added. Thank you.'); openNext = 'photos'; reload(); }
+            if (r.ok) { P.toast(r.added + (r.added === 1 ? ' file' : ' files') + ' added. Thank you.'); openNext = 'photos'; reload(); }
             else msg.textContent = r.error === 'too_many' ? 'That\'s as many as we can take here. Send any more by WhatsApp.' : 'Those didn\'t come through. Please try again, or send them by WhatsApp.';
           });
       });

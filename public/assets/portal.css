@@ -120,6 +120,7 @@ a { color:var(--link); }
 .pt-photos { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; }
 .pt-photos a { aspect-ratio:1; border-radius:10px; overflow:hidden; background:var(--bg-2); display:block; }
 .pt-photos img { width:100%; height:100%; object-fit:cover; display:block; }
+.pt-photos a.pt-file { display:grid; place-items:center; font-weight:700; font-size:14px; color:var(--text); border:1px solid var(--line); text-decoration:none; }
 .pt-quote { background:var(--card-2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:.86rem; color:var(--muted); white-space:pre-wrap; overflow-wrap:anywhere; }
 .pt-tick { width:64px; height:64px; border-radius:50%; background:var(--good-soft); display:grid; place-items:center; animation:pt-pop var(--slow) var(--spring); }
 .pt-tick path { stroke:var(--good); stroke-dasharray:30; stroke-dashoffset:30; animation:pt-draw 360ms 120ms var(--ease) forwards; }
