@@ -1238,7 +1238,9 @@ checks the mechanical ones.
   month or the company year), pay_book (or one person's statement),
   paying_yourselves, accountant_view, growth_view and company_week. Read only,
   owners only as the pages are, the same figures (never a second reckoning),
-  money in pence with a tip saying so.
+  money in pence with a tip saying so. The one change there (the owner, 24 Nov
+  2026: Tom and Ben surveyed together): survey_split, move_pay and undo_pay_move,
+  who gets what on one survey through lib/pay-moves.js as the job pop-up does.
 - Finding a customer is forgiving everywhere (`lib/find-words.js`: the phone's
   Search, ChatGPT, the enquiry finder): each word in the name, email, phone
   (+44 or spaces), postcode or address, best match wins, a surname an enquiry

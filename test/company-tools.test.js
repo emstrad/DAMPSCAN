@@ -50,3 +50,16 @@ test('the owners read the same figures as the pages', async () => {
   assert.equal(ronnie.owed, 13000);
   for (const n of ['company_overview', 'paying_yourselves', 'accountant_view', 'growth_view', 'company_week']) assert.equal((await run(n, BOSS, {})).data.ok, true, n);
 });
+
+test('who gets what on a survey: owners move pay through the same path as the pop-up, and take it back', async () => {
+  const id = Number((await pool.query('select id from jobs order by id limit 1')).rows[0].id);
+  assert.equal((await run('move_pay', TOM_ATI, { id, from: 'ronnie', to: 'ben', amount_pounds: 65, reason: 'Together' })).status, 400, 'not for a single-brand manager');
+  const before = (await run('survey_split', BOSS, { id })).data;
+  const ron = before.people.find((p) => p.key === 'ronnie').now;
+  const moved = (await run('move_pay', BOSS, { id, from: 'ronnie', to: 'ben', amount_pounds: 65, reason: 'Ronnie and Ben surveyed together' })).data;
+  assert.equal(moved.ok, true);
+  assert.equal(moved.split.people.find((p) => p.key === 'ronnie').now, ron - 6500);
+  assert.equal((await run('move_pay', BOSS, { id, from: 'ronnie', to: 'ben', amount_pounds: 9999, reason: 'x' })).status, 400, 'never more than they have');
+  const back = (await run('undo_pay_move', BOSS, { move_id: moved.id })).data;
+  assert.equal(back.split.people.find((p) => p.key === 'ronnie').now, ron);
+});
