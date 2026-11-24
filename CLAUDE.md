@@ -1127,9 +1127,10 @@ checks the mechanical ones.
   request again; Ask to move it and Message us sit as chips on the visit card
   beside Add to calendar and rise as a sheet from the bottom, days as tiles
   and times three across, the owners' chosen design from the page preview,
-  UAT 15 Nov 2026, with the fold kept where there is no visit card), and Add photos before the visit (through
+  UAT 15 Nov 2026, with the fold kept where there is no visit card), and Add attachments before the visit
+  (the owner, 25 Nov 2026: photos, a previous survey or report, any PDF; through
   /api/upload, only paths it made, onto the enquiry or jobs.customer_files;
-  the fold becomes "Your photos (N)" showing every one they sent). Once their
+  the fold becomes "Your attachments (N)" showing every one they sent, a PDF as a tile). Once their
   report is ready, "Got a quote for the work?" (`lib/portal-quotes.js`,
   `public/assets/portal-quote.js`, the owner, 22 Nov 2026: checked free against
   their report): a contractor's quote as a PDF or photos, our own uploads only,
