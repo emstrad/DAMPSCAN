@@ -17,6 +17,7 @@ import { queueText, flushDue } from '../lib/texts.js';
 import { alertPartials } from '../lib/daily-alerts.js';
 import { cardPartials } from '../lib/partial-cards.js';
 import { timesFor, pickTime, saveSurvey } from '../lib/web-booking.js';
+import { recordOutcome } from '../lib/form-outcome.js';
 import { mergeDuplicates } from '../lib/merge-dupes.js';
 import { agentFromLead } from '../lib/estate-agents.js';
 import { referralFromLead } from '../lib/agent-referrals.js';
@@ -89,6 +90,14 @@ export default async function handler(req, res) {
      (lib/web-booking.js). Here rather than a new file: the plan allows twelve. */
   /* The booking form's survey step (public/assets/bf-need.js): the one price list, before any enquiry exists. */
   if (body.op === 'prices') { json(res, 200, { ok: true, prices: priceList() }); return; }
+  /* Where the booking form ended (lib/form-outcome.js): "Call me to arrange" tapped, told to the team at once. */
+  if (body.op === 'outcome') {
+    const what = body.what === 'call' ? 'call' : null;
+    if (!what) { json(res, 400, { ok: false }); return; }
+    try { json(res, 200, await recordOutcome(Number(body.leadId) || 0, what, { sessionId: String(body.sessionId || '') })); }
+    catch (err) { console.error('form outcome failed:', err.message); json(res, 500, { ok: false }); }
+    return;
+  }
   if (body.op === 'times' || body.op === 'pick' || body.op === 'survey') {
     const today = londonToday();
     try {
@@ -192,9 +201,10 @@ export default async function handler(req, res) {
   /* The quiet save of step 1 (public/assets/partial.js): kept, nobody told yet. */
   const quiet = body.quiet === true && value.stage === 'partial';
   let emailed = false;
-  if (!quiet && !row.notified_at && body.emailedOnLeave !== true) {
+  /* The backup email runs beside everything else rather than first: FormSubmit can take its whole
+     six seconds, and the customer was waiting on it before the next step showed (the owner, 26 Nov 2026). */
+  const mailing = (!quiet && !row.notified_at && body.emailedOnLeave !== true) ? (async () => {
     const sent = await sendLeadEmail({ site, stage: value.stage, value, id });
-    emailed = sent.ok;
     try {
       if (sent.ok) {
         await query('update leads set notified_at = now(), notify_error = null where id = $1', [id]);
@@ -205,7 +215,8 @@ export default async function handler(req, res) {
     } catch (err) {
       console.warn('lead email bookkeeping failed:', err.message);
     }
-  }
+    return sent.ok;
+  })().catch(() => false) : null;
 
   /* A finished enquiry buzzes the phones of whoever holds this business.
      Once only: a complete row is new once per visit. First name and
@@ -259,5 +270,6 @@ export default async function handler(req, res) {
     try { await alertPartials(site); } catch (err) { console.warn('partial alerts failed:', err.message); }
   }
 
+  if (mailing) emailed = await mailing;
   json(res, 200, { ok: true, id, emailed });
 }

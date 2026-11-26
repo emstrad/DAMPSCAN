@@ -126,9 +126,11 @@
 .ht-tlabel { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-2); font-weight: 600; }
 .ht-when-big { font-size: 18px; font-weight: 600; margin: 0 0 8px; max-width: 46ch; }
 .ht-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 2px 0 8px; }
-.ht-later { width: 100%; max-width: 560px; margin: 8px 0 12px; text-align: left; border: 1px solid var(--line-strong); border-radius: 12px; padding: 0 14px; }
-.ht-later summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
-.ht-later .ht-extras { padding-bottom: 14px; margin: 0; }
+.ht-later { width: 100%; max-width: 560px; margin: 8px 0 12px; text-align: left; }
+.ht-later .ht-label { margin-top: 0; }
+.ht-later .ht-extras { padding: 12px 0 4px; margin: 0; display: grid; gap: 8px; }
+.ht-later .ht-extras textarea { width: 100%; box-sizing: border-box; }
+.ht-later > .btn { width: 100%; margin-top: 8px; }
 .ht-trialnote { font-size: 13px; }
 .ht-small { font-size: 13.5px; margin: 4px 0 6px; }
 /* Call us on every step: a chip with words, just the phone on a narrow screen. */
@@ -200,3 +202,24 @@ a.ht-paybtn b { font-size: 17px; }
 .ht-done .ht-later { max-width: none; margin: 0 0 12px; }
 @media (max-width: 360px) { .ht-done .ht-acts { grid-template-columns: 1fr; } }
 .ht-senderr{margin:8px 0 0;color:#d97706;font-weight:600}
+
+/* One look for every step (the owner, 26 Nov 2026). The progress: the step named above four
+   even bars, the same on every step and every width. */
+.ht-top .dots { flex-wrap: wrap; row-gap: 6px; }
+.ht-top .dots span:not(.step-label) { flex: 1 1 0; min-width: 18px; }
+.ht-top .dots .step-label { order: -1; flex-basis: 100%; margin: 0; text-align: center; }
+/* Step 3's foot is step 2's bar: the same place, the same button size. */
+.ht-pane--c .ht-bar { position: sticky; bottom: 0; z-index: 3; background: var(--card-2, var(--card, #10233f)); margin-bottom: -4px; padding-bottom: 12px; text-align: left; }
+.ht-stage.is-brand .ht-bar { background: var(--brand-card, #17325a); }
+.ht-bar .ht-callme { min-width: 0; }
+.ht-finding { animation: ht-pulse 1.2s ease-in-out infinite; }
+@keyframes ht-pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .ht-finding { animation: none; } }
+/* Done: anything to add as three tiles, the form's own tile look. */
+.ht-addrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ht-addtile { grid-template-columns: 1fr; grid-template-rows: auto auto; justify-items: center; text-align: center; row-gap: 6px; padding: 12px 8px; }
+.ht-addtile svg { color: var(--accent); }
+.ht-addtile span { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+.ht-later .ht-pickfiles { width: 100%; box-sizing: border-box; justify-content: center; cursor: pointer; }
+.ht-pane--c > .ht-small { margin-top: 4px; }
+.ht-bar { flex-wrap: nowrap; }

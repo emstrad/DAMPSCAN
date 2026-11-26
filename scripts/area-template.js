@@ -41,6 +41,7 @@ window.DS_CONFIG = {
 <link rel="stylesheet" href="/assets/bf.css" />
 <scr` + `ipt src="/assets/bf-need.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/bf-done.js"></scr` + `ipt>
+<scr` + `ipt src="/assets/bf-when.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/bf-live.js"></scr` + `ipt>
 <scr` + `ipt src="/assets/bf.js"></scr` + `ipt>`
     : `

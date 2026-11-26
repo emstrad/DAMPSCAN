@@ -24,10 +24,11 @@
     step1: function () {},
     prices: function () { return fetch(slotsUrl, { headers: { Accept: 'application/json' } }).then(json).then(function (x) { if (!x.prices) throw new Error('no prices'); return x.prices; }); },
     submit: function () { return Promise.resolve({ ok: true }); },
-    times: function (d) {
-      return fetch(slotsUrl + '&days=56&postcode=' + encodeURIComponent(d.postcode) + '&minutes=' + ((d.pick && d.pick.minutes) || 60), { headers: { Accept: 'application/json' } })
+    times: function (d, days) {
+      return fetch(slotsUrl + '&days=' + (days || 56) + '&postcode=' + encodeURIComponent(d.postcode) + '&minutes=' + ((d.pick && d.pick.minutes) || 60), { headers: { Accept: 'application/json' } })
         .then(json).then(function (x) { return { slots: x.slots || [], instant: true }; });
     },
+    call: function () { return Promise.resolve(); },
     pick: function () { return Promise.resolve({ ok: true, booked: true }); },
     extras: function () { return Promise.resolve({ ok: true }); }
   };
@@ -37,7 +38,7 @@
   var send = function (type, detail) { if (typeof track === 'function') track(type, detail); };
   var endpoint = typeof NOTIFY_ENDPOINT !== 'undefined' ? NOTIFY_ENDPOINT : '';
   var cfg = typeof DS_CFG !== 'undefined' ? DS_CFG : {};
-  var leadId = null, partial = null, converted = false;
+  var leadId = null, partial = null, converted = false, surveyed = null;
 
   /* Damp sites: the estate agent arranges access, so their details ride in the notes (Scheduling's agent line reads them). */
   function notes(d) {
@@ -96,16 +97,25 @@
         if (!x.ok || !x.id) return { ok: false };
         /* Back from the time step and Continue again updates the same enquiry: the backup email and the counts go once. */
         var again = (leadId || d.leadId) === x.id; leadId = d.leadId = x.id; if (partial) partial.cancel();
-        if (!again) { conversion(x.id); send('form_submit'); send('form_step', { step: 3 }); if (!x.emailed) email(d, cfg.subjectComplete || 'NEW survey booking', {}); }
+        if (!again) { conversion(x.id); send('form_submit'); send('form_step', { step: 3 }); if (!x.emailed) email(d, cfg.subjectComplete || 'New enquiry', {}); }
         var c = d.pick || {};
-        return post({ op: 'survey', leadId: leadId, sessionId: V.id, choice: { service: c.service, size: c.size, extras: c.extras } }).then(function () { return { ok: true }; }, function () { return { ok: true }; });
+        /* On to the times at once; the times wait for the survey to be saved, not the customer (the owner, 26 Nov 2026). */
+        surveyed = post({ op: 'survey', leadId: leadId, sessionId: V.id, choice: { service: c.service, size: c.size, extras: c.extras } }).catch(function () {});
+        return { ok: true };
       }, function () { if (partial) partial.rearm(); return { ok: false }; });
     },
-    times: function (d) {
-      return post({ op: 'times', leadId: leadId || d.leadId, sessionId: V.id, days: 56 }).then(function (x) {
+    /* days: two weeks first, so the earliest shows in a moment, then the full eight weeks behind it. */
+    times: function (d, days) {
+      return Promise.resolve(surveyed).then(function () { return post({ op: 'times', leadId: leadId || d.leadId, sessionId: V.id, days: days || 56 }); }).then(function (x) {
         var slots = []; (x.days || []).forEach(function (dd) { (dd.times || []).forEach(function (t) { slots.push({ date: dd.date, time: t.time, ticket: t.ticket }); }); });
         return { slots: slots, instant: Boolean(x.instant), off: Boolean(x.off || x.held) };
       });
+    },
+    /* "Call me to arrange": the team told at once, with what they chose (lib/form-outcome.js). */
+    call: function (d) {
+      send('form_step', { step: 4 });
+      email(d, 'UPDATE, wants a call to arrange a time', {});
+      return post({ op: 'outcome', what: 'call', leadId: leadId || d.leadId, sessionId: V.id }).catch(function () {});
     },
     pick: function (d, s) {
       return post({ op: 'pick', leadId: leadId || d.leadId, sessionId: V.id, date: s.date, time: s.time, ticket: s.ticket }).then(function (x) {

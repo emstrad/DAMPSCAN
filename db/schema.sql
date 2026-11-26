@@ -1972,3 +1972,9 @@ update jobs j set shares = s.shares from job_settings s
  where j.shares is null and s.shares is not null and j.site in ('dampscan', 'ati-london')
    and (j.paid_at is null or (j.paid_at at time zone 'Europe/London')::date >= date '2026-11-16'
      or exists (select 1 from job_payments p where p.job_id = j.id and (p.external_ref like 'stripe:%' or p.external_ref like 'tide:%')));
+
+-- How far the booking form got (lib/form-outcome.js, the owner, 26 Nov 2026): the times reached, and where it ended.
+alter table leads add column if not exists form_step smallint;
+alter table leads add column if not exists form_step_at timestamptz;
+alter table leads add column if not exists form_outcome text;
+alter table leads add column if not exists form_outcome_at timestamptz;

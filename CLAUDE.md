@@ -772,8 +772,17 @@ checks the mechanical ones.
   are found at a full house's length and the time tapped is held for us to
   confirm the survey and price on a call, never booked (even with Book it
   straight away on; Done: "We've held ... We'll call to confirm your survey and
-  price", nothing booked or paid); step 3 always ends with "Not sure on times?
-  Call me", straight to Done. A second tap unticks a survey or size, as
+  price", nothing booked or paid); step 3 always ends with step 2's own bar, "Not sure on
+  times?" and a Call me button, straight to Done (the owner, 26 Nov 2026: one look on every
+  step: the same bar, the step named above four even bars, names in proper case, Done's
+  "Anything to add?" as three tiles: Photos, Previous survey or report, A note). Quick to
+  show: the times step opens at once, two weeks of times first and the eight behind them,
+  the survey saved alongside, and the backup email sent beside the alerts, not before
+  them; its subject is "New enquiry" until a time is picked. How far they got reaches the
+  team at once (`lib/form-outcome.js`): Call me tapped, or the times seen and none picked
+  for ten minutes (the every-minute run), each one alert with what they chose and a
+  history line, once per enquiry (leads.form_step, form_outcome); a time picked or booked
+  keeps its own alert. A second tap unticks a survey or size, as
   for add-ons; the tiles are never a must, a survey and size is enough to
   book, and the server takes a damp enquiry with no tile ticked (17 Nov 2026: it
   refused one and the form sent them back to the first card, round and round; a
