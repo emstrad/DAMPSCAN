@@ -20,6 +20,8 @@
   var money = function (p) { var n = Number(p); return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
   var nice = function (iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); };
   var short = function (iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
+  /* SCOTT or scott reads Scott (the owner, 26 Nov 2026); a name typed with its own capitals is kept. */
+  var nameCase = function (v) { return v === v.toUpperCase() || v === v.toLowerCase() ? v.toLowerCase().replace(/(^|[\s'-])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); }) : v; };
   var clock = function (t) { var h = Number(t.slice(0, 2)); return (h % 12 || 12) + (t.slice(3) === '00' ? '' : ':' + t.slice(3)) + (h < 12 ? 'am' : 'pm'); };
 
   api.init(d, card);
@@ -80,7 +82,7 @@
   }
   $('ht-next').addEventListener('click', function () {
     if (!checkOne()) return;
-    d.name = $('f-name').value.trim(); d.phone = $('f-phone').value.trim(); d.email = $('f-email').value.trim();
+    d.name = nameCase($('f-name').value.trim()); d.phone = $('f-phone').value.trim(); d.email = $('f-email').value.trim();
     d.postcode = tidyPc($('f-postcode').value); d.street = $('f-addr1').value.trim(); d.town = $('f-town').value.trim();
     d.address = [d.street, d.town, d.postcode].filter(Boolean).join(', ');
     d.honeypot = $('f-hp') ? $('f-hp').value : '';
@@ -162,7 +164,7 @@
     if (backBtn) backBtn.hidden = api.live && n === 4;
     var pane = el('div', n === 2 ? 'ht-pane ht-pane--need' : n === 4 ? 'ht-pane ht-pane--c ht-done' : 'ht-pane ht-pane--c'); body.appendChild(pane);
     if (n === 2) { if (prices) global.HTNEED.draw(pane, d, prices, submit); else pane.appendChild(el('p', 'ht-sub', 'Loading...')); }
-    if (n === 3) when(pane);
+    if (n === 3) global.HTWHEN.draw(pane, { api: api, d: d, go: go, nice: nice, short: short, clock: clock });
     if (n === 4) global.HTDONE.draw(pane, d, { money: money, nice: nice, clock: clock, sizes: prices.sizes, again: again, live: api.live, extras: api.extras });
     /* A new step starts at its top, under the site's header. */
     if (stage && stage.classList.contains('is-shown')) toTop();
@@ -193,75 +195,7 @@
     });
   }
 
-  /* ---------- Step 3: a real free time for their postcode and survey length ---------- */
-  function when(pane) {
-    pane.appendChild(el('h2', 'ht-h', 'When suits you?'));
-    var quick = el('div', 'ht-quick'), nav = el('div', 'ht-week'), days = el('div', 'ht-days'), times = el('div', 'ht-times');
-    pane.appendChild(quick); pane.appendChild(nav); pane.appendChild(days); pane.appendChild(times);
-    /* Tapping a time books it there and then (with the Lab's Book it straight away on; otherwise it is asked for). */
-    var busy = false, instant = true;
-    var book = function (dd, t) {
-      if (busy) return; busy = true; pane.classList.add('is-busy');
-      var s = (by[dd] || []).filter(function (x) { return x.time === t; })[0] || { date: dd, time: t };
-      api.pick(d, s).then(function (r) {
-        busy = false; pane.classList.remove('is-busy');
-        if (r.ok) { d.when = { date: dd, time: t }; d.requested = !r.booked; d.page = r.page || null; go(4); return; }
-        global.alert(r.error === 'taken' ? 'That time has just gone. Please pick another.' : 'That didn\'t go through. Please try again, or call us.');
-        go(3);
-      });
-    };
-    var by = {};
-    api.times(d).then(function (x) {
-        instant = x.instant !== false;
-        (x.slots || []).forEach(function (s) { (by[s.date] = by[s.date] || []).push(s); });
-        var free = Object.keys(by).sort();
-        if (x.off || !free.length) {
-          /* Nothing free near them: leave it with us rather than a dead end. */
-          quick.appendChild(el('p', 'ht-sub', 'We\'ll find a time that works and call you to arrange it.'));
-          var leave = el('button', 'btn btn--primary btn--lg', 'Leave it with us'); leave.type = 'button'; leave.addEventListener('click', function () { d.when = null; go(4); });
-          quick.appendChild(leave); skip.hidden = anytime.hidden = times.hidden = true; return;
-        }
-        var e = by[free[0]][0], eb = el('button', 'ht-earliest'); eb.type = 'button';
-        eb.appendChild(el('span', null, 'Earliest')); eb.appendChild(el('b', null, short(free[0]) + ', ' + clock(e.time)));
-        eb.addEventListener('click', function () { book(free[0], e.time); }); quick.appendChild(eb);
-        /* A week at a time, Monday first, opening on the first week with a free time. */
-        var iso = function (t) { return new Date(t).toISOString().slice(0, 10); };
-        var monday = function (dd) { var t = Date.parse(dd + 'T12:00:00Z'); return t - ((new Date(t).getUTCDay() + 6) % 7) * 864e5; };
-        var first = monday(free[0]), last = monday(free[free.length - 1]), week = first;
-        var prev = el('button', 'bt-time ht-arrow', '\u2039'), next = el('button', 'bt-time ht-arrow', '\u203a'), label = el('b', 'ht-week-label');
-        prev.type = next.type = 'button'; prev.setAttribute('aria-label', 'Earlier week'); next.setAttribute('aria-label', 'Later week');
-        nav.appendChild(prev); nav.appendChild(label); nav.appendChild(next);
-        function show(dd) {
-          days.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-pressed', String(z.dataset.day === dd)); });
-          times.textContent = ''; times.appendChild(el('p', 'ht-day', nice(dd)));
-          [['Morning', function (t) { return t < '12:00'; }], ['Afternoon', function (t) { return t >= '12:00'; }]].forEach(function (g) {
-            var list = by[dd].filter(function (s) { return g[1](s.time); }); if (!list.length) return;
-            var grp = el('div', 'ht-tgroup'); grp.appendChild(el('span', 'ht-tlabel', g[0]));
-            var row = el('div', 'bt-row');
-            list.forEach(function (s) { var t = el('button', 'bt-time', clock(s.time)); t.type = 'button'; t.addEventListener('click', function () { book(dd, s.time); }); row.appendChild(t); });
-            grp.appendChild(row); times.appendChild(grp);
-          });
-        }
-        function draw() {
-          days.textContent = ''; var pick = null;
-          label.textContent = short(iso(week)).replace(/^\w+,? /, '') + ' to ' + short(iso(week + 6 * 864e5)).replace(/^\w+,? /, '');
-          prev.disabled = week <= first; next.disabled = week >= last;
-          for (var i = 0; i < 7; i += 1) {
-            var dd = iso(week + i * 864e5), b = el('button', 'bt-time ht-dayb'); b.type = 'button'; b.dataset.day = dd;
-            var p = short(dd).replace(',', '').split(' '); b.appendChild(el('span', null, p[0])); b.appendChild(el('b', null, p[1]));
-            if (!by[dd]) b.disabled = true; else { if (!pick) pick = dd; b.addEventListener('click', show.bind(null, dd)); }
-            days.appendChild(b);
-          }
-          if (pick) show(pick); else { times.textContent = ''; times.appendChild(el('p', 'ht-sub', 'Nothing free this week.')); }
-        }
-        prev.addEventListener('click', function () { week -= 7 * 864e5; draw(); });
-        next.addEventListener('click', function () { week += 7 * 864e5; draw(); });
-        draw();
-      }).catch(function () { quick.appendChild(el('p', 'ht-sub', 'Times could not load. Leave it with us and we\'ll call you.')); });
-    var anytime = el('p', 'ht-sub ht-small', 'Change your time anytime from your page.'); pane.appendChild(anytime);
-    var skip = el('button', 'bt-skip', 'Not sure on times? Call me'); skip.type = 'button'; skip.addEventListener('click', function () { d.when = null; go(4); });
-    pane.appendChild(skip);
-  }
+  /* Step 3, the times, is bf-when.js. */
 
   function again() { d.issues = []; d.where = []; d.why = d.scope = d.beds = ''; d.pick = d.when = null; d.previous = false; d.notes = ''; d.files = []; d.fileObjs = []; d.requested = false; d.page = null; d.leadId = null; close(); try { sessionStorage.removeItem(KEY); } catch (e) {} }
 

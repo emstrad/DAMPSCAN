@@ -205,7 +205,7 @@ test('each brand emails its own address with its own wording', async () => {
   const value = { firstName: 'Sam', email: 's@example.com', postcode: 'N1 3GZ', issues: ['Flat roof'], files: ['leads/a.jpg'] };
   assert.equal(formSubmitUrl('ati'), 'https://formsubmit.co/ajax/team@atidampsurvey.co.uk');
   assert.equal(formSubmitUrl('ati-london'), formSubmitUrl('ati'));
-  assert.equal(leadEmailFields({ site: 'ati-london', stage: 'complete', value, id: 1 })._subject, 'ATI London, NEW survey booking, Sam, N1 3GZ');
+  assert.equal(leadEmailFields({ site: 'ati-london', stage: 'complete', value, id: 1 })._subject, 'ATI London, New enquiry, Sam, N1 3GZ');
   const roof = leadEmailFields({ site: 'roofing', stage: 'complete', value, id: 2 });
   assert.equal(roof._subject, 'Verge Roofing, NEW quote request, Sam, N1 3GZ');
   assert.equal(roof['Attachment 1'], 'https://vergeroofing.com/api/admin/attachment?path=leads%2Fa.jpg');

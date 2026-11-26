@@ -32,7 +32,7 @@ test('the lead email goes from Microsoft 365 first, and falls back to FormSubmit
   assert.equal(ok.ok, true);
   assert.equal(sent[0].to, 'tom@atidampsurvey.co.uk');
   assert.equal(sent[0].replyTo, 'sofia@example.com');
-  assert.match(sent[0].subject, /NEW survey booking, Sofia, ME14 2SZ/);
+  assert.match(sent[0].subject, /New enquiry, Sofia, ME14 2SZ/);
   const fallback = await sendLeadEmail({ site: 'dampscan', stage: 'complete', value, id: 1,
     transport: { sendMail: async () => { throw new Error('535 Authentication unsuccessful'); } },
     fetchImpl: async () => ({ status: 200, text: async () => '{"success":"true"}' }) });

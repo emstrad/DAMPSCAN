@@ -23,27 +23,50 @@
     document.body.appendChild(a); a.click(); a.remove();
   }
 
+  /* Anything to add, as three tiles in the form's own tile style (the owner, 26 Nov 2026: the old
+     line did not look like it opened): photos, a previous survey or report, a note. One opens at a time. */
+  var ICON = {
+    photos: '<path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    report: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
+    note: '<path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4M8 9h8M8 13h5"/>'
+  };
   function later(d, h) {
-    var f = el('details', 'ht-later'); f.appendChild(el('summary', null, 'Anything to add? Photos, a note, a previous survey'));
-    var box = el('div', 'ht-extras');
-    var prev = el('label', 'check'), pc = el('input'); pc.type = 'checkbox'; pc.checked = d.previous; pc.addEventListener('change', function () { d.previous = pc.checked; });
-    var tick = el('span', 'box'); tick.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    prev.appendChild(pc); prev.appendChild(tick); prev.appendChild(document.createTextNode('I\'ve had a damp survey on this property before')); box.appendChild(prev);
-    var fr = el('div', 'form-row'); fr.appendChild(el('label', null, 'Photos or a previous report'));
-    var files = el('input'); files.type = 'file'; files.multiple = true; files.accept = 'image/*,application/pdf';
-    var list = el('ul', 'file-list');
-    files.addEventListener('change', function () { d.fileObjs = Array.prototype.slice.call(files.files, 0, 10); list.textContent = ''; d.fileObjs.forEach(function (x) { list.appendChild(el('li', null, x.name)); }); });
-    fr.appendChild(files); fr.appendChild(list); box.appendChild(fr);
-    var nr = el('div', 'form-row'); nr.appendChild(el('label', null, 'Anything else we should know?'));
-    var notes = el('textarea'); notes.rows = 3; notes.value = d.notes; notes.addEventListener('input', function () { d.notes = notes.value; });
-    nr.appendChild(notes); box.appendChild(nr);
-    var save = el('button', 'btn btn--ghost', 'Add to my booking'); save.type = 'button';
+    var wrap = el('div', 'ht-later'); wrap.appendChild(el('p', 'ht-label', 'Anything to add?'));
+    var row = el('div', 'ht-addrow'), panel = el('div', 'ht-extras'); panel.hidden = true;
+    var list = el('ul', 'file-list'), save = el('button', 'btn btn--primary', 'Add to my booking'); save.type = 'button'; save.hidden = true;
+    var picked = { photos: [], report: [] };
+    var sync = function () { d.fileObjs = picked.photos.concat(picked.report).slice(0, 10); list.textContent = ''; d.fileObjs.forEach(function (x) { list.appendChild(el('li', null, x.name)); }); save.hidden = !(d.fileObjs.length || d.notes); };
+    /* The phone's own picker behind a real button, not the browser's grey "Choose Files". */
+    var fileBox = function (key, accept, label) {
+      var lab = el('label', 'btn btn--ghost ht-pickfiles', 'Choose ' + (key === 'photos' ? 'photos' : 'files'));
+      var f = el('input'); f.type = 'file'; f.multiple = true; f.accept = accept; f.hidden = true; f.setAttribute('aria-label', label); lab.appendChild(f);
+      f.addEventListener('change', function () { picked[key] = Array.prototype.slice.call(f.files, 0, 10); if (key === 'report' && picked.report.length) d.previous = true; sync(); });
+      return lab;
+    };
+    var bodies = {
+      photos: function () { return [el('p', 'ht-sub', 'Photos of the damp, the walls or anything you\'re worried about.'), fileBox('photos', 'image/*', 'Photos')]; },
+      report: function () { return [el('p', 'ht-sub', 'A previous damp survey, a report or a quote, as a PDF or photos.'), fileBox('report', 'image/*,application/pdf', 'Previous survey or report')]; },
+      note: function () { var t = el('textarea'); t.rows = 3; t.value = d.notes; t.setAttribute('aria-label', 'A note for us'); t.placeholder = 'Anything we should know before the visit'; t.addEventListener('input', function () { d.notes = t.value; sync(); }); return [t]; }
+    };
+    var open = null;
+    [['photos', 'Photos'], ['report', 'Previous survey or report'], ['note', 'A note']].forEach(function (x) {
+      var b = el('button', 'ht-tile ht-addtile'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[x[0]] + '</svg>';
+      b.appendChild(el('span', null, x[1]));
+      b.addEventListener('click', function () {
+        open = open === x[0] ? null : x[0];
+        row.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-pressed', String(z === b && open === x[0])); });
+        panel.textContent = ''; panel.hidden = !open;
+        if (open) bodies[open]().forEach(function (n) { panel.appendChild(n); });
+      });
+      row.appendChild(b);
+    });
     save.addEventListener('click', function () {
       save.disabled = true; save.textContent = 'Adding...';
-      h.extras(d).then(function (r) { save.textContent = r.ok ? 'Added, thank you' : 'That didn\'t send. Try again'; save.disabled = Boolean(r.ok); if (r.ok) { d.fileObjs = []; list.textContent = ''; } });
+      h.extras(d).then(function (r) { save.textContent = r.ok ? 'Added, thank you' : 'That didn\'t send. Try again'; save.disabled = Boolean(r.ok); if (r.ok) { picked = { photos: [], report: [] }; d.fileObjs = []; list.textContent = ''; } });
     });
-    box.appendChild(save); f.appendChild(box);
-    return f;
+    wrap.appendChild(row); wrap.appendChild(panel); wrap.appendChild(list); wrap.appendChild(save);
+    return wrap;
   }
 
   /* h: { money, nice, clock, sizes, again, live, extras } from bf.js. */
@@ -64,7 +87,7 @@
     var lines = [
       ['Survey', s ? (d.pick.service === 'timber' ? 'Damp and timber, ' : 'Damp, ') + s.name.toLowerCase() + (d.pick.extras.length ? ' + ' + d.pick.extras.length + ' extra' + (d.pick.extras.length > 1 ? 's' : '') : '') : 'To agree'],
       ['Price', d.pick && d.pick.totalPounds ? h.money(d.pick.totalPounds) + (booked ? ', deposit ' + h.money(d.pick.totalPounds / 2) : ', nothing to pay yet') : 'To agree'],
-      ['Where', d.address], ['Let in by', d.agent ? d.agent.name : d.name]
+      ['Where', d.address], ['Let in by', d.agent ? d.agent.name : 'You']
     ];
     var dl = el('dl', 'ht-sum'); lines.forEach(function (l) { dl.appendChild(el('dt', null, l[0])); dl.appendChild(el('dd', null, l[1])); }); pane.appendChild(dl);
 
