@@ -1983,3 +1983,12 @@ alter table leads add column if not exists form_outcome_at timestamptz;
 -- opened, and whether it may carry the buyer's own page (payment and bank details), off unless chosen.
 alter table estate_agents add column if not exists portal_opens integer not null default 0;
 alter table estate_agents add column if not exists show_buyer_page boolean not null default false;
+
+-- How a survey reads on the estate agent's page (lib/agent-job-view.js, the owner, 27 Nov 2026).
+alter table jobs add column if not exists agent_access text;
+alter table jobs add column if not exists access_name text;
+alter table jobs add column if not exists access_phone text;
+alter table jobs add column if not exists customer_role text;
+alter table jobs add column if not exists agent_hide_money boolean not null default false;
+alter table leads add column if not exists agent_access text;
+alter table leads add column if not exists access_name text;

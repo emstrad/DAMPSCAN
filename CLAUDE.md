@@ -584,7 +584,15 @@ checks the mechanical ones.
   time: a request with an owners' to-do, alert and text), then each with its
   stage, buyer, visit, money and report (open once paid in full, as for the
   buyer). Agents see everything (the owner's choice); nothing about it goes on
-  the buyer's page. Quick book (address, buyer's name, mobile and email, why,
+  the buyer's page. Per survey (`lib/agent-job-view.js`, the owner, 27 Nov 2026: a
+  landlord paying and a tenant letting us in read as "Buyer" and "You have the
+  keys"): who lets us in (the agent has the keys, the tenant or the seller with a
+  name and number, or not set, when nothing about keys is said), the customer's
+  label (buyer, landlord, tenant, owner) and money hidden from the agent when the
+  customer pays us directly (and with it the buyer's page link); set by
+  create_job and set_estate_agent (access, access_name, access_phone,
+  customer_role, agent_hides_money) and carried from Quick book's "Who lets us
+  in?". Money shown reads as the deposit due, then the balance due, then paid. Quick book (address, buyer's name, mobile and email, why,
   who lets us in) makes an enquiry as the website form does, put down to the
   agent (referred_by, and estate_agent_id when they have the keys), then the
   website's own survey, times and pick steps; never a text to the agent. A
