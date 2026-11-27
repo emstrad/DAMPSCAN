@@ -123,14 +123,24 @@
     var foot = h('p', 'ag-foot'); foot.appendChild(document.createTextNode('Questions? ')); var tel = t('a', null, 'Call ' + d.brand.phoneLabel); tel.href = 'tel:' + d.brand.phone; foot.appendChild(tel); main.appendChild(foot);
   }
 
-  function load() {
-    return fetch(api, { cache: 'no-store' }).then(function (r) { return r.json().then(function (j) { return { status: r.status, j: j }; }); })
+  function load(again) {
+    return fetch(api + (again === true ? '&again=1' : ''), { cache: 'no-store' }).then(function (r) { return r.json().then(function (j) { return { status: r.status, j: j }; }); })
       .then(function (x) {
         if (!x.j.ok) { main.textContent = ''; main.appendChild(t('h1', 'pt-title', 'This link has expired')); main.appendChild(t('p', null, 'Ask us for a new one.')); return; }
         draw(x.j.page);
       }, function () { P.toast('No connection. Try again.'); });
   }
-  load();
+  /* A link for one property (#job-121, from the assistant) opens on its card, outlined; #book opens Quick book. */
+  var focused = false;
+  function focus() {
+    if (focused) return; focused = true;
+    var id = location.hash.slice(1);
+    if (id === 'book') { window.AGENTBOOK.open(); return; }
+    var el = id && document.getElementById(id);
+    if (!el) return;
+    el.classList.add('ag-focus'); el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -12);
+  }
+  load().then(focus);
   /* Fresh on coming back to the tab, never while they are typing. */
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && !document.querySelector('.pt-sheet.open, .ag-note')) load(); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && !document.querySelector('.pt-sheet.open, .ag-note')) load(true); });
 })();

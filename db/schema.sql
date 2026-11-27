@@ -1978,3 +1978,8 @@ alter table leads add column if not exists form_step smallint;
 alter table leads add column if not exists form_step_at timestamptz;
 alter table leads add column if not exists form_outcome text;
 alter table leads add column if not exists form_outcome_at timestamptz;
+
+-- The agent's link from the assistant (lib/mcp/agent-tools.js, the owner, 27 Nov 2026): how often it was
+-- opened, and whether it may carry the buyer's own page (payment and bank details), off unless chosen.
+alter table estate_agents add column if not exists portal_opens integer not null default 0;
+alter table estate_agents add column if not exists show_buyer_page boolean not null default false;
