@@ -1251,6 +1251,16 @@ checks the mechanical ones.
   money in pence with a tip saying so. The one change there (the owner, 24 Nov
   2026: Tom and Ben surveyed together): survey_split, move_pay and undo_pay_move,
   who gets what on one survey through lib/pay-moves.js as the job pop-up does.
+- The estate agent's page for the assistant (`lib/mcp/agent-tools.js`, the owner,
+  27 Nov 2026), managers only, never sending anything: agent_portal_link (the
+  agent on the card's own page, opening on that survey, #job-N), agent_quick_book_link
+  (their page on Quick book, #book, by the agent's name or a customer of theirs,
+  with their buyer booking link), agent_portal_settings (show_buyer_page: the
+  buyer's own page link, with its payment and bank details, appears on the agent's
+  page only when chosen for that agent, off by default, as when a landlord pays;
+  new_link replaces a link so the old one stops working). An agent made from a job
+  takes the job's brand; opens are counted (estate_agents.portal_opens, a tab
+  refresh not counted).
 - Finding a customer is forgiving everywhere (`lib/find-words.js`: the phone's
   Search, ChatGPT, the enquiry finder): each word in the name, email, phone
   (+44 or spaces), postcode or address, best match wins, a surname an enquiry
