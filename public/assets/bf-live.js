@@ -119,7 +119,7 @@
     },
     pick: function (d, s) {
       return post({ op: 'pick', leadId: leadId || d.leadId, sessionId: V.id, date: s.date, time: s.time, ticket: s.ticket }).then(function (x) {
-        if (!x.ok) return { ok: false, error: x.error || 'failed' };
+        if (!x.ok) return { ok: false, error: x.error || 'failed', said: x.said || null, page: x.page || null };
         send('form_step', { step: 4 });
         email(d, 'UPDATE, ' + (x.booked ? 'booked' : 'time asked for'), { Time: x.said || s.date + ' ' + s.time });
         return { ok: true, booked: Boolean(x.booked), page: x.page || null };

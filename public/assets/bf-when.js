@@ -30,6 +30,8 @@
       api.pick(d, s).then(function (r) {
         busy = false; pane.classList.remove('is-busy');
         if (r.ok) { d.when = { date: dd, time: t }; d.requested = !r.booked; d.page = r.page || null; h.go(4); return; }
+        /* Already booked at this address: their own page, never a second survey. */
+        if (r.error === 'already') { global.alert('You\'re already booked in' + (r.said ? ' for ' + r.said : '') + '. Your survey page has everything.'); if (r.page) { global.location.href = r.page; return; } h.go(3); return; }
         global.alert(r.error === 'taken' ? 'That time has just gone. Please pick another.' : 'That didn\'t go through. Please try again, or call us.');
         h.go(3);
       });

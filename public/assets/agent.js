@@ -66,6 +66,8 @@
       if (s.report2) { var d2 = h('a', 'pt-btn ghost', '<span class="in">' + I.dl + ' Open the second report</span>'); d2.href = api + '&file=report2&job=' + s.id; c.appendChild(d2); }
     }
     if (s.stage.key === 'confirm') confirmBox(c, s);
+    /* A day after the visit: the same property again (a new buyer, a recheck), the address filled in. */
+    if (s.rebook) { var again = btn('pt-btn ghost ag-rebook', '<span class="in">Book another visit here</span>', function () { window.AGENTBOOK.open(s.rebook); }); c.appendChild(again); }
     return c;
   }
 

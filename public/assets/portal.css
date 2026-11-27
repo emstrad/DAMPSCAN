@@ -222,8 +222,9 @@ label.pt-btn { cursor:pointer; }
 /* Ask to move it and Message us rise as a sheet from the bottom (portal-asks.js), the owners'
    chosen design from the page preview (UAT, 15 Nov 2026): the page stays put underneath. */
 body.pt-sheet-on { overflow:hidden; }
-.pt-scrim { position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.4); opacity:0; transition:opacity var(--mid) linear; }
-.pt-scrim.open { opacity:1; }
+/* Closed, it lets taps through: a sheet kept for next time (the agent's Quick book) must not cover the page. */
+.pt-scrim { position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity var(--mid) linear; }
+.pt-scrim.open { opacity:1; pointer-events:auto; }
 .pt-sheet { position:fixed; left:0; right:0; bottom:0; z-index:21; max-width:520px; margin:0 auto; max-height:88dvh; overflow:auto; overscroll-behavior:contain;
   background:var(--card); color:var(--text); border-radius:24px 24px 0 0; border-top:1px solid var(--line-strong); box-shadow:0 -20px 40px -20px rgba(0,0,0,.5);
   padding:10px 16px calc(20px + env(safe-area-inset-bottom)); display:grid; gap:12px; transform:translateY(105%); transition:transform var(--slow) var(--ease); }
