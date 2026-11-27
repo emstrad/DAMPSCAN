@@ -74,3 +74,24 @@ test('several agents matching is a question, not a guess', async () => {
   assert.equal(r.status, 409);
   assert.equal(r.data.agents.length, 2);
 });
+
+test('a landlord paying and a tenant letting us in read as such on the agent\'s card, money hidden', async () => {
+  const ca = await agent('CA Services', 'ati-london');
+  const id = await job('Ms D. Mcniven', 'W12 9NE', ca);
+  const other = await job('Mr P. Lane', 'W12 8QT', ca);
+  const before = (await agentView(await agentByToken(token((await run('agent_portal_link', BOSS, { id })).data.url)))).current;
+  const was = before.find((s) => s.id === id);
+  assert.equal(was.access, null, 'nothing said about keys until it is set');
+  assert.equal(was.role, 'Buyer');
+  assert.equal(was.money.deposit, 10750, 'the deposit is there to show when nothing is paid');
+  const r = await run('set_estate_agent', BOSS, { id, access: 'tenant', access_name: 'Mrs Iris Meadows', access_phone: '07834 550536', customer_role: 'landlord', agent_hides_money: true });
+  assert.equal(r.data.ok, true);
+  assert.match(r.data.agentPage, /access with the tenant, shown as the landlord, money hidden/);
+  const page = (await agentView(await agentByToken(token((await run('agent_portal_link', BOSS, { id })).data.url)))).current;
+  const card = page.find((s) => s.id === id), theirs = page.find((s) => s.id === other);
+  assert.equal(card.access, 'Access arranged with the tenant (Mrs Iris Meadows, 07834 550536)');
+  assert.equal(card.role, 'Landlord');
+  assert.equal(card.money, null, 'money hidden on this one');
+  assert.ok(theirs.money, 'and only this one');
+  assert.match((await run('set_estate_agent', BOSS, { id, customer_role: 'landlady' })).data.error, /Role is one of/);
+});

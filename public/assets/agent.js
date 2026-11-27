@@ -30,21 +30,28 @@
 
   function chip(label, href, icon) { var a = h('a', 'pt-chip', icon || ''); a.appendChild(document.createTextNode(label)); a.href = href; return a; }
   function line(label, value) { var r = h('div', 'ag-line'); r.appendChild(t('small', null, label)); r.appendChild(t('b', null, value)); return r; }
+  /* Nothing in yet reads as the deposit to come; the deposit in reads as the balance to come (the owner, 27 Nov 2026). */
+  function moneyLine(m) {
+    if (!m.due) return 'Paid in full';
+    if (!m.paid) return 'Deposit ' + money(m.deposit) + ' due, ' + money(m.price) + ' in total';
+    if (m.depositPaid && m.paid < m.price) return 'Deposit paid, balance ' + money(m.due) + ' due';
+    return money(m.paid) + ' paid, ' + money(m.due) + ' to pay';
+  }
   function when(s) { return s.date ? day(s.date) + (s.time ? ' at ' + s.time : '') : null; }
 
   function card(s) {
     var c = h('article', 'pt-card ag-card'); c.id = s.kind + '-' + s.id;
     var top = h('div', 'ag-top'), where = h('div', 'ag-where');
     where.appendChild(t('h2', null, s.address || s.postcode || 'Address to follow'));
-    where.appendChild(t('small', null, [s.address && s.postcode && s.address.indexOf(s.postcode) === -1 ? s.postcode : null, s.keys ? 'You have the keys' : null].filter(Boolean).join(' · ')));
+    where.appendChild(t('small', null, [s.address && s.postcode && s.address.indexOf(s.postcode) === -1 ? s.postcode : null, s.access].filter(Boolean).join(' · ')));
     top.appendChild(where);
     var b = h('span', 'pt-badge ' + (TONE[s.stage.key] || '')); b.appendChild(t('span', null, s.stage.label)); top.appendChild(b);
     c.appendChild(top);
     var rows = h('div', 'ag-lines');
-    rows.appendChild(line('Buyer', s.name || 'Not given'));
+    rows.appendChild(line(s.role || 'Buyer', s.name || 'Not given'));
     if (when(s)) rows.appendChild(line(s.stage.key === 'requested' ? 'Time asked for' : 'Visit', when(s) + (s.surveyor ? ' with ' + s.surveyor : '')));
     if (s.survey && s.kind === 'job') rows.appendChild(line('Survey', s.survey));
-    if (s.money) rows.appendChild(line('Money', s.money.due ? money(s.money.paid) + ' paid, ' + money(s.money.due) + ' to pay' : 'Paid in full'));
+    if (s.money) rows.appendChild(line('Money', moneyLine(s.money)));
     if (s.reportDue) rows.appendChild(line('Report due', new Date(s.reportDue).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Europe/London' })));
     if (s.onWay) rows.appendChild(line('Today', s.surveyor ? s.surveyor + ' is on the way' : 'On the way'));
     c.appendChild(rows);
