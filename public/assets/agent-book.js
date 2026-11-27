@@ -76,7 +76,9 @@
     var x = {}; Object.keys(form).forEach(function (k) { x[k] = form[k]; }); x.op = 'book';
     global.AGENT.post(x).then(function (r) {
       if (!r.ok) { b.classList.remove('busy'); b.disabled = false; if (r.errors) { var k = Object.keys(r.errors)[0]; P.toast(r.errors[k]); go(['address', 'postcode', 'town'].indexOf(k) !== -1 ? 0 : ['name', 'phone', 'email'].indexOf(k) !== -1 ? 1 : 2); shake([k]); } else P.toast('That didn\'t go through. Try again.'); return; }
-      booked = { leadId: r.leadId, sessionId: r.sessionId }; global.AGENT.reload(); size();
+      /* Already booked at this property: said, never a second survey. */
+      if (r.already) return already(r.already);
+      booked = { leadId: r.leadId, sessionId: r.sessionId, texts: r.texts !== false }; if (r.name) form.name = r.name; global.AGENT.reload(); size();
     });
   }
   function lead(op, extra) {
@@ -100,7 +102,7 @@
         w.appendChild(c);
       });
       body.appendChild(w); body.appendChild(tb);
-      body.appendChild(btn('pt-btn ghost', 'Not sure: call the buyer', function () { done(null); }));
+      body.appendChild(btn('pt-btn ghost', 'Not sure: call the buyer', leave));
     });
   }
   function times() {
@@ -109,7 +111,7 @@
     lead('times', { days: 56 }).then(function (r) {
       area.textContent = '';
       var list = (r.days || []).filter(function (d) { return d.times && d.times.length; });
-      if (!list.length) { area.appendChild(t('p', null, 'No free times near there yet.')); area.appendChild(btn('pt-btn', 'Leave it with us', function () { done(null); })); return; }
+      if (!list.length) { area.appendChild(t('p', null, 'No free times near there yet.')); area.appendChild(btn('pt-btn', 'Leave it with us', leave)); return; }
       var days = h('div', 'pt-days'), slots = h('div', 'pt-times');
       function show(d) {
         slots.textContent = '';
@@ -131,20 +133,31 @@
         b.setAttribute('aria-pressed', String(i === 0)); days.appendChild(b);
       });
       area.appendChild(days); area.appendChild(slots); show(list[0]);
-      area.appendChild(btn('pt-btn ghost', 'Leave it with us to arrange', function () { done(null); }));
+      area.appendChild(btn('pt-btn ghost', 'Leave it with us to arrange', leave));
     });
+  }
+  /* Left with us: the team is told at once (lib/form-outcome.js), not ten minutes later. */
+  function leave() { lead('outcome', { what: 'call' }).catch(function () {}); done(null); }
+  function already(x) {
+    head('Already booked');
+    body.appendChild(t('p', 'ag-done', String(form.name || 'They').trim() + ' is already booked here' + (x.said ? ' for ' + x.said : '') + '. It\'s on your page, with their visit and progress.'));
+    body.appendChild(btn('pt-btn', 'Done', close));
   }
   function done(r) {
     var who = String(form.name || 'The buyer').trim().split(/\s+/)[0];
+    /* No mobile of their own (a landline, or the agency's number): no text, so it says so. */
+    var texted = !booked || booked.texts;
     head(r && r.when ? 'Booked' : 'With us');
-    body.appendChild(t('p', 'ag-done', r && r.when ? r.when + '. ' + who + ' gets a text with their page and the deposit link.'
-      : r && r.asked ? r.asked + ' asked for. We\'ll confirm it and ' + who + ' gets a text.' : 'We\'ll call ' + who + ' to arrange a time. It shows here once booked.'));
+    body.appendChild(t('p', 'ag-done', r && r.when ? r.when + '. ' + (texted ? who + ' gets a text with their page and the deposit link.' : 'We\'ll email or call ' + who + ' with their page and the deposit link.')
+      : r && r.asked ? r.asked + ' asked for. We\'ll confirm it and ' + (texted ? who + ' gets a text.' : 'let ' + who + ' know.') : 'We\'ll call ' + who + ' to arrange a time. It shows here once booked.'));
     body.appendChild(btn('pt-btn', 'Done', close));
     global.AGENT.reload();
   }
 
-  function open() {
+  /* prefill: the property, from "Book another visit here" on a survey already done. */
+  function open(prefill) {
     form = {}; booked = null;
+    Object.keys(prefill || {}).forEach(function (k) { form[k] = prefill[k]; });
     if (!sheet) {
       scrim = h('div', 'pt-scrim'); scrim.addEventListener('click', close);
       sheet = h('div', 'pt-sheet ag-sheet'); sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true'); sheet.setAttribute('aria-label', 'Quick book');

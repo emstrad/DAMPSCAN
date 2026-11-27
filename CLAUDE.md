@@ -597,7 +597,20 @@ checks the mechanical ones.
   agent (referred_by, and estate_agent_id when they have the keys), then the
   website's own survey, times and pick steps; never a text to the agent. A
   search (address, postcode, buyer or number, forgiving) shows once they have
-  more than three properties. Week
+  more than three properties. Quick book's edges (the owner, 27 Nov 2026,
+  `test/agent-book-edges.test.js`, `test/agent-book-e2e.test.js` in a real
+  browser): who lets us in drives the customer's texts too (`agentLetsIn`: the
+  tenant or seller is never "confirmed with your estate agent"; nothing said
+  keeps the old meaning, an agent on the card); the same buyer (mobile or
+  email) at the same postcode with a survey still to come is shown that survey,
+  never booked twice, on Quick book and the website alike (`lib/booked-already.js`);
+  a landline or the agency's own number is not promised a text, the agency's
+  number is never texted however they came to us (the agent on the card or who
+  sent them) and makes the no-mobile to-do; names typed in a hurry are tidied;
+  "Leave it with us" tells the team at once as the agent's; "ATi Damp Survey
+  survey" reads once in every text. A day after a visit is over (its report
+  deadline), the card offers "Book another visit here": Quick book with the
+  property filled in. Week
   (`lib/company-week.js`, `company-week.js`, `?view=week`, the Monday briefing):
   last week against the week before, Needs you now, the week ahead day by day
   (a day opens Scheduling's plan, ?day=), customers to book and Ads this month;
